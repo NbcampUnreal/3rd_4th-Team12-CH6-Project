@@ -3,3 +3,7 @@
 
 #include "GameState/SKGameState.h"
 
+void ASKGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}

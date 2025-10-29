@@ -38,6 +38,10 @@ public:
 	
 	*/
 #pragma region AttributeSet
+	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Speed)
+	FGameplayAttributeData Speed;
+	ATTRIBUTE_ACCESSORS(USKAttributeSet, Speed)
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Health)
@@ -98,6 +102,10 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 #pragma region Replicated
+	UFUNCTION()
+	virtual void OnRep_Speed(const FGameplayAttributeData& OldSpeed);
+
+	
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
 

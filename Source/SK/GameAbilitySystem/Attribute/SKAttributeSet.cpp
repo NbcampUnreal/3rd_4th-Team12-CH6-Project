@@ -42,6 +42,11 @@ void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 }
 
+void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Speed, OldSpeed);
+}
+
 void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Health, OldHealth);

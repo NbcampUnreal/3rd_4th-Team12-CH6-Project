@@ -6,6 +6,10 @@
 #include "GameFramework/PlayerController.h"
 #include "SKPlayerController.generated.h"
 
+struct FInputActionValue;
+class UInputAction;
+class UInputMappingContext;
+
 /**
  * 
  */
@@ -13,5 +17,34 @@ UCLASS()
 class SK_API ASKPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	ASKPlayerController();
+
+
+protected:
+	virtual void BeginPlay() override; 
+	virtual void SetupInputComponent() override;
+
 	
+#pragma region IMA_AND_IA
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Input")
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Input")
+	TObjectPtr<UInputAction> MoveAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> LookAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> JumpAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> DashAction;
+private:
+	void Dash(const FInputActionValue& Value);
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void Jump(const FInputActionValue& Value);
+	void StopJumping();
+#pragma	endregion
 };

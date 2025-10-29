@@ -3,8 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
+#include "GameplayTagContainer.h"
+#include "SK.h"
 #include "GameFramework/Actor.h"
 #include "SKBaseObject.generated.h"
+
+class UAbilitySystemComponent;
+
+class USphereComponent;
+class UStaticMeshComponent;
+class UGameplayEffect;
 
 UCLASS()
 class SK_API ASKBaseObject : public AActor
@@ -15,12 +24,48 @@ public:
 	// Sets default values for this actor's properties
 	ASKBaseObject();
 
+	virtual void Tick(float DeltaTime) override;
+	
+	const FGameplayTagContainer& GetAllowedTeamTag() const { return AllowedTeamTag; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BlueprintNativeEvent)
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+						bool bFromSweep, const FHitResult& SweepResult);
 
+
+	void DefaultConstructor();
+	bool HasAllowedTeamTag(UAbilitySystemComponent* ASC) const;
+	
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "TFD|Components")
+	USphereComponent* CollisionComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "TFD|Components")
+	UStaticMeshComponent* MeshComp;
+
+	// 적용할 GameplayEffect (블루프린트에서 할당)
+	UPROPERTY(EditAnywhere, Category = "TFD|GAS")
+	TSubclassOf<UGameplayEffect> CollisionEffect;
+
+	UPROPERTY(EditAnywhere, Category="TFD|GAS")
+	FGameplayTag ItemTag;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="TFD|GAS")
+	FGameplayTagContainer AllowedTeamTag;
+
+	//시각적 투사체
+	UE_GET_SET_INIT(bool,bIsCosmetic,false,EditAnywhere,BlueprintReadWrite)
+
+private:
+	void SetAllowedTeamTag();
+	void ApplyEffectAndDestroy(UAbilitySystemComponent* ASC);
+private:
+	FGameplayTag OwnerTeamTag;
+	FTransform StartTransform = FTransform();
+	
 };

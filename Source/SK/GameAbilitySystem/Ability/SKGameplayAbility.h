@@ -13,5 +13,10 @@ UCLASS()
 class SK_API USKGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
-	
+
+public:
+	USKGameplayAbility();
+
+protected:	
+
 };
