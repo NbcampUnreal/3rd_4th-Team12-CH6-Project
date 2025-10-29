@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
-#include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 
 USKAttributeSet::USKAttributeSet()
 {
