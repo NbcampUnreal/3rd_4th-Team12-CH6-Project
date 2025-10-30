@@ -48,17 +48,26 @@ public:
 /**
  * 
  */
+USTRUCT(BlueprintType)
+struct FLayoutWithSlots
+{
+	GENERATED_BODY()
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Layout")
+	FLayoutData Layout;
+ 
+	// 이 Layout에 속한 슬롯 데이터 배열
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Layout")
+	TArray<FSlotWidgetData> Slots;
+};
+ 
 UCLASS()
 class SK_API UUILayoutDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
-	
+ 
 public:
-	// 단일 레이아웃
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Layout")
-	FLayoutData Layout;
-
-	// 슬롯 배열
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Slot")
-	TArray<FSlotWidgetData> Slots;	
+	// 복수 레이아웃 + 슬롯 데이터 저장
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Layouts")
+	TArray<FLayoutWithSlots> Layouts;
 };
