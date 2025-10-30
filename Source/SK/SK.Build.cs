@@ -17,15 +17,16 @@ public class SK : ModuleRules
 			"EnhancedInput"
 			
 			// UI
-			,"UMG", "Slate", "SlateCore", 
+			,"UMG", "Slate", "SlateCore", 			"CommonUI",
+			"Paper2D",
 			//GAS
 			"GameplayAbilities",       
 			"GameplayTags",            
 			"GameplayTasks",           
+			//AI
 			"Niagara", 
 			"AIModule",
 			"NavigationSystem",
-			"Paper2D",
 
 			// IP 관련 내용
 			"HTTP",				// 대문자로 수정! ("Http") // Module 'Http' (referenced via Target -> TFD.Build.cs) has incorrect text case. Did you mean 'HTTP'?
