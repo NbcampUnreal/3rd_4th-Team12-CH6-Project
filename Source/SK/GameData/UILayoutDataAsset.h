@@ -38,7 +38,7 @@ struct FSlotWidgetData
 public:
 	// 슬롯에 들어갈 위젯
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Slot")
-	TSubclassOf<UCommonActivatableWidget> WidgetClass;
+	TSubclassOf<UUserWidget> WidgetClass;
 
 	// 슬롯 식별용 태그
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Slot")
