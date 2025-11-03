@@ -7,6 +7,7 @@
 #include "GameData/SKSoundDataAsset.h"
 #include "SKGameInstance.generated.h"
 
+class UPrimaryDataAsset;
 /**
  * 
  */
@@ -50,4 +51,11 @@ public:
 	float SFXVolume = 1.f;
 
 	#pragma endregion
+
+	//임시. 추후 데이터 에셋 매니저 나오면 변경
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UPrimaryDataAsset> TestLayoutData;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UPrimaryDataAsset> TestConfirmData;
 };
