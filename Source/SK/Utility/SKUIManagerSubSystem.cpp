@@ -133,10 +133,10 @@ void USKUIManagerSubSystem::RequestConfirmUI(FDataTableRowHandle ConfirmUIDataRo
 	UE_LOG(LogTemp, Log, TEXT("[UIManager] ConfirmUIDataRow Info - Table: %s | Row: %s"),
 		*TableName, *RowName);
 
-	ConfirmLayoutWidgets[TAG_UI_Layout_TestConfirm]->SetVisibility(ESlateVisibility::Visible);
-	ConfirmLayoutWidgets[TAG_UI_Layout_TestConfirm]->ActivateWidget();
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Visible);
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->ActivateWidget();
 	
-	USKConfirmLayouWidget* ConfirmWidget = Cast<USKConfirmLayouWidget>(ConfirmLayoutWidgets[TAG_UI_Layout_TestConfirm]);
+	USKConfirmLayouWidget* ConfirmWidget = Cast<USKConfirmLayouWidget>(ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]);
 	if (!ConfirmWidget)
 		return;
 
@@ -146,8 +146,8 @@ void USKUIManagerSubSystem::RequestConfirmUI(FDataTableRowHandle ConfirmUIDataRo
 void USKUIManagerSubSystem::RequestResult(bool bResult)
 {
 	OnConfirmResult.Broadcast(bResult);
-	ConfirmLayoutWidgets[TAG_UI_Layout_TestConfirm]->SetVisibility(ESlateVisibility::Hidden);
-	ConfirmLayoutWidgets[TAG_UI_Layout_TestConfirm]->DeactivateWidget();
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Hidden);
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->DeactivateWidget();
 	LayoutWidgets[CurrentLayoutTag]->ActivateWidget();
 }
 

@@ -33,6 +33,9 @@ public:
 	void SettingLayout();
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
+	UAbilitySystemComponent* GetCachedASC() { return CachedASC; }
+	
+	UFUNCTION(BlueprintCallable, Category = "UI")
 	void RequestConfirmUI(FDataTableRowHandle ConfirmUIDataRow);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
