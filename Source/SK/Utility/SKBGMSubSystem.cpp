@@ -64,10 +64,12 @@ void USKBGMSubSystem::UpdateVolume()
 void USKBGMSubSystem::PlaySoundByTag(FGameplayTag& Tag, const FVector& Location)
 {
 	USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
-	if (!SKGI) return;
+	if (!SKGI)
+		return;
 
 	const TObjectPtr<USKSoundDataAsset>& SoundDataAsset = SKGI->GetSoundDataAsset();
-	if (!SoundDataAsset) return;
+	if (!SoundDataAsset)
+		return;
 
 	const FSKSoundData* FoundSound = SoundDataAsset->SoundList.FindByPredicate(
 		[&](const FSKSoundData& Data)
@@ -80,8 +82,7 @@ void USKBGMSubSystem::PlaySoundByTag(FGameplayTag& Tag, const FVector& Location)
 		UE_LOG(LogTemp, Warning, TEXT("No sound found for tag %s"), *Tag.ToString());
 		return;
 	}
-
-	// 🔹 풀에서 사용 가능한 컴포넌트 검색
+	
 	UAudioComponent* AvailableComp = nullptr;
 	for (UAudioComponent* Comp : SFXSoundPool)
 	{
@@ -117,9 +118,7 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 {
 	UGameInstance* GI = GetGameInstance();
 	USKGameInstance* SKGameInstance = Cast<USKGameInstance>(GI);
-
-
-
+	
 	if (!SKGameInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Invalid GameInstance in SoundSubsystem"));
@@ -141,12 +140,12 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 
 	if (!FoundSound)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("❌ SoundTag '%s' not found in SoundDataAsset"), *Tag.ToString());
+		UE_LOG(LogTemp, Warning, TEXT(" SoundTag '%s' not found in SoundDataAsset"), *Tag.ToString());
 		return;
 	}
 	if (!FoundSound->Sound)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("❌ Sound asset not assigned for tag: %s"), *Tag.ToString());
+		UE_LOG(LogTemp, Warning, TEXT(" Sound asset not assigned for tag: %s"), *Tag.ToString());
 		return;
 	}
 	if (!FoundSound->Sound->IsValidLowLevelFast())
@@ -163,8 +162,7 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 
 	// 새 BGM 재생
 	float FinalVolume = SKGameInstance->MasterVolume * SKGameInstance->BGMVolume;
-
-
+	
 	GetWorld()->GetTimerManager().SetTimerForNextTick([this, FoundSound, FinalVolume]()
 	{
 		BGMComponent = UGameplayStatics::SpawnSound2D(GetWorld(), FoundSound->Sound, FinalVolume, 1.0f, 0.0f, nullptr,

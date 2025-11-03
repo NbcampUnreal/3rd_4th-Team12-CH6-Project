@@ -18,27 +18,24 @@ class SK_API USKBGMSubSystem : public UGameInstanceSubsystem
 
 public:
 	USKBGMSubSystem();
+
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-	
-			
-	
 
-
-	void PlaySoundByTag( FGameplayTag& Tag, const FVector& Location);
-	void PlayBgmByTag( FGameplayTag& Tag);
+	void PlaySoundByTag(FGameplayTag& Tag, const FVector& Location);
+	void PlayBgmByTag(FGameplayTag& Tag);
 	void StopBGM();
 	void UpdateVolume();
 
 private:
 	bool IsRunningListenServer() const;
-	void OnPostLoadMap(UWorld* LoadedWorld);			// 레벨이 로드 될 때마다 해당 함수 호출(Bind)
+	void OnPostLoadMap(UWorld* LoadedWorld); // 레벨이 로드 될 때마다 해당 함수 호출(Bind)
 
 private:
-	UPROPERTY()
-	TObjectPtr<UAudioComponent> CurrentBGM;
-	
+	// UPROPERTY()
+	// TObjectPtr<UAudioComponent> CurrentBGM;
+
 	UPROPERTY()
 	TObjectPtr<UAudioComponent> BGMComponent;
 
@@ -48,5 +45,4 @@ private:
 	// 최대 풀 크기
 	UPROPERTY(EditAnywhere, Category="Sound Pool")
 	int32 MaxPoolSize = 20;
-	
 };
