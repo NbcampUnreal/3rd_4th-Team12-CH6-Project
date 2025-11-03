@@ -8,6 +8,15 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Monster, "Team.Monster");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Monster_Boss, "Team.Monster.Boss");
 
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability, "Ability");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash, "Ability.Dash");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash_Active, "Ability.Dash.Active");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_CoolDown, "Cooldown");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability, "Cooldown.Ability");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
+
+
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound, "Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM, "Sound.BGM");
