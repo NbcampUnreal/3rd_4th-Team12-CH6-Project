@@ -11,7 +11,21 @@ class USKSlotBox;
 class UAbilitySystemComponent;
 // 슬롯 데이터 변경 알림 델리게이트 선언
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSlotDataChanged);
- 
+
+USTRUCT(BlueprintType)
+struct FSlotEventBinding
+{
+	GENERATED_BODY()
+
+	// 해당 슬롯 태그
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SlotEvent")
+	FGameplayTag TargetSlotTag;
+
+	// 이 태그의 변경 이벤트를 감지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SlotEvent")
+	FGameplayTag EventTag;
+};
+
 /**
  * 레이아웃 위젯 베이스 클래스
  * - FSlotWidgetData 배열로 슬롯 데이터 저장 및 관리
@@ -25,7 +39,8 @@ public:
 	USKLayoutWidgetBase();
 
 	virtual void NativeConstruct() override;
- 
+	virtual void NativeDestruct() override;
+	
 	// 슬롯 데이터 변경 시 블루프린트에서 바인딩 가능한 이벤트
 	UPROPERTY(BlueprintAssignable, Category="Event")
 	FOnSlotDataChanged OnSlotDataChanged;
@@ -43,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Slot")
 	void ChangeVisibleSlotByTag(FGameplayTag ChangeSlotTag, bool bvisible);
+
+	UFUNCTION()
+	void OnGameplayTagChanged(const FGameplayTag Tag, int32 NewCount);
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Slot")
@@ -50,6 +68,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ActiveInput")
 	FUIInputConfig ActivaeInputConfig;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SlotEvent")
+	TArray<FSlotEventBinding> SlotEventBindings;
+
+	TMap<FGameplayTag, TArray<FDelegateHandle>> ASCEventHandles;
 	
 	UPROPERTY()
 	UAbilitySystemComponent* CachedASC = nullptr;
@@ -59,4 +82,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Slot")
 	USKSlotBox* FindDynamicEntryBoxBySlotTag(const FGameplayTag& InSlotTag) const;
+
+	UFUNCTION(BlueprintCallable, Category="Slot")
+	void UnregisterTagEvent();
 };

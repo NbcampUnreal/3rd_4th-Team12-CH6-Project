@@ -3,6 +3,7 @@
 
 #include "UI/SKLayoutWidgetBase.h"
 
+#include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/SKSlotBox.h"
@@ -42,10 +43,62 @@ void USKLayoutWidgetBase::NativeConstruct()
 	if (CachedASC)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Layout] Cached ASC O"));
+		for (const FSlotEventBinding& Binding : SlotEventBindings)
+		{
+			FDelegateHandle Handle = CachedASC->RegisterGameplayTagEvent(
+				Binding.EventTag, 
+				EGameplayTagEventType::AnyCountChange
+			).AddUObject(this, &USKLayoutWidgetBase::OnGameplayTagChanged);
+			
+			if (ASCEventHandles.Contains(Binding.EventTag))
+			{
+				ASCEventHandles[Binding.EventTag].Add(Handle);
+			}
+			else
+			{
+				ASCEventHandles.Add(Binding.EventTag, { Handle });
+			}
+
+			ChangeVisibleSlotByTag(Binding.TargetSlotTag, false);
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("[Layout] AbilitySystemComponent is null!"));
+	}
+}
+
+void USKLayoutWidgetBase::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	UnregisterTagEvent();
+}
+
+void USKLayoutWidgetBase::OnGameplayTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	for (const FSlotEventBinding& Binding : SlotEventBindings)
+	{
+		if (Binding.EventTag != Tag)
+			continue;
+
+		const FGameplayTag& SlotTag = Binding.TargetSlotTag;
+
+		if (NewCount == 1)
+		{
+			ChangeVisibleSlotByTag(SlotTag, true);
+		}
+		else if (NewCount == 0)
+		{
+			ChangeVisibleSlotByTag(SlotTag, false);
+		}
+		else if (NewCount > 1)
+		{
+			if (CachedASC && CachedASC->HasMatchingGameplayTag(Tag))
+			{
+				CachedASC->RemoveLooseGameplayTag(Tag);
+			}
+		}
 	}
 }
 
@@ -93,12 +146,40 @@ USKSlotBox* USKLayoutWidgetBase::FindDynamicEntryBoxBySlotTag(const FGameplayTag
 	return nullptr;
 }
 
-//Todo: 추후 Widget 설정에 TargetSlotTag와 TargetPlayerTag를 합쳐서 설정할 수 있는 변수를 넣고
-//해당 이벤트를 자동으로 설정하고 TargetPlayerTag가 들어오면 TargetSlotTag의 Slot의 표시 여부를 설정하는 방법으로 바꿀 계획
+void USKLayoutWidgetBase::UnregisterTagEvent()
+{
+	if (!CachedASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Layout] Cannot unregister tag events, CachedASC is null!"));
+		return;
+	}
+
+	// ASCEventHandles에 등록된 모든 이벤트 해제
+	for (auto& Pair : ASCEventHandles)
+	{
+		FGameplayTag EventTag = Pair.Key;
+		TArray<FDelegateHandle>& Handles = Pair.Value;
+
+		for (const FDelegateHandle& Handle : Handles)
+		{
+			CachedASC->UnregisterGameplayTagEvent(Handle,EventTag, EGameplayTagEventType::AnyCountChange);
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("[Layout] Unregistered EventTag: %s (handles: %d)"), *EventTag.ToString(), Handles.Num());
+	}
+
+	// 맵 초기화
+	ASCEventHandles.Empty();
+}
+
 void USKLayoutWidgetBase::ChangeVisibleSlotByTag(FGameplayTag ChangeSlotTag, bool bvisible)
 {
 	USKSlotBox* ChangeSlot = FindDynamicEntryBoxBySlotTag(ChangeSlotTag);
-	if (!ChangeSlot) return;
+	if (!ChangeSlot)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CangeSlot not found"));
+		return;
+	}
 
 	if (bvisible)
 	{
@@ -109,6 +190,8 @@ void USKLayoutWidgetBase::ChangeVisibleSlotByTag(FGameplayTag ChangeSlotTag, boo
 		ChangeSlot->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
+
+
 
 void USKLayoutWidgetBase::NotifySlotDataChanged() const
 {
