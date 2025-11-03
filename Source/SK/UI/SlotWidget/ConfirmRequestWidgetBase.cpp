@@ -32,6 +32,7 @@ void UConfirmRequestWidgetBase::ConfirmRequest()
 	bIsRequestConfirm = true;
 }
 
+//오버라이드 해서 사용
 void UConfirmRequestWidgetBase::HandleRequestResult(bool bResult)
 {
 	if (!bIsRequestConfirm)

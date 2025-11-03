@@ -25,7 +25,7 @@ protected:
 	void ConfirmRequest();
 
 	UFUNCTION(BlueprintCallable, Category = "ConfirmRequest")
-	void HandleRequestResult(bool bResult);
+	virtual void HandleRequestResult(bool bResult);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USKUIManagerSubSystem* CurrentUISubSystem;
