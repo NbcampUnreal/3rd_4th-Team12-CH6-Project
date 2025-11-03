@@ -29,3 +29,15 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby,"Sound.BGM.Lobby");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_00,"Sound.SFX.ATK_00");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_01,"Sound.SFX.ATK_01");
+
+
+//UI Tag
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout, "UI.Layout");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_InGame, "UI.Layout.InGame");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Test1, "UI.Layout.Test1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_TestConfirm, "UI.Layout.TestConfirm");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_TestSlot1, "UI.Slot.TestSlot1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_TestSlot2, "UI.Slot.TestSlot2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_TestSlot3, "UI.Slot.TestSlot3");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
