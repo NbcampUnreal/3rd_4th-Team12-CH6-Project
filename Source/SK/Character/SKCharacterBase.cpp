@@ -77,6 +77,7 @@ void ASKCharacterBase::SetDAPlayerStat()
 		return;
 	// AttributeSet의 초기값을 데이터 에셋의 값으로 설정
 	AttributeSet->SetSpeed(CharacterData->Speed);
+	AttributeSet->SetSprintWeight(CharacterData->SprintWeight);
 	AttributeSet->SetHealth(CharacterData->Health);
 	AttributeSet->SetMaxHealth(CharacterData->MaxHealth);
 	AttributeSet->SetStamina(CharacterData->Stamina);
