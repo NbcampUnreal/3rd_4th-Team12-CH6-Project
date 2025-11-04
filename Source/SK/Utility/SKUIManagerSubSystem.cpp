@@ -26,7 +26,9 @@ void USKUIManagerSubSystem::CreateLayoutWidget()
 		UE_LOG(LogTemp, Warning, TEXT("PlayerController is nullptr"));
 		return;
 	}
-
+	
+	RemoveLayout();
+	
 	CreateLayoutFromData(SwtichAbleLayoutData, PC);
 	
 	//기본으로 띄울 UI 태그
@@ -170,14 +172,18 @@ void USKUIManagerSubSystem::Deinitialize()
 //Layout 제거와 Layout 전환 이벤트 해제
 void USKUIManagerSubSystem::RemoveLayout()
 {
-	for (auto& LayoutPair : LayoutWidgets)
+	if (CachedASC)
 	{
-		if (LayoutPair.Value)
+		for (auto& LayoutPair : LayoutWidgets)
 		{
-			CachedASC->UnregisterGameplayTagEvent(LayoutTagDelegateHandles[LayoutPair.Key],LayoutPair.Key, EGameplayTagEventType::AnyCountChange);
-			LayoutPair.Value->RemoveFromParent();
+			if (LayoutPair.Value)
+			{
+				CachedASC->UnregisterGameplayTagEvent(LayoutTagDelegateHandles[LayoutPair.Key],LayoutPair.Key, EGameplayTagEventType::AnyCountChange);
+				LayoutPair.Value->RemoveFromParent();
+			}
 		}
 	}
+	
 	LayoutWidgets.Empty();
 	LayoutTagDelegateHandles.Empty();
 	SwitchableLayoutTags.Reset();
