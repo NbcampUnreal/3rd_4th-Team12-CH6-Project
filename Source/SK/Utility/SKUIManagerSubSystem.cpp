@@ -28,7 +28,8 @@ void USKUIManagerSubSystem::CreateLayoutWidget()
 	}
 
 	CreateLayoutFromData(SwtichAbleLayoutData, PC);
-	//기본으로 띄울 UI 태그 추가
+	
+	//기본으로 띄울 UI 태그
 	CachedASC->AddLooseGameplayTag(TAG_UI_Layout_InGame);
 
 	if (!ConfirmLayoutData)
@@ -39,7 +40,6 @@ void USKUIManagerSubSystem::CreateLayoutWidget()
 
 void USKUIManagerSubSystem::SetLayoutVisibeByTag(FGameplayTag LayoutTag)
 {
-	// 새로운 레이아웃 보여주기
 	if (!LayoutWidgets.Contains(LayoutTag))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Target layout widget not found: %s"), *LayoutTag.ToString());
@@ -63,7 +63,6 @@ void USKUIManagerSubSystem::SetLayoutHiddenByTag(FGameplayTag LayoutTag)
 	}
 	else
 	{
-		// 현재 레이아웃 숨기기
 		UCommonActivatableWidget* HiddenWidget = LayoutWidgets[LayoutTag];
 		if (HiddenWidget)
 		{
@@ -180,6 +179,7 @@ void USKUIManagerSubSystem::RemoveLayout()
 		}
 	}
 	LayoutWidgets.Empty();
+	LayoutTagDelegateHandles.Empty();
 	SwitchableLayoutTags.Reset();
 }
 
@@ -262,22 +262,21 @@ void USKUIManagerSubSystem::AddSwitchLayoutRegisterEvent(FGameplayTag RegisterTa
 {
 	if (!CachedASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CachedASC is nullptr. Cannot register gameplay tag event."));
+		UE_LOG(LogTemp, Warning, TEXT("ASC Null"));
 		return;
 	}
 
-	if (!this)
+	if (LayoutTagDelegateHandles.Contains(RegisterTag))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Subsystem instance is not valid."));
+		UE_LOG(LogTemp, Warning, TEXT("이미 등록된 태그."));
 		return;
 	}
-
+	
 	FDelegateHandle Handle = CachedASC->RegisterGameplayTagEvent(RegisterTag, EGameplayTagEventType::AnyCountChange)
 		.AddUObject(this, &USKUIManagerSubSystem::HandleSwitchLayout);
 
-	LayoutTagDelegateHandles.Add(RegisterTag, Handle);
-
-	UE_LOG(LogTemp, Log, TEXT("Registered GameplayTagEvent: %s, Handle valid: %s"), 
-	*RegisterTag.ToString(),
-	Handle.IsValid() ? TEXT("true") : TEXT("false"));
+	if (Handle.IsValid())
+	{
+		LayoutTagDelegateHandles.Add(RegisterTag, Handle);
+	}
 }

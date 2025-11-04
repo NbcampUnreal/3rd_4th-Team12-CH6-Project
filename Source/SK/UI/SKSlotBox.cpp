@@ -40,20 +40,31 @@ void USKSlotBox::OnSlotDataChanged()
 
 void USKSlotBox::SettingSlot()
 {
-	// 기존 엔트리 모두 제거 (슬레이트 위젯 완전 삭제)
-	ResetInternal(true);
-	CurrentSlotWidget = nullptr;
-	
+	if (!ParentLayoutWidget)
+	{
+		return;
+	}
+
 	const TArray<FSlotWidgetData>& AllSlots = ParentLayoutWidget->GetSlotData();
  
 	for (const FSlotWidgetData& SlotData : AllSlots)
 	{
 		if (SlotData.SlotTag == BoxSlotTag && SlotData.WidgetClass)
 		{
+			if (CurrentSlotWidget && CurrentSlotWidget->GetClass() == SlotData.WidgetClass)
+			{
+				UE_LOG(LogTemp, Log, TEXT("[SlotBox] 중복 생성 방지"));
+				return;
+			}
+			// 기존 엔트리 모두 제거 (슬레이트 위젯 완전 삭제)
+			ResetInternal(true);
 			UUserWidget* NewWidget = CreateEntryInternal(SlotData.WidgetClass);
 			CurrentSlotWidget = NewWidget;
-			UE_LOG(LogTemp, Log, TEXT("[SlotBox] Created widget: %s"), NewWidget ? *NewWidget->GetName() : TEXT("nullptr"));
-			break;
+			return;
 		}
 	}
+
+	ResetInternal(true);
+	CurrentSlotWidget = nullptr;
+	return;
 }
