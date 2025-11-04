@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Controller/SKPlayerController.h"
 #include "EnhancedInputSubsystems.h"
@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "Character/SKCharacterBase.h"
 #include "GameFramework/Character.h"
+#include "Utility/SKUIManagerSubSystem.h"
 
 ASKPlayerController::ASKPlayerController()
 {
@@ -21,6 +22,12 @@ void ASKPlayerController::BeginPlay()
 		check(DefaultMappingContext);
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
+	USKUIManagerSubSystem* UISubSystem = ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(GetLocalPlayer());
+	if (!UISubSystem) return;
+
+	UISubSystem->SettingLayout();
 }
 
 void ASKPlayerController::SetupInputComponent()
