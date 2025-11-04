@@ -65,7 +65,7 @@ protected:
 	UUILayoutDataAsset* ConfirmLayoutData;
 	
 	UFUNCTION()
-	void CreateaLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC);
+	void CreateLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC);
 
 	UFUNCTION(BlueprintCallable, Category="UI")
 	void HandleSwitchLayout(const FGameplayTag Tag, int32 NewCount);

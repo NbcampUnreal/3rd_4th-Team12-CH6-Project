@@ -27,14 +27,14 @@ void USKUIManagerSubSystem::CreateLayoutWidget()
 		return;
 	}
 
-	CreateaLayoutFromData(SwtichAbleLayoutData, PC);
+	CreateLayoutFromData(SwtichAbleLayoutData, PC);
 	//기본으로 띄울 UI 태그 추가
 	CachedASC->AddLooseGameplayTag(TAG_UI_Layout_InGame);
 
 	if (!ConfirmLayoutData)
 		return;
 
-	CreateaLayoutFromData(ConfirmLayoutData, PC);
+	CreateLayoutFromData(ConfirmLayoutData, PC);
 }
 
 void USKUIManagerSubSystem::SetLayoutVisibeByTag(FGameplayTag LayoutTag)
@@ -183,7 +183,7 @@ void USKUIManagerSubSystem::RemoveLayout()
 	SwitchableLayoutTags.Reset();
 }
 
-void USKUIManagerSubSystem::CreateaLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC)
+void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC)
 {
 	for (const FLayoutWithSlots& LayoutWithSlots : CreateData->Layouts)
 	{
