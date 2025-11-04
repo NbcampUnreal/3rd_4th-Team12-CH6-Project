@@ -44,8 +44,11 @@ class SK_API USKPlayerDataAsset : public UDataAsset
 public:
 #pragma region AttributeSet
 	//  체력 관련
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Health")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Speed")
 	float Speed = 700.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Speed")
+	float SprintWeight = 1.2f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Health")
 	float Health = 100.f;
