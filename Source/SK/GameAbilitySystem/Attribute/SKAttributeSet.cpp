@@ -2,7 +2,8 @@
 
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
-
+#include "GameplayEffectTypes.h"   // FGameplayEffectModCallbackData 포함
+#include "GameplayEffectExtension.h" // 일부 확장 관련 기능
 
 USKAttributeSet::USKAttributeSet()
 {
@@ -42,6 +43,26 @@ void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 }
 
+void USKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+	
+	const float NewHealth = GetHealth();
+	
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+	}
+	OnHealthChanged.Broadcast(
+			Data.EffectSpec.GetEffectContext().GetOriginalInstigator(),
+			Data.EffectSpec.GetEffectContext().GetEffectCauser(),
+			&Data.EffectSpec,
+			0,
+			0,
+			NewHealth
+		);
+}
+
 void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Speed, OldSpeed);
@@ -55,6 +76,8 @@ void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 void USKAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, MaxHealth, OldMaxHealth);
+
+	OnMaxHealthChanged.Broadcast(nullptr, nullptr, nullptr, GetMaxHealth() - OldMaxHealth.GetCurrentValue(), OldMaxHealth.GetCurrentValue(), GetMaxHealth());
 }
 
 void USKAttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina)
