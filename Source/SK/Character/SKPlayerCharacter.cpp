@@ -5,6 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Controller/SKPlayerController.h"
+#include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
@@ -57,6 +58,14 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
+}
+
+void ASKPlayerCharacter::SetSprinting(bool bSprinting)
+{
+	bIsSprinting = bSprinting;
+	float WalkSpeed=	AttributeSet->GetSpeed();
+	float SprintSpeed=	AttributeSet->GetSprintWeight() * WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? SprintSpeed : WalkSpeed;
 }
 
 
