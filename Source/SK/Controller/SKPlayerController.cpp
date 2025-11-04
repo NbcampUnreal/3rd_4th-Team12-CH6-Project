@@ -4,7 +4,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
+#include "ShaderPrintParameters.h"
 #include "Character/SKCharacterBase.h"
+#include "Character/SKPlayerCharacter.h"
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
 
@@ -43,6 +45,10 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopJumping);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Dash);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this,
+		                                   &ASKPlayerController::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
+		                                   &ASKPlayerController::StopSprint);
 	}
 }
 
@@ -60,7 +66,6 @@ void ASKPlayerController::Dash(const FInputActionValue& Value)
 	DashTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Dash")));
 
 	ASC->TryActivateAbilitiesByTag(DashTag);
-	
 }
 
 void ASKPlayerController::Move(const FInputActionValue& Value)
@@ -103,4 +108,47 @@ void ASKPlayerController::StopJumping()
 	{
 		pCharacter->StopJumping();
 	}
+}
+
+void ASKPlayerController::StartSprint(const FInputActionValue& Value)
+{
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+		return;
+
+	FGameplayTag SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Sprint"));
+	FGameplayTagContainer SprintTagContainer;
+	SprintTagContainer.AddTag(SprintTag);
+
+	ASC->TryActivateAbilitiesByTag(SprintTagContainer);
+}
+
+void ASKPlayerController::StopSprint(const FInputActionValue& Value)
+{
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+		return;
+
+	FGameplayTagContainer SprintTagContainer;
+	SprintTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Sprint")));
+
+	ASC->CancelAbilities(&SprintTagContainer);
+	
+
 }
