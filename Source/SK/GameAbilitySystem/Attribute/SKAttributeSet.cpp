@@ -18,6 +18,8 @@ USKAttributeSet::USKAttributeSet()
 	InitExp(10.f);
 	InitLevel(1.f);
 	InitGold(100.f);
+	InitSpeed(500.f);
+	InitSprintWeight(1.3f);
 		
 }
 
@@ -38,13 +40,19 @@ void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Attack, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Armor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Poise, COND_None, REPNOTIFY_Always);
-
+	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Speed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, SprintWeight, COND_None, REPNOTIFY_Always);
 
 }
 
 void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Speed, OldSpeed);
+}
+
+void USKAttributeSet::OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, SprintWeight, OldSprintWeight);
 }
 
 void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)

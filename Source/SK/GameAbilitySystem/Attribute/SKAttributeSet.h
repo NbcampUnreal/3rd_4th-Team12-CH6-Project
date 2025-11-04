@@ -34,6 +34,7 @@ public:
 	Heat,MaxHeat,
 	Exp,Level,Gold
 	Attack,Armor,
+	,Speed,SprintWeihgt(달리기 가중치)
 	Poiseness(강인도 100에 가까울수록 공격으로부터 회복빠름)
 	
 	*/
@@ -41,7 +42,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Speed)
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Speed)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Health)
@@ -96,6 +97,11 @@ public:
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Poise)
 
 
+	//달리기 가중치
+	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_SprintWeight)
+	FGameplayAttributeData SprintWeight;
+	ATTRIBUTE_ACCESSORS(USKAttributeSet, SprintWeight)
+
 #pragma endregion
 
 protected:
@@ -105,7 +111,7 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_Speed(const FGameplayAttributeData& OldSpeed);
 
-	
+
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
@@ -146,6 +152,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_Poise(const FGameplayAttributeData& OldPoise);
+
+	UFUNCTION()
+	virtual void OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight);
 
 #pragma endregion
 };
