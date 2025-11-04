@@ -14,18 +14,16 @@ public:
 
 	virtual void StartInitialLoading() override;
 
-protected:
-
-	// 동기 로드
+	static void DumpLoadedAssets();
+	
 	static UObject* SynchronousLoadAsset(const FSoftObjectPath& AssetPath);
-
-	// 비동기 로드
 	static void AsynchronousLoadAsset(const FSoftObjectPath& AssetPath, const FStreamableDelegate& OnLoaded);
 	
+protected:
+	
 	static bool ShouldLogAssetsLoads();
-
+	
 	void AddLoadedAssets(const UObject* Asset);
-
 
 private:
 	TSet<TObjectPtr<const UObject>> LoadedAssets;	
