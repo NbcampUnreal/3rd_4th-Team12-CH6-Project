@@ -2,7 +2,8 @@
 
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
-
+#include "GameplayEffectTypes.h"   // FGameplayEffectModCallbackData 포함
+#include "GameplayEffectExtension.h" // 일부 확장 관련 기능
 
 USKAttributeSet::USKAttributeSet()
 {
@@ -45,6 +46,41 @@ void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 }
 
+void USKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+}
+
+void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+
+	//Sever
+	if (Attribute == GetHealthAttribute())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Health1 Changed: OldValue: %f | NewValue: %f"), OldValue, NewValue);
+		OnHealthChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			NewValue - OldValue,
+			OldValue,
+			NewValue
+		);
+	}
+	else if (Attribute == GetStaminaAttribute())
+	{
+		OnStaminaChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			OldValue - NewValue,
+			OldValue,
+			NewValue
+		);
+	}
+}
+
 void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Speed, OldSpeed);
@@ -58,6 +94,15 @@ void USKAttributeSet::OnRep_SprintWeight(const FGameplayAttributeData& OldSprint
 void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Health, OldHealth);
+
+	OnHealthChanged.Broadcast(
+		nullptr,
+		nullptr,
+		nullptr,
+		GetHealth() - OldHealth.GetCurrentValue(),
+		OldHealth.GetCurrentValue(),
+		GetHealth()
+	);
 }
 
 void USKAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
@@ -68,6 +113,14 @@ void USKAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth
 void USKAttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Stamina, OldStamina);
+	OnStaminaChanged.Broadcast(
+		nullptr,
+		nullptr,
+		nullptr,
+		GetStamina() - OldStamina.GetCurrentValue(),
+		OldStamina.GetCurrentValue(),
+		GetStamina()
+	);
 }
 
 void USKAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)

@@ -52,6 +52,13 @@ void ASKPlayerController::SetupInputComponent()
 	}
 }
 
+void ASKPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	UE_LOG(LogTemp, Warning, TEXT("ASKPlayerController::OnPossess"));	
+	OnPawnPossessed.Broadcast(InPawn);;
+}
+
 void ASKPlayerController::Dash(const FInputActionValue& Value)
 {
 	ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
