@@ -52,6 +52,7 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 
+	//Sever
 	if (Attribute == GetHealthAttribute())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Health1 Changed: OldValue: %f | NewValue: %f"), OldValue, NewValue);
@@ -85,6 +86,15 @@ void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Health, OldHealth);
+
+	OnHealthChanged.Broadcast(
+		nullptr,
+		nullptr,
+		nullptr,
+		GetHealth() - OldHealth.GetCurrentValue(),
+		OldHealth.GetCurrentValue(),
+		GetHealth()
+	);
 }
 
 void USKAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
@@ -95,6 +105,14 @@ void USKAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth
 void USKAttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Stamina, OldStamina);
+	OnStaminaChanged.Broadcast(
+		nullptr,
+		nullptr,
+		nullptr,
+		GetStamina() - OldStamina.GetCurrentValue(),
+		OldStamina.GetCurrentValue(),
+		GetStamina()
+	);
 }
 
 void USKAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)
