@@ -33,6 +33,8 @@ public class SK : ModuleRules
 			"Json",				// (선택적 - JSON 파싱 시 필요)
 			"JsonUtilities",	// (선택적 - JSON 구조체 바인딩 시 필요)
 			
+			//폴더 내 에셋 리스트 검색
+			"AssetRegistry",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
