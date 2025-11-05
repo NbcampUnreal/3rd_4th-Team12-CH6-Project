@@ -112,10 +112,14 @@ public:
 	mutable FSKAttributeEvent OnHealthChanged;
 
 	mutable FSKAttributeEvent OnMaxHealthChanged;
+
+	mutable FSKAttributeEvent OnStaminaChanged;
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+	void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 #pragma region Replicated
 	UFUNCTION()
 	virtual void OnRep_Speed(const FGameplayAttributeData& OldSpeed);

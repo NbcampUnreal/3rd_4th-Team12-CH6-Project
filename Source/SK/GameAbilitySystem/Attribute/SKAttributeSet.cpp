@@ -46,21 +46,35 @@ void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void USKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
-	
-	const float NewHealth = GetHealth();
-	
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+}
+
+void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+
+	if (Attribute == GetHealthAttribute())
 	{
-		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-	}
-	OnHealthChanged.Broadcast(
-			Data.EffectSpec.GetEffectContext().GetOriginalInstigator(),
-			Data.EffectSpec.GetEffectContext().GetEffectCauser(),
-			&Data.EffectSpec,
-			0,
-			0,
-			NewHealth
+		UE_LOG(LogTemp, Log, TEXT("Health1 Changed: OldValue: %f | NewValue: %f"), OldValue, NewValue);
+		OnHealthChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			NewValue - OldValue,
+			OldValue,
+			NewValue
 		);
+	}
+	else if (Attribute == GetStaminaAttribute())
+	{
+		OnStaminaChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			OldValue - NewValue,
+			OldValue,
+			NewValue
+		);
+	}
 }
 
 void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
@@ -76,8 +90,6 @@ void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 void USKAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, MaxHealth, OldMaxHealth);
-
-	OnMaxHealthChanged.Broadcast(nullptr, nullptr, nullptr, GetMaxHealth() - OldMaxHealth.GetCurrentValue(), OldMaxHealth.GetCurrentValue(), GetMaxHealth());
 }
 
 void USKAttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina)

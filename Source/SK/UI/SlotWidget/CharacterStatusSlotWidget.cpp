@@ -44,6 +44,7 @@ void UCharacterStatusSlotWidget::PossessPawnChanged(APawn* ChangePawn)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] 바인드 초기화"));
 		AttributeSet->OnHealthChanged.RemoveAll(this);
+		AttributeSet->OnStaminaChanged.RemoveAll(this);
 		AttributeSet = nullptr;
 	}
 	
@@ -56,7 +57,7 @@ void UCharacterStatusSlotWidget::PossessPawnChanged(APawn* ChangePawn)
 	}
 	
 	AttributeSet->OnHealthChanged.AddUObject(this, &UCharacterStatusSlotWidget::HealthChanged);
-	HealthChanged(nullptr, nullptr, nullptr, 0, 0, AttributeSet->GetHealth());
+	AttributeSet->OnStaminaChanged.AddUObject(this, &UCharacterStatusSlotWidget::StaminaChanged);
 }
 
 void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
@@ -78,9 +79,32 @@ void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor*
 		EffectMagnitude, 
 		NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f));
 	
-	// 체력 비율 계산
 	const float Percent = NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f);
 
-	// ProgressBar 업데이트
 	HealthProgressBar->SetPercent(Percent);
+}
+
+void UCharacterStatusSlotWidget::StaminaChanged(AActor* EffectInstigator, AActor* EffectCauser,
+	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
+{
+	if (!StaminaProgressBar)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[StaminaChanged] StaminaProgressBar NO"));
+		return;
+	}
+	
+	if (!AttributeSet)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[StaminaChanged] AttributeSet NO"));
+		return;
+	}
+	UE_LOG(LogTemp, Log, TEXT("[StaminaChanged] Old: %.2f, New: %.2f, Delta: %.2f, Percent: %.2f"), 
+		OldValue, 
+		NewValue, 
+		EffectMagnitude, 
+		NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f));
+	
+	const float Percent = NewValue / FMath::Max(AttributeSet->GetMaxStamina(), 1.0f);
+
+	StaminaProgressBar->SetPercent(Percent);
 }
