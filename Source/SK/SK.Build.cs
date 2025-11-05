@@ -17,7 +17,7 @@ public class SK : ModuleRules
 			"EnhancedInput"
 			
 			// UI
-			,"UMG", "Slate", "SlateCore", 			"CommonUI",
+			,"UMG", "Slate", "SlateCore", "CommonUI", "CommonInput",
 			"Paper2D",
 			//GAS
 			"GameplayAbilities",       
@@ -37,7 +37,7 @@ public class SK : ModuleRules
 			"AssetRegistry",
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayDebugger" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -29,3 +29,14 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby,"Sound.BGM.Lobby");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_00,"Sound.SFX.ATK_00");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_01,"Sound.SFX.ATK_01");
+
+
+//UI Tag
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout, "UI.Layout");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_InGame, "UI.Layout.InGame");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EscapeMenu, "UI.Layout.EscapeMenu");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Confirm, "UI.Layout.Confirm");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterStatus, "UI.Slot.CharacterStatus");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GameExit, "UI.Slot.GameExit");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");

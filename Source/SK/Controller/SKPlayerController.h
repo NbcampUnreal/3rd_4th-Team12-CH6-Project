@@ -10,6 +10,7 @@ struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPawnPossessedSignature, APawn* /*PossessedPawn*/);
 /**
  * 
  */
@@ -21,11 +22,11 @@ class SK_API ASKPlayerController : public APlayerController
 public:
 	ASKPlayerController();
 
-
+	FOnPawnPossessedSignature OnPawnPossessed;
 protected:
 	virtual void BeginPlay() override; 
 	virtual void SetupInputComponent() override;
-
+	virtual void OnPossess(APawn* InPawn) override;
 	
 #pragma region IMA_AND_IA
 
