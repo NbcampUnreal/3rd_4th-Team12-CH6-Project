@@ -11,7 +11,7 @@
 // Sets default values
 ASKCharacterBase::ASKCharacterBase()
 {
- 	PrimaryActorTick.bCanEverTick = false; // 당장은 false
+	PrimaryActorTick.bCanEverTick = false; // 당장은 false
 
 	// ASC 생성
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
@@ -20,8 +20,6 @@ ASKCharacterBase::ASKCharacterBase()
 
 	// AttributeSet 생성
 	AttributeSet = CreateDefaultSubobject<USKAttributeSet>(TEXT("AttributeSet"));
-
-	
 }
 
 UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
@@ -32,7 +30,7 @@ UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
 void ASKCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME_CONDITION(ASKCharacterBase, CharacterData, COND_InitialOnly);
 }
 
@@ -72,7 +70,7 @@ void ASKCharacterBase::SetDAPlayerStat()
 {
 	if (!CharacterData.Get())
 		CharacterData.LoadSynchronous();
-	
+
 	if (!HasAuthority() || !CharacterData.Get())
 		return;
 	// AttributeSet의 초기값을 데이터 에셋의 값으로 설정
@@ -90,15 +88,15 @@ void ASKCharacterBase::SetDAPlayerStat()
 	AttributeSet->SetAttack(CharacterData->Attack);
 	AttributeSet->SetArmor(CharacterData->Armor);
 	AttributeSet->SetPoise(CharacterData->Poise);
-	
+
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed();
-	
+
 		// AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		// 	USKAttributeSet::GetSpeedAttribute()).AddUObject(this, &ASKCharacterBase::OnSpeedAttributeChanged);
 	}
-	
+
 	//JobDataAsset - Give Ability
 	for (const TSubclassOf<UGameplayAbility>& AbilityClass : CharacterData->StartupAbilities)
 	{
@@ -107,19 +105,30 @@ void ASKCharacterBase::SetDAPlayerStat()
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
 		}
 	}
-	
+
+	FGameplayEffectContextHandle Ctx = AbilitySystemComponent->MakeEffectContext();
+	//JobDataAsset - Give GE
+	for (const TSubclassOf<UGameplayEffect>& GameEffectClass : CharacterData->StartupGE)
+	{
+		if (GameEffectClass)
+		{
+			AbilitySystemComponent->ApplyGameplayEffectToSelf(GameEffectClass->GetDefaultObject<UGameplayEffect>(), 1.f, Ctx);
+		}
+	}
+
+
 	//JobDataAsset - 팀태그 넘겨주는 코드
 	if (CharacterData->GiveTeamtagEffect)
 	{
 		FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 		ContextHandle.AddSourceObject(this);
-	
+
 		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
 			CharacterData->GiveTeamtagEffect,
 			1.0f,
 			ContextHandle
 		);
-	
+
 		if (SpecHandle.IsValid())
 		{
 			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
@@ -131,13 +140,10 @@ void ASKCharacterBase::SetDAPlayerStat()
 void ASKCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void ASKCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
-
