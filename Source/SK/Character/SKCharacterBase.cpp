@@ -11,7 +11,7 @@
 // Sets default values
 ASKCharacterBase::ASKCharacterBase()
 {
-	PrimaryActorTick.bCanEverTick = false; // 당장은 false
+ 	PrimaryActorTick.bCanEverTick = false; // 당장은 false
 
 	// ASC 생성
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
