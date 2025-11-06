@@ -20,10 +20,11 @@ void USK_GA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	if (!Character)
 		return;
 
-
-	// 스태미나 소비용 타이머 시작
-	GetWorld()->GetTimerManager().SetTimer(StaminaTimerHandle, this, &USK_GA_Sprint::ConsumeStamina, 0.2f, true);
 	Character->SetSprinting(true);
+	ConsumeStamina();
+	
+	// 스태미나 소비용 타이머 시작
+	GetWorld()->GetTimerManager().SetTimer(StaminaTimerHandle, this, &USK_GA_Sprint::ConsumeStamina, 0.1f, true);
 }
 
 void USK_GA_Sprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -32,21 +33,16 @@ void USK_GA_Sprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
-	GetWorld()->GetTimerManager().ClearTimer(StaminaTimerHandle);
-
-	if (ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get()))
-	{
-		Character->SetSprinting(false);
-	}
+	EndSprint();
 }
 
 void USK_GA_Sprint::ConsumeStamina()
 {
 	ASKCharacterBase* Character = Cast<ASKCharacterBase>(GetAvatarActorFromActorInfo());
-	if (!Character) return;
+	if (!Character)
+		return;
 
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-
 	if (!ASC)
 		return;
 
@@ -58,6 +54,7 @@ void USK_GA_Sprint::ConsumeStamina()
 	const float CurrentStamina = ASC->GetNumericAttribute(USKAttributeSet::GetStaminaAttribute());
 	if (CurrentStamina <= 0.f)
 	{
+		EndSprint();
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
@@ -68,5 +65,17 @@ void USK_GA_Sprint::ConsumeStamina()
 	if (SpecHandle.IsValid())
 	{
 		ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	}
+}
+
+void USK_GA_Sprint::EndSprint()
+{
+	GetWorld()->GetTimerManager().ClearTimer(StaminaTimerHandle);
+
+
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (Character)
+	{
+		Character->SetSprinting(false);
 	}
 }

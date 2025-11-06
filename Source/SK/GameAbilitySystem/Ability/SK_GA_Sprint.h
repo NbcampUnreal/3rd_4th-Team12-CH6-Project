@@ -32,6 +32,7 @@ protected:
 	TSubclassOf<UGameplayEffect> SprintStaminaCostEffect;
 private:
 	void ConsumeStamina();
+	void EndSprint();
 	FTimerHandle StaminaTimerHandle;
 	
 };
