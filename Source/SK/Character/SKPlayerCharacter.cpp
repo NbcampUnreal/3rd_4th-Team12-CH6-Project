@@ -40,6 +40,7 @@ void ASKPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SetDAPlayerStat();
+	SetPlayerStateTag();
 	
 	if (AController* PC = GetController())
 	{
@@ -66,6 +67,49 @@ void ASKPlayerCharacter::SetSprinting(bool bSprinting)
 	float WalkSpeed=	AttributeSet->GetSpeed();
 	float SprintSpeed=	AttributeSet->GetSprintWeight() * WalkSpeed;
 	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? SprintSpeed : WalkSpeed;
+}
+
+void ASKPlayerCharacter::UpdateMovementTag()
+{
+	if (!AbilitySystemComponent)
+		return;
+
+	const float Speed = GetVelocity().Size();
+	const FGameplayTag IdleTag = FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Idle"));
+	const FGameplayTag MoveTag = FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Move"));
+
+
+	if (Speed > 5.f)
+	{
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(MoveTag))
+		{
+			AbilitySystemComponent->RemoveLooseGameplayTag(IdleTag);
+			AbilitySystemComponent->AddLooseGameplayTag(MoveTag);
+		}
+	}
+	else
+	{
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(IdleTag))
+		{
+			AbilitySystemComponent->RemoveLooseGameplayTag(MoveTag);
+			AbilitySystemComponent->AddLooseGameplayTag(IdleTag);
+		}
+	}
+}
+
+void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+	UpdateMovementTag(); // Idle/Move 상태 갱신 함수
+}
+
+void ASKPlayerCharacter::SetPlayerStateTag()
+{
+	// 주기적인 속도 체크를 위한 타이머 (틱 대신 사용)
+	GetWorldTimerManager().SetTimer(MovementCheckTimer, this, &ASKPlayerCharacter::UpdateMovementTag, 0.2f, true);
+
+	// 처음엔 Idle 상태 태그 추가
+	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Idle")));
 }
 
 
