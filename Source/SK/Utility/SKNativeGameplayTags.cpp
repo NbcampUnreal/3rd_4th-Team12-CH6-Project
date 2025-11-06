@@ -42,3 +42,12 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Confirm, "UI.Layout.Confirm");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterStatus, "UI.Slot.CharacterStatus");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GameExit, "UI.Slot.GameExit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
+
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState,		 "PlayerState");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Idle, "PlayerState.Idle");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Move, "PlayerState.Move");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Attack,  "PlayerState.Attack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Damaged, "PlayerState.Damaged");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Groggy, "PlayerState.Groggy");
