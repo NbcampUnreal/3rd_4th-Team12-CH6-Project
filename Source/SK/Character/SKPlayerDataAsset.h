@@ -94,8 +94,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
 	FGameplayTag TeamTag;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags|Effect")
-	TSubclassOf<UGameplayEffect> GiveTeamtagEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
 	FGameplayTagContainer AbilityTags;
@@ -109,6 +107,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
+	TArray<TSubclassOf<UGameplayEffect>> StartupGE;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags|Effect")
+	TSubclassOf<UGameplayEffect> GiveTeamtagEffect;
 	
 #pragma endregion
 	
