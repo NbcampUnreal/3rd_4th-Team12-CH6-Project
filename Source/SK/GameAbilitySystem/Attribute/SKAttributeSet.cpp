@@ -81,6 +81,43 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 	}
 }
 
+void USKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	//스태미나 
+	if (Attribute == GetStaminaAttribute())
+	{
+		//MaxStatmina 넘지않게 하기
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
+	}
+
+	// MaxHealth를 얻었을 경우 health또한 오르게 하기
+	if (Attribute == GetMaxHealthAttribute())
+	{
+		//NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+		float Delta = NewValue - GetMaxHealth();
+		SetHealth(GetHealth() + Delta);
+	}
+
+	//MaxStamina 관련
+	if (Attribute == GetMaxStaminaAttribute())
+	{
+		//NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
+		float Delta = NewValue - GetMaxStamina();
+		SetStamina(GetMaxStamina() + Delta);
+	}
+
+	//MaxHeat 관련
+	if (Attribute == GetMaxStaminaAttribute())
+	{
+		// = FMath::Clamp(NewValue, 0.f, GetMaxHeat());
+		float Delta = NewValue - GetMaxHeat();
+		SetHeat(GetMaxHeat() + Delta);
+	}
+	
+}
+
 void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Speed, OldSpeed);
