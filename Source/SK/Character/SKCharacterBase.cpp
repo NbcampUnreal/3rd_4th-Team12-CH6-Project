@@ -117,7 +117,11 @@ void ASKCharacterBase::SetDAPlayerStat()
 	}
 
 
-	//JobDataAsset - 팀태그 넘겨주는 코드
+	if (CharacterData->TeamTag.IsValid())
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(CharacterData->TeamTag);
+	}
+		
 	if (CharacterData->GiveTeamtagEffect)
 	{
 		FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
