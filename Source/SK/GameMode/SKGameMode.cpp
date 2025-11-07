@@ -27,7 +27,7 @@ void ASKGameMode::Tick(float DeltaTime)
 
 UDataTable* ASKGameMode::GetDTAllowedTeamTag()
 {
-	return AllowedTeamTags;
+	return DTAllowedTeamTags;
 }
 
 
@@ -36,14 +36,14 @@ FGameplayTagContainer ASKGameMode::GetDTAllowedTeamTagContainer(FGameplayTag Arg
 {
 	FGameplayTagContainer ResultContainer;
 
-	if (!AllowedTeamTags)
+	if (!DTAllowedTeamTags)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AllowTeamDataTable is not set."));
 		return ResultContainer;
 	}
 
 	TArray<FSKAllowTeamTag*> AllRows;
-	AllowedTeamTags->GetAllRows<FSKAllowTeamTag>(TEXT("GetAllRows"), AllRows);
+	DTAllowedTeamTags->GetAllRows<FSKAllowTeamTag>(TEXT("GetAllRows"), AllRows);
 
 	for (FSKAllowTeamTag* Row : AllRows)
 	{
@@ -66,13 +66,13 @@ TSubclassOf<AActor> ASKGameMode::GetDTAllowedTeamTag_Item(FGameplayTag ArgGamepl
 {
 	TSubclassOf<AActor> ResultItem;
 
-	if (!AllowedTeamTags)
+	if (!DTAllowedTeamTags)
 	{
 		return ResultItem;
 	}
 
 	TArray<FSKAllowTeamTag*> AllRows;
-	AllowedTeamTags->GetAllRows<FSKAllowTeamTag>(TEXT("GetAllRows"), AllRows);
+	DTAllowedTeamTags->GetAllRows<FSKAllowTeamTag>(TEXT("GetAllRows"), AllRows);
 
 	for (FSKAllowTeamTag* Row : AllRows)
 	{
@@ -95,13 +95,13 @@ float ASKGameMode::GetDTAllowedTeamTag_Period(FGameplayTag ArgGameplayTag)
 {
 	float result = 0.f;
 
-	if (!AllowedTeamTags)
+	if (!DTAllowedTeamTags)
 	{
 		return result;
 	}
 
 	TArray<FSKAllowTeamTag*> AllRows;
-	AllowedTeamTags->GetAllRows<FSKAllowTeamTag>(TEXT("GetAllRows"), AllRows);
+	DTAllowedTeamTags->GetAllRows<FSKAllowTeamTag>(TEXT("GetAllRows"), AllRows);
 
 	for (FSKAllowTeamTag* Row : AllRows)
 	{
