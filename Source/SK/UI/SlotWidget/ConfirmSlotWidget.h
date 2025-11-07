@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Blueprint/UserWidget.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
 #include "ConfirmSlotWidget.generated.h"
 
 class UTextBlock;
@@ -17,8 +19,7 @@ class SK_API UConfirmSlotWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, Category = "SlotWidget")
-	void SettingText(FConfirmUITextRow TextData);
+
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -52,4 +53,8 @@ protected:
 
 	UFUNCTION()
 	void HandleCancelClicked();
+
+	FSKGameplayMessageListenerHandle RequestConfirmHandle;
+
+	void OnRequestConfirmMessageReceived(FGameplayTag Channel, const FConfirmUIMessage& Message);
 };

@@ -20,12 +20,4 @@ public:
 	FDataTableRowHandle BackInputActionData;
 
 	FUIActionBindingHandle BackHandle;
-
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UDataTable> ConfirmUIDataTable;
-
-	UFUNCTION(BlueprintCallable, Category = "ConfirmLayout")
-	void SettingConfirmMesseage(FName RowName);
-
-	
 };
