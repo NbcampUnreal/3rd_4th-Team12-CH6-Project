@@ -5,7 +5,6 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
-#include "GameData/ConfirmUITextDataTable.h"
 #include "Utility/SKUIManagerSubSystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
