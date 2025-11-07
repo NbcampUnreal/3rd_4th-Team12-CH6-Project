@@ -55,6 +55,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category="TFD|GAS")
 	FGameplayTag ItemTag;
 
+	//충돌이펙트는 있지만 부서지지않게 하고싶을경우 false
+	UPROPERTY(EditAnywhere, Category="TFD|GAS")
+	bool bDestoryFlag  = true;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="TFD|GAS")
 	FGameplayTagContainer AllowedTeamTag;
 
