@@ -50,6 +50,9 @@ public:
 	
 	*/
 #pragma region AttributeSet
+	// 모든 Attribute들의 이전값
+	//TMap<FGameplayAttribute, float> CachedAttributeValue;
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Speed)
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Speed)
@@ -122,11 +125,14 @@ public:
 	mutable FSKAttributeEvent OnStaminaChanged;
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)override;
 
+	//attribute 값이 실제로 변경되기 직전
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)override;
+	//attribute 값이 실제로 변경되기 직후
+	void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+	//GE가 실행된 직후에만 호출
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
-	void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 #pragma region Replicated
 	UFUNCTION()
 	virtual void OnRep_Speed(const FGameplayAttributeData& OldSpeed);
