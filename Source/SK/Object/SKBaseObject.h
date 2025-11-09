@@ -42,24 +42,24 @@ protected:
 	bool HasAllowedTeamTag(UAbilitySystemComponent* ASC) const;
 	
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "TFD|Components")
+	UPROPERTY(VisibleAnywhere, Category = "SK|Components")
 	USphereComponent* CollisionComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "TFD|Components")
+	UPROPERTY(VisibleAnywhere, Category = "SK|Components")
 	UStaticMeshComponent* MeshComp;
 
 	// 적용할 GameplayEffect (블루프린트에서 할당)
-	UPROPERTY(EditAnywhere, Category = "TFD|GAS")
+	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TSubclassOf<UGameplayEffect> CollisionEffect;
 
-	UPROPERTY(EditAnywhere, Category="TFD|GAS")
+	UPROPERTY(EditAnywhere, Category="SK|GAS")
 	FGameplayTag ItemTag;
 
 	//충돌이펙트는 있지만 부서지지않게 하고싶을경우 false
-	UPROPERTY(EditAnywhere, Category="TFD|GAS")
+	UPROPERTY(EditAnywhere, Category="SK|GAS")
 	bool bDestoryFlag  = true;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="TFD|GAS")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|GAS")
 	FGameplayTagContainer AllowedTeamTag;
 
 	//시각적 투사체
