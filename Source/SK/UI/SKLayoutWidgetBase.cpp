@@ -120,29 +120,40 @@ void USKLayoutWidgetBase::OnSlotVisibilityMessageReceived(FGameplayTag Channel, 
 	if (Message.LayoutTag != LayoutTag)
 		return;
 
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+
+	FTimerManager& TimerManager = World->GetTimerManager();
+
 	for (const FGameplayTag& SlotTag : Message.SlotTags)
 	{
+		// 가시성 변경
 		ChangeVisibleSlotByTag(SlotTag, Message.bVisible);
 		UE_LOG(LogTemp, Log, TEXT("[Layout] SlotVisibilityMessage: %s -> %s"),
 			*SlotTag.ToString(), Message.bVisible ? TEXT("Visible") : TEXT("Hidden"));
-	}
 
-	if (Message.VisibleDuration > 0.f)
-	{
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(
-			TimerHandle,
-			FTimerDelegate::CreateLambda([this, Tags = Message.SlotTags, bVisible = Message.bVisible]()
-			{
-				for (const FGameplayTag& Tag : Tags)
+		// 기존 타이머가 있으면 초기화
+		if (FTimerHandle* ExistingHandle = SlotTimerHandles.Find(SlotTag))
+		{
+			TimerManager.ClearTimer(*ExistingHandle);
+		}
+
+		// 새 타이머 설정 (VisibleDuration이 0보다 큰 경우)
+		if (Message.VisibleDuration > 0.f)
+		{
+			FTimerHandle& NewHandle = SlotTimerHandles.FindOrAdd(SlotTag);
+			TimerManager.SetTimer(
+				NewHandle,
+				FTimerDelegate::CreateLambda([this, SlotTag, bVisible = Message.bVisible]()
 				{
-					ChangeVisibleSlotByTag(Tag, !bVisible);
-					UE_LOG(LogTemp, Log, TEXT("[Layout] Slot auto-hidden: %s"), *Tag.ToString());
-				}
-			}),
-			Message.VisibleDuration,
-			false
-		);
+					ChangeVisibleSlotByTag(SlotTag, !bVisible);
+					UE_LOG(LogTemp, Log, TEXT("[Layout] Slot auto-hidden: %s"), *SlotTag.ToString());
+				}),
+				Message.VisibleDuration,
+				false
+			);
+		}
 	}
 }
 

@@ -55,6 +55,8 @@ protected:
 	FUIInputConfig ActivaeInputConfig;
 
 	FGameplayTag LayoutTag;
+
+	TMap<FGameplayTag, FTimerHandle> SlotTimerHandles;
 	
 	FSKGameplayMessageListenerHandle SlotVisibleHandle;
 
