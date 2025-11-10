@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 //상수 정의용 클래스
-namespace SKGameConstants
+namespace SKConstant
 {
 	constexpr float MaxArmorValue = 1000.f;
 	constexpr float ArmorDamageDeclineRate = 100.f;

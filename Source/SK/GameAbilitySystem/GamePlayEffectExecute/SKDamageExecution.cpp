@@ -68,9 +68,9 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 	
 	//기본값 보정
 	AttackPower = FMath::Max(AttackPower,0.f);
-	ArmorPower = FMath::Clamp(ArmorPower,0.f,SKGameConstants::MaxArmorValue);
+	ArmorPower = FMath::Clamp(ArmorPower,0.f,SKConstant::MaxArmorValue);
 	
-	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKGameConstants::ArmorDamageDeclineRate));
+	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
 	const float FinalDamage  = AttackPower* DamageMultiplier;
 
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
