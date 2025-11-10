@@ -52,9 +52,9 @@ void USK_GA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 		// 대시 속도 = 거리 / 시간
 		FVector LaunchVel = DashDir * (DashDistance / FMath::Max(0.001f, DashDuration));
+		Character->LaunchCharacter(LaunchVel, true, true); // 대시 속도 조정
 		// 필요하면 기존 속도나 MaxWalkSpeed 저장
 		// PrevMaxWalkSpeed = MoveComp->MaxWalkSpeed;
-		Character->LaunchCharacter(LaunchVel, true, true); // 대시 속도 조정
 
 		UGameInstance* GI = GetWorld()->GetGameInstance();
 		USKGameInstance* SKGI = Cast<USKGameInstance>(GI);

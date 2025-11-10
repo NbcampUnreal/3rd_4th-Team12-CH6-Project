@@ -34,6 +34,6 @@ public:
 	float GetDTAllowedTeamTag_Period(FGameplayTag ArgGameplayTag);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|DataTable")
-	UDataTable* AllowedTeamTags;
+	UDataTable* DTAllowedTeamTags;
 #pragma endregion
 };

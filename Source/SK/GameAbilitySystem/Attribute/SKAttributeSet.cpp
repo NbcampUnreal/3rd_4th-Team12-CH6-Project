@@ -19,7 +19,8 @@ USKAttributeSet::USKAttributeSet()
 	InitExp(10.f);
 	InitLevel(1.f);
 	InitGold(100.f);
-		
+	InitSpeed(500.f);
+	InitSprintWeight(1.3f);
 }
 
 void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -30,7 +31,6 @@ void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Heat, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, MaxHeat, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Gold, COND_None, REPNOTIFY_Always);
@@ -39,18 +39,65 @@ void USKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Attack, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Armor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Poise, COND_None, REPNOTIFY_Always);
-
-
+	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, Speed, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USKAttributeSet, SprintWeight, COND_None, REPNOTIFY_Always);
 }
 
 void USKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+
+#pragma region Stat
+	//Health
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+	}
+	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
+	{
+		const float DeltaValue = Data.EvaluatedData.Magnitude;
+
+		// 현재 체력에 변화량만큼 더하기
+		SetHealth(FMath::Clamp(GetHealth() + DeltaValue, 0.0f, GetMaxHealth()));
+	}
+
+	//Stamina
+
+	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		SetStamina(FMath::Clamp(GetStamina(), 0.0f, GetMaxStamina()));
+	}
+	else if (Data.EvaluatedData.Attribute == GetMaxStaminaAttribute())
+	{
+		//변화량
+		const float DeltaValue = Data.EvaluatedData.Magnitude;
+
+		SetStamina(FMath::Clamp(GetStamina() + DeltaValue, 0.0f, GetMaxStamina()));
+	}
+	//Heat
+	if (Data.EvaluatedData.Attribute == GetHeatAttribute())
+	{
+		SetHeat(FMath::Clamp(GetHeat(), 0.0f, GetMaxHeat()));
+	}
+	else if (Data.EvaluatedData.Attribute == GetMaxHeatAttribute())
+	{
+		//변화량
+		const float DeltaValue = Data.EvaluatedData.Magnitude;
+
+		SetHeat(FMath::Clamp(GetHeat() + DeltaValue, 0.0f, GetMaxHeat()));
+	}
+#pragma endregion
 }
 
 void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+
+#pragma region Stat
+
+
+#pragma endregion
 
 	//Sever
 	if (Attribute == GetHealthAttribute())
@@ -78,9 +125,26 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 	}
 }
 
+void USKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	//스태미나 
+	if (Attribute == GetStaminaAttribute())
+	{
+		//MaxStatmina 넘지않게 하기
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
+	}
+}
+
 void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Speed, OldSpeed);
+}
+
+void USKAttributeSet::OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, SprintWeight, OldSprintWeight);
 }
 
 void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)

@@ -7,7 +7,8 @@
 #include "GameInstance/SKGameInstance.h"
 #include "GameData/UILayoutDataAsset.h"
 #include "CommonActivatableWidget.h"
-#include "UI/LayoutWidget/SKConfirmLayouWidget.h"
+#include "SKGameplayMessageSubsystem.h"
+#include "SKNativeGameplayTags.h"
 
 void USKUIManagerSubSystem::CreateLayoutWidget()
 {
@@ -32,7 +33,7 @@ void USKUIManagerSubSystem::CreateLayoutWidget()
 	CreateLayoutFromData(SwtichAbleLayoutData, PC);
 	
 	//기본으로 띄울 UI 태그
-	CachedASC->AddLooseGameplayTag(TAG_UI_Layout_InGame);
+	SetLayoutVisibeByTag(TAG_UI_Layout_InGame);
 
 	if (!ConfirmLayoutData)
 		return;
@@ -48,6 +49,8 @@ void USKUIManagerSubSystem::SetLayoutVisibeByTag(FGameplayTag LayoutTag)
 		return;
 	}
 
+	SetLayoutHiddenByTag(CurrentLayoutTag);
+	
 	UCommonActivatableWidget* VisibleWidget = LayoutWidgets[LayoutTag];
 	if (VisibleWidget)
 	{
@@ -106,87 +109,72 @@ void USKUIManagerSubSystem::SettingLayout()
 	APawn* Pawn = PC->GetPawn();
 	if (!Pawn)
 		return;
-
-	// Pawn에서 AbilitySystemComponent 가져오기
-	CachedASC = Pawn->FindComponentByClass<UAbilitySystemComponent>();
-	if (!CachedASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("USKUIManagerSubSystem::Initialize - AbilitySystemComponent not found on Pawn"));
-	}
-
-	CreateLayoutWidget();
-}
-
-void USKUIManagerSubSystem::RequestConfirmUI(FDataTableRowHandle ConfirmUIDataRow)
-{
-	if (!ConfirmUIDataRow.DataTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[UIManager] ConfirmUIDataRow.DataTable is null!"));
-		return;
-	}
-
-	// 데이터테이블 이름
-	FString TableName = ConfirmUIDataRow.DataTable->GetName();
-
-	// Row 이름
-	FString RowName = ConfirmUIDataRow.RowName.ToString();
-
-	UE_LOG(LogTemp, Log, TEXT("[UIManager] ConfirmUIDataRow Info - Table: %s | Row: %s"),
-		*TableName, *RowName);
-
-	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Visible);
-	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->ActivateWidget();
 	
-	USKConfirmLayouWidget* ConfirmWidget = Cast<USKConfirmLayouWidget>(ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]);
-	if (!ConfirmWidget)
-		return;
-
-	ConfirmWidget->SettingConfirmMesseage(ConfirmUIDataRow.RowName);
-}
-
-void USKUIManagerSubSystem::RequestResult(bool bResult)
-{
-	OnConfirmResult.Broadcast(bResult);
-	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Hidden);
-	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->DeactivateWidget();
-	LayoutWidgets[CurrentLayoutTag]->ActivateWidget();
-}
-
-FGameplayTagContainer USKUIManagerSubSystem::GetLayoutTags()
-{
-	return SwitchableLayoutTags;
+	CreateLayoutWidget();
 }
 
 void USKUIManagerSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+	
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+		
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if(!GameInstance)
+		return;
+		
+    USKGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+	if (!MessageSubsystem)
+		return;
+
+	// 메시지 구독
+    LayoutSwitchHandle = MessageSubsystem->RegisterListener<FSwitchLayoutMessage>(
+    	TAG_Message_Channel_SwitchLayout,
+    	this,
+    	&USKUIManagerSubSystem::OnSwitchLayoutMessageReceived
+    );
+
+	RequestConfirmHandle = MessageSubsystem->RegisterListener<FConfirmUIMessage>(
+		TAG_Message_Channel_RequestConfirm,
+		this,
+		&USKUIManagerSubSystem::OnRequestConfirmMessageReceived
+	);
+
+	ConfirmResponseHandle = MessageSubsystem->RegisterListener<FConfirmResponseMessage>(
+		TAG_Message_Channel_ConfirmResponse,
+		this,
+		&USKUIManagerSubSystem::OnConfirmResponseMessageReceived
+	);
 }
 
 void USKUIManagerSubSystem::Deinitialize()
 {
-	Super::Deinitialize();
-
 	RemoveLayout();
+	
+	Super::Deinitialize();
 }
 
 //Layout 제거와 Layout 전환 이벤트 해제
 void USKUIManagerSubSystem::RemoveLayout()
 {
-	if (CachedASC)
+	LayoutWidgets.Empty();
+
+	if (LayoutSwitchHandle.IsValid())
 	{
-		for (auto& LayoutPair : LayoutWidgets)
-		{
-			if (LayoutPair.Value)
-			{
-				CachedASC->UnregisterGameplayTagEvent(LayoutTagDelegateHandles[LayoutPair.Key],LayoutPair.Key, EGameplayTagEventType::AnyCountChange);
-				LayoutPair.Value->RemoveFromParent();
-			}
-		}
+		LayoutSwitchHandle.Unregister();
+	}
+
+	if (RequestConfirmHandle.IsValid())
+	{
+		RequestConfirmHandle.Unregister();
 	}
 	
-	LayoutWidgets.Empty();
-	LayoutTagDelegateHandles.Empty();
-	SwitchableLayoutTags.Reset();
+	if (ConfirmResponseHandle.IsValid())
+	{
+		ConfirmResponseHandle.Unregister();
+	}
 }
 
 void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC)
@@ -212,16 +200,10 @@ void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData,
 		// 뷰포트에 추가
 		LayoutWidget->AddToViewport();
 		//해당 Layout의 Slot 데이터 전달
-		LayoutWidget->SetSlotData(LayoutWithSlots.Slots);
+		LayoutWidget->SetSlotData(LayoutWithSlots.Slots, LayoutInfo.LayoutTag);
 
 		if (SwtichAbleLayoutData == CreateData)
 		{
-			//Layout 변경 이벤트 등록
-			AddSwitchLayoutRegisterEvent(LayoutInfo.LayoutTag);
-
-			//Set에 Layout 태그 추가
-			SwitchableLayoutTags.AddTag(LayoutInfo.LayoutTag);
-
 			//Map에 현재 레이아웃 태그와 위젯 추가
 			LayoutWidgets.Add(LayoutInfo.LayoutTag, LayoutWidget);
 		}
@@ -232,57 +214,38 @@ void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData,
 	}
 }
 
-/*
- * NewCount 1 이상 :이미 있을 경우 태그 추가 X
- * NewCount 0: Layout 비표시로 변경
- * NewCount 1: Layout 표시로 변경 및 다른 Layout 비표시로 변경
- */
-void USKUIManagerSubSystem::HandleSwitchLayout(const FGameplayTag Tag, int32 NewCount)
+void USKUIManagerSubSystem::OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message)
 {
-	if (NewCount > 1)
+	UE_LOG(LogTemp, Warning, TEXT("OnSwitchLayoutMessageReceived: Channel = %s | LayoutTag = %s | Visible = %s"),
+		*Channel.ToString(),
+		*Message.LayoutTag.ToString(),
+		Message.bVisible ? TEXT("True") : TEXT("False"));
+	
+	if (Message.bVisible)
 	{
-		CachedASC->RemoveLooseGameplayTag(Tag);
+		// 레이아웃 표시
+		SetLayoutVisibeByTag(Message.LayoutTag);
 	}
-	else if (NewCount == 0)
+	else
 	{
-		SetLayoutHiddenByTag(Tag);
-	}
-	else if (NewCount == 1)
-	{
-		SetLayoutVisibeByTag(Tag);
-
-		// SwitchableLayoutTags 컨테이너 내 태그 중, 현재 들어온 Tag 제외하고 ASC에서 제거
-		for (const FGameplayTag& OtherTag : SwitchableLayoutTags)
-		{
-			if (OtherTag != Tag)
-			{
-				CachedASC->RemoveLooseGameplayTag(OtherTag);
-				UE_LOG(LogTemp, Log, TEXT("Removed Layout Tag: %s"), *OtherTag.ToString());
-			}
-		}
-	}
-}
-
-//Layout Tag의 숫자가 변경 되었을 경우(추가 혹은 삭제) 실행되는 이벤트 등록
-void USKUIManagerSubSystem::AddSwitchLayoutRegisterEvent(FGameplayTag RegisterTag)
-{
-	if (!CachedASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ASC Null"));
-		return;
-	}
-
-	if (LayoutTagDelegateHandles.Contains(RegisterTag))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("이미 등록된 태그."));
-		return;
+		// 레이아웃 숨김
+		SetLayoutHiddenByTag(Message.LayoutTag);
 	}
 	
-	FDelegateHandle Handle = CachedASC->RegisterGameplayTagEvent(RegisterTag, EGameplayTagEventType::AnyCountChange)
-		.AddUObject(this, &USKUIManagerSubSystem::HandleSwitchLayout);
+}
 
-	if (Handle.IsValid())
-	{
-		LayoutTagDelegateHandles.Add(RegisterTag, Handle);
-	}
+void USKUIManagerSubSystem::OnRequestConfirmMessageReceived(FGameplayTag Channel, const FConfirmUIMessage& Message)
+{
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Visible);
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->ActivateWidget();
+	UE_LOG(LogTemp, Warning, TEXT("OnRequestConfirmMessageReceived"));
+}
+
+void USKUIManagerSubSystem::OnConfirmResponseMessageReceived(FGameplayTag Channel,
+	const FConfirmResponseMessage& Message)
+{
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Hidden);
+	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->DeactivateWidget();
+	LayoutWidgets[CurrentLayoutTag]->ActivateWidget();
+	UE_LOG(LogTemp, Warning, TEXT("OnConfirmResponseMessageReceived"));
 }
