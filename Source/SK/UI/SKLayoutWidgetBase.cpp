@@ -3,112 +3,57 @@
 
 #include "UI/SKLayoutWidgetBase.h"
 
-#include "AbilitySystemComponent.h"
-#include "AbilitySystemInterface.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/SKSlotBox.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USKLayoutWidgetBase::USKLayoutWidgetBase()
 {
-	bIsFocusable = true;
+
 }
 
 void USKLayoutWidgetBase::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
 	SetVisibility(ESlateVisibility::Hidden);
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[Layout] Owning PlayerController not found!"));
+
+	UWorld* World = GetWorld();
+	if (!World)
 		return;
-	}
-
-	APawn* Pawn = PC->GetPawn();
-	if (!Pawn)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[Layout] No Pawn found for PlayerController!"));
+		
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if(!GameInstance)
 		return;
-	}
-
-	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(Pawn);
-	if (!ASCInterface)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[Layout] Pawn does not implement AbilitySystemInterface!"));
+		
+	USKGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+	if (!MessageSubsystem)
 		return;
-	}
 
-	CachedASC = ASCInterface->GetAbilitySystemComponent();
-
-	if (CachedASC)
-	{
-		UE_LOG(LogTemp, Log, TEXT("[Layout] Cached ASC O"));
-		for (const FSlotEventBinding& Binding : SlotEventBindings)
-		{
-			FDelegateHandle Handle = CachedASC->RegisterGameplayTagEvent(
-				Binding.EventTag, 
-				EGameplayTagEventType::AnyCountChange
-			).AddUObject(this, &USKLayoutWidgetBase::OnGameplayTagChanged);
-			
-			if (ASCEventHandles.Contains(Binding.EventTag))
-			{
-				ASCEventHandles[Binding.EventTag].Add(Handle);
-			}
-			else
-			{
-				ASCEventHandles.Add(Binding.EventTag, { Handle });
-			}
-
-			ChangeVisibleSlotByTag(Binding.TargetSlotTag, false);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[Layout] AbilitySystemComponent is null!"));
-	}
+	// 메시지 구독
+	SlotVisibleHandle = MessageSubsystem->RegisterListener<FSlotVisibilityMessage>(
+		TAG_Message_Channel_SlotVisible,
+		this,
+		&USKLayoutWidgetBase::OnSlotVisibilityMessageReceived
+	);
 }
 
 void USKLayoutWidgetBase::NativeDestruct()
 {
 	Super::NativeDestruct();
-
-	UnregisterTagEvent();
 }
 
-void USKLayoutWidgetBase::OnGameplayTagChanged(const FGameplayTag Tag, int32 NewCount)
-{
-	for (const FSlotEventBinding& Binding : SlotEventBindings)
-	{
-		if (Binding.EventTag != Tag)
-			continue;
 
-		const FGameplayTag& SlotTag = Binding.TargetSlotTag;
-
-		if (NewCount == 1)
-		{
-			ChangeVisibleSlotByTag(SlotTag, true);
-		}
-		else if (NewCount == 0)
-		{
-			ChangeVisibleSlotByTag(SlotTag, false);
-		}
-		else if (NewCount > 1)
-		{
-			if (CachedASC && CachedASC->HasMatchingGameplayTag(Tag))
-			{
-				CachedASC->RemoveLooseGameplayTag(Tag);
-			}
-		}
-	}
-}
-
-void USKLayoutWidgetBase::SetSlotData(const TArray<FSlotWidgetData>& NewSlots)
+void USKLayoutWidgetBase::SetSlotData(const TArray<FSlotWidgetData>& NewSlots, FGameplayTag NewLayoutTag)
 {
 	SlotWidgetDataArray = NewSlots;
+	LayoutTag = NewLayoutTag;
 	NotifySlotDataChanged();
 }
 
-//ActiavteWidget을 했을 때 바뀔 것 들을 설정해야 함
+//ActivateWidget을 했을 때 바뀔 것 들을 설정해야 함
 TOptional<FUIInputConfig> USKLayoutWidgetBase::GetDesiredInputConfig() const
 {
 	/*
@@ -146,30 +91,9 @@ USKSlotBox* USKLayoutWidgetBase::FindDynamicEntryBoxBySlotTag(const FGameplayTag
 	return nullptr;
 }
 
-void USKLayoutWidgetBase::UnregisterTagEvent()
+void USKLayoutWidgetBase::NativeOnActivated()
 {
-	if (!CachedASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Layout] Cannot unregister tag events, CachedASC is null!"));
-		return;
-	}
-
-	// ASCEventHandles에 등록된 모든 이벤트 해제
-	for (auto& Pair : ASCEventHandles)
-	{
-		FGameplayTag EventTag = Pair.Key;
-		TArray<FDelegateHandle>& Handles = Pair.Value;
-
-		for (const FDelegateHandle& Handle : Handles)
-		{
-			CachedASC->UnregisterGameplayTagEvent(Handle,EventTag, EGameplayTagEventType::AnyCountChange);
-		}
-
-		UE_LOG(LogTemp, Log, TEXT("[Layout] Unregistered EventTag: %s (handles: %d)"), *EventTag.ToString(), Handles.Num());
-	}
-
-	// 맵 초기화
-	ASCEventHandles.Empty();
+	Super::NativeOnActivated();
 }
 
 void USKLayoutWidgetBase::ChangeVisibleSlotByTag(FGameplayTag ChangeSlotTag, bool bvisible)
@@ -177,7 +101,6 @@ void USKLayoutWidgetBase::ChangeVisibleSlotByTag(FGameplayTag ChangeSlotTag, boo
 	USKSlotBox* ChangeSlot = FindDynamicEntryBoxBySlotTag(ChangeSlotTag);
 	if (!ChangeSlot)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CangeSlot not found"));
 		return;
 	}
 
@@ -192,6 +115,36 @@ void USKLayoutWidgetBase::ChangeVisibleSlotByTag(FGameplayTag ChangeSlotTag, boo
 }
 
 
+void USKLayoutWidgetBase::OnSlotVisibilityMessageReceived(FGameplayTag Channel, const FSlotVisibilityMessage& Message)
+{
+	if (Message.LayoutTag != LayoutTag)
+		return;
+
+	for (const FGameplayTag& SlotTag : Message.SlotTags)
+	{
+		ChangeVisibleSlotByTag(SlotTag, Message.bVisible);
+		UE_LOG(LogTemp, Log, TEXT("[Layout] SlotVisibilityMessage: %s -> %s"),
+			*SlotTag.ToString(), Message.bVisible ? TEXT("Visible") : TEXT("Hidden"));
+	}
+
+	if (Message.VisibleDuration > 0.f)
+	{
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(
+			TimerHandle,
+			FTimerDelegate::CreateLambda([this, Tags = Message.SlotTags, bVisible = Message.bVisible]()
+			{
+				for (const FGameplayTag& Tag : Tags)
+				{
+					ChangeVisibleSlotByTag(Tag, !bVisible);
+					UE_LOG(LogTemp, Log, TEXT("[Layout] Slot auto-hidden: %s"), *Tag.ToString());
+				}
+			}),
+			Message.VisibleDuration,
+			false
+		);
+	}
+}
 
 void USKLayoutWidgetBase::NotifySlotDataChanged() const
 {

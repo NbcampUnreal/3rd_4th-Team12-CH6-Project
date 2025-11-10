@@ -185,11 +185,10 @@ void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData,
 		// 뷰포트에 추가
 		LayoutWidget->AddToViewport();
 		//해당 Layout의 Slot 데이터 전달
-		LayoutWidget->SetSlotData(LayoutWithSlots.Slots);
+		LayoutWidget->SetSlotData(LayoutWithSlots.Slots, LayoutInfo.LayoutTag);
 
 		if (SwtichAbleLayoutData == CreateData)
 		{
-
 			//Map에 현재 레이아웃 태그와 위젯 추가
 			LayoutWidgets.Add(LayoutInfo.LayoutTag, LayoutWidget);
 		}
@@ -224,6 +223,7 @@ void USKUIManagerSubSystem::OnRequestConfirmMessageReceived(FGameplayTag Channel
 {
 	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Visible);
 	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->ActivateWidget();
+	UE_LOG(LogTemp, Warning, TEXT("OnRequestConfirmMessageReceived"));
 }
 
 void USKUIManagerSubSystem::OnConfirmResponseMessageReceived(FGameplayTag Channel,
@@ -232,4 +232,5 @@ void USKUIManagerSubSystem::OnConfirmResponseMessageReceived(FGameplayTag Channe
 	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->SetVisibility(ESlateVisibility::Hidden);
 	ConfirmLayoutWidgets[TAG_UI_Layout_Confirm]->DeactivateWidget();
 	LayoutWidgets[CurrentLayoutTag]->ActivateWidget();
+	UE_LOG(LogTemp, Warning, TEXT("OnConfirmResponseMessageReceived"));
 }

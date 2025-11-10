@@ -24,12 +24,20 @@ void UEscapeMenuLayoutWidget::HandleEscapeMenuAction()
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
 		{
 			// 전송할 메시지 생성
-			FSwitchLayoutMessage Message(TAG_UI_Layout_InGame, true);
+			FSwitchLayoutMessage SwitchMessage(TAG_UI_Layout_InGame, true);
 
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, SwitchMessage);
 
-			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *SwitchMessage.LayoutTag.ToString());
+
+			FSlotVisibilityMessage VisibilityMessage;
+			VisibilityMessage.LayoutTag = TAG_UI_Layout_InGame;
+			VisibilityMessage.SlotTags.AddTag(TAG_UI_Slot_CharacterStatus);
+			VisibilityMessage.bVisible = true;
+			VisibilityMessage.VisibleDuration = 3.0f;
+
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible,	VisibilityMessage);
 		}
 	}
 }

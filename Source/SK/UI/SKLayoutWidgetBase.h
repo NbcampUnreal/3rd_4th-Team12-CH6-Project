@@ -5,26 +5,14 @@
 #include "CoreMinimal.h"
 #include "CommonActivatableWidget.h"
 #include "GameData/UILayoutDataAsset.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
 #include "SKLayoutWidgetBase.generated.h"
 
 class USKSlotBox;
 class UAbilitySystemComponent;
 // 슬롯 데이터 변경 알림 델리게이트 선언
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSlotDataChanged);
-
-USTRUCT(BlueprintType)
-struct FSlotEventBinding
-{
-	GENERATED_BODY()
-
-	// 해당 슬롯 태그
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SlotEvent")
-	FGameplayTag TargetSlotTag;
-
-	// 이 태그의 변경 이벤트를 감지
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SlotEvent")
-	FGameplayTag EventTag;
-};
 
 /**
  * 레이아웃 위젯 베이스 클래스
@@ -47,7 +35,7 @@ public:
  
 	// 슬롯 데이터 Set 함수
 	UFUNCTION(BlueprintCallable, Category="Slot")
-	void SetSlotData(const TArray<FSlotWidgetData>& NewSlots);
+	void SetSlotData(const TArray<FSlotWidgetData>& NewSlots, FGameplayTag NewLayoutTag);
  
 	// 슬롯 데이터 Get 함수
 	UFUNCTION(BlueprintCallable, Category="Slot")
@@ -58,9 +46,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Slot")
 	void ChangeVisibleSlotByTag(FGameplayTag ChangeSlotTag, bool bvisible);
-
-	UFUNCTION()
-	void OnGameplayTagChanged(const FGameplayTag Tag, int32 NewCount);
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Slot")
@@ -69,13 +54,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ActiveInput")
 	FUIInputConfig ActivaeInputConfig;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SlotEvent")
-	TArray<FSlotEventBinding> SlotEventBindings;
-
-	TMap<FGameplayTag, TArray<FDelegateHandle>> ASCEventHandles;
+	FGameplayTag LayoutTag;
 	
-	UPROPERTY()
-	UAbilitySystemComponent* CachedASC = nullptr;
+	FSKGameplayMessageListenerHandle SlotVisibleHandle;
+
+	void OnSlotVisibilityMessageReceived(FGameplayTag Channel, const FSlotVisibilityMessage& Message);
 	
 	// 슬롯 데이터 변경 알림 함수(내부 호출용)
 	void NotifySlotDataChanged() const;
@@ -83,6 +66,5 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Slot")
 	USKSlotBox* FindDynamicEntryBoxBySlotTag(const FGameplayTag& InSlotTag) const;
 
-	UFUNCTION(BlueprintCallable, Category="Slot")
-	void UnregisterTagEvent();
+	virtual void NativeOnActivated() override;
 };

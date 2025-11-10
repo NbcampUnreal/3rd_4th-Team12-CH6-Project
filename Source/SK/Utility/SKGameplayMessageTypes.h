@@ -93,3 +93,24 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bAccepted;
 };
+
+USTRUCT(BlueprintType)
+struct FSlotVisibilityMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	FGameplayTag LayoutTag;
+
+	/** 여러 슬롯을 한 번에 제어할 수 있음 */
+	UPROPERTY(BlueprintReadWrite)
+	FGameplayTagContainer SlotTags;
+
+	/** true면 표시, false면 숨김 */
+	UPROPERTY(BlueprintReadWrite)
+	bool bVisible = true;
+
+	/** 표시 지속 시간 (0이면 무제한 표시) */
+	UPROPERTY(BlueprintReadWrite)
+	float VisibleDuration = 0.0f;
+};

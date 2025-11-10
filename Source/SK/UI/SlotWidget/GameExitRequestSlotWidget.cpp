@@ -53,6 +53,14 @@ void UGameExitRequestSlotWidget::OnContinueClicked()
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
 
 			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+
+			FSlotVisibilityMessage VisibilityMessage;
+			VisibilityMessage.LayoutTag = TAG_UI_Layout_InGame;
+			VisibilityMessage.SlotTags.AddTag(TAG_UI_Slot_CharacterStatus);
+			VisibilityMessage.bVisible = true;
+			VisibilityMessage.VisibleDuration = 3.0f;
+
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible,	VisibilityMessage);
 		}
 	}	
 }
