@@ -60,16 +60,17 @@ bool ASKBaseObject::HasAllowedTeamTag(UAbilitySystemComponent* ASC) const
 
 
 void ASKBaseObject::OnOverlapBegin_Implementation(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                                  const FHitResult& SweepResult)
 {
-	
-	// Cosmetic 전용이면 시각 효과만 처리하고 파괴
 	if (bIsCosmetic)
 	{
 		ASKCharacterBase* Player = Cast<ASKCharacterBase>(OtherActor);
 		if (Player)
-		{// 충돌 감지 시 시각적으로만 사라짐
-			UE_LOG(LogTemp, Log, TEXT("[ATFDBaseObject][OnOverlapBegin] Cosmetic Projectile Hit detected, destroying visual"));
+		{
+			// 충돌 감지 시 시각적으로만 사라짐
+			UE_LOG(LogTemp, Log,
+			       TEXT("[ATFDBaseObject][OnOverlapBegin] Cosmetic Projectile Hit detected, destroying visual"));
 			Destroy();
 		}
 		return;
@@ -86,12 +87,12 @@ void ASKBaseObject::OnOverlapBegin_Implementation(UPrimitiveComponent* Overlappe
 	if (!ASC)
 		return;
 
+
 	if (!HasAllowedTeamTag(ASC))
 		return;
 
 	// 실제 로직 실행
 	ApplyEffectAndDestroy(ASC);
-	
 }
 
 void ASKBaseObject::SetAllowedTeamTag()
@@ -100,7 +101,7 @@ void ASKBaseObject::SetAllowedTeamTag()
 	if (!pGameMode)
 		return;
 
-//	AllowedTeamTag = pGameMode->GetDTAllowedTeamTagContainer(ItemTag);
+	AllowedTeamTag = pGameMode->GetDTAllowedTeamTagContainer(ItemTag);
 }
 
 void ASKBaseObject::ApplyEffectAndDestroy(UAbilitySystemComponent* ASC)
@@ -109,13 +110,14 @@ void ASKBaseObject::ApplyEffectAndDestroy(UAbilitySystemComponent* ASC)
 	ASC->ApplyGameplayEffectToSelf(CollisionEffect.GetDefaultObject(), 1.f, ASC->MakeEffectContext());
 
 	// 오브젝트 파괴
-	Destroy();
+	if (bDestoryFlag)
+	{
+		Destroy();
+	}
 }
 
 // Called every frame
 void ASKBaseObject::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-
