@@ -4,6 +4,19 @@
 #include "UObject/Interface.h"
 #include "IInteractable.generated.h"
 
+USTRUCT(BlueprintType)
+struct FInteractionData
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName InteractionName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAnimMontage> AnimationMontage;
+	
+};
+
 UINTERFACE(MinimalAPI)
 class UInteractable : public UInterface
 {
