@@ -160,6 +160,21 @@ void USKUIManagerSubSystem::Deinitialize()
 void USKUIManagerSubSystem::RemoveLayout()
 {
 	LayoutWidgets.Empty();
+
+	if (LayoutSwitchHandle.IsValid())
+	{
+		LayoutSwitchHandle.Unregister();
+	}
+
+	if (RequestConfirmHandle.IsValid())
+	{
+		RequestConfirmHandle.Unregister();
+	}
+	
+	if (ConfirmResponseHandle.IsValid())
+	{
+		ConfirmResponseHandle.Unregister();
+	}
 }
 
 void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC)

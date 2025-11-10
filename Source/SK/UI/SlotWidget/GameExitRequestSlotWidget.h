@@ -20,6 +20,7 @@ class SK_API UGameExitRequestSlotWidget : public UUserWidget
 protected:
 	// 위젯 생성 시 바인딩
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* ContinueButton;

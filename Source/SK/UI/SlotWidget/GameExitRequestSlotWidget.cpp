@@ -40,6 +40,16 @@ void UGameExitRequestSlotWidget::NativeConstruct()
 	);
 }
 
+void UGameExitRequestSlotWidget::NativeDestruct()
+{
+	if (ConfirmResponseHandle.IsValid())
+	{
+		ConfirmResponseHandle.Unregister();
+	}
+	
+	Super::NativeDestruct();
+}
+
 void UGameExitRequestSlotWidget::OnContinueClicked()
 {
 	if (UWorld* World = GetWorld())

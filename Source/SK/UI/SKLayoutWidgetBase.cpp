@@ -42,6 +42,11 @@ void USKLayoutWidgetBase::NativeConstruct()
 
 void USKLayoutWidgetBase::NativeDestruct()
 {
+	if (SlotVisibleHandle.IsValid())
+	{
+		SlotVisibleHandle.Unregister();
+	}
+	
 	Super::NativeDestruct();
 }
 
