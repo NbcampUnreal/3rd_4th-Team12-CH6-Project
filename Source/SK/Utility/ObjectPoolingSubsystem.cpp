@@ -30,16 +30,19 @@ void UObjectPoolingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
     if (DefaultConfigAsset)
     {
-        InitializeFromDataAsset(DefaultConfigAsset);
         UE_LOG(LogTemp, Log, TEXT("[ObjectPoolingSubsystem] Pool initialized from asset: %s"), *DefaultConfigAsset->GetName());
+        InitializeFromDataAsset(DefaultConfigAsset);
     }
 }
 
 void UObjectPoolingSubsystem::InitializeFromDataAsset(UObjectPoolDataAsset* ConfigAsset)
 {
-    if (!ConfigAsset || !GetWorld()) return;
-
     UWorld* World = GetWorld();
+    if (!ConfigAsset || !World)
+    {
+        UE_LOG(LogTemp, Log, TEXT("[ObjectPoolingSubsystem] null"));
+        return;
+    }
 
     // 🔹 컴포넌트 풀용 루트 액터 생성
     if (!ComponentRootActor)
@@ -54,11 +57,15 @@ void UObjectPoolingSubsystem::InitializeFromDataAsset(UObjectPoolDataAsset* Conf
         // Actor Pool 초기화
         if (Config.ActorClass.IsValid())
         {
-            ActorPool.InitializePool(World, Config.PreloadCount, 
+            ActorPool.InitializePool(
+                World,
+                Config.PreloadCount, 
                 [Class = Config.ActorClass](UWorld* W)
                 {
                     return W->SpawnActor<AActor>(Class.LoadSynchronous(), FVector::ZeroVector, FRotator::ZeroRotator);
-                });
+                },
+                PoolActionDefine::Actor::Deactivate
+            );
             UE_LOG(LogTemp, Warning, TEXT("[ObjectPoolingSubsystem] pools from DataAsset: %s"), *Config.ActorClass->GetName());
         }
     }
@@ -68,15 +75,19 @@ void UObjectPoolingSubsystem::InitializeFromDataAsset(UObjectPoolDataAsset* Conf
     {
         if (Config.SoundAsset.IsValid())
         {
-            SoundPool.InitializePool(World, Config.PreloadCount,
+            SoundPool.InitializePool(
+                World,
+                Config.PreloadCount,
                 [this, Sound = Config.SoundAsset](UWorld* W)
                 {
                     UAudioComponent* Comp = NewObject<UAudioComponent>(ComponentRootActor);
-                    Comp->SetSound(Sound.LoadSynchronous());
+                    Comp->SetSound(Sound.Get());
                     Comp->bAutoActivate = false;
                     Comp->RegisterComponent();
                     return Comp;
-                });
+                },
+                PoolActionDefine::Audio::Deactivate
+            );
             UE_LOG(LogTemp, Warning, TEXT("[ObjectPoolingSubsystem] pools from DataAsset: %s"), *Config.SoundAsset->GetName());
         }
     }
@@ -86,16 +97,18 @@ void UObjectPoolingSubsystem::InitializeFromDataAsset(UObjectPoolDataAsset* Conf
     {
         if (Config.NiagaraAsset.IsValid())
         {
-            NiagaraPool.InitializePool(World, Config.PreloadCount,
+            NiagaraPool.InitializePool(
+                World,
+                Config.PreloadCount,
                 [this, System = Config.NiagaraAsset](UWorld* W)
                 {
-                    UNiagaraSystem* Niagara = System.LoadSynchronous();
-                    if (!Niagara) return (UNiagaraComponent*)nullptr;
+                    //UNiagaraSystem* Niagara = System.LoadSynchronous();
+                    //if (!Niagara) return (UNiagaraComponent*)nullptr;
 
                     // 🔹 미리 스폰해서 풀에 등록
                     UNiagaraComponent* Comp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
                         W,
-                        Niagara,
+                        System.Get(),
                         FVector::ZeroVector,
                         FRotator::ZeroRotator,
                         FVector(1.f),
@@ -108,7 +121,9 @@ void UObjectPoolingSubsystem::InitializeFromDataAsset(UObjectPoolDataAsset* Conf
                     Comp->SetAutoActivate(false);
                     Comp->SetActive(false);
                     return Comp;
-                });
+                },
+                PoolActionDefine::Niagara::Deactivate
+            );
             UE_LOG(LogTemp, Warning, TEXT("[ObjectPoolingSubsystem] pools from DataAsset: %s"), *Config.NiagaraAsset->GetName());
         }
     }
@@ -120,6 +135,13 @@ void UObjectPoolingSubsystem::Deinitialize()
     ActorPool.ClearAllPools();
     SoundPool.ClearAllPools();
     NiagaraPool.ClearAllPools();
+
+    // Root Actor 제거
+    if (IsValid(ComponentRootActor))
+    {
+        ComponentRootActor->Destroy();
+        ComponentRootActor = nullptr;
+    }
     
     UE_LOG(LogTemp, Log, TEXT("[UObjectPoolingSubsystem] All Pools Cleared"));
     Super::Deinitialize();

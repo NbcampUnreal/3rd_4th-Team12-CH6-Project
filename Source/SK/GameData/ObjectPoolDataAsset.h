@@ -18,7 +18,7 @@ struct FActorPoolConfig
 	TSoftClassPtr<AActor> ActorClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pooling")
-	int32 PreloadCount = 5;
+	int32 PreloadCount = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -30,7 +30,7 @@ struct FSoundPoolConfig
 	TSoftObjectPtr<USoundBase> SoundAsset;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pooling")
-	int32 PreloadCount = 5;
+	int32 PreloadCount = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -42,7 +42,7 @@ struct FNiagaraPoolConfig
 	TSoftObjectPtr<UNiagaraSystem> NiagaraAsset;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pooling")
-	int32 PreloadCount = 5;
+	int32 PreloadCount = 0;
 };
 
 /** 풀링 설정 전체를 관리하는 DataAsset */
@@ -60,4 +60,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pooling")
 	TArray<FNiagaraPoolConfig> NiagaraPools;
+	
+	// DataAsset 로드 후 자동 SoftReference 해제 및 UObject 로드
+	virtual void PostLoad() override;
 };

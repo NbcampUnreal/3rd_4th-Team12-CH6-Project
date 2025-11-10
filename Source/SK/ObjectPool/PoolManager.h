@@ -16,36 +16,30 @@ class SK_API PoolManager
 public:
     // 생성자 델리게이트: 각 타입에 맞게 객체를 생성할 때 사용
     using FCreateFunc = TFunction<T* (UWorld* World)>;
+    using FActionFunc = TFunction<void(T*)>;
 
     // 풀 초기화
-    void InitializePool(UWorld* World, int32 Count, FCreateFunc Constructor)
+    void InitializePool(UWorld* World, int32 Count, FCreateFunc Constructor, FActionFunc OnDeactivate = nullptr)
     {
         if (!World || !Constructor) return;
 
         for (int32 i = 0; i < Count; ++i)
         {
-            T* NewObj = Constructor(World);
+            T* Obj = Constructor(World); 
+            if (IsValid(Obj))
+            {
+                if (OnDeactivate)
+                    OnDeactivate(Obj);
 
-            if constexpr (TIsDerivedFrom<T, UAudioComponent>::IsDerived)
-            {
-                NewObj->OnAudioFinishedNative.AddLambda([this](UAudioComponent* FinishedComponent)
-                {
-                    this->ReturnToPool(static_cast<T*>(FinishedComponent));
-                });
-            }
-            
-            if (IsValid(NewObj))
-            {
-                PrepareForInactive(NewObj);
-                InactivePool.Add(NewObj);
-            }
+                InactivePool.Add(Obj);
+            }            
         }
 
         UE_LOG(LogTemp, Log, TEXT("[TPoolManager<%s>] Initialized with %d objects"), *T::StaticClass()->GetName(), Count);
     }
 
     // 풀에서 객체 가져오기 (없으면 새롭게 생성)
-    T* GetFromPool(UWorld* World, FCreateFunc Constructor)
+    T* GetFromPool(UWorld* World, FCreateFunc Constructor, FActionFunc OnActivate = nullptr)
     {
         if (!World) return nullptr;
 
@@ -54,34 +48,24 @@ public:
         if (InactivePool.Num() > 0)
         {
             Obj = InactivePool.Pop();
-            ActivePool.Add(Obj);
-            PrepareForActive(Obj);
             UE_LOG(LogTemp, Log, TEXT("[TPoolManager] GetFromPool : 기존 오브젝트 재사용"));
         }
-        else if (Constructor)//없으면 생성
+        else if (Constructor)
         {
             Obj = Constructor(World);
-            if (IsValid(Obj))
-            {
-                if constexpr (TIsDerivedFrom<T, UAudioComponent>::IsDerived)
-                {
-                    Obj->OnAudioFinishedNative.AddLambda([this](UAudioComponent* FinishedComponent)
-                    {
-                        this->ReturnToPool(static_cast<T*>(FinishedComponent));
-                    });
-                }
-                
-                ActivePool.Add(Obj);
-                PrepareForActive(Obj);
-                UE_LOG(LogTemp, Log, TEXT("[TPoolManager] GetFromPool :새 오브젝트 생성"));
-            }
+            UE_LOG(LogTemp, Log, TEXT("[TPoolManager] GetFromPool :새 오브젝트 생성"));
         }
 
+        if (IsValid(Obj))
+        {
+            ActivePool.Add(Obj);
+            if (OnActivate) OnActivate(Obj);
+        }
         return Obj;
     }
 
     // 객체 반환
-    void ReturnToPool(T* Obj)
+    void ReturnToPool(T* Obj, FActionFunc OnDeactivate = nullptr)
     {
         if (!IsValid(Obj)) return;
 
@@ -99,7 +83,7 @@ public:
         }
 
         ActivePool.Remove(Obj);
-        PrepareForInactive(Obj);
+        if (OnDeactivate) OnDeactivate(Obj);
         InactivePool.Add(Obj);
     }
 
@@ -124,58 +108,13 @@ private:
         if constexpr (TIsDerivedFrom<T, AActor>::IsDerived)
         {
             if (AActor* Actor = Cast<AActor>(Obj))
+            {
                 Actor->Destroy();
+            }
         }
         else
         {
             Obj->ConditionalBeginDestroy();
-        }
-    }
-
-    // 비활성 상태 준비
-    void PrepareForInactive(T* Obj)
-    {
-        if constexpr (TIsDerivedFrom<T, AActor>::IsDerived)
-        {
-            UE_LOG(LogTemp, Log, TEXT("[TPoolManager] PrepareForInactive 비활성화"));
-            Obj->SetActorHiddenInGame(true);
-            Obj->SetActorEnableCollision(false);
-            Obj->SetActorTickEnabled(false);
-        }
-        else if constexpr (TIsDerivedFrom<T, UAudioComponent>::IsDerived)
-        {
-            Obj->Stop();
-            Obj->SetActive(false);
-        }
-        else if constexpr (TIsDerivedFrom<T, UNiagaraComponent>::IsDerived)
-        {
-            Obj->DeactivateImmediate();
-            Obj->ResetSystem();
-            Obj->SetAutoActivate(false);
-            Obj->SetVisibility(false);
-            Obj->SetActive(false);
-        }
-    }
-
-    // 활성 상태 준비
-    void PrepareForActive(T* Obj)
-    {
-        if constexpr (TIsDerivedFrom<T, AActor>::IsDerived)
-        {
-            UE_LOG(LogTemp, Log, TEXT("[TPoolManager] PrepareForActive 활성화"));
-            Obj->SetActorHiddenInGame(false);
-            Obj->SetActorEnableCollision(true);
-            Obj->SetActorTickEnabled(true);
-        }
-        else if constexpr (TIsDerivedFrom<T, UAudioComponent>::IsDerived)
-        {
-            Obj->SetActive(true);
-        }
-        else if constexpr (TIsDerivedFrom<T, UNiagaraComponent>::IsDerived)
-        {
-            Obj->ResetSystem();
-            Obj->SetVisibility(true);
-            Obj->Activate(true);
         }
     }
     
