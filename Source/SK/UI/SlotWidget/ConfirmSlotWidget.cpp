@@ -5,8 +5,9 @@
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
-#include "GameData/ConfirmUITextDataTable.h"
 #include "Utility/SKUIManagerSubSystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 void UConfirmSlotWidget::NativeConstruct()
 {
@@ -21,60 +22,88 @@ void UConfirmSlotWidget::NativeConstruct()
 	{
 		CancelButton->OnClicked.AddDynamic(this, &UConfirmSlotWidget::HandleCancelClicked);
 	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+		
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if(!GameInstance)
+		return;
+		
+	USKGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+	if (!MessageSubsystem)
+		return;
+
+	RequestConfirmHandle = MessageSubsystem->RegisterListener<FConfirmUIMessage>(
+		TAG_Message_Channel_RequestConfirm,
+		this,
+		&UConfirmSlotWidget::OnRequestConfirmMessageReceived
+	);
 }
 
 void UConfirmSlotWidget::HandleConfirmClicked()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConfirmSlotWidget::HandleConfirmClicked"));
-	ULocalPlayer* LP = GetOwningLocalPlayer();
-	if (!LP)
-		return;
-	USKUIManagerSubSystem* UISubSystem = LP->GetSubsystem<USKUIManagerSubSystem>();
-	if (!UISubSystem)
-		return;
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FConfirmResponseMessage Message;
 
-	UISubSystem->RequestResult(true);
+			// SlotTag를 Confirm UI 동작의 식별자로 사용
+			Message.SlotTag = RequestSlotTag;
+			Message.bAccepted = true;
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ConfirmResponse, Message);
+		}
+	}
+
 	RequestSlotTag = FGameplayTag();
 }
 
 void UConfirmSlotWidget::HandleCancelClicked()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConfirmSlotWidget::HandleCancelClicked"));
-	UE_LOG(LogTemp, Display, TEXT("ConfirmSlotWidget::HandleConfirmClicked"));
-	ULocalPlayer* LP = GetOwningLocalPlayer();
-	if (!LP)
-		return;
-	USKUIManagerSubSystem* UISubSystem = LP->GetSubsystem<USKUIManagerSubSystem>();
-	if (!UISubSystem)
-		return;
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FConfirmResponseMessage Message;
 
-	UISubSystem->RequestResult(false);
+			// SlotTag를 Confirm UI 동작의 식별자로 사용
+			Message.SlotTag = RequestSlotTag;
+			Message.bAccepted = false;
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ConfirmResponse, Message);
+		}
+	}
+
 	RequestSlotTag = FGameplayTag();
 }
 
-void UConfirmSlotWidget::SettingText(FConfirmUITextRow TextData)
-{
+void UConfirmSlotWidget::OnRequestConfirmMessageReceived(FGameplayTag Channel, const FConfirmUIMessage& Message)
+{	
 	if (TitleText)
 	{
-		TitleText->SetText(TextData.Title);
+		TitleText->SetText(Message.Title);
 	}
 
 	if (MessageText)
 	{
-		MessageText->SetText(TextData.Message);
+		MessageText->SetText(Message.Message);
 	}
 
 	if (ConfirmButtonText)
 	{
-		ConfirmButtonText->SetText(TextData.ConfirmText);
+		ConfirmButtonText->SetText(Message.ConfirmText);
 	}
 
 	if (CancelButtonText)
 	{
-		CancelButtonText->SetText(TextData.CancelText);
+		CancelButtonText->SetText(Message.CancelText);
 	}
 
-	RequestSlotTag = TextData.SlotTag;
+	RequestSlotTag = Message.SlotTag;
 }
-
 
