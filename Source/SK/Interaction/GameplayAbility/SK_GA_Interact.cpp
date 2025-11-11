@@ -25,7 +25,7 @@ void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	if (!SKCharacter) return;
 	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
-	UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), InteractionData.AnimationMontage);
+	UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), nullptr);
 	PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 	PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
 	PlayAnimTask->ReadyForActivation();
