@@ -153,14 +153,6 @@ void USKUIManagerSubSystem::Deinitialize()
 {
 	RemoveLayout();
 	
-	Super::Deinitialize();
-}
-
-//Layout 제거와 Layout 전환 이벤트 해제
-void USKUIManagerSubSystem::RemoveLayout()
-{
-	LayoutWidgets.Empty();
-
 	if (LayoutSwitchHandle.IsValid())
 	{
 		LayoutSwitchHandle.Unregister();
@@ -175,6 +167,15 @@ void USKUIManagerSubSystem::RemoveLayout()
 	{
 		ConfirmResponseHandle.Unregister();
 	}
+	
+	Super::Deinitialize();
+}
+
+//Layout 제거와 Layout 전환 이벤트 해제
+void USKUIManagerSubSystem::RemoveLayout()
+{
+	LayoutWidgets.Empty();
+	ConfirmLayoutWidgets.Empty();
 }
 
 void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC)
