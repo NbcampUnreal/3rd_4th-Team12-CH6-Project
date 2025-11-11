@@ -20,43 +20,15 @@ void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("ActivateAbility()")));
 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
+	
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!SKCharacter) return;
-
-	UCameraComponent* CameraComponent = SKCharacter->GetFollowCamera();
-
-	FVector Start = SKCharacter->GetActorLocation();
-	
-	FVector Direction = CameraComponent->GetForwardVector();
-	Direction.Z = 0.f;
-	Direction.Normalize();
-
-	FVector End = Start + Direction * Distance;
-
-	FHitResult Hit;
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(SKCharacter);
-
-	FInteractionData InteractionData;
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
-	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, CollisionParams))
-	{
-		AActor* HitActor = Hit.GetActor();
-		if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
-		{
-			IInteractable::Execute_GetInteractionData(HitActor, InteractionData);
-
-			IInteractable::Execute_Interact(HitActor, SKCharacter);
-		}
-	}
+	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), InteractionData.AnimationMontage);
 	PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 	PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
 	PlayAnimTask->ReadyForActivation();
-
 }
 
 void USK_GA_Interact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
