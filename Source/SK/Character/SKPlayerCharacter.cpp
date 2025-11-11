@@ -141,9 +141,12 @@ void ASKPlayerCharacter::TraceForInteraction()
 			IInteractable::Execute_Interact(HitActor, this);
 		}
 	}
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromClass(InteractionData.GrantedAbility);
-	ASC->TryActivateAbility(Spec->Handle);
+	if (!AbilitySystemComponent) return;
+	
+	FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(
+		FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
+	);
+	AbilitySystemComponent->TryActivateAbility(Handle);
 }
 
 
