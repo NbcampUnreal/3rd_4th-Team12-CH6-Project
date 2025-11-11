@@ -43,6 +43,11 @@ protected:
 	TObjectPtr<UInputAction> DashAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> SprintAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> NormalMeleeAttack;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+    TObjectPtr<UInputAction> InterAction;
+	
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -51,5 +56,7 @@ private:
 	void StopJumping();
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
+	void NormalMelee(const FInputActionValue& Value);
+	void InterAct(const FInputActionValue& Value);
 #pragma	endregion
 };
