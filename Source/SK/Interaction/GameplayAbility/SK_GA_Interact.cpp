@@ -1,5 +1,6 @@
 #include "SK_GA_Interact.h"
 
+#include "AbilitySystemComponent.h"
 #include "Character/SKPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
@@ -40,6 +41,12 @@ void USK_GA_Interact::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!SKCharacter) return;
 	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
+	if (ASC)
+	{
+		ASC->ClearAbility(Handle);
+	}
 }
 
 void USK_GA_Interact::OnCompleted()
