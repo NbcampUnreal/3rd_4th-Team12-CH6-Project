@@ -44,4 +44,10 @@ private:
 	bool bIsSprinting =false;
 
 	FTimerHandle MovementCheckTimer;
+
+#pragma region Interaction
+	UFUNCTION(BlueprintCallable)
+	void TraceForInteraction();
+	
+#pragma endregion Interaction
 };
