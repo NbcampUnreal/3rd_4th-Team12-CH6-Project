@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbility.h"
 #include "UObject/Interface.h"
 #include "IInteractable.generated.h"
 
@@ -14,6 +15,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAnimMontage> AnimationMontage;
+
+	TSubclassOf<UGameplayAbility> GrantedAbility;
 	
 };
 
