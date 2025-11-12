@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "UObject/Interface.h"
-#include "IInteractable.generated.h"
+#include "SKInteractable.generated.h"
 
 USTRUCT(BlueprintType)
 struct FInteractionData
@@ -22,12 +22,12 @@ public:
 };
 
 UINTERFACE(MinimalAPI)
-class UInteractable : public UInterface
+class USKInteractable : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class SK_API IInteractable
+class SK_API ISKInteractable
 {
 	GENERATED_BODY()
 
