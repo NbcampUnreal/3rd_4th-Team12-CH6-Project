@@ -9,7 +9,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
-#include "Interaction/Interface/IInteractable.h"
 
 ASKPlayerCharacter::ASKPlayerCharacter()
 {
@@ -111,42 +110,6 @@ void ASKPlayerCharacter::SetPlayerStateTag()
 
 	// 처음엔 Idle 상태 태그 추가
 	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Idle")));
-}
-
-void ASKPlayerCharacter::TraceForInteraction()
-{
-	UCameraComponent* CameraComponent = GetFollowCamera();
-
-	FVector Start = GetActorLocation();
-	
-	FVector Direction = CameraComponent->GetForwardVector();
-	Direction.Z = 0.f;
-	Direction.Normalize();
-
-	FVector End = Start + Direction * 200.0f;
-
-	FHitResult Hit;
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(this);
-
-	FInteractionData InteractionData;
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
-	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, CollisionParams))
-	{
-		AActor* HitActor = Hit.GetActor();
-		if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
-		{
-			IInteractable::Execute_GetInteractionData(HitActor, InteractionData);
-			IInteractable::Execute_Interact(HitActor, this);
-		}
-	}
-	if (!AbilitySystemComponent) return;
-	
-	FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(
-		FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
-	);
-	AbilitySystemComponent->TryActivateAbility(Handle);
 }
 
 
