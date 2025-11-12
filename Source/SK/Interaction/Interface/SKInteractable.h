@@ -6,7 +6,7 @@
 #include "SKInteractable.generated.h"
 
 USTRUCT(BlueprintType)
-struct FInteractionData
+struct FSKInteractionData
 {
 	GENERATED_BODY()
 public:
@@ -36,5 +36,5 @@ public:
 	void Interact(AActor* Interactor);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void GetInteractionData(FInteractionData& OutData);
+	void GetInteractionData(FSKInteractionData& OutData);
 };
