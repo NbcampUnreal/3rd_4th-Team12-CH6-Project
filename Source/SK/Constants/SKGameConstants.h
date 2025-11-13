@@ -12,4 +12,8 @@ class SK_API SKGameConstants
 public:
 	SKGameConstants();
 	~SKGameConstants();
+
+	//레벨 경로
+	static constexpr const TCHAR* TownLevel = TEXT("/Game/BluePrint/Level/TownLevel");
+	static constexpr const TCHAR* DungeonLevel = TEXT("/Game/BluePrint/Level/DungeonLevel");
 };
