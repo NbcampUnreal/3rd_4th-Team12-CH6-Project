@@ -24,7 +24,7 @@ void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!SKCharacter) return;
-	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
 	UCameraComponent* CameraComponent = SKCharacter->GetFollowCamera();
 
 	FVector Start = SKCharacter->GetActorLocation();
@@ -52,13 +52,19 @@ void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		}
 	}
 
-	UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
-	if (!ASC) return;
-	
-	FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(
-		FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
-	);
-	ASC->TryActivateAbility(NewHandle);
+	else
+	{
+		UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
+		if (!ASC) return;
+
+		if (InteractionData.GrantedAbility)
+		{
+			FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(
+				FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
+				);
+			ASC->TryActivateAbility(NewHandle);
+		}
+	}
 }
 
 void USK_GA_Interact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

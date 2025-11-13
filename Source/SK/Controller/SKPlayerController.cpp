@@ -174,4 +174,16 @@ void ASKPlayerController::NormalMelee(const FInputActionValue& Value)
 void ASKPlayerController::InterAct(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Interact"));
+	
+	ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
+	if (!SKChar)
+		return;
+	UAbilitySystemComponent* ASC = SKChar->GetAbilitySystemComponent();
+	if (!ASC)
+		return;
+	
+	FGameplayTagContainer InteractionTag;
+	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact")));
+
+	ASC->TryActivateAbilitiesByTag(InteractionTag);
 }
