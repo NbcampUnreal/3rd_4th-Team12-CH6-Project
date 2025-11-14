@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 ASKPlayerCharacter::ASKPlayerCharacter()
 {
@@ -96,6 +97,76 @@ void ASKPlayerCharacter::UpdateMovementTag()
 		}
 	}
 }
+
+void ASKPlayerCharacter::ResetLeftComboState(FGameplayTag WeaponTag)
+{
+	if (!WeaponTag.IsValid())
+	{
+		WeaponTag = CurrentWeaponTag;
+	}
+	
+	ComboIndexMap.FindOrAdd(WeaponTag) = 0;
+	IsAttackingMap.FindOrAdd(WeaponTag) = false;
+	CanNextComboMap.FindOrAdd(WeaponTag) = false;
+}
+
+bool ASKPlayerCharacter::GetIsLeftAttackingByTag() const
+{
+	const bool* bIsAttackingPtr = IsAttackingMap.Find(CurrentWeaponTag);
+
+	
+	if (bIsAttackingPtr)
+	{
+		return *bIsAttackingPtr;
+	}
+
+	return false;
+}
+
+int ASKPlayerCharacter::GetIsLeftComboIndexByTag() const
+{
+	if (!CurrentWeaponTag.IsValid())
+		return 0;
+	
+	const int* ComboIndexPtr = ComboIndexMap.Find(CurrentWeaponTag);
+
+	if (ComboIndexPtr)
+	{
+		return *ComboIndexPtr;
+	}
+	
+	return 0;
+}
+
+void ASKPlayerCharacter::IncreseLeftComboIndex()
+{
+	int& ComboIndex = ComboIndexMap.FindOrAdd(CurrentWeaponTag);
+	ComboIndex++;
+}
+
+FGameplayTag ASKPlayerCharacter::GetLeftATKTag() const
+{
+	FGameplayTag returnTag = FGameplayTag();
+	if (!CurrentWeaponTag.IsValid())
+	{
+		return returnTag;
+	}
+
+	if (CurrentWeaponTag.MatchesTagExact(TAG_Weapon_Axe))
+	{
+		returnTag=TAG_Ability_LeftATK_Axe;
+	}
+	// else if (WeaponTag.MatchesTagExact(TAG_Weapon_Assassin))
+	// {
+
+	//     // return TAG_Ability_LeftATK_Assassin;
+	// }
+
+
+	return returnTag;
+	
+}
+
 
 void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
