@@ -16,11 +16,34 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash, "Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash_Active, "Ability.Dash.Active");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK, "Ability.LeftATK");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe, "Ability.LeftATK.Axe");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num01, "Ability.LeftATK.Axe.Num01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num02, "Ability.LeftATK.Axe.Num02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num03, "Ability.LeftATK.Axe.Num03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num04, "Ability.LeftATK.Axe.Num04");
+
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
+
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe_1);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe_2);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe_3);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe_4);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_RightATK);
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_CoolDown, "Cooldown");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability, "Cooldown.Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon, "Weapon");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Axe, "Weapon.Axe");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Assassin, "Weapon.Assassin");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound, "Sound");
@@ -54,9 +77,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState,		 "PlayerState");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Idle, "PlayerState.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Move, "PlayerState.Move");
-UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Attack,  "PlayerState.Attack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_LeftAttack,  "PlayerState.LeftAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Damaged, "PlayerState.Damaged");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Groggy, "PlayerState.Groggy");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Dead, "PlayerState.Dead");
 
 
 //Message Chanel Tag
