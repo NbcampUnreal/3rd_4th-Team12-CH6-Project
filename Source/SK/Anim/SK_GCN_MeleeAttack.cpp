@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Object/SKMeleeHitBox.h"
 #include "Anim/SK_GCN_MeleeAttack.h"
+#include "Object/SKMeleeHitBox.h"
 #include "GameFramework/Character.h"
 #include "SK_GCN_MeleeAttack.h"
 
