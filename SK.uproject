@@ -51,6 +51,10 @@
 				"Win64",
 				"Linux"
 			]
+		},
+		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
 		}
 	]
 }

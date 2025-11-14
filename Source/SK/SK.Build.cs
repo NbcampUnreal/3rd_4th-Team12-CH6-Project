@@ -27,6 +27,8 @@ public class SK : ModuleRules
 			"Niagara", 
 			"AIModule",
 			"NavigationSystem",
+			"StateTreeModule",
+			"GameplayStateTreeModule",
 
 			// IP 관련 내용
 			"HTTP",				// 대문자로 수정! ("Http") // Module 'Http' (referenced via Target -> TFD.Build.cs) has incorrect text case. Did you mean 'HTTP'?
