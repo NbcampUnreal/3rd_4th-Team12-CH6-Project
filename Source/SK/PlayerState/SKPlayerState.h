@@ -13,5 +13,11 @@ UCLASS()
 class SK_API ASKPlayerState : public APlayerState
 {
 	GENERATED_BODY()
-	
+
+public:
+	//SeamlessTravel로 인해 PlayerState가 재성성되기 때문에 이전PS에서 데이터를 가져오기 위해 사용
+	virtual void CopyProperties(APlayerState* NewPlayerState) override;
+
+	// 네트워크 복제에 필요한 함수 재정의
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

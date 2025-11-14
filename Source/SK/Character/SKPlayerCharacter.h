@@ -44,4 +44,5 @@ private:
 	bool bIsSprinting =false;
 
 	FTimerHandle MovementCheckTimer;
+	
 };

@@ -49,6 +49,12 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::StartSprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopSprint);
+
+		EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
+								   &ASKPlayerController::NormalMelee);
+
+		EnhancedInputComponent->BindAction(InterAction, ETriggerEvent::Started, this,
+							   &ASKPlayerController::InterAct);
 	}
 }
 
@@ -158,4 +164,26 @@ void ASKPlayerController::StopSprint(const FInputActionValue& Value)
 	ASC->CancelAbilities(&SprintTagContainer);
 	
 
+}
+
+void ASKPlayerController::NormalMelee(const FInputActionValue& Value)
+{
+	
+}
+
+void ASKPlayerController::InterAct(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Interact"));
+	
+	ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
+	if (!SKChar)
+		return;
+	UAbilitySystemComponent* ASC = SKChar->GetAbilitySystemComponent();
+	if (!ASC)
+		return;
+	
+	FGameplayTagContainer InteractionTag;
+	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact")));
+
+	ASC->TryActivateAbilitiesByTag(InteractionTag);
 }

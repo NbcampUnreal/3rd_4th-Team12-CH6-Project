@@ -15,7 +15,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability, "Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash, "Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash_Active, "Ability.Dash.Active");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interact, "Ability.Interact");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_CoolDown, "Cooldown");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability, "Cooldown.Ability");
@@ -43,8 +43,11 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EscapeMenu, "UI.Layout.EscapeMenu");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Confirm, "UI.Layout.Confirm");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterStatus, "UI.Slot.CharacterStatus");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickItem, "UI.Slot.QuickItem");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_SkillBar, "UI.Slot.SkillBar");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GameExitRequest, "UI.Slot.GameExitRequest");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
 
 
 
