@@ -1,9 +1,10 @@
 #include "SK_GA_Interact.h"
 
+#include "AbilitySystemComponent.h"
 #include "Character/SKPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Interaction/Interface/IInteractable.h"
+#include "Interaction/Interface/SKInteractable.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -20,7 +21,7 @@ void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("ActivateAbility()")));
 
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
+	
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!SKCharacter) return;
 
@@ -32,50 +33,42 @@ void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Direction.Z = 0.f;
 	Direction.Normalize();
 
-	FVector End = Start + Direction * Distance;
+	FVector End = Start + Direction * 200.0f;
 
 	FHitResult Hit;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(SKCharacter);
 
-	FInteractionData InteractionData;
+	FSKInteractionData InteractionData;
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, CollisionParams))
 	{
 		AActor* HitActor = Hit.GetActor();
-		if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+		if (HitActor && HitActor->GetClass()->ImplementsInterface(USKInteractable::StaticClass()))
 		{
-			IInteractable::Execute_GetInteractionData(HitActor, InteractionData);
-
-			IInteractable::Execute_Interact(HitActor, SKCharacter);
+			ISKInteractable::Execute_GetInteractionData(HitActor, InteractionData);
+			ISKInteractable::Execute_Interact(HitActor, SKCharacter);
 		}
 	}
 
-	UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), InteractionData.AnimationMontage);
-	PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
-	PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
-	PlayAnimTask->ReadyForActivation();
+	else
+	{
+		UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
+		if (!ASC) return;
 
+		if (InteractionData.GrantedAbility)
+		{
+			FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(
+				FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
+				);
+			ASC->TryActivateAbility(NewHandle);
+		}
+	}
 }
 
 void USK_GA_Interact::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("EndAbility()")));
-
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (!SKCharacter) return;
-	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-}
-
-void USK_GA_Interact::OnCompleted()
-{
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-}
-
-void USK_GA_Interact::OnCanceled()
-{
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

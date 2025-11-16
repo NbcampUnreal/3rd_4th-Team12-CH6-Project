@@ -116,6 +116,7 @@ private:
 #pragma region PlayerAnimState
 	bool bIsSprinting = false;
 	FTimerHandle MovementCheckTimer;
+	
 
 
 #pragma endregion
