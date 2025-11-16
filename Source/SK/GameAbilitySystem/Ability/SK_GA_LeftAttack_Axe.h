@@ -28,5 +28,9 @@ public:
 		bool bReplicateEndAbility,
 		bool bWasCancelled
 	) override;
-	
+
+	void ApplyDamageFromTrace();
+
+	UPROPERTY(EditAnywhere, Category = "SK|GAS")
+	TArray<TSubclassOf<UGameplayEffect>> LeftAttackDamageGE;
 };

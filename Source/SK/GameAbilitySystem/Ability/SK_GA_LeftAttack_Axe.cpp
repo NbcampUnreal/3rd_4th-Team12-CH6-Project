@@ -3,7 +3,10 @@
 
 #include "GameAbilitySystem/Ability/SK_GA_LeftAttack_Axe.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Anim/SkAnimInstance_Axe.h"
+#include "Character/SKPlayerCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 
@@ -13,6 +16,11 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	if (TriggerEventData && TriggerEventData->EventTag == FGameplayTag::RequestGameplayTag("Event.LeftATKTraceEnd"))
+	{
+		ApplyDamageFromTrace();
+	}
+	
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
 		return;
@@ -25,16 +33,6 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	if (!AxeAnimInstance)
 		return;
 
-
-	// UAbilityTask_PlayMontageAndWait* Task =
-	// UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-	// 	this,
-	// 	NAME_None,
-	// 	AttackMontage
-	// );
-	//
-	// Task->EventReceived.AddDynamic(this, &ThisClass::OnMontageNotifyBegin);
-	// Task->Activate();
 	
 	AxeAnimInstance->PlayLeftAttackAnim();
 	
@@ -45,4 +43,33 @@ void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
+{
+	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!PC)
+		return;
+
+	int LeftATKIndex = PC->GetIsLeftComboIndexByTag();
+	
+	for (AActor* HitActor : PC->GetHitActors())
+	{
+		if (!HitActor)
+			continue;
+
+		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[LeftATKIndex];
+	
+		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
+
+		// Target의 AbilitySystemComponent 가져오기
+		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+
+		if (SpecHandle.IsValid() && TargetASC)
+		{
+			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+		
+	}
+
 }
