@@ -174,35 +174,19 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 	if (!IsValid(PlayerCharacter))
 		return;
 
-	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	if (!IsValid(ASC))
-		return;
-
-
-	FGameplayTag LeftAtkTag = PlayerCharacter->GetLeftATKTag();
-	FGameplayTagContainer LeftAtkTagContainer;
-	LeftAtkTagContainer.AddTag(LeftAtkTag);
-
-	ASC->TryActivateAbilitiesByTag(LeftAtkTagContainer);
-
+	PlayerCharacter->OnLeftATKInput();
 	
-
-
+	// UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	// if (!IsValid(ASC))
+	// 	return;
 	//
-	// bool& bIsAttacking = PlayerCharacter->IsAttackingMap.FindOrAdd(WeaponTag, false);
-	// bool& bCanNextCombo = PlayerCharacter->CanNextComboMap.FindOrAdd(WeaponTag, false);
-	// int& ComboIndex = PlayerCharacter->ComboIndexMap.FindOrAdd(WeaponTag, 0);
 	//
-	// if (!bIsAttacking)
-	// {
-	// 	ComboIndex = 1;
-	// 	bIsAttacking = true;
-	// }
-	// else if (bCanNextCombo)
-	// {
-	// 	PlayerCharacter->IncreseLeftComboIndex();  
-	// 	bCanNextCombo = false;
-	// }
+	// FGameplayTag LeftAtkTag = PlayerCharacter->GetLeftATKTag();
+	// FGameplayTagContainer LeftAtkTagContainer;
+	// LeftAtkTagContainer.AddTag(LeftAtkTag);
+	//
+	// ASC->TryActivateAbilitiesByTag(LeftAtkTagContainer);
+
 }
 
 
