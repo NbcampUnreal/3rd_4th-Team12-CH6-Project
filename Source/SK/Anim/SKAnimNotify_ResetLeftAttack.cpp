@@ -28,8 +28,6 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 		UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to cast Owner Actor to ASKPlayerCharacter."));
 		return; 
 	}
-
-	FGameplayTag CurrentTag = PlayerCharacter->CurrentWeaponTag;
-
-	PlayerCharacter->ResetLeftComboState(CurrentTag);
+	
+	PlayerCharacter->OnLeftAttackEndNotify();
 }
