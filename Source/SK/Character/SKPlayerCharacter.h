@@ -19,6 +19,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
+
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
@@ -27,9 +29,25 @@ public:
 	void SetSprinting(bool bSprinting);
 
 	void UpdateMovementTag();
+#pragma region Weapon_Collision
+	void OnLeftATKInput();
+	void ActivateLeftAttackGA();
+	void StartAttackTrace();
+	void StopAttackTrace();
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const TArray<AActor*> GetHitActors();
+	void ClearHitActor();
 
+	void SetWeapon(FGameplayTag NewWeaponTag);
+
+	// 실제 트레이스
+	void PerformWeaponTrace(float DeltaTime);
+	
+#pragma endregion
+	
 #pragma region AnimState
 
+	void OnLeftAttackEndNotify();
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
 	void ResetLeftComboState(FGameplayTag WeaponTag = FGameplayTag());
 
@@ -39,22 +57,46 @@ public:
 	int GetIsLeftComboIndexByTag() const;
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
 	void IncreseLeftComboIndex();
-	// void LeftAttack();
+
+	bool CheckMaxLeftComboIndex();
 
 	FGameplayTag GetLeftATKTag() const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Battle")
 	FGameplayTag CurrentWeaponTag;
+	
 
+	//현재콤보인덱스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-	TMap<FGameplayTag, int> ComboIndexMap;
+	TMap<FGameplayTag, int> LeftComboIndexMap;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
+	TMap<FGameplayTag, int> RightComboIndexMap;
 
+	//공격중이면 true
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TMap<FGameplayTag, bool> IsAttackingMap;
 
+	//다음공격이 가능한지
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TMap<FGameplayTag, bool> CanNextComboMap;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
+	TMap<FGameplayTag, int32> LeftMaxComboMap;   // 무기별 최대 콤보 수
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
+	TMap<FGameplayTag, int32> RightMaxComboMap; 
+
+	bool bBufferedAttack = false;    // 입력 버퍼링 플래그
+
+	//Tag별 소켓 정보 DT
+	UPROPERTY(EditAnywhere, Category="SK|Weapon")
+	UDataTable* WeaponDataTable;
+
+	UPROPERTY(VisibleAnywhere, Category="SK|Weapon")
+	FName CurrentWeaponStartSocket;
+
+	UPROPERTY(VisibleAnywhere, Category="SK|Weapon")
+	FName CurrentWeaponEndSocket;
 #pragma endregion
 
 protected:
@@ -76,5 +118,24 @@ private:
 	FTimerHandle MovementCheckTimer;
 
 
+#pragma endregion
+
+#pragma region Weapon_Collision
+
+	
+	bool bIsTracing = false;
+	
+	UPROPERTY()
+	TArray<AActor*> HitActors;
+
+	// 지난 프레임 소켓 위치
+	
+	FVector PrevStart; 
+	FVector PrevEnd;
+
+	// 현재 프레임 소켓 위치
+	FVector CurrStart;
+	FVector CurrEnd;
+	
 #pragma endregion
 };
