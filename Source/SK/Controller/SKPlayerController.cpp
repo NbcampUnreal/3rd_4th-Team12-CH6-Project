@@ -178,7 +178,7 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 	
 }
 
-void ASKPlayerController::InterAct(const FInputActionValue& Value)
+void ASKPlayerController::Interact(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Interact"));
 	
