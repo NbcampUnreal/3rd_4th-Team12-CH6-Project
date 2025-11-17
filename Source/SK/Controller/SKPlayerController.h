@@ -44,7 +44,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> SprintAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-    TObjectPtr<UInputAction> InterAction;
+	TObjectPtr<UInputAction> NormalMeleeAttack;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+    TObjectPtr<UInputAction> Interaction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> LeftAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
@@ -60,7 +62,7 @@ private:
 	void StopJumping();
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
-	void InterAct(const FInputActionValue& Value);
+	void Interact(const FInputActionValue& Value);
 
 	void LeftAttack(const FInputActionValue& Value);
 

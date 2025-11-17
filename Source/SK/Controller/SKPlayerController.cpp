@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Constants/SKGameConstants.h"
+#include "GameData/SKGameConstant.h"
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
 
@@ -50,11 +52,11 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::StopSprint);
 
 		// EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
-		//                                    &ASKPlayerController::NormalMelee);
+		// 						   &ASKPlayerController::NormalMelee);
 		EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this,
-		                                   &ASKPlayerController::LeftAttack);
-		EnhancedInputComponent->BindAction(InterAction, ETriggerEvent::Started, this,
-		                                   &ASKPlayerController::InterAct);
+												   &ASKPlayerController::LeftAttack);
+		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
+							   &ASKPlayerController::Interact);
 	}
 }
 
@@ -176,23 +178,9 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 
 	PlayerCharacter->OnLeftATKInput();
 	
-	// UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	// if (!IsValid(ASC))
-	// 	return;
-	//
-	//
-	// FGameplayTag LeftAtkTag = PlayerCharacter->GetLeftATKTag();
-	// FGameplayTagContainer LeftAtkTagContainer;
-	// LeftAtkTagContainer.AddTag(LeftAtkTag);
-	//
-	// ASC->TryActivateAbilitiesByTag(LeftAtkTagContainer);
-
 }
 
-
-
-
-void ASKPlayerController::InterAct(const FInputActionValue& Value)
+void ASKPlayerController::Interact(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Interact"));
 	
@@ -203,8 +191,5 @@ void ASKPlayerController::InterAct(const FInputActionValue& Value)
 	if (!ASC)
 		return;
 	
-	FGameplayTagContainer InteractionTag;
-	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact")));
-
-	ASC->TryActivateAbilitiesByTag(InteractionTag);
+	ASC->AbilityLocalInputPressed(SKConstant::GA_Interact_ID);
 }
