@@ -4,26 +4,34 @@
 #include "Engine/DataAsset.h"
 #include "SKPickupItemData.generated.h"
 
+class UInventoryItemData;
+
 UCLASS()
 class USKPickupItemData : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	// 인벤토리 아이템 데이터 클래스 필요
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	// TSubclassOf<UInventoryItemData> InventoryItemData;
-
-	// 아이템이 메시일 경우
-
-	// 임시 파티클, 에셋에 따라 나이아가라 시스템
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	TObjectPtr<UParticleSystem> DisplayParticle;
+	FName ItemName;
+	
+	// 인벤토리 아이템 데이터
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
+	TSubclassOf<UInventoryItemData> InventoryItemData;
+	
+	// 줍기 이펙트
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
+	TObjectPtr<UParticleSystem> PickedUpEffect;
+	
+	// 줍기 파라미터
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
+	int32 PickupParam;
 	
 	// 줍기 사운드
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
 	TObjectPtr<USoundBase> PickupSound;
 
-	// 줍기 이펙트, 에셋에 따라 나이아가라 시스템
-	TObjectPtr<UParticleSystem> PickedUpEffect;
+	// 파괴 이펙트
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
+	TObjectPtr<UParticleSystem> DestroyEffect;
 };
