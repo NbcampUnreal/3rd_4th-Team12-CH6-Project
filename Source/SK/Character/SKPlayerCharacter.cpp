@@ -67,6 +67,13 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
+	
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (ASC)
+	{
+		FGameplayTag InteractTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Interact"));
+		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
+	}
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)

@@ -5,7 +5,7 @@
 #include "SKPickupItemData.generated.h"
 
 UCLASS()
-class SK_API USKPickupItemData : public UDataAsset
+class USKPickupItemData : public UDataAsset
 {
 	GENERATED_BODY()
 
@@ -15,8 +15,6 @@ public:
 	// TSubclassOf<UInventoryItemData> InventoryItemData;
 
 	// 아이템이 메시일 경우
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	TObjectPtr<UStaticMesh> DisplayMesh;
 
 	// 임시 파티클, 에셋에 따라 나이아가라 시스템
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
@@ -27,6 +25,5 @@ public:
 	TObjectPtr<USoundBase> PickupSound;
 
 	// 줍기 이펙트, 에셋에 따라 나이아가라 시스템
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
 	TObjectPtr<UParticleSystem> PickedUpEffect;
 };

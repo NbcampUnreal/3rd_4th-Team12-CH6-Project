@@ -3,6 +3,8 @@
 #include "Components/SphereComponent.h"
 #include "ItemData/SKPickupItemData.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
 
 ASKPickupItem::ASKPickupItem()
 {
@@ -20,6 +22,9 @@ ASKPickupItem::ASKPickupItem()
 	// 전용 트레이스 채널 추가 필요
 	TraceCollision->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	
+	InteractionWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidgetComponent"));
+	InteractionWidgetComponent->SetupAttachment(RootComponent);
+	InteractionWidgetComponent->SetVisibility(false);
 }
 
 void ASKPickupItem::BeginPlay()
@@ -39,6 +44,10 @@ void ASKPickupItem::PlayPickupSound()
 	}
 }
 
+UWidgetComponent* ASKPickupItem::GetInteractionWidgetComponent() const
+{
+	return InteractionWidgetComponent;
+}
 void ASKPickupItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

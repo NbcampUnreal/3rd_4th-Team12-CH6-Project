@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "SKPickupItem.generated.h"
 
+class UWidgetComponent;
 class USphereComponent;
 class USKPickupItemData;
 
@@ -36,6 +37,12 @@ protected:
 	FSKInteractionData InteractionData;
 
 	void PlayPickupSound();
+	// 테스트용 위젯
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
+	UWidgetComponent* InteractionWidgetComponent;
+	
+public:
+	UWidgetComponent* GetInteractionWidgetComponent() const;
 	
 public:
 	virtual void Tick(float DeltaTime) override;
