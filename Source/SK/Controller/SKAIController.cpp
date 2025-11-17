@@ -1,5 +1,5 @@
 #include "Controller/SKAIController.h"
-#include "Character/SKAICharacter.h"
+#include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
