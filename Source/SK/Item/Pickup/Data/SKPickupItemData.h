@@ -17,7 +17,7 @@ public:
 	
 	// 인벤토리 아이템 데이터
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	TSubclassOf<UInventoryItemData> InventoryItemData;
+	TSoftObjectPtr<UInventoryItemData> InventoryItemData;
 	
 	// 줍기 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
