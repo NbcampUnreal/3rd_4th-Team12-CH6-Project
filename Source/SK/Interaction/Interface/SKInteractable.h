@@ -1,11 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbility.h"
 #include "UObject/Interface.h"
-#include "IInteractable.generated.h"
+#include "SKInteractable.generated.h"
 
 USTRUCT(BlueprintType)
-struct FInteractionData
+struct FSKInteractionData
 {
 	GENERATED_BODY()
 public:
@@ -14,16 +15,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAnimMontage> AnimationMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayAbility> GrantedAbility;
 	
 };
 
 UINTERFACE(MinimalAPI)
-class UInteractable : public UInterface
+class USKInteractable : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class SK_API IInteractable
+class SK_API ISKInteractable
 {
 	GENERATED_BODY()
 
@@ -32,5 +36,5 @@ public:
 	void Interact(AActor* Interactor);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void GetInteractionData(FInteractionData& OutData);
+	void GetInteractionData(FSKInteractionData& OutData);
 };

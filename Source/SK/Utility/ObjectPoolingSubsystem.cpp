@@ -13,6 +13,7 @@ void UObjectPoolingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     Super::Initialize(Collection);
     UE_LOG(LogTemp, Log, TEXT("[ObjectPoolingSubsystem] Initialize() called."));
 
+    /*
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
     TArray<FAssetData> FoundAssets;
     FTopLevelAssetPath AssetClassPath(UObjectPoolDataAsset::StaticClass());
@@ -33,6 +34,7 @@ void UObjectPoolingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
         UE_LOG(LogTemp, Log, TEXT("[ObjectPoolingSubsystem] Pool initialized from asset: %s"), *DefaultConfigAsset->GetName());
         InitializeFromDataAsset(DefaultConfigAsset);
     }
+    */
 }
 
 void UObjectPoolingSubsystem::InitializeFromDataAsset(UObjectPoolDataAsset* ConfigAsset)
