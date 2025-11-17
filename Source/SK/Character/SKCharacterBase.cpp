@@ -98,11 +98,13 @@ void ASKCharacterBase::SetDAPlayerStat()
 	}
 
 	//JobDataAsset - Give Ability
+	int32 InputID = 0;
 	for (const TSubclassOf<UGameplayAbility>& AbilityClass : CharacterData->StartupAbilities)
 	{
 		if (AbilityClass)
 		{
-			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, InputID, this));
+			InputID++;
 		}
 	}
 
