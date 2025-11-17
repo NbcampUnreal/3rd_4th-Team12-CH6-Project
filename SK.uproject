@@ -12,7 +12,8 @@
 				"Engine",
 				"GameplayAbilities",
 				"CommonUI",
-				"UMG"
+				"UMG",
+				"AIModule"
 			]
 		}
 	],
@@ -51,6 +52,10 @@
 				"Win64",
 				"Linux"
 			]
+		},
+		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
 		}
 	]
 }

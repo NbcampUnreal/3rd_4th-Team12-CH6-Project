@@ -19,13 +19,17 @@ public class SK : ModuleRules
 			// UI
 			,"UMG", "Slate", "SlateCore", "CommonUI", "CommonInput",
 			"Paper2D",
-			//GAS
+			
+			// GAS
 			"GameplayAbilities",       
 			"GameplayTags",            
-			"GameplayTasks",           
-			//AI
+			"GameplayTasks",   
+			
+			// AI
 			"AIModule",
 			"NavigationSystem",
+			"StateTreeModule",
+			"GameplayStateTreeModule",
 			
 			// Niagara 관련 추가
 			"Niagara","NiagaraCore", "NiagaraShader", "RenderCore",
