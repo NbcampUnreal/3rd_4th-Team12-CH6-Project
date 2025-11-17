@@ -11,18 +11,18 @@ class SK_API UMiscItemData : public UInventoryItemData
 
 public:
 	// 퀘스트 아이템 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
 	bool bIsQuestItem;
 
 	// 통화 아이템 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
 	bool bIsCurrency;
 
 	// 열쇠 아이템 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
 	bool bIsKeyItem;
 
 	// 제작 재료 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
 	bool bIsMaterial;
 };
