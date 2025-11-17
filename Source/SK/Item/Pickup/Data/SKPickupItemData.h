@@ -15,9 +15,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
 	FName ItemName;
 	
-	// 인벤토리 아이템 데이터
+	// 아이템 ID
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	TSoftObjectPtr<UInventoryItemData> InventoryItemData;
+	FName ItemID;
 	
 	// 줍기 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
