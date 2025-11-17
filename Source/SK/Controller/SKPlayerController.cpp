@@ -53,8 +53,8 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
 								   &ASKPlayerController::NormalMelee);
 
-		EnhancedInputComponent->BindAction(InterAction, ETriggerEvent::Started, this,
-							   &ASKPlayerController::InterAct);
+		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
+							   &ASKPlayerController::Interact);
 	}
 }
 
@@ -171,7 +171,7 @@ void ASKPlayerController::NormalMelee(const FInputActionValue& Value)
 	
 }
 
-void ASKPlayerController::InterAct(const FInputActionValue& Value)
+void ASKPlayerController::Interact(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Interact"));
 	
@@ -182,8 +182,5 @@ void ASKPlayerController::InterAct(const FInputActionValue& Value)
 	if (!ASC)
 		return;
 	
-	FGameplayTagContainer InteractionTag;
-	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Interact")));
-
-	ASC->TryActivateAbilitiesByTag(InteractionTag);
+	ASC->AbilityLocalInputPressed(2);
 }
