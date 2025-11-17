@@ -6,7 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Interaction/Interface/SKInteractable.h"
-#include "Item/SKPickupItem.h"
+#include "Item/Pickup/SKPickupItem.h"
 
 
 USK_GA_Interact::USK_GA_Interact()

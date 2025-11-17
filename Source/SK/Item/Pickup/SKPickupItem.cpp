@@ -1,7 +1,7 @@
 #include "SKPickupItem.h"
 
 #include "Components/SphereComponent.h"
-#include "ItemData/SKPickupItemData.h"
+#include "Data/SKPickupItemData.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
