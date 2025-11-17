@@ -69,6 +69,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout, "UI.Layout");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_InGame, "UI.Layout.InGame");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EscapeMenu, "UI.Layout.EscapeMenu");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Confirm, "UI.Layout.Confirm");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Inventory, "UI.Layout.Inventory");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EquipmentMain, "UI.Layout.EquipmentMain");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EquipmentSelect, "UI.Layout.EquipmentSelect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_QuickSlotSelect, "UI.Layout.QuickSlotSelect");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterStatus, "UI.Slot.CharacterStatus");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickItem, "UI.Slot.QuickItem");
@@ -76,7 +80,15 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_SkillBar, "UI.Slot.SkillBar");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GameExitRequest, "UI.Slot.GameExitRequest");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryList, "UI.Slot.InventoryList");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryItemToolTip, "UI.Slot.InventoryItemToolTip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipQuickList, "UI.Slot.EquipQuickList");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipQuickToolTip, "UI.Slot.EquipQuickToolTip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipQuickStat, "UI.Slot.EquipQuickStat");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipList, "UI.Slot.EquipList");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipToolTip, "UI.Slot.EquipToolTip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotList, "UI.Slot.QuickSlotList");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotToolTip, "UI.Slot.QuickSlotToolTip");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState,		 "PlayerState");

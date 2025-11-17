@@ -12,10 +12,19 @@ class SK_API USK_GA_Interact : public USKGameplayAbility
 public:
 	USK_GA_Interact();
 
+	// Tick에서 활성화
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-
-private:
-	float Distance;
+	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
+	
+protected:
+	void LineTraceWithChannel();
+	
+	void TryInteract();
+	
+	UPROPERTY()
+	FTimerHandle TraceTimerHandle;
+	
+	UPROPERTY()
+	TObjectPtr<AActor> CurrentHitActor;
 };
