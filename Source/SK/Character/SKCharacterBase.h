@@ -40,10 +40,10 @@ protected:
 	void SetDAPlayerStat();
 
 	// GAS 핵심 컴포넌트들
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK|GAS")
 	class UAbilitySystemComponent* AbilitySystemComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK|GAS")
 	class USKAttributeSet* AttributeSet;
 	
 #pragma endregion

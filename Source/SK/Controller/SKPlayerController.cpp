@@ -4,7 +4,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
-#include "ShaderPrintParameters.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
 #include "GameFramework/Character.h"
@@ -50,9 +49,10 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopSprint);
 
-		EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
-								   &ASKPlayerController::NormalMelee);
-
+		// EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
+		// 						   &ASKPlayerController::NormalMelee);
+		EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this,
+												   &ASKPlayerController::LeftAttack);
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 							   &ASKPlayerController::Interact);
 	}
@@ -61,7 +61,7 @@ void ASKPlayerController::SetupInputComponent()
 void ASKPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	UE_LOG(LogTemp, Warning, TEXT("ASKPlayerController::OnPossess"));	
+	UE_LOG(LogTemp, Warning, TEXT("ASKPlayerController::OnPossess"));
 	OnPawnPossessed.Broadcast(InPawn);;
 }
 
@@ -162,16 +162,23 @@ void ASKPlayerController::StopSprint(const FInputActionValue& Value)
 	SprintTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Sprint")));
 
 	ASC->CancelAbilities(&SprintTagContainer);
-	
-
 }
 
-void ASKPlayerController::NormalMelee(const FInputActionValue& Value)
+void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 {
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	PlayerCharacter->OnLeftATKInput();
 	
 }
 
-void ASKPlayerController::Interact(const FInputActionValue& Value)
+void ASKPlayerController::InterAct(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Interact"));
 	
