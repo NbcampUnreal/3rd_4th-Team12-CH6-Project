@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Constants/SKGameConstants.h"
+#include "GameData/SKGameConstant.h"
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
 
@@ -189,5 +191,5 @@ void ASKPlayerController::Interact(const FInputActionValue& Value)
 	if (!ASC)
 		return;
 	
-	ASC->AbilityLocalInputPressed(2);
+	ASC->AbilityLocalInputPressed(SKConstant::GA_Interact_ID);
 }
