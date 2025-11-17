@@ -15,8 +15,5 @@ struct FSKWeaponDataRow : public FTableRowBase
 	FGameplayTag WeaponTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName WeaponStartSocket;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName WeaponEndSocket;
+	TArray<FName> TraceSockets;
 };
