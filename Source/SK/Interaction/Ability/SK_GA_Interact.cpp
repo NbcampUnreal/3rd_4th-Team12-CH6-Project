@@ -97,11 +97,14 @@ void USK_GA_Interact::TryInteract()
 	if (!CurrentHitActor) return;
 	
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
+	if (!SKCharacter) return;
 	
 	FSKInteractionData InteractionData;
 
 	// 상호작용 데이터 가져오기
 	ISKInteractable::Execute_GetInteractionData(CurrentHitActor, InteractionData);
+	SKCharacter->CurrentInteractionData = InteractionData;
+
 	// 대상 오브젝트 상호작용 시작
 	ISKInteractable::Execute_Interact(CurrentHitActor, SKCharacter);
 	
