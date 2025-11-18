@@ -111,6 +111,7 @@ void USK_GA_Interact::TryInteract()
 	// 캐릭터 쪽 상호작용 실행
 	if (InteractionData.GrantedAbility)
 	{
+		UE_LOG(LogTemp, Log, TEXT("TryActivate Ability: %s"), *InteractionData.GrantedAbility->GetName())
 		FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(
 			FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
 			);
