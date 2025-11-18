@@ -14,9 +14,6 @@ public:
 	FName InteractionName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimMontage> AnimationMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayAbility> GrantedAbility;
 	
 };
