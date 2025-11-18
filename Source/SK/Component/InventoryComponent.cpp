@@ -341,6 +341,21 @@ bool UInventoryComponent::ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC
 	return bActivated;
 }
 
+int32 UInventoryComponent::GetItemCountByID(const int32& ItemID)
+{
+	int32 TotalCount = 0;
+ 
+	for (const FInventorySlot& Slot : InventorySlots)
+	{
+		if (Slot.ItemID == ItemID)
+		{
+			TotalCount += Slot.Count;
+		}
+	}
+ 
+	return TotalCount;
+}
+
 TArray<FInventorySlot> UInventoryComponent::GetAllItems() const
 {
 	return InventorySlots;

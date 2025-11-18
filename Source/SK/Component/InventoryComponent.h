@@ -83,6 +83,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC, TSubclassOf<UGameplayAbility> AbilityClass);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	int32 GetItemCountByID(const int32& ItemID);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	UInventoryItemData* GetItemDataByID(const int32& ItemID) const;
 	
 	// 아이템 목록 조회 함수
 	UFUNCTION(BlueprintCallable, Category="Inventory")
@@ -102,10 +108,4 @@ protected:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
 	TArray<FEquipmentInstanceSlot> EquipmentInstances;
-	
-private:
-	// 데이터 에셋으로 아이템 정보 조회 (프로젝트에 맞게 구현 필요)
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	UInventoryItemData* GetItemDataByID(const int32& ItemID) const;
-		
 };
