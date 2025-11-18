@@ -9,6 +9,7 @@ class UAbilityTask_PlayMontageAndWait;
 
 USK_GA_OpenChest::USK_GA_OpenChest()
 {
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 }
 
 void USK_GA_OpenChest::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -18,7 +19,6 @@ void USK_GA_OpenChest::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("ActivateAbility()")));
 
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!SKCharacter) return;
