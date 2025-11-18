@@ -175,7 +175,6 @@ void ASKPlayerCharacter::StartAttackTrace()
 void ASKPlayerCharacter::StopAttackTrace()
 {
 	bIsTracing = false;
-	ClearHitActor();
 }
 
 const TArray<AActor*> ASKPlayerCharacter::GetHitActors()
