@@ -16,6 +16,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayAbility> GrantedAbility;
 	
+	FVector InteractionLocation;
+	
+	FRotator InteractionRotation;
 };
 
 UINTERFACE(MinimalAPI)
