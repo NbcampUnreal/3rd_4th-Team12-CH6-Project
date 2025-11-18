@@ -15,10 +15,21 @@ ASKInteractableBase::ASKInteractableBase()
 	TraceCollision->SetHiddenInGame(false);
 	// 전용 트레이스 채널 추가 필요
 	TraceCollision->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
+	InteractionPoint->SetupAttachment(Root);
 	
 	InteractionWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidgetComponent"));
 	InteractionWidgetComponent->SetupAttachment(RootComponent);
 	InteractionWidgetComponent->SetVisibility(false);
+}
+
+void ASKInteractableBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InteractionData.InteractionLocation = InteractionPoint->GetComponentLocation();
+	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
 }
 
 void ASKInteractableBase::AddToInventory(AActor* Interactor)

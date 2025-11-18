@@ -18,6 +18,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USceneComponent> Root;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<USceneComponent> InteractionPoint;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USphereComponent> TraceCollision;
@@ -26,6 +29,8 @@ public:
 	FSKInteractionData InteractionData;
 	
 	virtual void GetInteractionData_Implementation(FSKInteractionData& OutData) override;
+
+	virtual void BeginPlay() override;
 	
 #pragma region Inventory
 protected:
