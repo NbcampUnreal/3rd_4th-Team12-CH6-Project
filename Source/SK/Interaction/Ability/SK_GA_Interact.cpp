@@ -110,7 +110,7 @@ void USK_GA_Interact::TryInteract()
 	
 	UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
 	if (!ASC) return;
-
+	
 	// 캐릭터 쪽 상호작용 실행
 	if (InteractionData.GrantedAbility)
 	{
@@ -118,6 +118,18 @@ void USK_GA_Interact::TryInteract()
 		FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(
 			FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
 			);
-		ASC->TryActivateAbility(NewHandle);
+
+		if (NewHandle.IsValid())
+		{
+			FTimerHandle TempHandle;
+			SKCharacter->GetWorldTimerManager().SetTimer(TempHandle, [ASC, NewHandle]()
+			{
+				ASC->TryActivateAbility(NewHandle);
+			}, 0.01f, false);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Handle Is Invalid"));
+		}
 	}
 }
