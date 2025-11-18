@@ -1,4 +1,4 @@
-#include "Controller/SKAIController.h"
+#include "Controller/AI/SKAIController.h"
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"

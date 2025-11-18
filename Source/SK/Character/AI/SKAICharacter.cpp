@@ -1,4 +1,4 @@
-#include "Character/SKAICharacter.h"
+#include "Character/AI/SKAICharacter.h"
 #include "Components/CapsuleComponent.h"
 
 ASKAICharacter::ASKAICharacter()

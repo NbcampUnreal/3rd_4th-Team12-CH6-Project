@@ -1,6 +1,6 @@
-#include "Character/SKAICharacterBase.h"
+#include "Character/AI/SKAICharacterBase.h"
 #include "AbilitySystemComponent.h"
-#include "GameAbilitySystem/Attribute/SKAIAttributeSet.h"
+#include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
