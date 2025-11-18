@@ -93,10 +93,10 @@ public:
 	UDataTable* WeaponDataTable;
 
 	UPROPERTY(VisibleAnywhere, Category="SK|Weapon")
-	FName CurrentWeaponStartSocket;
+	TArray<FName> CurrentWeaponTraceSockets;
 
-	UPROPERTY(VisibleAnywhere, Category="SK|Weapon")
-	FName CurrentWeaponEndSocket;
+	// 지난 프레임의 소켓 위치 저장용
+	TArray<FVector> PreviousSocketLocations;
 #pragma endregion
 
 protected:
@@ -128,15 +128,6 @@ private:
 	
 	UPROPERTY()
 	TArray<AActor*> HitActors;
-
-	// 지난 프레임 소켓 위치
-	
-	FVector PrevStart; 
-	FVector PrevEnd;
-
-	// 현재 프레임 소켓 위치
-	FVector CurrStart;
-	FVector CurrEnd;
 	
 #pragma endregion
 };
