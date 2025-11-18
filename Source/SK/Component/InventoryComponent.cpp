@@ -97,10 +97,7 @@ bool UInventoryComponent::RemoveItemByIDAndCount(const int32& ItemID, int32 Coun
 		UE_LOG(LogTemp, Error, TEXT("[RemoveItemByIDAndCount] Equipment items must be removed using UniqueID!"));
 		return false;
 	}
-
-	// --------------------------
-	// 스택형 아이템
-	// --------------------------
+	
 	if (ItemData->bIsStackable)
 	{
 		for (int32 i = 0; i < InventorySlots.Num(); ++i)
@@ -127,9 +124,6 @@ bool UInventoryComponent::RemoveItemByIDAndCount(const int32& ItemID, int32 Coun
 		return false;
 	}
 
-	// --------------------------
-	// 비스택형 일반 아이템
-	// --------------------------
 	int32 NeedRemove = Count;
 
 	for (int32 i = InventorySlots.Num() - 1; i >= 0 && NeedRemove > 0; --i)
@@ -166,9 +160,6 @@ bool UInventoryComponent::RemoveItemByUniqueID(const FGuid& UniqueID)
 
 	bool bRemoved = false;
 
-	// ------------------------------------
-	// 인벤토리 슬롯에서 제거
-	// ------------------------------------
 	for (int32 i = 0; i < InventorySlots.Num(); ++i)
 	{
 		if (InventorySlots[i].UniqueID == UniqueID)
@@ -178,10 +169,7 @@ bool UInventoryComponent::RemoveItemByUniqueID(const FGuid& UniqueID)
 			break;
 		}
 	}
-
-	// ------------------------------------
-	// 장비 인스턴스에서 제거
-	// ------------------------------------
+	
 	EquipmentInstances.RemoveAll(
 		[&](const FEquipmentInstanceSlot& Slot)
 		{
@@ -244,7 +232,9 @@ bool UInventoryComponent::UseItemByID(int32 UseItemID)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Consumable GA is null for ItemID %d"), UseItemID);
 	}
+
 	bool bActivated = false;
+	
 	// ★ 실제 사용 처리 (예: GE 적용 또는 GA Activation 등) 여기 추가 ★
 	if (ConsumableData->ConsumableGA)
 	{
@@ -282,24 +272,7 @@ bool UInventoryComponent::UseItemByID(int32 UseItemID)
 			return false;
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("[UseItem] ASC Found. Giving Ability..."));
-
-		// Ability 부여
-		FGameplayAbilitySpecHandle Handle = ASC->GiveAbility(
-			FGameplayAbilitySpec(ConsumableData->ConsumableGA, 1, 0)
-		);
-
-		if (!Handle.IsValid())
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UseItem] AbilitySpecHandle is INVALID"));
-			return false;
-		}
-
-		// Ability 활성화 시도
-		bActivated = ASC->TryActivateAbility(Handle);
-
-		UE_LOG(LogTemp, Log, TEXT("[UseItem] TryActivateAbility result: %s"),
-			bActivated ? TEXT("Success") : TEXT("Failed"));
+		bActivated = ItemAbilityCheckAndActive(ASC, ConsumableData->ConsumableGA);
 	}
 	else
 	{
@@ -312,9 +285,60 @@ bool UInventoryComponent::UseItemByID(int32 UseItemID)
 
 		return true;
 	}
-	// 5) 개수 감소 처리
 
 	return false;
+}
+
+bool UInventoryComponent::ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC,
+	TSubclassOf<UGameplayAbility> AbilityClass)
+{
+	if (!ASC || !AbilityClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASC 또는 AbilityClass가 유효하지 않음"));
+		return false;
+	}
+ 
+	FGameplayAbilitySpecHandle FoundHandle;
+ 
+	// 1. 이미 부여된 어빌리티가 있는지 찾기
+	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (Spec.Ability && Spec.Ability->GetClass() == AbilityClass)
+		{
+			FoundHandle = Spec.Handle;
+			break;
+		}
+	}
+ 
+	bool bActivated = false;
+ 
+	if (FoundHandle.IsValid())
+	{
+		// 어빌리티가 이미 부여된 경우 바로 실행
+		bActivated = ASC->TryActivateAbility(FoundHandle);
+		UE_LOG(LogTemp, Log, TEXT("이미 부여된 어빌리티 실행 결과: %s"), bActivated ? TEXT("성공") : TEXT("실패"));
+	}
+	else
+	{
+		// 부여되지 않은 경우 → 부여 후 실행 → 제거
+		FGameplayAbilitySpec Spec(AbilityClass, 1, 0);
+		FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(Spec);
+ 
+		if (!NewHandle.IsValid())
+		{
+			UE_LOG(LogTemp, Error, TEXT("어빌리티 부여 실패"));
+			return false;
+		}
+ 
+		bActivated = ASC->TryActivateAbility(NewHandle);
+		UE_LOG(LogTemp, Log, TEXT("새로 부여된 어빌리티 실행 결과: %s"), bActivated ? TEXT("성공") : TEXT("실패"));
+ 
+		// 실행 후 바로 제거
+		ASC->ClearAbility(NewHandle);
+		UE_LOG(LogTemp, Log, TEXT("어빌리티를 제거했습니다."));
+	}
+ 
+	return bActivated;
 }
 
 TArray<FInventorySlot> UInventoryComponent::GetAllItems() const

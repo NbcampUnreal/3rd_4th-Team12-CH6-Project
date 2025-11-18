@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
+class UAbilitySystemComponent;
 class UInventoryItemData;
 enum class EInventoryItemType : uint8;
 class UEquipmentInstance;
@@ -79,6 +80,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	bool UseItemByID(int32 UseItemID);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC, TSubclassOf<UGameplayAbility> AbilityClass);
 	
 	// 아이템 목록 조회 함수
 	UFUNCTION(BlueprintCallable, Category="Inventory")
