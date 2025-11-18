@@ -17,13 +17,20 @@ void USK_GA_OpenChest::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                       const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("ActivateAbility()")));
-
+	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("OpenChestAbility!")));
 	
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!SKCharacter) return;
 	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	
+	FSKInteractionData& InteractionData = SKCharacter->CurrentInteractionData;
 
+	FVector TargetLocation = InteractionData.InteractionLocation;
+	TargetLocation.Z = SKCharacter->GetActorLocation().Z;
+	
+	SKCharacter->SetActorLocation(TargetLocation);
+	SKCharacter->SetActorRotation(InteractionData.InteractionRotation);
+	
 	if (!OpenAnimMontage) return;
 	UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), OpenAnimMontage);
 	PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
