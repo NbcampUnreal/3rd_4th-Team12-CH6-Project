@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_OpenChest.generated.h"
 
 UCLASS()
-class SK_API USK_GA_OpenChest : public UGameplayAbility
+class SK_API USK_GA_OpenChest : public USKGameplayAbility
 {
 	GENERATED_BODY()
 public:
