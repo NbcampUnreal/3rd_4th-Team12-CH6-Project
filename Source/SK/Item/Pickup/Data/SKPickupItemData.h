@@ -4,7 +4,7 @@
 #include "Engine/DataAsset.h"
 #include "SKPickupItemData.generated.h"
 
-class UInventoryItemData;
+class USKInventoryItemData;
 
 UCLASS()
 class USKPickupItemData : public UDataAsset
