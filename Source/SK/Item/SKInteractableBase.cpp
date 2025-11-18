@@ -5,8 +5,6 @@
 
 ASKInteractableBase::ASKInteractableBase()
 {
-	PrimaryActorTick.bCanEverTick = false;
-	
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 	
