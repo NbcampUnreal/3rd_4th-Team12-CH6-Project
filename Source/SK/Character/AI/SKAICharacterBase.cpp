@@ -30,7 +30,7 @@ UAbilitySystemComponent* ASKAICharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void ASKAICharacterBase::InitializeAttributeSetFromDataAsset()
+void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 {
 	if (!AIDataAsset.Get())
 	{

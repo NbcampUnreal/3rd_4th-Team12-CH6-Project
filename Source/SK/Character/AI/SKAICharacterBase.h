@@ -30,5 +30,5 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
-	void InitializeAttributeSetFromDataAsset();
+	void InitializeAttributeSetAndAbilitiesFromDataAsset();
 };
