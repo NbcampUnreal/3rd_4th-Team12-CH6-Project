@@ -354,7 +354,21 @@ int ASKPlayerCharacter::GetIsLeftComboIndexByTag() const
 void ASKPlayerCharacter::IncreseLeftComboIndex()
 {
 	int& ComboIndex = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
+	const int32* MaxComboPtr = LeftMaxComboMap.Find(CurrentWeaponTag);
+	
+	int32 MaxCombo = MaxComboPtr ? *MaxComboPtr -1 : 1;
+
+	// 콤보 증가
 	ComboIndex++;
+
+	// 최대 콤보 수 초과 방지
+	if (ComboIndex > MaxCombo)
+	{
+		UE_LOG(LogTemp, Warning,
+			   TEXT("ComboIndex exceeded MaxCombo! Clamping.  Index=%d  Max=%d"),
+			   ComboIndex, MaxCombo);
+		ComboIndex = 1;
+	}
 }
 
 bool ASKPlayerCharacter::CheckMaxLeftComboIndex()
