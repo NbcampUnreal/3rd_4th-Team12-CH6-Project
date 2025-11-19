@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Character/SKCharacterBase.h"
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
@@ -35,14 +36,14 @@ public:
 	FSKInteractionData CurrentInteractionData;
 	
 #pragma region Weapon_Collision
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const TArray<AActor*> GetHitActors();
+
 	void OnLeftATKInput();
 	void ActivateLeftAttackGA();
 	void StartAttackTrace();
 	void StopAttackTrace();
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	const TArray<AActor*> GetHitActors();
 	void ClearHitActor();
-
 	void SetWeapon(FGameplayTag NewWeaponTag);
 
 	// 실제 트레이스
@@ -53,9 +54,11 @@ public:
 #pragma region AnimState
 
 	void OnLeftAttackEndNotify();
+	bool CheckMaxLeftComboIndex();
+	FGameplayTag GetLeftATKTag() const;
+
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
 	void ResetLeftComboState(FGameplayTag WeaponTag = FGameplayTag());
-
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
 	bool GetIsLeftAttackingByTag() const;
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
@@ -63,24 +66,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
 	void IncreseLeftComboIndex();
 
-	bool CheckMaxLeftComboIndex();
 
-	FGameplayTag GetLeftATKTag() const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Battle")
 	FGameplayTag CurrentWeaponTag;
-	
-
 	//현재콤보인덱스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TMap<FGameplayTag, int> LeftComboIndexMap;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TMap<FGameplayTag, int> RightComboIndexMap;
-
 	//공격중이면 true
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TMap<FGameplayTag, bool> IsAttackingMap;
-
 	//다음공격이 가능한지
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TMap<FGameplayTag, bool> CanNextComboMap;
@@ -96,12 +93,10 @@ public:
 	//Tag별 소켓 정보 DT
 	UPROPERTY(EditAnywhere, Category="SK|Weapon")
 	UDataTable* WeaponDataTable;
-
 	UPROPERTY(VisibleAnywhere, Category="SK|Weapon")
-	FName CurrentWeaponStartSocket;
-
-	UPROPERTY(VisibleAnywhere, Category="SK|Weapon")
-	FName CurrentWeaponEndSocket;
+	TArray<FName> CurrentWeaponTraceSockets;
+	// 지난 프레임의 소켓 위치 저장용
+	TArray<FVector> PreviousSocketLocations;
 #pragma endregion
 
 protected:
@@ -122,8 +117,6 @@ private:
 	bool bIsSprinting = false;
 	FTimerHandle MovementCheckTimer;
 	
-
-
 #pragma endregion
 
 #pragma region Weapon_Collision
@@ -133,15 +126,6 @@ private:
 	
 	UPROPERTY()
 	TArray<AActor*> HitActors;
-
-	// 지난 프레임 소켓 위치
-	
-	FVector PrevStart; 
-	FVector PrevEnd;
-
-	// 현재 프레임 소켓 위치
-	FVector CurrStart;
-	FVector CurrEnd;
 	
 #pragma endregion
 };
