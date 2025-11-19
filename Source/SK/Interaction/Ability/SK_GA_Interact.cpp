@@ -38,9 +38,14 @@ void USK_GA_Interact::InputPressed(const FGameplayAbilitySpecHandle Handle,const
 
 void USK_GA_Interact::LineTraceWithChannel()
 {
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
+	// ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
+	// FVector Start = SKCharacter->GetActorLocation();
+	//ASC위치 수정으로 인해 아래로 수정
+	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!SKCharacter)
+		return;
 	FVector Start = SKCharacter->GetActorLocation();
-
+	
 	UCameraComponent* CameraComponent = SKCharacter->GetFollowCamera();
 	FVector Direction = CameraComponent->GetForwardVector();
 	Direction.Z = 0.f;
