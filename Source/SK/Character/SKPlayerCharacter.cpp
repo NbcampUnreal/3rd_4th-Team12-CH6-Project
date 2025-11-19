@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
+#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 ASKPlayerCharacter::ASKPlayerCharacter()
@@ -46,7 +47,8 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetDAPlayerStat();
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	PS->SetDAPlayerStat();
 	SetPlayerStateTag();
 	SetWeapon(CurrentWeaponTag);
 
@@ -278,9 +280,15 @@ void ASKPlayerCharacter::PerformWeaponTrace(float DeltaTime)
 
 void ASKPlayerCharacter::OnLeftAttackEndNotify()
 {
-	const int RecentCombo = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
-	const int MaxCombo = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
+// 	const int RecentCombo = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
+// 	const int MaxCombo = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
 
+	int& RecentComboRef = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
+	int& MaxComboRef = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
+
+	const int RecentCombo = RecentComboRef;
+	const int MaxCombo   = MaxComboRef;
+	
 	// 1) 입력 버퍼가 있고, 아직 마지막 콤보가 아닐 때 → 콤보 이어가기
 	if (bBufferedAttack && RecentCombo < MaxCombo)
 	{
