@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
-#include "InventoryItemData.generated.h"
+#include "SKInventoryItemData.generated.h"
 
 UENUM(BlueprintType)
 enum class EInventoryItemType : uint8
@@ -25,7 +25,7 @@ enum class EItemRarity : uint8
 };
 
 UCLASS()
-class SK_API UInventoryItemData : public UDataAsset
+class SK_API USKInventoryItemData : public UDataAsset
 {
 	GENERATED_BODY()
 

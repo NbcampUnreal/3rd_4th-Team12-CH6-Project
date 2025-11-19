@@ -5,8 +5,10 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Controller/SKPlayerController.h"
 #include "Interaction/Interface/SKInteractable.h"
 #include "Item/Pickup/SKPickupItem.h"
+#include "PlayerState/SKPlayerState.h"
 
 
 USK_GA_Interact::USK_GA_Interact()
@@ -17,8 +19,8 @@ USK_GA_Interact::USK_GA_Interact()
 void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,const FGameplayAbilityActorInfo* ActorInfo,const FGameplayAbilityActivationInfo ActivationInfo,const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (AActor* Owner = GetOwningActorFromActorInfo())
+	
+	if (AActor* Owner = GetAvatarActorFromActorInfo())
 	{
 		Owner->GetWorldTimerManager().SetTimer(
 			TraceTimerHandle,
@@ -38,15 +40,11 @@ void USK_GA_Interact::InputPressed(const FGameplayAbilitySpecHandle Handle,const
 
 void USK_GA_Interact::LineTraceWithChannel()
 {
-	// ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
-	// FVector Start = SKCharacter->GetActorLocation();
-	//ASC위치 수정으로 인해 아래로 수정
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!SKCharacter)
-		return;
-	FVector Start = SKCharacter->GetActorLocation();
-	
-	UCameraComponent* CameraComponent = SKCharacter->GetFollowCamera();
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!SKPlayerCharacter) return;
+	FVector Start = SKPlayerCharacter->GetActorLocation();
+
+	UCameraComponent* CameraComponent = SKPlayerCharacter->GetFollowCamera();
 	FVector Direction = CameraComponent->GetForwardVector();
 	Direction.Z = 0.f;
 	Direction.Normalize();
@@ -55,7 +53,9 @@ void USK_GA_Interact::LineTraceWithChannel()
 
 	FHitResult Hit;
 	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(SKCharacter);
+	CollisionParams.AddIgnoredActor(SKPlayerCharacter);
+
+	AActor* OldActor = CurrentHitActor;
 	
 	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, CollisionParams))
@@ -64,61 +64,75 @@ void USK_GA_Interact::LineTraceWithChannel()
 		if (HitActor && HitActor->GetClass()->ImplementsInterface(USKInteractable::StaticClass()))
 		{
 			CurrentHitActor = HitActor;
-			// UI 정보 가져와야함
-			// UI 띄우기
-			ASKPickupItem* Item = Cast<ASKPickupItem>(HitActor);
-			if (Item && Item->GetInteractionWidgetComponent())
-			{
-				Item->GetInteractionWidgetComponent()->SetVisibility(true);
-			}
 		}
 		else
 		{
 			CurrentHitActor = nullptr;
-			// UI 제거
-			ASKPickupItem* Item = Cast<ASKPickupItem>(HitActor);
-			if (Item && Item->GetInteractionWidgetComponent())
-			{
-				Item->GetInteractionWidgetComponent()->SetVisibility(false);
-			}
 		}
 	}
 	else
 	{
-		if (CurrentHitActor)
-		{
-			ASKPickupItem* PrevItem = Cast<ASKPickupItem>(CurrentHitActor);
-			if (PrevItem && PrevItem->GetInteractionWidgetComponent())
-			{
-				PrevItem->GetInteractionWidgetComponent()->SetVisibility(false);
-			}
-			CurrentHitActor = nullptr;
-		}
+		CurrentHitActor = nullptr;
 	}
+	
+	if (OldActor && OldActor != CurrentHitActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hide Widget"));
+		if (ASKInteractableBase* OldItem = Cast<ASKInteractableBase>(OldActor))
+			OldItem->OnShowWidget(false);
+	}
+
+	if (CurrentHitActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Show Widget"));
+		if (ASKInteractableBase* NewItem = Cast<ASKInteractableBase>(CurrentHitActor))
+			NewItem->OnShowWidget(true);
+	}
+	
 }
 
 void USK_GA_Interact::TryInteract()
 {
 	if (!CurrentHitActor) return;
 	
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!SKPlayerCharacter) return;
+
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
+	if (!SKPlayerState) return;
 	
 	FSKInteractionData InteractionData;
 
 	// 상호작용 데이터 가져오기
 	ISKInteractable::Execute_GetInteractionData(CurrentHitActor, InteractionData);
-	// 대상 오브젝트 상호작용 시작
-	ISKInteractable::Execute_Interact(CurrentHitActor, SKCharacter);
-	
-	UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
-	if (!ASC) return;
+	SKPlayerCharacter->CurrentInteractionData = InteractionData;
 
+	// 대상 오브젝트 상호작용 시작
+	ISKInteractable::Execute_Interact(CurrentHitActor, SKPlayerCharacter);
+	
+	UAbilitySystemComponent* ASC = SKPlayerState->GetAbilitySystemComponent();
+	if (!ASC) return;
+	
 	// 캐릭터 쪽 상호작용 실행
 	if (InteractionData.GrantedAbility)
 	{
+		UE_LOG(LogTemp, Log, TEXT("TryActivate Ability: %s"), *InteractionData.GrantedAbility->GetName())
 		FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(
 			FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
 			);
-		ASC->TryActivateAbility(NewHandle);
+
+		if (NewHandle.IsValid())
+		{
+			FTimerHandle TempHandle;
+			TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
+			SKPlayerCharacter->GetWorldTimerManager().SetTimer(TempHandle, [WeakASC, NewHandle]()
+			{
+				WeakASC->TryActivateAbility(NewHandle);
+			}, 0.01f, false);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Handle Is Invalid"));
+		}
 	}
 }

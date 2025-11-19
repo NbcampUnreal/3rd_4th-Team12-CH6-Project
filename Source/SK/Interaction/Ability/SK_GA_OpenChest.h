@@ -2,14 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "SK_GA_SimpleAnim.generated.h"
+#include "GameAbilitySystem/Ability/SKGameplayAbility.h"
+#include "SK_GA_OpenChest.generated.h"
 
 UCLASS()
-class SK_API USK_GA_SimpleAnim : public UGameplayAbility
+class SK_API USK_GA_OpenChest : public USKGameplayAbility
 {
 	GENERATED_BODY()
 public:
-	USK_GA_SimpleAnim();
+	USK_GA_OpenChest();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
@@ -21,4 +22,8 @@ protected:
 
 	UFUNCTION()
 	void OnCanceled();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Animation")
+	TObjectPtr<UAnimMontage> OpenAnimMontage;
 };
