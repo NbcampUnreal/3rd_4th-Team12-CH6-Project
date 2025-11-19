@@ -59,7 +59,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> NormalMeleeAttack;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-    TObjectPtr<UInputAction> InterAction;
+    TObjectPtr<UInputAction> Interaction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> LeftAttackAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> RightAttackAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> MouseWheelAction;
 	
 private:
 	void Dash(const FInputActionValue& Value);
@@ -69,7 +75,9 @@ private:
 	void StopJumping();
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
-	void NormalMelee(const FInputActionValue& Value);
-	void InterAct(const FInputActionValue& Value);
+	void Interact(const FInputActionValue& Value);
+
+	void LeftAttack(const FInputActionValue& Value);
+
 #pragma	endregion
 };
