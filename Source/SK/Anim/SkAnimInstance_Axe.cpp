@@ -41,9 +41,9 @@ void USkAnimInstance_Axe::PlayLeftAttackAnim()
 {
 	if (LeftAttackMontages.IsValidIndex(LeftComboIndex))
 	{
-		// Montage_Play(LeftAttackMontages[LeftComboIndex]);
-		float Result = Montage_Play(LeftAttackMontages[LeftComboIndex]);
-		UE_LOG(LogTemp, Warning, TEXT("Montage_Play result: %f"), Result);
+		Montage_Play(LeftAttackMontages[LeftComboIndex]);
+		//float Result = Montage_Play(LeftAttackMontages[LeftComboIndex]);
+		//UE_LOG(LogTemp, Warning, TEXT("Montage_Play result: %f"), Result);
 	}
 }
 
