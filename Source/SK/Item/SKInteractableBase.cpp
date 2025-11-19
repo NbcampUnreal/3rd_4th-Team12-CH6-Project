@@ -38,13 +38,13 @@ void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int
 {
 	if (!Interactor) return;
 
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(Interactor);
-	if (!SKCharacter) return;
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
+	if (!SKPlayerCharacter) return;
 
-	ASKPlayerController* SKController = Cast<ASKPlayerController>(Interactor);
-	if (!SKController) return;
+	ASKPlayerController* SKPlayerController = Cast<ASKPlayerController>(SKPlayerCharacter->GetController());
+	if (!SKPlayerController) return;
 
-	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(Interactor);
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(SKPlayerController->PlayerState);
 	if (!SKPlayerState) return;
 
 	// 수정 필요
