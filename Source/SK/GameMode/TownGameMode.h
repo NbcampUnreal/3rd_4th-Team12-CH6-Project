@@ -21,11 +21,6 @@ public:
 
 	FORCEINLINE ATownGameState* GetGameState() { return Super::GetGameState<ATownGameState>(); }
 
-	UFUNCTION(BlueprintCallable)
-	void EnteringDungeon();
-
-	
-
 protected:
 	
 #pragma region SeamlessTravel 관련
