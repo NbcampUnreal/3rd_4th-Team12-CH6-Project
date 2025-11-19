@@ -32,7 +32,7 @@ void ASKInteractableBase::BeginPlay()
 	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
 }
 
-void ASKInteractableBase::AddToInventory(AActor* Interactor)
+void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int32 ItemQuantity)
 {
 	// 플레이어 스테이트 가져오기 및 캐스팅
 	// 인벤토리 컴포넌트 가져오기 및 캐스팅
