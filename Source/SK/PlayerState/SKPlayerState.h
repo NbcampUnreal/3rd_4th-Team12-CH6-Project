@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "Character/SKPlayerDataAsset.h"
 #include "SKPlayerState.generated.h"
 
 class UInventoryComponent;
@@ -54,7 +55,6 @@ protected:
 	
 #pragma endregion
 
-private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", Replicated)
 	UInventoryComponent* InventoryComponent;
  

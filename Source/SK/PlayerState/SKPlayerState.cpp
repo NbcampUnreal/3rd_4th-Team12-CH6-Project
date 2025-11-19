@@ -67,3 +67,91 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
+
+UAbilitySystemComponent* ASKPlayerState::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+USKAttributeSet* ASKPlayerState::GetAttributeSet() const
+{
+	return AttributeSet;
+}
+
+
+void ASKPlayerState::SetDAPlayerStat()
+{
+	if (!CharacterData.Get())
+		CharacterData.LoadSynchronous();
+
+	if (!HasAuthority() || !CharacterData.Get())
+		return;
+	// AttributeSet의 초기값을 데이터 에셋의 값으로 설정
+	AttributeSet->SetSpeed(CharacterData->Speed);
+	AttributeSet->SetSprintWeight(CharacterData->SprintWeight);
+	AttributeSet->SetHealth(CharacterData->Health);
+	AttributeSet->SetMaxHealth(CharacterData->MaxHealth);
+	AttributeSet->SetStamina(CharacterData->Stamina);
+	AttributeSet->SetMaxStamina(CharacterData->MaxStamina);
+	AttributeSet->SetHeat(CharacterData->Heat);
+	AttributeSet->SetMaxHeat(CharacterData->MaxHeat);
+	AttributeSet->SetExp(CharacterData->Exp);
+	AttributeSet->SetLevel(CharacterData->Level);
+	AttributeSet->SetGold(CharacterData->Gold);
+	AttributeSet->SetAttack(CharacterData->Attack);
+	AttributeSet->SetArmor(CharacterData->Armor);
+	AttributeSet->SetPoise(CharacterData->Poise);
+
+	// if (GetCharacterMovement())
+	// {
+	// 	GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed();
+	//
+	// 	// AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	// 	// 	USKAttributeSet::GetSpeedAttribute()).AddUObject(this, &ASKCharacterBase::OnSpeedAttributeChanged);
+	// }
+	//이 부분을 캐릭터에서
+
+	//JobDataAsset - Give Ability
+	int32 InputID = 0;
+	for (const TSubclassOf<UGameplayAbility>& AbilityClass : CharacterData->StartupAbilities)
+	{
+		if (AbilityClass)
+		{
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, InputID, this));
+			InputID++;
+		}
+	}
+
+	FGameplayEffectContextHandle Ctx = AbilitySystemComponent->MakeEffectContext();
+	//JobDataAsset - Give GE
+	for (const TSubclassOf<UGameplayEffect>& GameEffectClass : CharacterData->StartupGE)
+	{
+		if (GameEffectClass)
+		{
+			AbilitySystemComponent->ApplyGameplayEffectToSelf(GameEffectClass->GetDefaultObject<UGameplayEffect>(), 1.f, Ctx);
+		}
+	}
+
+
+	if (CharacterData->TeamTag.IsValid())
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(CharacterData->TeamTag);
+	}
+		
+	if (CharacterData->GiveTeamtagEffect)
+	{
+		FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+		ContextHandle.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
+			CharacterData->GiveTeamtagEffect,
+			1.0f,
+			ContextHandle
+		);
+
+		if (SpecHandle.IsValid())
+		{
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+}
