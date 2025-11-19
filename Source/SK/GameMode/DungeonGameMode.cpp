@@ -1,5 +1,4 @@
 #include "GameMode/DungeonGameMode.h"
-#include "Constants/SKGameConstants.h"
 
 ADungeonGameMode::ADungeonGameMode()
 {
@@ -37,15 +36,4 @@ void ADungeonGameMode::HandleMatchHasEnded()
 {
 	Super::HandleMatchHasEnded();
 	
-}
-
-void ADungeonGameMode::ReturnToTown()
-{
-	FString TravelCmd = FString::Printf(TEXT("%s?listen"), SKGameConstants::TownLevel);
-	UE_LOG(LogTemp, Warning, TEXT("Return To Town: %s"), *TravelCmd);
-
-	if (UWorld* World = GetWorld())
-	{
-		World->ServerTravel(TravelCmd, true); // SeamlessTravel
-	}
 }
