@@ -36,20 +36,30 @@ void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int
 {
 	// 플레이어 스테이트 가져오기 및 캐스팅
 	// 인벤토리 컴포넌트 가져오기 및 캐스팅
+	if (!Interactor) return;
 
 	// 인벤토리 전달용 데이터 구성
 	
 	// 인벤토리 내부 추가하는 함수 호춯
 }
+	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(Interactor);
+	if (!SKCharacter) return;
 
 void ASKInteractableBase::OnShowWidget()
 {
 	// 위젯 표시
 }
+	ASKPlayerController* SKController = Cast<ASKPlayerController>(Interactor);
+	if (!SKController) return;
 
 void ASKInteractableBase::OnHideWidget()
 {
-	// 위젯 숨김
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(Interactor);
+	if (!SKPlayerState) return;
+
+	// 수정 필요
+	// USKInventoryComponent* InventoryComponent = Cast<USKInventoryComponent>(SKPlayerState->);
+	// InventoryComponent->AddItem(ItemID, ItemQuantity);
 }
 
 UWidgetComponent* ASKInteractableBase::GetInteractionWidgetComponent() const
