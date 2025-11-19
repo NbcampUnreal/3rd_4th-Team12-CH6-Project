@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayAbilitySpecHandle.h"
 #include "Components/ActorComponent.h"
 #include "QuickSlotComponent.generated.h"
 
@@ -18,6 +19,9 @@ struct FQuickSlot
 	// 슬롯에 들어있는 아이템 개수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Count = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayAbilitySpecHandle GrantedAbilityHandle;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -39,11 +43,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
 	bool UseQuickSlot(int32 SlotIndex);
 
+	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
+	void RefreshQuickSlots();
+	
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerSetQuickSlot(int32 SlotIndex, int32 ItemID);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerClearQuickSlot(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void ServerUseQuickSlot(int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void ServerRefreshQuickSlots();
 	
 protected:
 	// Called when the game starts
