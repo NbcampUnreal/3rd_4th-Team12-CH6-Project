@@ -21,14 +21,14 @@ void USKAnimNotify_StartAttackTrace::Notify(USkeletalMeshComponent* MeshComp, UA
 	AActor* OwnerActor = MeshComp->GetOwner();
 	if (!IsValid(OwnerActor))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to get Owner Actor."));
+		//UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to get Owner Actor."));
 		return; 
 	}
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(OwnerActor);
 	if (!IsValid(PlayerCharacter))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to cast Owner Actor to ASKPlayerCharacter."));
+		//UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to cast Owner Actor to ASKPlayerCharacter."));
 		return; 
 	}
 

@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
+#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 ASKPlayerCharacter::ASKPlayerCharacter()
@@ -46,7 +47,8 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetDAPlayerStat();
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	PS->SetDAPlayerStat();
 	SetPlayerStateTag();
 	SetWeapon(CurrentWeaponTag);
 
@@ -170,9 +172,6 @@ void ASKPlayerCharacter::StartAttackTrace()
 {
 	bIsTracing = true;
 	ClearHitActor();
-
-	PrevStart = GetMesh()->GetSocketLocation(CurrentWeaponStartSocket);
-	PrevEnd = GetMesh()->GetSocketLocation(CurrentWeaponEndSocket);
 }
 
 void ASKPlayerCharacter::StopAttackTrace()
@@ -201,71 +200,101 @@ void ASKPlayerCharacter::SetWeapon(FGameplayTag NewWeaponTag)
 
 
 	const FSKWeaponDataRow* Row = WeaponDataTable->FindRow<FSKWeaponDataRow>(
-		NewWeaponTag.GetTagName(),
-		TEXT("Lookup Weapon Data")
+		CurrentWeaponTag.GetTagName(),
+		*CurrentWeaponTag.ToString()
 	);
+
 
 	if (Row)
 	{
-		CurrentWeaponStartSocket = Row->WeaponStartSocket;
-		CurrentWeaponEndSocket = Row->WeaponEndSocket;
+		CurrentWeaponTraceSockets = Row->TraceSockets;
+
+		// 이전 소켓 위치 기억 배열도 맞춰 재설정 (중요!)
+		PreviousSocketLocations.SetNum(CurrentWeaponTraceSockets.Num());
+
+		for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
+		{
+			PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
+		}
 	}
 }
 
 void ASKPlayerCharacter::PerformWeaponTrace(float DeltaTime)
 {
-	CurrStart = GetMesh()->GetSocketLocation(CurrentWeaponStartSocket);
-	CurrEnd = GetMesh()->GetSocketLocation(CurrentWeaponEndSocket);
+	if (CurrentWeaponTraceSockets.Num() == 0)
+		return;
 
-
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	// Params.bReturnPhysicalMaterial = false;
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		CurrStart,
-		CurrEnd,
-		ECC_Pawn,
-		Params
-	);
-	// bool bHit = GetWorld()->SweepSingleByChannel(
-	// 	HitResult,
-	// 	TraceStart,
-	// 	NextTraceStart,
-	// 	FQuat::Identity,
-	// 	ECC_Pawn,
-	// 	FCollisionShape::MakeCapsule(Radius, HalfHeight),
-	// 	Params
-	// );
-
-	if (bHit)
+	// 이전 프레임 배열과 개수 매칭
+	if (PreviousSocketLocations.Num() != CurrentWeaponTraceSockets.Num())
 	{
-		AActor* HitActor = HitResult.GetActor();
-		if (HitActor && !HitActors.Contains(HitActor))
+		PreviousSocketLocations.SetNum(CurrentWeaponTraceSockets.Num());
+		for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
 		{
-			HitActors.Add(HitActor); // 충돌만 저장 (데미지는 GA가 처리)
+			PreviousSocketLocations[i] =
+				GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
 		}
 	}
 
-	//
-	// // 다음 프레임 대비
-	// PrevStart = CurrStart;
-	// PrevEnd = CurrEnd;
+
+	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
+	{
+		FVector PrevLocation = PreviousSocketLocations[i];
+		FVector CurrLocation =
+			GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
+
+		DrawDebugLine(
+			GetWorld(),
+			PrevLocation,
+			CurrLocation,
+			FColor::Red,
+			false,
+			0.05f,
+			0,
+			2.0f
+		);
+
+		FHitResult Hit;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			Hit,
+			PrevLocation,
+			CurrLocation,
+			ECC_Pawn,
+			Params
+		);
+
+		if (bHit)
+		{
+			AActor* HitActor = Hit.GetActor();
+			if (HitActor && !HitActors.Contains(HitActor))
+			{
+				HitActors.Add(HitActor); // 충돌한 액터만 저장
+			}
+		}
+
+		PreviousSocketLocations[i] = CurrLocation;
+	}
 }
 
 void ASKPlayerCharacter::OnLeftAttackEndNotify()
 {
-	const int RecentCombo = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
-	const int MaxCombo = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
+// 	const int RecentCombo = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
+// 	const int MaxCombo = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
 
+	int& RecentComboRef = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
+	int& MaxComboRef = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
+
+	const int RecentCombo = RecentComboRef;
+	const int MaxCombo   = MaxComboRef;
+	
 	// 1) 입력 버퍼가 있고, 아직 마지막 콤보가 아닐 때 → 콤보 이어가기
 	if (bBufferedAttack && RecentCombo < MaxCombo)
 	{
 		bBufferedAttack = false;
 		IncreseLeftComboIndex();
-		ActivateLeftAttackGA(); 
+		ActivateLeftAttackGA();
 		return;
 	}
 
@@ -294,6 +323,11 @@ void ASKPlayerCharacter::ResetLeftComboState(FGameplayTag WeaponTag)
 	if (CurrentWeaponTag.MatchesTagExact(TAG_Weapon_Axe))
 	{
 		LeftMaxComboMap.FindOrAdd(WeaponTag, SKConstant::LeftMaxCombo_Axe);
+	}
+
+	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
+	{
+		PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
 	}
 }
 
@@ -328,12 +362,25 @@ int ASKPlayerCharacter::GetIsLeftComboIndexByTag() const
 void ASKPlayerCharacter::IncreseLeftComboIndex()
 {
 	int& ComboIndex = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
+	const int32* MaxComboPtr = LeftMaxComboMap.Find(CurrentWeaponTag);
+	
+	int32 MaxCombo = MaxComboPtr ? *MaxComboPtr -1 : 1;
+
+	// 콤보 증가
 	ComboIndex++;
+
+	// 최대 콤보 수 초과 방지
+	if (ComboIndex > MaxCombo)
+	{
+		UE_LOG(LogTemp, Warning,
+			   TEXT("ComboIndex exceeded MaxCombo! Clamping.  Index=%d  Max=%d"),
+			   ComboIndex, MaxCombo);
+		ComboIndex = 1;
+	}
 }
 
 bool ASKPlayerCharacter::CheckMaxLeftComboIndex()
 {
-
 	const int* RecentComboIndex = LeftComboIndexMap.Find(CurrentWeaponTag);
 	const int* MaxComboIndex = LeftMaxComboMap.Find(CurrentWeaponTag);
 	if (RecentComboIndex && MaxComboIndex)
