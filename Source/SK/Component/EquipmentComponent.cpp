@@ -32,7 +32,6 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	UEquipmentInstance* Instance = Inventory->GetEquipmentInstance(UniqueID);
 	if (!Instance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[EquipItem] Instance not found for %s"), *UniqueID.ToString());
 		return false;
 	}
 
@@ -118,27 +117,11 @@ void UEquipmentComponent::ApplyEquipmentEffect(UEquipmentItemData* ItemData, UEq
 	if (!GetOwner()->HasAuthority())
 		return;
 
-	AActor* OwnerActor = nullptr;
-
-	// 1) PlayerState → PlayerController 찾기
-	APlayerState* PS = Cast<APlayerState>(GetOwner());
-	if (PS)
+	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
+	if (!ASC)
 	{
-		APlayerController* PC = PS->GetPlayerController();
-		if (PC)
-		{
-			OwnerActor = PC->GetPawn();   // 최종 캐릭터
-		}
-	}
-
-	if (!OwnerActor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UseItem] OwnerActor is NULL (Failed to get Character)"));
 		return;
 	}
-	
-	UAbilitySystemComponent* ASC = OwnerActor->FindComponentByClass<UAbilitySystemComponent>();
-	if (!ASC) return;
 
 	// Ability 부여
 	if (ItemData->EquipmentGA)
@@ -163,28 +146,12 @@ void UEquipmentComponent::RemoveEquipmentEffect(FEquipmentSlotData& SlotData)
 
 	if (!GetOwner()->HasAuthority())
 		return;
-
-	AActor* OwnerActor = nullptr;
-
-	// 1) PlayerState → PlayerController 찾기
-	APlayerState* PS = Cast<APlayerState>(GetOwner());
-	if (PS)
+	
+	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
+	if (!ASC)
 	{
-		APlayerController* PC = PS->GetPlayerController();
-		if (PC)
-		{
-			OwnerActor = PC->GetPawn();   // 최종 캐릭터
-		}
-	}
-
-	if (!OwnerActor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UseItem] OwnerActor is NULL (Failed to get Character)"));
 		return;
 	}
-	
-	UAbilitySystemComponent* ASC = OwnerActor->FindComponentByClass<UAbilitySystemComponent>();
-	if (!ASC) return;
 
 	// Ability 제거
 	if (SlotData.EquipmentInstance->GrantedAbilityHandle.IsValid())

@@ -39,25 +39,6 @@ bool UQuickSlotComponent::SetQuickSlot(int32 SlotIndex, int32 ItemID)
 		UE_LOG(LogTemp, Error, TEXT("SetQuickSlot: 인벤토리 컴포넌트를 찾을 수 없습니다."));
 		return false;
 	}
-
-	AActor* OwnerActor = nullptr;
-
-	// 1) PlayerState → PlayerController 찾기
-	APlayerState* PS = Cast<APlayerState>(GetOwner());
-	if (PS)
-	{
-		APlayerController* PC = PS->GetPlayerController();
-		if (PC)
-		{
-			OwnerActor = PC->GetPawn();   // 최종 캐릭터
-		}
-	}
-
-	if (!OwnerActor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UseItem] OwnerActor is NULL (Failed to get Character)"));
-		return false;
-	}
 	
 	if (QuickSlots[SlotIndex].ItemID != -1)
 	{
@@ -68,7 +49,7 @@ bool UQuickSlotComponent::SetQuickSlot(int32 SlotIndex, int32 ItemID)
 			{
 				if (PrevConsum->ConsumableGA)
 				{
-					UAbilitySystemComponent* ASC = OwnerActor->FindComponentByClass<UAbilitySystemComponent>();
+					UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
 
 					if (ASC)
 					{
@@ -103,19 +84,14 @@ bool UQuickSlotComponent::SetQuickSlot(int32 SlotIndex, int32 ItemID)
 
 	if (ConsumItemData && ConsumItemData->ConsumableGA)
 	{
-		UAbilitySystemComponent* ASC = OwnerActor->FindComponentByClass<UAbilitySystemComponent>();
+		UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
 
 		if (ASC)
 		{
 			FGameplayAbilitySpec Spec(ConsumItemData->ConsumableGA, 1, (int32)SlotIndex, this);
 			QuickSlots[SlotIndex].GrantedAbilityHandle = ASC->GiveAbility(Spec);
-
-			UE_LOG(LogTemp, Log, TEXT("SetQuickSlot: 슬롯 %d에 GA 부여 완료"), SlotIndex);
 		}
 	}
-	
-	UE_LOG(LogTemp, Log, TEXT("SetQuickSlot: 슬롯 %d에 아이템 %d, 개수 %d 설정"), SlotIndex, ItemID, SlotCount);
- 
 	return true;
 }
 
@@ -123,43 +99,21 @@ bool UQuickSlotComponent::ClearQuickSlot(int32 SlotIndex)
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ClearQuickSlot] Called on client!"));
 		return false;
 	}
  
 	if (!QuickSlots.IsValidIndex(SlotIndex))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ClearQuickSlot] Invalid SlotIndex: %d"), SlotIndex);
-		return false;
-	}
-
-	AActor* OwnerActor = nullptr;
-
-	// 1) PlayerState → PlayerController 찾기
-	APlayerState* PS = Cast<APlayerState>(GetOwner());
-	if (PS)
-	{
-		APlayerController* PC = PS->GetPlayerController();
-		if (PC)
-		{
-			OwnerActor = PC->GetPawn();   // 최종 캐릭터
-		}
-	}
-
-	if (!OwnerActor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UseItem] OwnerActor is NULL (Failed to get Character)"));
 		return false;
 	}
 	
 	if (QuickSlots[SlotIndex].GrantedAbilityHandle.IsValid())
 	{
-		UAbilitySystemComponent* ASC = OwnerActor->FindComponentByClass<UAbilitySystemComponent>();
+		UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
 
 		if (ASC)
 		{
 			ASC->ClearAbility(QuickSlots[SlotIndex].GrantedAbilityHandle);
-			UE_LOG(LogTemp, Log, TEXT("ClearQuickSlot: 슬롯 %d GA 제거 완료"), SlotIndex);
 		}
 
 		QuickSlots[SlotIndex].GrantedAbilityHandle = FGameplayAbilitySpecHandle();
@@ -167,8 +121,6 @@ bool UQuickSlotComponent::ClearQuickSlot(int32 SlotIndex)
 	
 	QuickSlots[SlotIndex].ItemID = -1;
 	QuickSlots[SlotIndex].Count = 0;
- 
-	UE_LOG(LogTemp, Log, TEXT("[ClearQuickSlot] Slot %d cleared."), SlotIndex);
  
 	// 서버에서 값 변경 시 복제되어 클라이언트 동기화됨
 	return true;
@@ -202,28 +154,9 @@ bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 	UConsumableItemData* ConsumData = Cast<UConsumableItemData>(ItemData);
 	if (!ConsumData || !ConsumData->ConsumableGA)
 		return false;
-
-	AActor* OwnerActor = nullptr;
-
-	// 1) PlayerState → PlayerController 찾기
-	APlayerState* PS = Cast<APlayerState>(GetOwner());
-	if (PS)
-	{
-		APlayerController* PC = PS->GetPlayerController();
-		if (PC)
-		{
-			OwnerActor = PC->GetPawn();   // 최종 캐릭터
-		}
-	}
-
-	if (!OwnerActor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UseItem] OwnerActor is NULL (Failed to get Character)"));
-		return false;
-	}
 	
 	// ASC 가져오기
-	UAbilitySystemComponent* ASC = OwnerActor->FindComponentByClass<UAbilitySystemComponent>();
+	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
 	if (!ASC)
 		return false;
 
@@ -244,16 +177,11 @@ bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 
 	if (!bActivated)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UseQuickSlot: Ability 실행 실패"));
 		return false;
 	}
 
-	// ────────────────────────────────────────────────
-	// 2) Count 차감
-	// ────────────────────────────────────────────────
 	Slot.Count--;
 
-	// 인벤토리에서도 감소
 	Inventory->RemoveItemByIDAndCount(Slot.ItemID, 1);
 
 	return true;
@@ -267,7 +195,6 @@ void UQuickSlotComponent::RefreshQuickSlots()
 	UInventoryComponent* Inventory = GetOwner()->FindComponentByClass<UInventoryComponent>();
 	if (!Inventory)
 	{
-		UE_LOG(LogTemp, Error, TEXT("RefreshQuickSlots: 인벤토리 컴포넌트를 찾을 수 없습니다."));
 		return;
 	}
 

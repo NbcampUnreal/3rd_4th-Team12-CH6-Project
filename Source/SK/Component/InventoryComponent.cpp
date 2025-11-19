@@ -27,6 +27,8 @@ UInventoryComponent::UInventoryComponent()
 
 bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[AddItemByIDAndCount] ItemData  %d"), ItemID);
+	
 	if (!GetOwner() || !GetOwner()->HasAuthority())
 	{
 		return false;
@@ -37,21 +39,27 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 	UInventoryItemData* ItemData = GetItemDataByID(ItemID);
 	if (!ItemData)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[AddItemByIDAndCount] ItemData not found for %d"), ItemID);
+		
 		return false;
 	}
 
 	if (ItemData->bIsStackable)
 	{
+		bool bAddItem = false;
 		for (FInventorySlot& Slot : InventorySlots)
 		{
 			if (Slot.ItemID == ItemID)
 			{
 				Slot.Count += Count;
+				bAddItem = true;
+				break;
 			}
 		}
-		InventorySlots.Add(FInventorySlot{ItemID, Count, FGuid()});
-
+		if (!bAddItem)
+		{
+			InventorySlots.Add(FInventorySlot{ItemID, Count, FGuid()});
+		}
+		
 		return true;
 	}
 	else if (ItemData->InventoryType == EInventoryItemType::Equipment)
@@ -65,8 +73,14 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 		EquipmentInstances.Add(NewEquipInstance);
 			
 		InventorySlots.Add(NewSlot);
-		UE_LOG(LogTemp, Log, TEXT("Generated UniqueID: %s for ItemID: %d"), *NewSlot.UniqueID.ToString(), ItemID);
+		
 		return true;
+	}
+	else
+	{
+		FInventorySlot NewSlot(ItemID, 1, FGuid());
+			
+		InventorySlots.Add(NewSlot);
 	}
 
 	return false;
@@ -236,47 +250,16 @@ bool UInventoryComponent::UseItemByID(int32 UseItemID)
 	// ★ 실제 사용 처리 (예: GE 적용 또는 GA Activation 등) 여기 추가 ★
 	if (ConsumableData->ConsumableGA)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[UseItem] Consumable GA found: %s"),
-			*ConsumableData->ConsumableGA->GetName());
-
-		// OwnerActor = 캐릭터로 변환
-		AActor* OwnerActor = nullptr;
-
-		// 1) PlayerState → PlayerController 찾기
-		APlayerState* PS = Cast<APlayerState>(GetOwner());
-		if (PS)
-		{
-			APlayerController* PC = PS->GetPlayerController();
-			if (PC)
-			{
-				OwnerActor = PC->GetPawn();   // 최종 캐릭터
-			}
-		}
-
-		if (!OwnerActor)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UseItem] OwnerActor is NULL (Failed to get Character)"));
-			return false;
-		}
-
-		UE_LOG(LogTemp, Log, TEXT("[UseItem] OwnerActor: %s"), *OwnerActor->GetName());
-
 		// ASC 찾기
-		UAbilitySystemComponent* ASC = OwnerActor->FindComponentByClass<UAbilitySystemComponent>();
+		UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
 		if (!ASC)
 		{
-			UE_LOG(LogTemp, Error, TEXT("[UseItem] AbilitySystemComponent is NULL on actor %s"),
-				*OwnerActor->GetName());
 			return false;
 		}
 
 		bActivated = ItemAbilityCheckAndActive(ASC, ConsumableData->ConsumableGA);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[UseItem] Consumable GA is NULL"));
-	}
-
+	
 	if (bActivated)
 	{
 		RemoveItemByIDAndCount(UseItemID, 1);
@@ -292,7 +275,6 @@ bool UInventoryComponent::ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC
 {
 	if (!ASC || !AbilityClass)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ASC 또는 AbilityClass가 유효하지 않음"));
 		return false;
 	}
  
@@ -314,7 +296,6 @@ bool UInventoryComponent::ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC
 	{
 		// 어빌리티가 이미 부여된 경우 바로 실행
 		bActivated = ASC->TryActivateAbility(FoundHandle);
-		UE_LOG(LogTemp, Log, TEXT("이미 부여된 어빌리티 실행 결과: %s"), bActivated ? TEXT("성공") : TEXT("실패"));
 	}
 	else
 	{
@@ -324,16 +305,13 @@ bool UInventoryComponent::ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC
  
 		if (!NewHandle.IsValid())
 		{
-			UE_LOG(LogTemp, Error, TEXT("어빌리티 부여 실패"));
 			return false;
 		}
  
 		bActivated = ASC->TryActivateAbility(NewHandle);
-		UE_LOG(LogTemp, Log, TEXT("새로 부여된 어빌리티 실행 결과: %s"), bActivated ? TEXT("성공") : TEXT("실패"));
  
 		// 실행 후 바로 제거
 		ASC->ClearAbility(NewHandle);
-		UE_LOG(LogTemp, Log, TEXT("어빌리티를 제거했습니다."));
 	}
  
 	return bActivated;
