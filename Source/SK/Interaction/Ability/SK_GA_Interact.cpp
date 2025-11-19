@@ -51,6 +51,8 @@ void USK_GA_Interact::LineTraceWithChannel()
 	FHitResult Hit;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(SKCharacter);
+
+	AActor* OldActor = CurrentHitActor;
 	
 	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, CollisionParams))
@@ -59,37 +61,31 @@ void USK_GA_Interact::LineTraceWithChannel()
 		if (HitActor && HitActor->GetClass()->ImplementsInterface(USKInteractable::StaticClass()))
 		{
 			CurrentHitActor = HitActor;
-			// UI 정보 가져와야함
-			// UI 띄우기
-			ASKPickupItem* Item = Cast<ASKPickupItem>(HitActor);
-			if (Item && Item->GetInteractionWidgetComponent())
-			{
-				Item->GetInteractionWidgetComponent()->SetVisibility(true);
-			}
 		}
 		else
 		{
 			CurrentHitActor = nullptr;
-			// UI 제거
-			ASKPickupItem* Item = Cast<ASKPickupItem>(HitActor);
-			if (Item && Item->GetInteractionWidgetComponent())
-			{
-				Item->GetInteractionWidgetComponent()->SetVisibility(false);
-			}
 		}
 	}
 	else
 	{
-		if (CurrentHitActor)
-		{
-			ASKPickupItem* PrevItem = Cast<ASKPickupItem>(CurrentHitActor);
-			if (PrevItem && PrevItem->GetInteractionWidgetComponent())
-			{
-				PrevItem->GetInteractionWidgetComponent()->SetVisibility(false);
-			}
-			CurrentHitActor = nullptr;
-		}
+		CurrentHitActor = nullptr;
 	}
+	
+	if (OldActor && OldActor != CurrentHitActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hide Widget"));
+		if (ASKInteractableBase* OldItem = Cast<ASKInteractableBase>(OldActor))
+			OldItem->OnShowWidget(false);
+	}
+
+	if (CurrentHitActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Show Widget"));
+		if (ASKInteractableBase* NewItem = Cast<ASKInteractableBase>(CurrentHitActor))
+			NewItem->OnShowWidget(true);
+	}
+	
 }
 
 void USK_GA_Interact::TryInteract()
