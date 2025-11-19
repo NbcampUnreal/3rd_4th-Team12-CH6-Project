@@ -41,7 +41,7 @@ void USK_GA_Interact::LineTraceWithChannel()
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
 	if (!SKCharacter) return;
 	FVector Start = SKCharacter->GetActorLocation();
-	
+
 	UCameraComponent* CameraComponent = SKCharacter->GetFollowCamera();
 	FVector Direction = CameraComponent->GetForwardVector();
 	Direction.Z = 0.f;
@@ -119,9 +119,10 @@ void USK_GA_Interact::TryInteract()
 		if (NewHandle.IsValid())
 		{
 			FTimerHandle TempHandle;
-			SKCharacter->GetWorldTimerManager().SetTimer(TempHandle, [ASC, NewHandle]()
+			TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
+			SKCharacter->GetWorldTimerManager().SetTimer(TempHandle, [WeakASC, NewHandle]()
 			{
-				ASC->TryActivateAbility(NewHandle);
+				WeakASC->TryActivateAbility(NewHandle);
 			}, 0.01f, false);
 		}
 		else
