@@ -19,17 +19,17 @@ void USK_GA_OpenChest::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("OpenChestAbility!")));
 	
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (!SKCharacter) return;
-	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!SKPlayerCharacter) return;
+	SKPlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	
-	FSKInteractionData& InteractionData = SKCharacter->CurrentInteractionData;
+	FSKInteractionData& InteractionData = SKPlayerCharacter->CurrentInteractionData;
 
 	FVector TargetLocation = InteractionData.InteractionLocation;
-	TargetLocation.Z = SKCharacter->GetActorLocation().Z;
+	TargetLocation.Z = SKPlayerCharacter->GetActorLocation().Z;
 	
-	SKCharacter->SetActorLocation(TargetLocation);
-	SKCharacter->SetActorRotation(InteractionData.InteractionRotation);
+	SKPlayerCharacter->SetActorLocation(TargetLocation);
+	SKPlayerCharacter->SetActorRotation(InteractionData.InteractionRotation);
 	
 	if (!OpenAnimMontage) return;
 	UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), OpenAnimMontage);
@@ -44,7 +44,7 @@ void USK_GA_OpenChest::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("EndAbility()")));
 
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
+	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!SKCharacter) return;
 	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 

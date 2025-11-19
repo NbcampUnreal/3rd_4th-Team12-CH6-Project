@@ -5,8 +5,10 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Controller/SKPlayerController.h"
 #include "Interaction/Interface/SKInteractable.h"
 #include "Item/Pickup/SKPickupItem.h"
+#include "PlayerState/SKPlayerState.h"
 
 
 USK_GA_Interact::USK_GA_Interact()
@@ -17,8 +19,8 @@ USK_GA_Interact::USK_GA_Interact()
 void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,const FGameplayAbilityActorInfo* ActorInfo,const FGameplayAbilityActivationInfo ActivationInfo,const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (AActor* Owner = GetOwningActorFromActorInfo())
+	
+	if (AActor* Owner = GetAvatarActorFromActorInfo())
 	{
 		Owner->GetWorldTimerManager().SetTimer(
 			TraceTimerHandle,
@@ -38,11 +40,11 @@ void USK_GA_Interact::InputPressed(const FGameplayAbilitySpecHandle Handle,const
 
 void USK_GA_Interact::LineTraceWithChannel()
 {
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
-	if (!SKCharacter) return;
-	FVector Start = SKCharacter->GetActorLocation();
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!SKPlayerCharacter) return;
+	FVector Start = SKPlayerCharacter->GetActorLocation();
 
-	UCameraComponent* CameraComponent = SKCharacter->GetFollowCamera();
+	UCameraComponent* CameraComponent = SKPlayerCharacter->GetFollowCamera();
 	FVector Direction = CameraComponent->GetForwardVector();
 	Direction.Z = 0.f;
 	Direction.Normalize();
@@ -51,7 +53,7 @@ void USK_GA_Interact::LineTraceWithChannel()
 
 	FHitResult Hit;
 	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(SKCharacter);
+	CollisionParams.AddIgnoredActor(SKPlayerCharacter);
 
 	AActor* OldActor = CurrentHitActor;
 	
@@ -93,19 +95,22 @@ void USK_GA_Interact::TryInteract()
 {
 	if (!CurrentHitActor) return;
 	
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetOwningActorFromActorInfo());
-	if (!SKCharacter) return;
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!SKPlayerCharacter) return;
+
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
+	if (!SKPlayerState) return;
 	
 	FSKInteractionData InteractionData;
 
 	// 상호작용 데이터 가져오기
 	ISKInteractable::Execute_GetInteractionData(CurrentHitActor, InteractionData);
-	SKCharacter->CurrentInteractionData = InteractionData;
+	SKPlayerCharacter->CurrentInteractionData = InteractionData;
 
 	// 대상 오브젝트 상호작용 시작
-	ISKInteractable::Execute_Interact(CurrentHitActor, SKCharacter);
+	ISKInteractable::Execute_Interact(CurrentHitActor, SKPlayerCharacter);
 	
-	UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
+	UAbilitySystemComponent* ASC = SKPlayerState->GetAbilitySystemComponent();
 	if (!ASC) return;
 	
 	// 캐릭터 쪽 상호작용 실행
@@ -120,7 +125,7 @@ void USK_GA_Interact::TryInteract()
 		{
 			FTimerHandle TempHandle;
 			TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
-			SKCharacter->GetWorldTimerManager().SetTimer(TempHandle, [WeakASC, NewHandle]()
+			SKPlayerCharacter->GetWorldTimerManager().SetTimer(TempHandle, [WeakASC, NewHandle]()
 			{
 				WeakASC->TryActivateAbility(NewHandle);
 			}, 0.01f, false);
