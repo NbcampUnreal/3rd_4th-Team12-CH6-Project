@@ -89,6 +89,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	UInventoryItemData* GetItemDataByID(const int32& ItemID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	UEquipmentInstance* GetEquipmentInstance(const FGuid& UniqueID) const;
 	
 	// 아이템 목록 조회 함수
 	UFUNCTION(BlueprintCallable, Category="Inventory")
@@ -96,6 +99,8 @@ public:
  
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	TArray<FInventorySlot> GetItemsByType(EInventoryItemType ItemType) const;
+
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	
 protected:
 	// Called when the game starts

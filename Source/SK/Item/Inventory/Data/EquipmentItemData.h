@@ -16,6 +16,25 @@ enum class EEquipmentItemType : uint8
 	Accessory UMETA(DisplayName = "Accessory")
 };
 
+UENUM(BlueprintType)
+enum class EEquipmentSlotType : uint8
+{
+	None UMETA(DisplayName = "None"),
+
+	// 무기
+	Weapon UMETA(DisplayName = "Weapon"),
+
+	// 방어구
+	Helmet UMETA(DisplayName = "Helmet"),
+	Chest UMETA(DisplayName = "Chest"),
+	Leg UMETA(DisplayName = "Leg"),
+	Boots UMETA(DisplayName = "Boots"),
+
+	// 장신구
+	Accessory1 UMETA(DisplayName = "Accessory 1"),
+	Accessory2 UMETA(DisplayName = "Accessory 2")
+};
+
 UCLASS()
 class SK_API UEquipmentItemData : public UInventoryItemData
 {
@@ -26,6 +45,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	EEquipmentItemType EquipmentType;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
+	EEquipmentSlotType SlotType;
+	
 	// 착용 슬롯
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	int32 AttachmentSlot;

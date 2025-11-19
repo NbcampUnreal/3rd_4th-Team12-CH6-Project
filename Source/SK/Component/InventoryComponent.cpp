@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "Engine/ActorChannel.h"
 #include "GameData/StaticData/ItemDataTable.h"
 #include "GameFramework/PlayerState.h"
 #include "Item/Inventory/Data/ConsumableItemData.h"
@@ -30,7 +31,6 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 	{
 		return false;
 	}
-
 	
 	if (Count <= 0) return false;
 
@@ -40,7 +40,7 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 		UE_LOG(LogTemp, Warning, TEXT("[AddItemByIDAndCount] ItemData not found for %d"), ItemID);
 		return false;
 	}
-	
+
 	if (ItemData->bIsStackable)
 	{
 		for (FInventorySlot& Slot : InventorySlots)
@@ -48,30 +48,28 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 			if (Slot.ItemID == ItemID)
 			{
 				Slot.Count += Count;
-				return true;
 			}
 		}
 		InventorySlots.Add(FInventorySlot{ItemID, Count, FGuid()});
-		return true;
-	}
-	else
-	{
-		for (int32 i = 0; i < Count; ++i)
-		{
-			FInventorySlot NewSlot(ItemID, 1, FGuid());
- 
-			if (ItemData->InventoryType == EInventoryItemType::Equipment)
-			{
-				NewSlot.UniqueID = FGuid::NewGuid();
-				UEquipmentInstance* EquipInstance = NewObject<UEquipmentInstance>(this);
 
-				FEquipmentInstanceSlot NewEquipInstance(NewSlot.UniqueID, EquipInstance);
-				EquipmentInstances.Add(NewEquipInstance);
-			}
-			InventorySlots.Add(NewSlot);
-		}
 		return true;
 	}
+	else if (ItemData->InventoryType == EInventoryItemType::Equipment)
+	{
+		FInventorySlot NewSlot(ItemID, 1, FGuid());
+			
+		NewSlot.UniqueID = FGuid::NewGuid();
+		
+		UEquipmentInstance* EquipInstance = NewObject<UEquipmentInstance>(this);
+		FEquipmentInstanceSlot NewEquipInstance(NewSlot.UniqueID, EquipInstance);
+		EquipmentInstances.Add(NewEquipInstance);
+			
+		InventorySlots.Add(NewSlot);
+		UE_LOG(LogTemp, Log, TEXT("Generated UniqueID: %s for ItemID: %d"), *NewSlot.UniqueID.ToString(), ItemID);
+		return true;
+	}
+
+	return false;
 }
 
 bool UInventoryComponent::RemoveItemByIDAndCount(const int32& ItemID, int32 Count)
@@ -375,6 +373,27 @@ TArray<FInventorySlot> UInventoryComponent::GetItemsByType(EInventoryItemType It
 	return Result;
 }
 
+bool UInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool bWroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	
+	for (const FEquipmentInstanceSlot& Slot : EquipmentInstances)
+	{
+		UEquipmentInstance* EquipInst = Slot.EquipmentInstance.Get();
+		
+		if (IsValid(EquipInst) && !EquipInst->HasAnyFlags(RF_BeginDestroyed | RF_FinishDestroyed) && EquipInst->IsSupportedForNetworking())
+		{
+			bWroteSomething |= Channel->ReplicateSubobject(EquipInst, *Bunch, *RepFlags);
+		}
+		else if (EquipInst)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skipping replication of invalid or destroyed EquipmentInstance: %s"), *EquipInst->GetName());
+		}
+	}
+	
+	return bWroteSomething;
+}
+
 void UInventoryComponent::ServerAddItem_Implementation(const int32& ItemID, int32 Count)
 {
 	AddItemByIDAndCount(ItemID, Count);
@@ -451,6 +470,26 @@ UInventoryItemData* UInventoryComponent::GetItemDataByID(const int32& ItemID) co
 	{
 		return ItemData->InventoryItemDataAsset.LoadSynchronous();
 	}
+	
+	return nullptr;
+}
+
+UEquipmentInstance* UInventoryComponent::GetEquipmentInstance(const FGuid& UniqueID) const
+{
+	if (!UniqueID.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[GetEquipmentInstance] Invalid UniqueID."));
+		return nullptr;
+	}
+
+	for (const FEquipmentInstanceSlot& Slot : EquipmentInstances)
+	{
+		if (Slot.UniqueID == UniqueID)
+		{
+			return Slot.EquipmentInstance;
+		}
+	}
+
 	
 	return nullptr;
 }
