@@ -35,26 +35,14 @@ public:
 #pragma region Inventory
 protected:
 	UFUNCTION(BlueprintCallable, Category = "SK|Inventory")
-	void AddToInventory(AActor* Interactor);
-
-	// FInventorySlot InventorySlot;
+	void AddToInventory(AActor* Interactor, FName ItemName, int32 ItemQuantity);
 
 #pragma endregion
 
 #pragma region UI
 public:
 	UFUNCTION(BlueprintCallable, Category = "SK|UI")
-	void OnShowWidget();
-
-	UFUNCTION(BlueprintCallable, Category = "SK|UI")
-	void OnHideWidget();
-
-	// 테스트용 위젯
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
-	UWidgetComponent* InteractionWidgetComponent;
-	
-public:
-	UWidgetComponent* GetInteractionWidgetComponent() const;
+	void OnShowWidget(bool bIsVisible);
 		
 #pragma endregion 
 };

@@ -1,7 +1,13 @@
 #include "SKInteractableBase.h"
 
+#include <Utility/SKGameplayMessageSubsystem.h>
+#include <Utility/SKGameplayMessageTypes.h>
+
+#include "Character/SKPlayerCharacter.h"
 #include "Components/SphereComponent.h"
-#include "Components/WidgetComponent.h"
+#include "Controller/SKPlayerController.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 ASKInteractableBase::ASKInteractableBase()
 {
@@ -18,42 +24,26 @@ ASKInteractableBase::ASKInteractableBase()
 
 	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
-	
-	InteractionWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidgetComponent"));
-	InteractionWidgetComponent->SetupAttachment(RootComponent);
-	InteractionWidgetComponent->SetVisibility(false);
 }
 
 void ASKInteractableBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	InteractionData.InteractionLocation = InteractionPoint->GetComponentLocation();
 	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
 }
 
 void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int32 ItemQuantity)
 {
-	// 플레이어 스테이트 가져오기 및 캐스팅
-	// 인벤토리 컴포넌트 가져오기 및 캐스팅
 	if (!Interactor) return;
 
-	// 인벤토리 전달용 데이터 구성
-	
-	// 인벤토리 내부 추가하는 함수 호춯
-}
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(Interactor);
 	if (!SKCharacter) return;
 
-void ASKInteractableBase::OnShowWidget()
-{
-	// 위젯 표시
-}
 	ASKPlayerController* SKController = Cast<ASKPlayerController>(Interactor);
 	if (!SKController) return;
 
-void ASKInteractableBase::OnHideWidget()
-{
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(Interactor);
 	if (!SKPlayerState) return;
 
@@ -62,11 +52,22 @@ void ASKInteractableBase::OnHideWidget()
 	// InventoryComponent->AddItem(ItemID, ItemQuantity);
 }
 
-UWidgetComponent* ASKInteractableBase::GetInteractionWidgetComponent() const
+void ASKInteractableBase::OnShowWidget(bool bIsVisible)
 {
-	return InteractionWidgetComponent;
-}
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
 
+			FSlotVisibilityMessage VisibilityMessage;
+			VisibilityMessage.LayoutTag = TAG_UI_Layout_InGame;
+			VisibilityMessage.SlotTags.AddTag(TAG_UI_Slot_Interaction);
+			VisibilityMessage.bVisible = bIsVisible;
+
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible,	VisibilityMessage);
+		}
+	}
+}
 
 void ASKInteractableBase::GetInteractionData_Implementation(FSKInteractionData& OutData)
 {
