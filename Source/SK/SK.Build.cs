@@ -41,6 +41,9 @@ public class SK : ModuleRules
 			
 			//폴더 내 에셋 리스트 검색
 			"AssetRegistry",
+			
+			// 지오메트리 컬랙션
+			"GeometryCollectionEngine",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayDebugger" });
