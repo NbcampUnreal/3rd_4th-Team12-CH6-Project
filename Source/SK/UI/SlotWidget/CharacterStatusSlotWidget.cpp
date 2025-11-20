@@ -98,11 +98,11 @@ void UCharacterStatusSlotWidget::StaminaChanged(AActor* EffectInstigator, AActor
 		UE_LOG(LogTemp, Warning, TEXT("[StaminaChanged] AttributeSet NO"));
 		return;
 	}
-	UE_LOG(LogTemp, Log, TEXT("[StaminaChanged] Old: %.2f, New: %.2f, Delta: %.2f, Percent: %.2f"), 
-		OldValue, 
-		NewValue, 
-		EffectMagnitude, 
-		NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f));
+	// UE_LOG(LogTemp, Log, TEXT("[StaminaChanged] Old: %.2f, New: %.2f, Delta: %.2f, Percent: %.2f"), 
+	// 	OldValue, 
+	// 	NewValue, 
+	// 	EffectMagnitude, 
+	// 	NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f));
 	
 	const float Percent = NewValue / FMath::Max(AttributeSet->GetMaxStamina(), 1.0f);
 
