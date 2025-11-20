@@ -22,7 +22,7 @@ void ASKCharacterBase::InitASCFromPlayerState()
 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	AttributeSet = PS->GetAttributeSet();
 
-	if (!AbilitySystemComponent)
+	if (!IsValid(AbilitySystemComponent))
 		return;
 
 	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
@@ -81,6 +81,7 @@ void ASKCharacterBase::BeginPlay()
 
 	//충돌이나 속도,운동관련
 	BaseSetting();
+	InitASCFromPlayerState();
 }
 
 void ASKCharacterBase::BaseSetting()
@@ -103,7 +104,7 @@ void ASKCharacterBase::BaseSetting()
 
 void ASKCharacterBase::OnSpeedAttributeChanged(const FOnAttributeChangeData& Data)
 {
-	if (!AttributeSet)
+	if (!IsValid(AttributeSet))
 		return;
 
 	UCharacterMovementComponent* MoveComp = GetCharacterMovement();

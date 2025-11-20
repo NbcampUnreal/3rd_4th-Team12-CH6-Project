@@ -49,7 +49,7 @@ void ASKPlayerCharacter::BeginPlay()
 
 	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	// PS->SetDAPlayerStat();
-	// SetPlayerStateTag();
+	SetPlayerStateTag();
 	SetWeapon(CurrentWeaponTag);
 
 	if (AController* PC = GetController())
@@ -69,7 +69,7 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
-	
+
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	if (ASC)
 	{
@@ -102,27 +102,39 @@ void ASKPlayerCharacter::UpdateMovementTag()
 		return;
 
 	const float Speed = GetVelocity().Size();
-	const FGameplayTag IdleTag = FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Idle"));
-	const FGameplayTag MoveTag = FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Move"));
-	
-	if (Speed > 5.f)
+	const bool bIsFalling = GetCharacterMovement()->IsFalling();
+
+	SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Grounded, !bIsFalling);
+	SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Air, bIsFalling);
+
+	// Movement 처리
+	if (!bIsFalling)
 	{
-		if (!AbilitySystemComponent->HasMatchingGameplayTag(MoveTag))
-		{
-			AbilitySystemComponent->RemoveLooseGameplayTag(IdleTag);
-			AbilitySystemComponent->AddLooseGameplayTag(MoveTag);
-		}
+		const bool bIsMoving = (Speed > 10.f);
+
+		SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Walk, bIsMoving);
+		SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Idle, !bIsMoving);
+
+		SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Grounded, !bIsFalling);
 	}
 	else
 	{
-		if (!AbilitySystemComponent->HasMatchingGameplayTag(IdleTag))
-		{
-			AbilitySystemComponent->RemoveLooseGameplayTag(MoveTag);
-			AbilitySystemComponent->AddLooseGameplayTag(IdleTag);
-		}
+		SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Air, bIsFalling);
 	}
 }
 
+void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
+{
+	if (!IsValid(AbilitySystemComponent))
+		return;
+
+	SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Walk, false);
+	SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Idle, false);
+	// SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Walk, false);
+
+	//인자로받은 태그 활성화/비활성화
+	SetLooseTag(AbilitySystemComponent, ATKTag, Enable);
+}
 
 
 void ASKPlayerCharacter::OnLeftATKInput()
@@ -281,15 +293,15 @@ void ASKPlayerCharacter::PerformWeaponTrace(float DeltaTime)
 
 void ASKPlayerCharacter::OnLeftAttackEndNotify()
 {
-// 	const int RecentCombo = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
-// 	const int MaxCombo = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
+	// 	const int RecentCombo = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
+	// 	const int MaxCombo = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
 
 	int& RecentComboRef = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
 	int& MaxComboRef = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
 
 	const int RecentCombo = RecentComboRef;
-	const int MaxCombo   = MaxComboRef;
-	
+	const int MaxCombo = MaxComboRef;
+
 	// 1) 입력 버퍼가 있고, 아직 마지막 콤보가 아닐 때 → 콤보 이어가기
 	if (bBufferedAttack && RecentCombo < MaxCombo)
 	{
@@ -364,8 +376,8 @@ void ASKPlayerCharacter::IncreseLeftComboIndex()
 {
 	int& ComboIndex = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
 	const int32* MaxComboPtr = LeftMaxComboMap.Find(CurrentWeaponTag);
-	
-	int32 MaxCombo = MaxComboPtr ? *MaxComboPtr -1 : 1;
+
+	int32 MaxCombo = MaxComboPtr ? *MaxComboPtr - 1 : 1;
 
 	// 콤보 증가
 	ComboIndex++;
@@ -374,8 +386,8 @@ void ASKPlayerCharacter::IncreseLeftComboIndex()
 	if (ComboIndex > MaxCombo)
 	{
 		UE_LOG(LogTemp, Warning,
-			   TEXT("ComboIndex exceeded MaxCombo! Clamping.  Index=%d  Max=%d"),
-			   ComboIndex, MaxCombo);
+		       TEXT("ComboIndex exceeded MaxCombo! Clamping.  Index=%d  Max=%d"),
+		       ComboIndex, MaxCombo);
 		ComboIndex = 1;
 	}
 }
@@ -425,6 +437,26 @@ void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, u
 	UpdateMovementTag(); // Idle/Move 상태 갱신 함수
 }
 
+void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable)
+{
+	if (!ASC)
+		return;
+
+	if (bEnable)
+	{
+		if (!ASC->HasMatchingGameplayTag(Tag))
+		{
+			ASC->AddLooseGameplayTag(Tag);
+		}
+	}
+	else
+	{
+		if (ASC->HasMatchingGameplayTag(Tag))
+		{
+			ASC->RemoveLooseGameplayTag(Tag);
+		}
+	}
+}
 
 
 void ASKPlayerCharacter::SetPlayerStateTag()
@@ -432,5 +464,5 @@ void ASKPlayerCharacter::SetPlayerStateTag()
 	// 주기적인 속도 체크를 위한 타이머 (틱 대신 사용)
 	GetWorldTimerManager().SetTimer(MovementCheckTimer, this, &ASKPlayerCharacter::UpdateMovementTag, 0.2f, true);
 	// 처음엔 Idle 상태 태그 추가
-	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Idle")));
+	SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Idle, true);
 }
