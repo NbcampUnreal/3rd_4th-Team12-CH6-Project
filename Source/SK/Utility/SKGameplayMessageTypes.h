@@ -6,6 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "Templates/Function.h"
 #include "SKGameplayMessageTypes.generated.h"
+class USKInventoryItemData;
 /**
  * 메시지 매칭 규칙
  */
@@ -113,4 +114,16 @@ struct FSlotVisibilityMessage
 	/** 표시 지속 시간 (0이면 무제한 표시) */
 	UPROPERTY(BlueprintReadWrite)
 	float VisibleDuration = 0.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FToolTipSwitch
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 MessageItemID;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bEnter;
 };

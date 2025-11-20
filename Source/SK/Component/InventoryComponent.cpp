@@ -439,7 +439,12 @@ USKInventoryItemData* UInventoryComponent::GetItemDataByID(const int32& ItemID) 
 	if(!SDS) return nullptr;
 
 	const FItemData* ItemData = SDS->GetData<FItemData>(ItemID);
-
+	if (!ItemData)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetItemDataByID: ItemData is nullptr for ItemID %d"), ItemID);
+		return nullptr;
+	}
+	
 	if (ItemData->InventoryItemDataAsset.IsValid())
 	{
 		return ItemData->InventoryItemDataAsset.Get();
