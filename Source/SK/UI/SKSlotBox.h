@@ -41,5 +41,7 @@ protected:
 	void OnSlotDataChanged();
  
 	// 슬롯 새로고침
-	void SettingSlot();	
+	void SettingSlot();
+
+	TSharedRef<SWidget> RebuildWidget() override;
 };

@@ -96,6 +96,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Interaction, "UI.Slot.Interaction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState,		 "PlayerState");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Idle, "PlayerState.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Move, "PlayerState.Move");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_ATK, "PlayerState.ATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_LeftAttack,  "PlayerState.LeftAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Damaged, "PlayerState.Damaged");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Groggy, "PlayerState.Groggy");
