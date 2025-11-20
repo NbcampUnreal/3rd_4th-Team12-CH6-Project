@@ -1,4 +1,4 @@
-#include "GameAbilitySystem/Attribute/SKAIAttributeSet.h"
+#include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 

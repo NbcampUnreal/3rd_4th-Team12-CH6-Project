@@ -22,6 +22,10 @@ public:
 
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TSoftObjectPtr<USKAIDataAsset> AIDataAsset;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Montage")
+	TArray<TObjectPtr<UAnimMontage>> Montages;
 	
 public:
 	ASKAICharacterBase();
@@ -30,5 +34,7 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
-	void InitializeAttributeSetFromDataAsset();
+	void InitializeAttributeSetAndAbilitiesFromDataAsset();
+
+	TArray<UAnimMontage*> GetMontages() const;
 };

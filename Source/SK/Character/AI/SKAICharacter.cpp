@@ -1,5 +1,6 @@
-#include "Character/SKAICharacter.h"
+#include "Character/AI/SKAICharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "AbilitySystemComponent.h"
 
 ASKAICharacter::ASKAICharacter()
 {
@@ -10,5 +11,7 @@ void ASKAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializeAttributeSetFromDataAsset();
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	InitializeAttributeSetAndAbilitiesFromDataAsset();
 }
