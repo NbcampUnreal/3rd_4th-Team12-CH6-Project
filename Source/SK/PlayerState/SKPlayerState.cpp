@@ -7,6 +7,10 @@
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
+#include "Component/EquipmentComponent.h"
+#include "Component/InventoryComponent.h"
+#include "Component/QuickSlotComponent.h"
+
 ASKPlayerState::ASKPlayerState()
 {
 	// ASC 생성
@@ -16,6 +20,24 @@ ASKPlayerState::ASKPlayerState()
 
 	// AttributeSet 생성
 	AttributeSet = CreateDefaultSubobject<USKAttributeSet>(TEXT("AttributeSet"));
+
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	if (InventoryComponent)
+	{
+		InventoryComponent->SetIsReplicated(true);
+	}
+ 
+	QuickSlotComponent = CreateDefaultSubobject<UQuickSlotComponent>(TEXT("QuickSlotComponent"));
+	if (QuickSlotComponent)
+	{
+		QuickSlotComponent->SetIsReplicated(true);
+	}
+ 
+	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
+	if (EquipmentComponent)
+	{
+		EquipmentComponent->SetIsReplicated(true);
+	}
 }
 
 void ASKPlayerState::BeginPlay()
@@ -47,6 +69,7 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
 }
 
