@@ -11,7 +11,7 @@
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
 #include "GameInstance/SKGameInstance.h"
-#include "Constants/SKGameConstants.h"
+#include "PlayerState/SKPlayerState.h"
 
 ASKPlayerController::ASKPlayerController()
 {
@@ -48,7 +48,6 @@ void ASKPlayerController::EnterDungeon()
 
 	UE_LOG(LogTemp, Log, TEXT("[Host] EnterDungeon → TravelToDungeon()"));
 	GI->TravelToDungeon();
-	
 }
 
 void ASKPlayerController::ReturnToTown()
@@ -61,7 +60,7 @@ void ASKPlayerController::ReturnToTown()
 
 	auto* GI = GetGameInstance<USKGameInstance>();;
 	if (!GI) return;
-	
+
 	UE_LOG(LogTemp, Log, TEXT("[Host] ReturnToTown → TravelToTown()"));
 	GI->TravelToTown();
 }
@@ -70,7 +69,7 @@ void ASKPlayerController::LeaveSessionAndReturnToLocalTown()
 {
 	auto* GI = GetGameInstance<USKGameInstance>();
 	if (!GI) return;
-	
+
 	// ✅ Host → 세션 종료 후 로컬 복귀
 	if (HasAuthority())
 	{
@@ -107,9 +106,9 @@ void ASKPlayerController::SetupInputComponent()
 		// EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
 		// 						   &ASKPlayerController::NormalMelee);
 		EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this,
-												   &ASKPlayerController::LeftAttack);
+		                                   &ASKPlayerController::LeftAttack);
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
-							   &ASKPlayerController::Interact);
+		                                   &ASKPlayerController::Interact);
 	}
 }
 
@@ -230,19 +229,18 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 		return;
 
 	PlayerCharacter->OnLeftATKInput();
-	
 }
 
 void ASKPlayerController::Interact(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Interact"));
-	
+
 	ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
 	if (!SKChar)
 		return;
 	UAbilitySystemComponent* ASC = SKChar->GetAbilitySystemComponent();
 	if (!ASC)
 		return;
-	
+
 	ASC->AbilityLocalInputPressed(SKConstant::GA_Interact_ID);
 }
