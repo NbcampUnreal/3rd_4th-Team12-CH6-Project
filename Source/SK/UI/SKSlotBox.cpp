@@ -68,3 +68,30 @@ void USKSlotBox::SettingSlot()
 	CurrentSlotWidget = nullptr;
 	return;
 }
+
+TSharedRef<SWidget> USKSlotBox::RebuildWidget()
+{
+	if (IsDesignTime())
+	{
+		TSharedRef<SOverlay> OverlayWidget = SNew(SOverlay);
+ 
+		OverlayWidget->AddSlot()
+			.Padding(5.0f)
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.Justification(ETextJustify::Center)
+				.Text(FText::Format(
+					NSLOCTEXT("SKSlotBox", "DesignTimeTag", "SlotBox Tag:\n{0}"),
+					FText::FromName(BoxSlotTag.GetTagName())
+				))
+			];
+ 
+		return OverlayWidget;
+	}
+	else
+	{
+		return Super::RebuildWidget();
+	}
+}

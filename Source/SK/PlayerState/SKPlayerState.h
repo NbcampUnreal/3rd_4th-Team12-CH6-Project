@@ -7,6 +7,9 @@
 #include "Character/SKPlayerDataAsset.h"
 #include "SKPlayerState.generated.h"
 
+class UInventoryComponent;
+class UQuickSlotComponent;
+class UEquipmentComponent;
 class UAbilitySystemComponent;
 class USKAttributeSet;
 
@@ -54,9 +57,13 @@ protected:
 	
 #pragma endregion
 
-private:
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", Replicated)
+	UInventoryComponent* InventoryComponent;
+ 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuickSlot", Replicated)
+	UQuickSlotComponent* QuickSlotComponent;
+ 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment", Replicated)
+	UEquipmentComponent* EquipmentComponent;
+	
 };
-
-
-
