@@ -17,12 +17,12 @@ class SK_API USK_GA_LeftAttack_Axe : public USKGameplayAbility
 
 public:
 	USK_GA_LeftAttack_Axe();
-	
+
 	virtual void ActivateAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData) override;
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
 
 	virtual void EndAbility(
 		const FGameplayAbilitySpecHandle Handle,
@@ -33,14 +33,17 @@ public:
 	) override;
 
 
+	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle,
+	                       const FGameplayAbilityActorInfo* ActorInfo,
+	                       OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const
+	override;
+
 
 	void ApplyDamageFromTrace();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Event")
 	FGameplayTag Event_LeftATKTraceEnd;
-	
+
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> LeftAttackDamageGE;
-
-	
 };

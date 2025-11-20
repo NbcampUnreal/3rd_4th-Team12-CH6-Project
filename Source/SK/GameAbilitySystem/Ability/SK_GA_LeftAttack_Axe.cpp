@@ -9,11 +9,11 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USK_GA_LeftAttack_Axe::USK_GA_LeftAttack_Axe()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	
 }
 
 void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -23,16 +23,20 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+
+	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
+	if (!IsValid(Character))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
+	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
+
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	
-	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
-	if (!IsValid(Character))
-		return;
-
 	UAnimInstance* BaseAnim = Character->GetMesh()->GetAnimInstance();
 	if (!IsValid(BaseAnim))
 		return;
@@ -50,7 +54,37 @@ void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
                                        const FGameplayAbilityActivationInfo ActivationInfo,
                                        bool bReplicateEndAbility, bool bWasCancelled)
 {
+	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
+	if (!IsValid(Character))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
+
+	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+
+
+bool USK_GA_LeftAttack_Axe::CheckCost(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
+	if (!result)
+	{
+		ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
+		if (!IsValid(Character))
+			return result;
+
+		ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
+
+		PlayerCharacter->ResetComboState();
+		PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
+		
+	}
+	
+	return result;
 }
 
 

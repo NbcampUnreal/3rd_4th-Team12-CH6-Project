@@ -12,6 +12,8 @@ namespace SKConstant
 	constexpr int LeftMaxCombo_Axe = 4;
 	constexpr int RightMaxCombo_Axe = 4;
 	constexpr int32 GA_Interact_ID = 3;
+
+	constexpr ECollisionChannel ECC_Interactable = ECC_GameTraceChannel1;
 }
 
 //constexpr = 런타임(프로그램실행중)이 아닌 컴파일(프로그램빌드) 중에 계산됨 
