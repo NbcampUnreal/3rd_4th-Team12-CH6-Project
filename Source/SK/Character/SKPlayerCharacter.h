@@ -19,7 +19,6 @@ public:
 	ASKPlayerCharacter();
 
 	virtual void BeginPlay() override;
-
 	virtual void Tick(float DeltaTime) override;
 
 	/** Returns CameraBoom subobject **/
@@ -30,6 +29,8 @@ public:
 	void SetSprinting(bool bSprinting);
 
 	void UpdateMovementTag();
+	void SetPlayerStateTag();
+
 #pragma region Weapon_Collision
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const TArray<AActor*> GetHitActors();
@@ -52,6 +53,9 @@ public:
 	bool CheckMaxLeftComboIndex();
 	FGameplayTag GetLeftATKTag() const;
 
+	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
+	void ResetComboState();
+	
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
 	void ResetLeftComboState(FGameplayTag WeaponTag = FGameplayTag());
 	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
@@ -105,8 +109,9 @@ protected:
 
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
+
 private:
-	void SetPlayerStateTag();
+
 
 #pragma region PlayerAnimState
 	bool bIsSprinting = false;
