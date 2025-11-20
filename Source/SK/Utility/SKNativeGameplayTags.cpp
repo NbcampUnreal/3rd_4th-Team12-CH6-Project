@@ -102,8 +102,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Damaged, "PlayerState.Damaged");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Groggy, "PlayerState.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Dead, "PlayerState.Dead");
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_AIState_Melee, "AIState.Melee");
-
 
 // Root 태그
 UE_DEFINE_GAMEPLAY_TAG(TAG_State, "State");
@@ -124,6 +122,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK, "State.Action.ATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_Skill, "State.Action.ATK.Skill");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_LeftMelee, "State.Action.ATK.LeftMelee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RigthMelee, "State.Action.ATK.RigthMelee");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Melee, "State.Action.Melee");
 // State-Action-Interaction (상호작용)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Interaction, "State.Action.Interaction");
 // State-Condition (실제 플레이에 영향끼치는 상태)
