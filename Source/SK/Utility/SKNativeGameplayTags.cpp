@@ -18,6 +18,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash, "Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash_Active, "Ability.Dash.Active");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interact, "Ability.Interact");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_OpenChest, "Ability.OpenChest");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK, "Ability.LeftATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe, "Ability.LeftATK.Axe");
@@ -89,6 +90,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipList, "UI.Slot.EquipList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipToolTip, "UI.Slot.EquipToolTip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotList, "UI.Slot.QuickSlotList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotToolTip, "UI.Slot.QuickSlotToolTip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Interaction, "UI.Slot.Interaction");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState,		 "PlayerState");

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "GameplayEffect.h"
 #include "GameFramework/Actor.h"
 #include "SKMeleeHitBox.generated.h"
 

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryItemData.h"
-#include "MiscItemData.generated.h"
+#include "SKInventoryItemData.h"
+#include "SKMiscItemData.generated.h"
 
 UCLASS()
-class SK_API UMiscItemData : public UInventoryItemData
+class SK_API USKMiscItemData : public USKInventoryItemData
 {
 	GENERATED_BODY()
 
