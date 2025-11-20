@@ -1,5 +1,7 @@
 #include "SK_GA_Interact.h"
 
+#include <GameData/SKGameConstant.h>
+
 #include "AbilitySystemComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Character/SKPlayerCharacter.h"
@@ -42,12 +44,13 @@ void USK_GA_Interact::LineTraceWithChannel()
 {
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!SKPlayerCharacter) return;
-	FVector Start = SKPlayerCharacter->GetActorLocation();
 
+	FVector Start = SKPlayerCharacter->GetActorLocation();
+	
 	UCameraComponent* CameraComponent = SKPlayerCharacter->GetFollowCamera();
 	FVector Direction = CameraComponent->GetForwardVector();
-	Direction.Z = 0.f;
-	Direction.Normalize();
+	// Direction.Z = 0.f;
+	// Direction.Normalize();
 
 	FVector End = Start + Direction * 200.0f;
 
@@ -58,7 +61,8 @@ void USK_GA_Interact::LineTraceWithChannel()
 	AActor* OldActor = CurrentHitActor;
 	
 	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
-	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, CollisionParams))
+	
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, SKConstant::ECC_Interactable, CollisionParams))
 	{
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor && HitActor->GetClass()->ImplementsInterface(USKInteractable::StaticClass()))

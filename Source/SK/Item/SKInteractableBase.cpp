@@ -1,9 +1,11 @@
 #include "SKInteractableBase.h"
 
+#include <GameData/SKGameConstant.h>
 #include <Utility/SKGameplayMessageSubsystem.h>
 #include <Utility/SKGameplayMessageTypes.h>
 
 #include "Character/SKPlayerCharacter.h"
+#include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "PlayerState/SKPlayerState.h"
@@ -14,13 +16,13 @@ ASKInteractableBase::ASKInteractableBase()
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 	
-	TraceCollision = CreateDefaultSubobject<USphereComponent>("TraceCollision");
+	TraceCollision = CreateDefaultSubobject<UBoxComponent>("TraceCollision");
 	TraceCollision->SetupAttachment(Root);
 
-	TraceCollision->SetSphereRadius(100.0f);
+	TraceCollision->SetBoxExtent(FVector(50.0f));
 	TraceCollision->SetHiddenInGame(false);
 	// 전용 트레이스 채널 추가 필요
-	TraceCollision->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	TraceCollision->SetCollisionResponseToChannel(SKConstant::ECC_Interactable, ECR_Block);
 
 	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
