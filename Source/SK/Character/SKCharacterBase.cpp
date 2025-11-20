@@ -11,7 +11,7 @@
 // Sets default values
 ASKCharacterBase::ASKCharacterBase()
 {
- 	PrimaryActorTick.bCanEverTick = false; // 당장은 false
+	PrimaryActorTick.bCanEverTick = false; // 당장은 false
 }
 
 void ASKCharacterBase::InitASCFromPlayerState()
@@ -34,7 +34,7 @@ void ASKCharacterBase::InitASCFromPlayerState()
 
 	// 초기 속도 적용
 	OnSpeedAttributeChanged(FOnAttributeChangeData());
-
+	
 }
 
 
@@ -49,8 +49,16 @@ void ASKCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	InitASCFromPlayerState();
+	if (HasAuthority())
+	{
+		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		AttributeSet = PS->GetAttributeSet();
 
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+		PS->SetDAPlayerStat();
+	}
 }
 
 void ASKCharacterBase::OnRep_PlayerState()
@@ -64,6 +72,7 @@ UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	return PS ? PS->GetAbilitySystemComponent() : nullptr;
 }
+
 
 // Called when the game starts or when spawned
 void ASKCharacterBase::BeginPlay()
