@@ -44,12 +44,13 @@ void USK_GA_Interact::LineTraceWithChannel()
 {
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!SKPlayerCharacter) return;
-	FVector Start = SKPlayerCharacter->GetActorLocation();
 
+	FVector Start = SKPlayerCharacter->GetActorLocation();
+	
 	UCameraComponent* CameraComponent = SKPlayerCharacter->GetFollowCamera();
 	FVector Direction = CameraComponent->GetForwardVector();
-	Direction.Z = 0.f;
-	Direction.Normalize();
+	// Direction.Z = 0.f;
+	// Direction.Normalize();
 
 	FVector End = Start + Direction * 200.0f;
 
