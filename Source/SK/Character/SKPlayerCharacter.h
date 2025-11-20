@@ -30,6 +30,7 @@ public:
 	void SetSprinting(bool bSprinting);
 
 	void UpdateMovementTag();
+	void UpdateMovementTag_ATK(FGameplayTag ATKTag,bool Enable = true);
 	
 	UPROPERTY(BlueprintReadWrite)
 	FSKInteractionData CurrentInteractionData;
@@ -116,6 +117,7 @@ protected:
 
 
 private:
+	void SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable);
 
 
 #pragma region PlayerAnimState
