@@ -5,6 +5,7 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKInteractableBase.generated.h"
 
+class UBoxComponent;
 class USphereComponent;
 class UWidgetComponent;
 
@@ -23,7 +24,7 @@ public:
 	TObjectPtr<USceneComponent> InteractionPoint;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<USphereComponent> TraceCollision;
+	TObjectPtr<UBoxComponent> TraceCollision;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
 	FSKInteractionData InteractionData;
