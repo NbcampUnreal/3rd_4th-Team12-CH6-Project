@@ -14,7 +14,7 @@ ASKAIController::ASKAIController()
 	
 	SightConfig->SightRadius = 1000.0f; // 시야 범위
 	SightConfig->LoseSightRadius = 1500.0f; // 시야 상실 범위
-	SightConfig->PeripheralVisionAngleDegrees = 60.0f; // 시야각
+	SightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
 	SightConfig->SetMaxAge(5.0f); // 자극 최대 기억 시간
 	// 감지 주기 설정은?
 	// 아래 감지 팀 설정에 따라 AI 시스템이 감지 대상에 대한 목록을 미리 생성하고 이 목록에 있는 액터만 감지 함. // 내부 세부 로직 궁금하넹.

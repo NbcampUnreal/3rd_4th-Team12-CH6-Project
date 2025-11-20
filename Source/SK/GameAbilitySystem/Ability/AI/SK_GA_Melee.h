@@ -12,11 +12,24 @@ class SK_API USK_GA_Melee : public UGameplayAbility
 protected:
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> DamageEffectClasses;
+
+	FGameplayAbilitySpecHandle CachedHandle;
+	const FGameplayAbilityActorInfo* CachedActorInfo;
+	FGameplayAbilityActivationInfo CachedActivationInfo;
+	UPROPERTY()
+	AController* CachedController;
+	UPROPERTY()
+	AActor* CachedTargetActor;
 	
 public:
 	USK_GA_Melee();
 
 	void ApplyDamageToTarget(AActor* TargetActor);
+
+	void Melee(UAnimMontage* AnimMontage);
+
+	UFUNCTION()
+	void OnMeleeCompleted();
 
 protected:
 	virtual void ActivateAbility(

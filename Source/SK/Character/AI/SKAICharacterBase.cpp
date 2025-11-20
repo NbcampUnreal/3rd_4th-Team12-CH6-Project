@@ -95,3 +95,8 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 		}
 	}
 }
+
+TArray<UAnimMontage*> ASKAICharacterBase::GetMontages() const
+{
+	return Montages;
+}
