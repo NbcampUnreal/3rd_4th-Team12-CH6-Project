@@ -1,4 +1,3 @@
-
 #include "SKNativeGameplayTags.h"
 
 
@@ -29,7 +28,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num03, "Ability.LeftATK.Axe.Num03
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num04, "Ability.LeftATK.Axe.Num04");
 
 
-
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
 
 
@@ -52,17 +50,17 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Assassin, "Weapon.Assassin");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound, "Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM, "Sound.BGM");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TestMap,"Sound.BGM.TestMap");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_MainTown,"Sound.BGM.MainTown");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_DungeonLevel,"Sound.BGM.DungeonLevel");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TownLevel,"Sound.BGM.TownLevel");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title,"Sound.BGM.Title");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby,"Sound.BGM.Lobby");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TestMap, "Sound.BGM.TestMap");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_MainTown, "Sound.BGM.MainTown");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_DungeonLevel, "Sound.BGM.DungeonLevel");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TownLevel, "Sound.BGM.TownLevel");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title, "Sound.BGM.Title");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby, "Sound.BGM.Lobby");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_00,"Sound.SFX.ATK_00");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_01,"Sound.SFX.ATK_01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_00, "Sound.SFX.ATK_00");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_01, "Sound.SFX.ATK_01");
 
 
 //UI Tag
@@ -93,15 +91,43 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotToolTip, "UI.Slot.QuickSlotToolTip")
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Interaction, "UI.Slot.Interaction");
 
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState,		 "PlayerState");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState, "PlayerState");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Idle, "PlayerState.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Move, "PlayerState.Move");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_ATK, "PlayerState.ATK");
-UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_LeftAttack,  "PlayerState.LeftAttack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_LeftAttack, "PlayerState.LeftAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Damaged, "PlayerState.Damaged");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Groggy, "PlayerState.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Dead, "PlayerState.Dead");
 
+
+// Root 태그
+UE_DEFINE_GAMEPLAY_TAG(TAG_State, "State");
+
+// State-Posture (자세/위치)
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Posture, "State.Posture");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Posture_Grounded, "State.Posture.Grounded");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Posture_Air, "State.Posture.Air");
+// State-Movement (이동)
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement, "State.Movement");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Idle, "State.Movement.Idle");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Walk, "State.Movement.Walk");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Dash, "State.Movement.Dash");
+// State-Action (행동)
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action, "State.Action");
+// State-Action-ATK (공격)
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK, "State.Action.ATK");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_Skill, "State.Action.ATK.Skill");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_LeftMelee, "State.Action.ATK.LeftMelee");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RigthMelee, "State.Action.ATK.RigthMelee");
+// State-Action-Interaction (상호작용)
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Interaction, "State.Action.Interaction");
+// State-Condition (실제 플레이에 영향끼치는 상태)
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition, "State.Condition");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Stun, "State.Condition.Stun");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Groggy, "State.Condition.Groggy");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
 
 //Message Chanel Tag
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SwitchLayout, "Message.Channel.SwitchLayout");
