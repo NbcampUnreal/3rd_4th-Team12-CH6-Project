@@ -20,11 +20,6 @@ public:
 
 	FORCEINLINE ADungeonGameState* GetGameState() { return Super::GetGameState<ADungeonGameState>(); }
 
-	UFUNCTION(BlueprintCallable)
-	void ReturnToTown();
-
-	
-
 protected:
 	
 #pragma region SeamlessTravel 관련

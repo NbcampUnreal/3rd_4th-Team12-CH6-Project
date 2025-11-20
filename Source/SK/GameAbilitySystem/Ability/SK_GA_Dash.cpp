@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Character/SKCharacterBase.h"
+#include "Character/SKPlayerCharacter.h"
 #include "GameInstance/SKGameInstance.h"
 #include "Utility/SKBGMSubSystem.h"
 
@@ -24,6 +25,7 @@ void USK_GA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	//코스트
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -45,6 +47,10 @@ void USK_GA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	{
 		ASC->AddLooseGameplayTag(DashActiveTag);
 	}
+
+	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
+
+	SKCharacter->ResetComboState();
 
 	if (Character)
 	{

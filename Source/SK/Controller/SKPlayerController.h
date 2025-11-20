@@ -23,6 +23,19 @@ public:
 	ASKPlayerController();
 
 	FOnPawnPossessedSignature OnPawnPossessed;
+
+	//던전 입장 (Host 전용)
+	UFUNCTION(BlueprintCallable)
+	void EnterDungeon();
+
+	//마을 복귀 (Host 전용)
+	UFUNCTION(BlueprintCallable)
+	void ReturnToTown();
+
+	//파티 해제 및 로컬 마을 복귀
+	UFUNCTION(BlueprintCallable)
+	void LeaveSessionAndReturnToLocalTown();
+	
 protected:
 	virtual void BeginPlay() override; 
 	virtual void SetupInputComponent() override;

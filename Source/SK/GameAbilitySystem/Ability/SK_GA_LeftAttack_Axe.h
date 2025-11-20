@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
+#include "Abilities/GameplayAbility.h"
 #include "SK_GA_LeftAttack_Axe.generated.h"
 
 /**
@@ -15,6 +16,8 @@ class SK_API USK_GA_LeftAttack_Axe : public USKGameplayAbility
 	GENERATED_BODY()
 
 public:
+	USK_GA_LeftAttack_Axe();
+	
 	virtual void ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
@@ -29,8 +32,15 @@ public:
 		bool bWasCancelled
 	) override;
 
+
+
 	void ApplyDamageFromTrace();
 
+	UPROPERTY(EditDefaultsOnly, Category = "Event")
+	FGameplayTag Event_LeftATKTraceEnd;
+	
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> LeftAttackDamageGE;
+
+	
 };

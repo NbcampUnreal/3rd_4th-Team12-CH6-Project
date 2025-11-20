@@ -10,15 +10,23 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 
+USK_GA_LeftAttack_Axe::USK_GA_LeftAttack_Axe()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
+}
+
 void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                            const FGameplayAbilityActorInfo* ActorInfo,
+                                            const FGameplayAbilityActivationInfo ActivationInfo,
                                             const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (TriggerEventData && TriggerEventData->EventTag == FGameplayTag::RequestGameplayTag("Event.LeftATKTraceEnd"))
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		ApplyDamageFromTrace();
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
 	}
 	
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
@@ -33,17 +41,18 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	if (!AxeAnimInstance)
 		return;
 
-	
+
 	AxeAnimInstance->PlayLeftAttackAnim();
-	
 }
 
 void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateEndAbility, bool bWasCancelled)
+                                       const FGameplayAbilityActorInfo* ActorInfo,
+                                       const FGameplayAbilityActivationInfo ActivationInfo,
+                                       bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
+
 
 void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
 {
@@ -52,14 +61,14 @@ void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
 		return;
 
 	int LeftATKIndex = PC->GetIsLeftComboIndexByTag();
-	
+
 	for (AActor* HitActor : PC->GetHitActors())
 	{
 		if (!HitActor)
 			continue;
 
 		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[LeftATKIndex];
-	
+
 		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
 
 		// Target의 AbilitySystemComponent 가져오기
@@ -69,7 +78,5 @@ void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
 		{
 			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
-		
 	}
-
 }
