@@ -1,14 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryItemData.h"
-#include "ConsumableItemData.generated.h"
+#include "SKInventoryItemData.h"
+#include "SKConsumableItemData.generated.h"
 
 class UGameplayEffect;
 class UGameplayAbility;
 
 UCLASS()
-class SK_API UConsumableItemData : public UInventoryItemData
+class SK_API USKConsumableItemData : public USKInventoryItemData
 {
 	GENERATED_BODY()
 

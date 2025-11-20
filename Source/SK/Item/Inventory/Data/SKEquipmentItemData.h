@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "InventoryItemData.h"
-#include "EquipmentItemData.generated.h"
+#include "SKInventoryItemData.h"
+#include "SKEquipmentItemData.generated.h"
 
 class UGameplayEffect;
 class UGameplayAbility;
@@ -36,7 +36,7 @@ enum class EEquipmentSlotType : uint8
 };
 
 UCLASS()
-class SK_API UEquipmentItemData : public UInventoryItemData
+class SK_API USKEquipmentItemData : public USKInventoryItemData
 {
 	GENERATED_BODY()
 

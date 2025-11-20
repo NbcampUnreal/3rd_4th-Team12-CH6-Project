@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Character/SKCharacterBase.h"
+#include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
 /**
@@ -30,6 +31,10 @@ public:
 	void SetSprinting(bool bSprinting);
 
 	void UpdateMovementTag();
+	
+	UPROPERTY(BlueprintReadWrite)
+	FSKInteractionData CurrentInteractionData;
+	
 #pragma region Weapon_Collision
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const TArray<AActor*> GetHitActors();
