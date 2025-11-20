@@ -6,8 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
+class USKInventoryItemData;
+class UGameplayAbility;
 class UAbilitySystemComponent;
-class UInventoryItemData;
 enum class EInventoryItemType : uint8;
 class UEquipmentInstance;
 
@@ -88,7 +89,7 @@ public:
 	int32 GetItemCountByID(const int32& ItemID);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	UInventoryItemData* GetItemDataByID(const int32& ItemID) const;
+	USKInventoryItemData* GetItemDataByID(const int32& ItemID) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	UEquipmentInstance* GetEquipmentInstance(const FGuid& UniqueID) const;

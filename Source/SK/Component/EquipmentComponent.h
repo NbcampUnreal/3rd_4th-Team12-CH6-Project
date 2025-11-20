@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Item/Inventory/Data/EquipmentItemData.h"
+#include "Item/Inventory/Data/SKEquipmentItemData.h"
 #include "EquipmentComponent.generated.h"
 
 
@@ -64,7 +64,7 @@ protected:
 	UPROPERTY(Replicated)
 	TObjectPtr<UInventoryComponent> Inventory;
 	
-	void ApplyEquipmentEffect(UEquipmentItemData* ItemData, UEquipmentInstance* Instance);
+	void ApplyEquipmentEffect(USKEquipmentItemData* ItemData, UEquipmentInstance* Instance);
 	void RemoveEquipmentEffect(FEquipmentSlotData& SlotData);
 
 	UFUNCTION(Client, Reliable)

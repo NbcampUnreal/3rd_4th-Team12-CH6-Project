@@ -35,7 +35,7 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 		return false;
 	}
 
-	UEquipmentItemData* ItemData = Cast<UEquipmentItemData>(Inventory->GetItemDataByID(ItemID));
+	USKEquipmentItemData* ItemData = Cast<USKEquipmentItemData>(Inventory->GetItemDataByID(ItemID));
 	if (!ItemData)
 		return false;
 
@@ -109,7 +109,7 @@ void UEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UEquipmentComponent, Inventory);
 }
 
-void UEquipmentComponent::ApplyEquipmentEffect(UEquipmentItemData* ItemData, UEquipmentInstance* Instance)
+void UEquipmentComponent::ApplyEquipmentEffect(USKEquipmentItemData* ItemData, UEquipmentInstance* Instance)
 {
 	if (!ItemData || !Instance)
 		return;

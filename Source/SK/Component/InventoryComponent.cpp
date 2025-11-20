@@ -8,8 +8,8 @@
 #include "Engine/ActorChannel.h"
 #include "GameData/StaticData/ItemDataTable.h"
 #include "GameFramework/PlayerState.h"
-#include "Item/Inventory/Data/ConsumableItemData.h"
-#include "Item/Inventory/Data/InventoryItemData.h"
+#include "Item/Inventory/Data/SKConsumableItemData.h"
+#include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "Net/UnrealNetwork.h"
 #include "Object/EquipmentInstance.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -36,7 +36,7 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 	
 	if (Count <= 0) return false;
 
-	UInventoryItemData* ItemData = GetItemDataByID(ItemID);
+	USKInventoryItemData* ItemData = GetItemDataByID(ItemID);
 	if (!ItemData)
 	{
 		
@@ -96,7 +96,7 @@ bool UInventoryComponent::RemoveItemByIDAndCount(const int32& ItemID, int32 Coun
 	
 	if (Count <= 0) return false;
 
-	UInventoryItemData* ItemData = GetItemDataByID(ItemID);
+	USKInventoryItemData* ItemData = GetItemDataByID(ItemID);
 	if (!ItemData)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[RemoveItemByIDAndCount] ItemData not found for ItemID: %d"), ItemID);
@@ -214,7 +214,7 @@ bool UInventoryComponent::UseItemByID(int32 UseItemID)
 	}
 	
 	// 2) 데이터 가져오기
-	UInventoryItemData* UseItemDataBase = GetItemDataByID(UseItemID);
+	USKInventoryItemData* UseItemDataBase = GetItemDataByID(UseItemID);
 	if (!UseItemDataBase)
 	{
 		UE_LOG(LogTemp, Error, TEXT("UseItemByID: Slot ItemData is null (ItemID: %d)"), UseItemID);
@@ -227,7 +227,7 @@ bool UInventoryComponent::UseItemByID(int32 UseItemID)
 	}
 	
 	// 3) 소모 아이템인지 캐스트
-	UConsumableItemData* ConsumableData = Cast<UConsumableItemData>(UseItemDataBase);
+	USKConsumableItemData* ConsumableData = Cast<USKConsumableItemData>(UseItemDataBase);
 	if (!ConsumableData)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UseItemByID: ItemID %d is not Consumable"), UseItemID);
@@ -342,7 +342,7 @@ TArray<FInventorySlot> UInventoryComponent::GetItemsByType(EInventoryItemType It
 	TArray<FInventorySlot> Result;
 	for (const FInventorySlot& Slot : InventorySlots)
 	{
-		UInventoryItemData* ItemData = GetItemDataByID(Slot.ItemID);
+		USKInventoryItemData* ItemData = GetItemDataByID(Slot.ItemID);
 		if (ItemData && ItemData->InventoryType == ItemType)
 		{
 			Result.Add(Slot);
@@ -427,7 +427,7 @@ void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UInventoryComponent, EquipmentInstances);
 }
 
-UInventoryItemData* UInventoryComponent::GetItemDataByID(const int32& ItemID) const
+USKInventoryItemData* UInventoryComponent::GetItemDataByID(const int32& ItemID) const
 {
 	UWorld* World = GetWorld();
 	if (!World) return nullptr;

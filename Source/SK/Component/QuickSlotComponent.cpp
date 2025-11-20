@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "InventoryComponent.h"
 #include "GameFramework/PlayerState.h"
-#include "Item/Inventory/Data/ConsumableItemData.h"
+#include "Item/Inventory/Data/SKConsumableItemData.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
@@ -42,10 +42,10 @@ bool UQuickSlotComponent::SetQuickSlot(int32 SlotIndex, int32 ItemID)
 	
 	if (QuickSlots[SlotIndex].ItemID != -1)
 	{
-		UInventoryItemData* PrevItem = Inventory->GetItemDataByID(QuickSlots[SlotIndex].ItemID);
+		USKInventoryItemData* PrevItem = Inventory->GetItemDataByID(QuickSlots[SlotIndex].ItemID);
 		if (PrevItem)
 		{
-			if (UConsumableItemData* PrevConsum = Cast<UConsumableItemData>(PrevItem))
+			if (USKConsumableItemData* PrevConsum = Cast<USKConsumableItemData>(PrevItem))
 			{
 				if (PrevConsum->ConsumableGA)
 				{
@@ -68,14 +68,14 @@ bool UQuickSlotComponent::SetQuickSlot(int32 SlotIndex, int32 ItemID)
 		return false;
 	}
 	
-	UInventoryItemData* ItemData = Inventory->GetItemDataByID(ItemID);
+	USKInventoryItemData* ItemData = Inventory->GetItemDataByID(ItemID);
 	if (!ItemData)
 	{
 		UE_LOG(LogTemp, Error, TEXT("SetQuickSlot: 아이템 데이터가 존재하지 않습니다. ItemID=%d"), ItemID);
 		return false;
 	}
 
-	UConsumableItemData* ConsumItemData = Cast<UConsumableItemData>(ItemData);
+	USKConsumableItemData* ConsumItemData = Cast<USKConsumableItemData>(ItemData);
 	
 	int32 SlotCount = FMath::Min(ItemCount, ConsumItemData->QuickSlotSize);
  
@@ -147,11 +147,11 @@ bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 		return false;
 
 	// 슬롯의 아이템 데이터
-	UInventoryItemData* ItemData = Inventory->GetItemDataByID(Slot.ItemID);
+	USKInventoryItemData* ItemData = Inventory->GetItemDataByID(Slot.ItemID);
 	if (!ItemData)
 		return false;
 
-	UConsumableItemData* ConsumData = Cast<UConsumableItemData>(ItemData);
+	USKConsumableItemData* ConsumData = Cast<USKConsumableItemData>(ItemData);
 	if (!ConsumData || !ConsumData->ConsumableGA)
 		return false;
 	
@@ -214,13 +214,13 @@ void UQuickSlotComponent::RefreshQuickSlots()
 			continue;
 		}
 		
-		UInventoryItemData* ItemData = Inventory->GetItemDataByID(Slot.ItemID);
+		USKInventoryItemData* ItemData = Inventory->GetItemDataByID(Slot.ItemID);
 		if (!ItemData)
 		{
 			continue;
 		}
 
-		UConsumableItemData* ConsumData = Cast<UConsumableItemData>(ItemData);
+		USKConsumableItemData* ConsumData = Cast<USKConsumableItemData>(ItemData);
 		if (!ConsumData)
 		{
 			continue;

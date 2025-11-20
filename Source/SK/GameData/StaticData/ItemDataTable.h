@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "StaticDataBase.h"
-#include "Item/Inventory/Data/InventoryItemData.h"
+#include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "ItemDataTable.generated.h"
 
 /**
@@ -22,7 +22,7 @@ public:
 	FName ItemName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
-	TSoftObjectPtr<UInventoryItemData> InventoryItemDataAsset;
+	TSoftObjectPtr<USKInventoryItemData> InventoryItemDataAsset;
 	
 	/** 아이템 액터 클래스 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
