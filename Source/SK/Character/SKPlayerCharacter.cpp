@@ -47,9 +47,9 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	PS->SetDAPlayerStat();
-	SetPlayerStateTag();
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// PS->SetDAPlayerStat();
+	// SetPlayerStateTag();
 	SetWeapon(CurrentWeaponTag);
 
 	if (AController* PC = GetController())
@@ -98,14 +98,13 @@ void ASKPlayerCharacter::SetSprinting(bool bSprinting)
 
 void ASKPlayerCharacter::UpdateMovementTag()
 {
-	if (!AbilitySystemComponent)
+	if (!IsValid(AbilitySystemComponent))
 		return;
 
 	const float Speed = GetVelocity().Size();
 	const FGameplayTag IdleTag = FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Idle"));
 	const FGameplayTag MoveTag = FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Move"));
-
-
+	
 	if (Speed > 5.f)
 	{
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(MoveTag))
@@ -123,6 +122,8 @@ void ASKPlayerCharacter::UpdateMovementTag()
 		}
 	}
 }
+
+
 
 void ASKPlayerCharacter::OnLeftATKInput()
 {
@@ -412,6 +413,11 @@ FGameplayTag ASKPlayerCharacter::GetLeftATKTag() const
 	return returnTag;
 }
 
+void ASKPlayerCharacter::ResetComboState()
+{
+	ResetLeftComboState(CurrentWeaponTag);
+}
+
 
 void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
@@ -419,11 +425,12 @@ void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, u
 	UpdateMovementTag(); // Idle/Move 상태 갱신 함수
 }
 
+
+
 void ASKPlayerCharacter::SetPlayerStateTag()
 {
 	// 주기적인 속도 체크를 위한 타이머 (틱 대신 사용)
 	GetWorldTimerManager().SetTimer(MovementCheckTimer, this, &ASKPlayerCharacter::UpdateMovementTag, 0.2f, true);
-
 	// 처음엔 Idle 상태 태그 추가
 	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("PlayerState.Idle")));
 }
