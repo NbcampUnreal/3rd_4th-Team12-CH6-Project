@@ -15,6 +15,7 @@ void UDropSubsystem::ProcessDropTable(int32 DropTableID, const FVector& Origin)
 	if (World->GetNetMode() == NM_Client) return;
 
 	auto* StaticData = World->GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+	
 	if (!StaticData) return;
 
 	const FDropTableData* Table = StaticData->GetData<FDropTableData>(DropTableID);
@@ -43,20 +44,34 @@ void UDropSubsystem::SpawnPickup(USKPickupItemData* PickupData, int32 Count, con
 	FVector Offset(
 		FMath::FRandRange(-300.0f, 300.0f),
 		FMath::FRandRange(-300.0f, 300.0f),
-		FMath::FRandRange(10.0f, 30.0f)
+		0
 	);
 
-	FVector SpawnLoc = Origin + Offset;
+	FVector StartLoc = Origin + Offset;
+	FVector EndLoc = StartLoc - FVector(0, 0, 2000.0f);
 
-	FActorSpawnParameters Params;
-	Params.SpawnCollisionHandlingOverride =
+	FHitResult Hit;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(DropTrace), false);
+	Params.bReturnPhysicalMaterial = false;
+	Params.AddIgnoredActor(nullptr);
+
+	FVector SpawnLoc = StartLoc;
+
+	//지면 히트 성공 → 그 위치에 스폰
+	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLoc, EndLoc, ECC_Visibility, Params))
+	{
+		SpawnLoc = Hit.ImpactPoint + FVector(0, 0, 5.0f); // 살짝 띄워서 안전하게
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride =
 		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	ASKPickupItem* DropActor = GetWorld()->SpawnActor<ASKPickupItem>(
 			ASKPickupItem::StaticClass(),
 		SpawnLoc,
 		FRotator::ZeroRotator,
-		Params
+		SpawnParams
 	);
 
 	if (!DropActor) return;
