@@ -55,3 +55,15 @@ void USkAnimInstance_Axe::EndLeftAttackAnim()
 {
 	OwnerCharacter->ResetComboState();
 }
+
+void USkAnimInstance_Axe::SetComboIndex(int32 ComboIndex)
+{
+	LeftComboIndex = ComboIndex;
+}
+
+void USkAnimInstance_Axe::SetIsAttacking(bool isAttacking)
+{
+	bLeftAttacking = isAttacking;
+}
+
+

@@ -29,7 +29,10 @@ public:
 	void PlayLeftAttackAnim();
 	void EndLeftAttackAnim();
 	
-
+	void SetComboIndex(int32 ComboIndex);
+	void SetIsAttacking(bool isAttacking);
+	//void SetCanNextCombo(bool bCanNextCombo);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage")
 	TArray<UAnimMontage*> LeftAttackMontages;
 
