@@ -8,6 +8,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Monster_Boss, "Team.Monster.Boss");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event, "Event");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_LeftATKTraceEnd, "Event.LeftATKTraceEnd");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_EndAbility, "Event.EndAbility");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object_SpikeTrap, "Object.SpikeTrap");
@@ -30,6 +31,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num04, "Ability.LeftATK.Axe.Num04
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);
@@ -120,6 +122,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK, "State.Action.ATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_Skill, "State.Action.ATK.Skill");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_LeftMelee, "State.Action.ATK.LeftMelee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RigthMelee, "State.Action.ATK.RigthMelee");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Melee, "State.Action.Melee");
 // State-Action-Interaction (상호작용)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Interaction, "State.Action.Interaction");
 // State-Condition (실제 플레이에 영향끼치는 상태)
@@ -134,3 +138,4 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SwitchLayout, "Message.Channel.Switch
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_RequestConfirm, "Message.Channel.RequestConfirm");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ConfirmResponse, "Message.Channel.ConfirmResponse");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SlotVisible, "Message.Channel.SlotVisible");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ToolTipItem, "Message.Channel.ToolTipItem");

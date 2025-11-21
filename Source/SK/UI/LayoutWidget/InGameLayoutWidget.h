@@ -18,10 +18,18 @@ public:
 	FDataTableRowHandle InGameInputActionData;
 	
 	FUIActionBindingHandle InGameMenuHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle InGameToInventoryData;
+	
+	FUIActionBindingHandle InGameToInventoryHandle;
 	
 protected:
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void HandleInGameAction();
+
+	UFUNCTION()
+	void HandleInGameToInvnetoryAction();
 };

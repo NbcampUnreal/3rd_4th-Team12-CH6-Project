@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "NiagaraSystem.h"
 #include "SKPickupItemData.generated.h"
 
 class USKInventoryItemData;
@@ -34,4 +35,8 @@ public:
 	// 파괴 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
 	TObjectPtr<UParticleSystem> DestroyEffect;
+
+	// 드랍 이펙트
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
+	TObjectPtr<UNiagaraSystem> DropEffect;
 };

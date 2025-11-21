@@ -13,5 +13,14 @@ UCLASS()
 class SK_API UInventoryLayoutWidget : public USKLayoutWidgetBase
 {
 	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle InventoryToInGameData;
 	
+	FUIActionBindingHandle InventoryToInGameHandle;
+protected:
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void HandleInventoryToInGameAction();
 };
