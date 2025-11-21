@@ -38,7 +38,9 @@ protected:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category="Pickup")
 	int32 ItemCount = 1;
 
-	void PlayPickupSound();
+	USoundBase* GetPickupSound() const;
+
+	int32 GetItemID() const;
 
 	UFUNCTION()
 	void OnRep_PickupData();
