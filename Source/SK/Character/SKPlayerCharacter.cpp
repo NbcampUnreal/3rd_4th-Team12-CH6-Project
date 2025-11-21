@@ -12,6 +12,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
+#include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -50,7 +52,8 @@ void ASKPlayerCharacter::BeginPlay()
 	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	// PS->SetDAPlayerStat();
 	SetPlayerStateTag();
-	SetWeapon(CurrentWeaponTag);
+	// SetWeapon(CurrentWeaponTag);
+	//SetTraceSocket();
 
 	if (AController* PC = GetController())
 	{
@@ -86,6 +89,14 @@ void ASKPlayerCharacter::Tick(float DeltaTime)
 	{
 		PerformWeaponTrace(DeltaTime);
 	}
+}
+
+void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
+	DOREPLIFETIME(ASKPlayerCharacter, ComboState);
 }
 
 void ASKPlayerCharacter::SetSprinting(bool bSprinting)
@@ -139,33 +150,27 @@ void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
 
 void ASKPlayerCharacter::OnLeftATKInput()
 {
-	FGameplayTag WeaponTag = CurrentWeaponTag;
-
-	bool& bIsAttacking = IsAttackingMap.FindOrAdd(WeaponTag);
-	bool& bCanNextCombo = CanNextComboMap.FindOrAdd(WeaponTag);
-	int32& ComboIndex = LeftComboIndexMap.FindOrAdd(WeaponTag);
-
-	if (!bIsAttacking)
+	if (!ComboState.bIsAttacking)
 	{
-		ComboIndex = 1;
-		bIsAttacking = true;
-		bBufferedAttack = false;
-
+		ResetComboIndex(1);
+		ComboState.bIsAttacking = true;
+		ComboState.bBufferedAttack = false;
+		// ComboState.bCanNextCombo = true;
 		ActivateLeftAttackGA();
 		return;
 	}
 
 	// 2) 공격 중이지만 다음 공격 가능한 타이밍이면 → 콤보 진행 (GA 재발동)
-	if (bCanNextCombo)
+	if (ComboState.bCanNextCombo)
 	{
-		bBufferedAttack = false;
-		ComboIndex++;
+		ComboState.bBufferedAttack = false;
+		IncreaseComboIndex();
 		ActivateLeftAttackGA();
 		return;
 	}
 
 	// 3) 공격 중인데 아직 콤보 타이밍이 아님 → 버퍼에 입력 저장
-	bBufferedAttack = true;
+	ComboState.bBufferedAttack = true;
 }
 
 void ASKPlayerCharacter::ActivateLeftAttackGA()
@@ -204,31 +209,45 @@ void ASKPlayerCharacter::ClearHitActor()
 
 void ASKPlayerCharacter::SetWeapon(FGameplayTag NewWeaponTag)
 {
-	CurrentWeaponTag = NewWeaponTag;
+	//CurrentWeaponTag = NewWeaponTag;
 
-	if (!WeaponDataTable)
-		return;
+	// if (!WeaponDataTable)
+	// 	return;
+	//
+	// ResetLeftComboState();
+	//
+	//
+	// const FSKWeaponDataRow* Row = WeaponDataTable->FindRow<FSKWeaponDataRow>(
+	// 	CurrentWeaponTag.GetTagName(),
+	// 	*CurrentWeaponTag.ToString()
+	// );
+	//
+	//
+	// if (Row)
+	// {
+	// 	CurrentWeaponTraceSockets = Row->TraceSockets;
+	//
+	// 	// 이전 소켓 위치 기억 배열도 맞춰 재설정 (중요!)
+	// 	PreviousSocketLocations.SetNum(CurrentWeaponTraceSockets.Num());
+	//
+	// 	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
+	// 	{
+	// 		PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
+	// 	}
+	// }
+}
 
-	ResetLeftComboState();
+void ASKPlayerCharacter::SetTraceSocket()
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 
+	CurrentWeaponTraceSockets =PS->GetTraceSocket();
 
-	const FSKWeaponDataRow* Row = WeaponDataTable->FindRow<FSKWeaponDataRow>(
-		CurrentWeaponTag.GetTagName(),
-		*CurrentWeaponTag.ToString()
-	);
+	PreviousSocketLocations.SetNum(CurrentWeaponTraceSockets.Num());
 
-
-	if (Row)
+	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
 	{
-		CurrentWeaponTraceSockets = Row->TraceSockets;
-
-		// 이전 소켓 위치 기억 배열도 맞춰 재설정 (중요!)
-		PreviousSocketLocations.SetNum(CurrentWeaponTraceSockets.Num());
-
-		for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
-		{
-			PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
-		}
+		PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
 	}
 }
 
@@ -291,127 +310,114 @@ void ASKPlayerCharacter::PerformWeaponTrace(float DeltaTime)
 	}
 }
 
-void ASKPlayerCharacter::OnLeftAttackEndNotify()
+void ASKPlayerCharacter::OnRep_PlayerState()
 {
-	// 	const int RecentCombo = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
-	// 	const int MaxCombo = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
+	Super::OnRep_PlayerState();
+	SetTraceSocket();
+}
 
-	int& RecentComboRef = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
-	int& MaxComboRef = LeftMaxComboMap.FindOrAdd(CurrentWeaponTag);
 
-	const int RecentCombo = RecentComboRef;
-	const int MaxCombo = MaxComboRef;
+void ASKPlayerCharacter::OnRep_ComboState()
+{
+}
+
+int32 ASKPlayerCharacter::GetComboIndex()
+{
+	return ComboState.ComboIndex;
+}
+
+bool ASKPlayerCharacter::GetIsAttacking()
+{
+	return ComboState.bIsAttacking;
+}
+
+void ASKPlayerCharacter::ResetComboIndex(int32 ArgComboIndex)
+{
+	ComboState.ComboIndex = ArgComboIndex;
+}
+
+
+void ASKPlayerCharacter::IncreaseComboIndex(bool bLeft)
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+
+	if (!IsValid(PS))
+		return;
+
+	int32 MaxCombo = PS->GetMaxComobo(bLeft);
+
+	ComboState.ComboIndex++;
+
+	// 최대 콤보 수 초과 방지
+	if (ComboState.ComboIndex >= MaxCombo)
+	{
+		// ComboState.ComboIndex = 1;
+		ResetComboIndex(1);
+	}
+
+	if (HasAuthority())
+	{
+		OnRep_ComboState(); // 이름에 맞게 수정 필요
+	}
+}
+
+void ASKPlayerCharacter::OnATKEndNotify(bool bLeft)
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+
+	if (!IsValid(PS))
+		return;
+
+	int32 MaxCombo = PS->GetMaxComobo(bLeft);
+
 
 	// 1) 입력 버퍼가 있고, 아직 마지막 콤보가 아닐 때 → 콤보 이어가기
-	if (bBufferedAttack && RecentCombo < MaxCombo)
+	if (ComboState.bBufferedAttack && ComboState.ComboIndex < MaxCombo)
 	{
-		bBufferedAttack = false;
-		IncreseLeftComboIndex();
+		ComboState.bBufferedAttack = false;
+		IncreaseComboIndex();
 		ActivateLeftAttackGA();
 		return;
 	}
 
-	// 2) 마지막 콤보 도달 → 무조건 종료
-	if (RecentCombo >= MaxCombo)
+	if (ComboState.ComboIndex >= MaxCombo)
 	{
-		ResetLeftComboState();
+		ResetComboState();
 		return;
 	}
 
 	// 3) 입력 버퍼 없음 → 콤보 종료
-	ResetLeftComboState();
+	ResetComboState();
 }
 
-void ASKPlayerCharacter::ResetLeftComboState(FGameplayTag WeaponTag)
+bool ASKPlayerCharacter::CheckMaxComboIndex(bool bLeft)
 {
-	if (!WeaponTag.IsValid())
-	{
-		WeaponTag = CurrentWeaponTag;
-	}
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 
-	LeftComboIndexMap.FindOrAdd(WeaponTag) = 0;
-	IsAttackingMap.FindOrAdd(WeaponTag) = false;
-	CanNextComboMap.FindOrAdd(WeaponTag) = false;
+	if (!IsValid(PS))
+		return false;
 
-	if (CurrentWeaponTag.MatchesTagExact(TAG_Weapon_Axe))
-	{
-		LeftMaxComboMap.FindOrAdd(WeaponTag, SKConstant::LeftMaxCombo_Axe);
-	}
-
-	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
-	{
-		PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
-	}
-}
-
-bool ASKPlayerCharacter::GetIsLeftAttackingByTag() const
-{
-	const bool* bIsAttackingPtr = IsAttackingMap.Find(CurrentWeaponTag);
-
-
-	if (bIsAttackingPtr)
-	{
-		return *bIsAttackingPtr;
-	}
-
+	int32 MaxCombo = PS->GetMaxComobo(bLeft);
+	if (ComboState.ComboIndex >= MaxCombo)
+		return true;
 	return false;
 }
 
-int ASKPlayerCharacter::GetIsLeftComboIndexByTag() const
-{
-	if (!CurrentWeaponTag.IsValid())
-		return 0;
-
-	const int* ComboIndexPtr = LeftComboIndexMap.Find(CurrentWeaponTag);
-
-	if (ComboIndexPtr)
-	{
-		return *ComboIndexPtr;
-	}
-
-	return 0;
-}
-
-void ASKPlayerCharacter::IncreseLeftComboIndex()
-{
-	int& ComboIndex = LeftComboIndexMap.FindOrAdd(CurrentWeaponTag);
-	const int32* MaxComboPtr = LeftMaxComboMap.Find(CurrentWeaponTag);
-
-	int32 MaxCombo = MaxComboPtr ? *MaxComboPtr - 1 : 1;
-
-	// 콤보 증가
-	ComboIndex++;
-
-	// 최대 콤보 수 초과 방지
-	if (ComboIndex > MaxCombo)
-	{
-		UE_LOG(LogTemp, Warning,
-		       TEXT("ComboIndex exceeded MaxCombo! Clamping.  Index=%d  Max=%d"),
-		       ComboIndex, MaxCombo);
-		ComboIndex = 1;
-	}
-}
-
-bool ASKPlayerCharacter::CheckMaxLeftComboIndex()
-{
-	const int* RecentComboIndex = LeftComboIndexMap.Find(CurrentWeaponTag);
-	const int* MaxComboIndex = LeftMaxComboMap.Find(CurrentWeaponTag);
-	if (RecentComboIndex && MaxComboIndex)
-	{
-		return (*RecentComboIndex == *MaxComboIndex);
-	}
-	return false;
-}
 
 FGameplayTag ASKPlayerCharacter::GetLeftATKTag() const
 {
 	FGameplayTag returnTag = FGameplayTag();
-	if (!CurrentWeaponTag.IsValid())
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	
+	if (!IsValid(PS))
 	{
 		return returnTag;
 	}
 
-	if (CurrentWeaponTag.MatchesTagExact(TAG_Weapon_Axe))
+	FGameplayTag PS_WeaponTag = PS->GetWeapontTag();
+	
+	if (PS_WeaponTag.MatchesTagExact(TAG_Weapon_Axe))
 	{
 		returnTag = TAG_Ability_LeftATK_Axe;
 	}
@@ -427,7 +433,19 @@ FGameplayTag ASKPlayerCharacter::GetLeftATKTag() const
 
 void ASKPlayerCharacter::ResetComboState()
 {
-	ResetLeftComboState(CurrentWeaponTag);
+	ResetComboIndex();
+	ComboState.bIsAttacking = false;
+	ComboState.bCanNextCombo = false;
+
+	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
+	{
+		PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
+	}
+}
+
+void ASKPlayerCharacter::UpdateAnimInstanceComboState()
+{
+	ResetComboState();
 }
 
 
@@ -458,6 +476,17 @@ void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGamepl
 	}
 }
 
+void ASKPlayerCharacter::Client_PlayPickupSound_Implementation(USoundBase* PickupSound)
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
+}
+
+void ASKPlayerCharacter::Server_TryInteract_Implementation(AActor* Target)
+{
+	if (!Target) return;
+	
+	ISKInteractable::Execute_Interact(Target, this);
+}
 
 void ASKPlayerCharacter::SetPlayerStateTag()
 {

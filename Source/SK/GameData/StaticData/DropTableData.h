@@ -4,7 +4,32 @@
 
 #include "CoreMinimal.h"
 #include "StaticDataBase.h"
+#include "Item/Pickup/Data/SKPickupItemData.h"
 #include "DropTableData.generated.h"
+
+/**
+ * 개별 드랍 아이템 정보
+ */
+USTRUCT(BlueprintType)
+struct FDropItemData
+{
+	GENERATED_BODY();
+
+	// 드랍 확률 (0~1)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Probability = 1.0f;
+
+	// 최소/최대 드랍 개수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MinCount = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MaxCount = 1;
+
+	// 어떤 아이템을 드랍할지 (ItemID는 PickupData 내부에 존재)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<USKPickupItemData> PickupData;
+};
 
 /**
  * 드롭 테이블 데이터 구조
@@ -16,11 +41,7 @@ struct FDropTableData : public FStaticDataBase
 	GENERATED_BODY()
 
 public:
-	/** 드롭 아이템 ID 배열 (FItemData, FEquipmentData 등 참조 가능) */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="DropTable")
-	TArray<int32> DropItemIDs;
-
-	/** 드롭 확률 (0.0 ~ 1.0, 예: 0.25 → 25%) */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="DropTable")
-	float DropRate = 1.0f;
+	// 드랍 항목 배열
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FDropItemData> Items;
 };

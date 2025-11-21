@@ -1,5 +1,6 @@
 #include "SKInteractableBase.h"
 
+#include <Component/InventoryComponent.h>
 #include <GameData/SKGameConstant.h>
 #include <Utility/SKGameplayMessageSubsystem.h>
 #include <Utility/SKGameplayMessageTypes.h>
@@ -21,22 +22,32 @@ ASKInteractableBase::ASKInteractableBase()
 
 	TraceCollision->SetBoxExtent(FVector(50.0f));
 	TraceCollision->SetHiddenInGame(false);
-	// 전용 트레이스 채널 추가 필요
-	TraceCollision->SetCollisionResponseToChannel(SKConstant::ECC_Interactable, ECR_Block);
-
+	TraceCollision->SetCollisionProfileName(TEXT("Interact"));
+	TraceCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 75.0f));
+	TraceCollision->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.5f));
+	
 	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
+
+	bReplicates = true;
 }
 
 void ASKInteractableBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetReplicateMovement(true);
+	
 	InteractionData.InteractionLocation = InteractionPoint->GetComponentLocation();
 	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
 }
 
-void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int32 ItemQuantity)
+void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity)
 {
 	if (!Interactor) return;
 
@@ -49,9 +60,9 @@ void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(SKPlayerController->PlayerState);
 	if (!SKPlayerState) return;
 
-	// 수정 필요
-	// USKInventoryComponent* InventoryComponent = Cast<USKInventoryComponent>(SKPlayerState->);
-	// InventoryComponent->AddItem(ItemID, ItemQuantity);
+	// 서버 권한 실행으로 수정
+	UInventoryComponent* InventoryComponent = SKPlayerState->FindComponentByClass<UInventoryComponent>();
+	InventoryComponent->AddItemByIDAndCount(ItemID, ItemQuantity);
 }
 
 void ASKInteractableBase::OnShowWidget(bool bIsVisible)

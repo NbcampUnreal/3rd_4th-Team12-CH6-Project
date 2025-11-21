@@ -32,8 +32,12 @@ void USkAnimInstance_Axe::NativeUpdateAnimation(float DeltaSeconds)
 	&& (3.f < GroundSpeed);
 	bIsFalling = OwnerCharacterMovementComponent->IsFalling();
 
-	bLeftAttacking = OwnerCharacter->GetIsLeftAttackingByTag();
-	LeftComboIndex = OwnerCharacter->GetIsLeftComboIndexByTag();
+	OwnerCharacter = Cast<ASKPlayerCharacter>(GetOwningActor());
+	
+	//bLeftAttacking = OwnerCharacter->GetIsLeftAttackingByTag();
+	
+	bLeftAttacking = OwnerCharacter->GetIsAttacking();
+	LeftComboIndex = OwnerCharacter->GetComboIndex();
 	
 }
 
@@ -49,5 +53,5 @@ void USkAnimInstance_Axe::PlayLeftAttackAnim()
 
 void USkAnimInstance_Axe::EndLeftAttackAnim()
 {
-	OwnerCharacter->ResetLeftComboState();
+	OwnerCharacter->ResetComboState();
 }

@@ -1,5 +1,8 @@
 #include "Anim/AI/SKAnimNotifyState.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
+#include "Abilities/GameplayAbilityTypes.h"
 
 USKAnimNotifyState::USKAnimNotifyState()
 {
@@ -21,12 +24,11 @@ void USKAnimNotifyState::NotifyBegin(
 	}
 
 	PrevSocketLocations.Empty();
-	SocketHitActors.Empty();
+	IgnoreActors.Empty();
 
 	for (const FName& SocketName : SocketNames)
 	{
 		PrevSocketLocations.Add(SocketName, MeshComp->GetSocketLocation(SocketName));
-		SocketHitActors.Add(SocketName);
 	}
 
 	if (ObjectTypes.Num() == 0)
@@ -42,7 +44,7 @@ void USKAnimNotifyState::NotifyEnd(
 	)
 {
 	PrevSocketLocations.Empty();
-	SocketHitActors.Empty();
+	IgnoreActors.Empty();
 	
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 }
@@ -73,6 +75,11 @@ void USKAnimNotifyState::NotifyTick(
 		return;
 	}
 
+	if (IgnoreActors.IsEmpty())
+	{
+		IgnoreActors.Add(Owner);
+	}
+	
 	for (const FName& Socket : SocketNames)
 	{
 		if (!PrevSocketLocations.Contains(Socket))
@@ -80,20 +87,9 @@ void USKAnimNotifyState::NotifyTick(
 
 		const FVector Prev = PrevSocketLocations[Socket];
 		const FVector Curr = MeshComp->GetSocketLocation(Socket);
-		
-		TArray<AActor*> IgnoreActors;
-		IgnoreActors.Add(Owner);
-
-		// 이미 맞은 액터는 제외
-		for (const auto& WeakActor : SocketHitActors[Socket])
-		{
-			if (WeakActor.IsValid())
-				IgnoreActors.Add(WeakActor.Get());
-		}
 
 		TArray<FHitResult> Hits;
 
-		// 프레임 사이 스윕
 		const bool bHit = UKismetSystemLibrary::CapsuleTraceMultiForObjects(
 			MeshComp,
 			Prev,
@@ -116,19 +112,30 @@ void USKAnimNotifyState::NotifyTick(
 			for (const FHitResult& Hit : Hits)
 			{
 				AActor* HitActor = Hit.GetActor();
-				if (!HitActor || HitActor == Owner)
-					continue;
+				if (!IsValid(HitActor))
+				{
+					return;
+				}
+				FString Msg = FString::Printf(TEXT("Hit 개수: %d"), Hits.Num());
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Msg);
+				IgnoreActors.Add(HitActor);
+				
+				UAbilitySystemComponent* OwnerASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Owner);
+				if (!OwnerASC)
+				{
+					return;
+				}
 
-				if (SocketHitActors[Socket].Contains(HitActor))
-					continue;
+				FGameplayEventData EventData;
+				EventData.Instigator = Owner;
+				EventData.Target = HitActor;
+				EventData.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Hit"));
+				EventData.OptionalObject = nullptr;
 
-				SocketHitActors[Socket].Add(HitActor);
-
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("맞았음"));
+				OwnerASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 			}
 		}
 
-		// 현재 위치를 다음 프레임 기준점으로
 		PrevSocketLocations[Socket] = Curr;
 	}
 }

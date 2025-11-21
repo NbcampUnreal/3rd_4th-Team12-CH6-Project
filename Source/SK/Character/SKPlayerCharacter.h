@@ -8,6 +8,32 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FSKComboState
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FGameplayTag WeaponTag;
+
+	UPROPERTY()
+	FGameplayTag AttackTypeTag; // 좌,우클릭 스킬
+
+	UPROPERTY()
+	int32 ComboIndex = 0;
+
+	UPROPERTY()
+	bool bIsAttacking = false; //현재공격중인지
+
+	UPROPERTY()
+	bool bCanNextCombo = false; //넘어갈수있는지 공격인지 체크
+
+	UPROPERTY()
+	bool bBufferedAttack = false;
+};
+
 /**
  * 
  */
@@ -21,6 +47,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -30,81 +57,56 @@ public:
 	void SetSprinting(bool bSprinting);
 
 	void UpdateMovementTag();
-	void UpdateMovementTag_ATK(FGameplayTag ATKTag,bool Enable = true);
-	
-	UPROPERTY(BlueprintReadWrite)
-	FSKInteractionData CurrentInteractionData;
-	
+	void UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable = true);
+
 	void SetPlayerStateTag();
 
-#pragma region Weapon_Collision
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	const TArray<AActor*> GetHitActors();
+#pragma region Combo
 
-	void OnLeftATKInput();
-	void ActivateLeftAttackGA();
-	void StartAttackTrace();
-	void StopAttackTrace();
-	void ClearHitActor();
-	void SetWeapon(FGameplayTag NewWeaponTag);
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Battle")
+	// FGameplayTag CurrentWeaponTag;
+	UPROPERTY(ReplicatedUsing = OnRep_ComboState)
+	FSKComboState ComboState;
 
-	// 실제 트레이스
-	void PerformWeaponTrace(float DeltaTime);
-	
-#pragma endregion
-	
-#pragma region AnimState
 
-	void OnLeftAttackEndNotify();
-	bool CheckMaxLeftComboIndex();
+	bool bBufferedAttack = false; // 입력 버퍼링 플래그
+
+	// 지난 프레임의 소켓 위치 저장용
+	TArray<FName> CurrentWeaponTraceSockets;
+	TArray<FVector> PreviousSocketLocations;
+
+	//====================FUNC================================//
+	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
+	void OnRep_ComboState();
+
+	int32 GetComboIndex();
+	bool GetIsAttacking();
+	void ResetComboIndex(int32 ArgComboIndex = 0);
+	void ResetComboState();
+	void IncreaseComboIndex(bool bLeft = true);
+	void OnATKEndNotify(bool bLeft = true);
+	bool CheckMaxComboIndex(bool bLeft = true);
+
 	FGameplayTag GetLeftATKTag() const;
 
-	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
-	void ResetComboState();
-	
-	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
-	void ResetLeftComboState(FGameplayTag WeaponTag = FGameplayTag());
-	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
-	bool GetIsLeftAttackingByTag() const;
-	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
-	int GetIsLeftComboIndexByTag() const;
-	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
-	void IncreseLeftComboIndex();
+	void UpdateAnimInstanceComboState();
+	//CurrentTag 바꿔주는 함수
+	void SetWeapon(FGameplayTag NewWeaponTag);
+	void SetTraceSocket();
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const TArray<AActor*> GetHitActors();
+	void ClearHitActor();
 
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Battle")
-	FGameplayTag CurrentWeaponTag;
-	//현재콤보인덱스
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-	TMap<FGameplayTag, int> LeftComboIndexMap;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-	TMap<FGameplayTag, int> RightComboIndexMap;
-	//공격중이면 true
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-	TMap<FGameplayTag, bool> IsAttackingMap;
-	//다음공격이 가능한지
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-	TMap<FGameplayTag, bool> CanNextComboMap;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-	TMap<FGameplayTag, int32> LeftMaxComboMap;   // 무기별 최대 콤보 수
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-	TMap<FGameplayTag, int32> RightMaxComboMap; 
-
-	bool bBufferedAttack = false;    // 입력 버퍼링 플래그
-
-	//Tag별 소켓 정보 DT
-	UPROPERTY(EditAnywhere, Category="SK|Weapon")
-	UDataTable* WeaponDataTable;
-	UPROPERTY(VisibleAnywhere, Category="SK|Weapon")
-	TArray<FName> CurrentWeaponTraceSockets;
-	// 지난 프레임의 소켓 위치 저장용
-	TArray<FVector> PreviousSocketLocations;
+	void ActivateLeftAttackGA();
+	void OnLeftATKInput();
+	void StartAttackTrace();
+	void StopAttackTrace();
+	void PerformWeaponTrace(float DeltaTime);
 #pragma endregion
 
 protected:
+	virtual void OnRep_PlayerState() override;
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -115,7 +117,6 @@ protected:
 
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
-
 private:
 	void SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable);
 
@@ -123,16 +124,29 @@ private:
 #pragma region PlayerAnimState
 	bool bIsSprinting = false;
 	FTimerHandle MovementCheckTimer;
-	
+
 #pragma endregion
 
 #pragma region Weapon_Collision
 
-	
+
 	bool bIsTracing = false;
-	
+
 	UPROPERTY()
 	TArray<AActor*> HitActors;
+
 	
+#pragma endregion
+
+#pragma region Interaction
+public:
+	UFUNCTION(Server, Reliable)
+	void Server_TryInteract(AActor* Target);
+
+	UFUNCTION(Client, Reliable)
+	void Client_PlayPickupSound(USoundBase* PickupSound);
+	
+	UPROPERTY(BlueprintReadWrite)
+	FSKInteractionData CurrentInteractionData;
 #pragma endregion
 };

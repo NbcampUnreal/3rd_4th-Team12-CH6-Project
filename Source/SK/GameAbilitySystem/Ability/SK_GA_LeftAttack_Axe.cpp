@@ -94,7 +94,7 @@ void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
 	if (!PC)
 		return;
 
-	int LeftATKIndex = PC->GetIsLeftComboIndexByTag();
+	int LeftATKIndex = PC->GetComboIndex();
 
 	for (AActor* HitActor : PC->GetHitActors())
 	{
