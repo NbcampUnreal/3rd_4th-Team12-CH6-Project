@@ -32,9 +32,6 @@ public:
 	void UpdateMovementTag();
 	void UpdateMovementTag_ATK(FGameplayTag ATKTag,bool Enable = true);
 	
-	UPROPERTY(BlueprintReadWrite)
-	FSKInteractionData CurrentInteractionData;
-	
 	void SetPlayerStateTag();
 
 #pragma region Weapon_Collision
@@ -140,5 +137,11 @@ private:
 public:
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract(AActor* Target);
+
+	UFUNCTION(Client, Reliable)
+	void Client_PlayPickupSound(USoundBase* PickupSound);
+	
+	UPROPERTY(BlueprintReadWrite)
+	FSKInteractionData CurrentInteractionData;
 #pragma endregion
 };
