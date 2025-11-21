@@ -29,5 +29,6 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 		return; 
 	}
 	
-	PlayerCharacter->OnLeftAttackEndNotify();
+	// PlayerCharacter->OnLeftAttackEndNotify();
+	PlayerCharacter->OnATKEndNotify();
 }

@@ -16,4 +16,10 @@ struct FSKWeaponDataRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> TraceSockets;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxLeftCombo = 1;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxRightCombo = 1;
 };
