@@ -4,8 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
 #include "QuickItemSlotWidget.generated.h"
 
+class UInventoryComponent;
+class UQuickSlotComponent;
 class UImage;
 class UTextBlock;
 /**
@@ -27,6 +31,15 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* ItemImage3;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CountText1;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CountText2;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CountText3;
+	
 	// 키 표시용 텍스트 (3개)
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* KeyText1;
@@ -35,5 +48,24 @@ public:
 	UTextBlock* KeyText2;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* KeyText3;	
+	UTextBlock* KeyText3;
+
+protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+	
+	void TryCachedComponent();
+
+	UFUNCTION()
+	void SettingWidgetIcons();
+
+	UPROPERTY()
+	UQuickSlotComponent* CachedQuickSlot;
+
+	UPROPERTY()
+	UInventoryComponent* CachedInventory;
+
+	FSKGameplayMessageListenerHandle LayoutSwitchHandle;
+
+	void OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message);
 };

@@ -86,9 +86,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryList, "UI.Slot.InventoryList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryItemToolTip, "UI.Slot.InventoryItemToolTip");
-UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipQuickList, "UI.Slot.EquipQuickList");
-UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipQuickToolTip, "UI.Slot.EquipQuickToolTip");
-UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipQuickStat, "UI.Slot.EquipQuickStat");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipMainList, "UI.Slot.EquipMainList");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipMainToolTip, "UI.Slot.EquipMainToolTip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipMainStat, "UI.Slot.EquipMainStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipList, "UI.Slot.EquipList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipToolTip, "UI.Slot.EquipToolTip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotList, "UI.Slot.QuickSlotList");
@@ -142,3 +142,4 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_RequestConfirm, "Message.Channel.Requ
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ConfirmResponse, "Message.Channel.ConfirmResponse");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SlotVisible, "Message.Channel.SlotVisible");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ToolTipItem, "Message.Channel.ToolTipItem");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemSwitchSelect, "Message.Channel.ItemSwitchSelect");
