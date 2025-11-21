@@ -5,19 +5,28 @@
 #include "GameData/StaticData/StaticDataBase.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "GameData/StaticData/ItemDataTable.h"
+#include "Engine/DataTable.h"
 
 void UStaticDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
 	UE_LOG(LogTemp, Log, TEXT("[StaticDataSubsystem] Initialize() - Auto Loading DataTables"));
+
+	FAssetRegistryModule& AssetRegistryModule =
+		FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+
+	// 모든 에셋 로딩이 끝난 이후 호출됨
+	AssetRegistryModule.Get().OnFilesLoaded().AddUObject(
+		this, &UStaticDataSubsystem::AutoRegisterDataTables);
+
 	AutoRegisterDataTables();
 }
 
 void UStaticDataSubsystem::Deinitialize()
 {
 	for (auto& Pair : DataManagers)
-	{
+	{ 
 		if (Pair.Value)
 			Pair.Value->Unload();
 	}
@@ -32,12 +41,13 @@ void UStaticDataSubsystem::AutoRegisterDataTables()
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 
 	TArray<FAssetData> FoundAssets;
-	AssetRegistryModule.Get().GetAssetsByPath(FName("/Game/BluePrint/GameData/StaticData/"), FoundAssets, true);
+	const FTopLevelAssetPath DataTableClassPath = UDataTable::StaticClass()->GetClassPathName();
+	AssetRegistryModule.Get().GetAssetsByClass(DataTableClassPath, FoundAssets, true);
 
 	for (const FAssetData& Asset : FoundAssets)
 	{
 		UDataTable* DataTable = Cast<UDataTable>(Asset.GetAsset());
-		if (!DataTable) return;
+		if (!DataTable) continue;
 		
 		const UScriptStruct* RowStruct = DataTable->GetRowStruct();
 		if (!RowStruct)
@@ -46,7 +56,7 @@ void UStaticDataSubsystem::AutoRegisterDataTables()
 		// FStaticDataBase를 상속한 구조체만 자동 등록
 		if (!RowStruct->IsChildOf(FStaticDataBase::StaticStruct()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[StaticDataSubsystem] DataTable %s skipped (RowStruct not derived from FStaticDataBase)"), *Asset.AssetName.ToString());
+			//UE_LOG(LogTemp, Warning, TEXT("[StaticDataSubsystem] DataTable %s skipped (RowStruct not derived from FStaticDataBase)"), *Asset.AssetName.ToString());
 			continue;
 		}
 
