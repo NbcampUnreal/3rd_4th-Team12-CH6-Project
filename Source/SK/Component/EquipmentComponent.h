@@ -24,6 +24,12 @@ struct FEquipmentSlotData
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UEquipmentInstance> EquipmentInstance;
+
+	FEquipmentSlotData()
+		: ItemID(-1)
+		, UniqueID(FGuid())      // 빈 GUID로 초기화
+		, EquipmentInstance(nullptr)
+	{}
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

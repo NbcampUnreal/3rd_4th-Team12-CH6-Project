@@ -184,6 +184,8 @@ bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 
 	Inventory->RemoveItemByIDAndCount(Slot.ItemID, 1);
 
+	OnQuickSlotsUpdated.Broadcast();
+	
 	return true;
 }
 
@@ -252,6 +254,11 @@ void UQuickSlotComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UQuickSlotComponent, QuickSlots);
+}
+
+void UQuickSlotComponent::OnRep_QuickSlots()
+{
+	OnQuickSlotsUpdated.Broadcast();
 }
 
 void UQuickSlotComponent::ServerSetQuickSlot_Implementation(int32 SlotIndex, int32 ItemID)

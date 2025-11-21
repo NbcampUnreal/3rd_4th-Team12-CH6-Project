@@ -4,53 +4,49 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "EquipMainItemWidget.generated.h"
+#include "Component/InventoryComponent.h"
+#include "SlectItemWidget.generated.h"
 
-class UEquipmentComponent;
-class UEquipmentInstance;
-enum class EEquipmentSlotType : uint8;
-enum class EInventoryItemType : uint8;
+class UTextBlock;
 class UImage;
+struct FInventorySlot;
+class UEquipmentComponent;
+enum class EInventoryItemType : uint8;
+enum class EEquipmentSlotType : uint8;
 
-USTRUCT(BlueprintType)
-struct FEquipMainItemForWidget
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadWrite)
-	int32 CurrentItemID;
-	
-	UPROPERTY(BlueprintReadWrite)
-	UEquipmentInstance* CurrentEquipInstance;
-};
 /**
  * 
  */
 UCLASS()
-class SK_API UEquipMainItemWidget : public UUserWidget
+class SK_API USlectItemWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-	void SetItem(const int32 ItemID, UEquipmentComponent* EquipmentComponent);
+	void SetItem(FInventorySlot InvenSlot);
 
 	UFUNCTION(BlueprintCallable)
-	void SettingSlot(EInventoryItemType ItemType, EEquipmentSlotType SlotType, int32 QuickSlotNumber);
+	void SettingSlot(EInventoryItemType ItemType, EEquipmentSlotType SlotType, int32 QuickSlotNum);
 	
-	FEquipMainItemForWidget CurrentEquipMainItem;
+	FInventorySlot CurrentInventorySlot;
 
 	UPROPERTY(BlueprintReadWrite)
 	EEquipmentSlotType CurrentEquipSlotType;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 CurrentQuickSlotNum;
 protected:
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* ItemNameText;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* ItemQuantityText;
+	
 	UPROPERTY(meta=(BindWidget))
 	UImage* ItemIcon;
 
 	UPROPERTY(BlueprintReadWrite)
 	EInventoryItemType CurrentItemType;
-
-	UPROPERTY(BlueprintReadWrite)
-	int32 CurrentQuickSlotNumber;
-	
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -63,5 +59,8 @@ protected:
 	void OnItemUnhovered();
 
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
-	void OnItemClicked();	
+	void OnItemLeftClicked();
+
+	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
+	void OnItemRightClicked();
 };

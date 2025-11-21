@@ -69,6 +69,11 @@ void UInventoryItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 
 void UInventoryItemWidget::OnItemHovered()
 {
+	if (CurrentItem.ItemID == -1)
+	{
+		return;
+	}
+	
 	if (UWorld* World = GetWorld())
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
@@ -84,6 +89,11 @@ void UInventoryItemWidget::OnItemHovered()
 
 void UInventoryItemWidget::OnItemUnhovered()
 {
+	if (CurrentItem.ItemID == -1)
+	{
+		return;
+	}
+	
 	if (UWorld* World = GetWorld())
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))

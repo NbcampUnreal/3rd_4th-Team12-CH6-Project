@@ -15,7 +15,14 @@
 void UEquipMainItemWidget::SetItem(const int32 ItemID, UEquipmentComponent* EquipmentComponent)
 {
 	CurrentEquipMainItem.CurrentItemID = ItemID;
-
+	
+	if (ItemID == -1)
+	{
+		ItemIcon->SetBrush(FSlateBrush());
+		CurrentEquipMainItem.CurrentEquipInstance = nullptr;
+		return;
+	}
+	
 	UWorld* World = GetWorld();
 	if (!World) return;
 
@@ -40,13 +47,9 @@ void UEquipMainItemWidget::SetItem(const int32 ItemID, UEquipmentComponent* Equi
 	{
 		CurrentItemData = ItemData->InventoryItemDataAsset.LoadSynchronous();
 	}
-	
+		
 	if (!CurrentItemData)
 	{
-		if (ItemID == -1)
-		{
-			ItemIcon->SetBrush(FSlateBrush());
-		}
 		return;
 	}
 
@@ -54,30 +57,13 @@ void UEquipMainItemWidget::SetItem(const int32 ItemID, UEquipmentComponent* Equi
 	{
 		if (CurrentItemData->ItemIcon && IsValid(CurrentItemData->ItemIcon))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("SetBrushFromTexture: Valid ItemIcon found. Texture name: %s"), *CurrentItemData->ItemIcon->GetName());
-			// 아이콘이 유효하면 텍스처 설정
 			ItemIcon->SetBrushFromTexture(CurrentItemData->ItemIcon);
 		}
 		else
 		{
-			if (!CurrentItemData->ItemIcon)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("CurrentItemData->ItemIcon is nullptr."));
-			}
-			else if (!IsValid(CurrentItemData->ItemIcon))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("CurrentItemData->ItemIcon is invalid UObject."));
-			}
- 
-			// 아이콘 없으면 브러시 초기화 (없앰)
 			ItemIcon->SetBrush(FSlateBrush());
-			UE_LOG(LogTemp, Warning, TEXT("SetBrush: ItemIcon brush cleared."));
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("ItemIcon widget is nullptr."));
-	}
+	}	
 
 	if (CurrentItemData->InventoryType == EInventoryItemType::Equipment)
 	{
@@ -88,12 +74,13 @@ void UEquipMainItemWidget::SetItem(const int32 ItemID, UEquipmentComponent* Equi
 	}	
 }
 
-void UEquipMainItemWidget::SettingSlot(EInventoryItemType ItemType, EEquipmentSlotType SlotType)
+void UEquipMainItemWidget::SettingSlot(EInventoryItemType ItemType, EEquipmentSlotType SlotType, int32 QuickSlotNumber)
 {
 	CurrentEquipMainItem.CurrentItemID = -1;
 	CurrentItemType = ItemType;
 	CurrentEquipSlotType = SlotType;
 	CurrentEquipMainItem.CurrentEquipInstance = nullptr;
+	CurrentQuickSlotNumber = QuickSlotNumber;
 }
 
 void UEquipMainItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -125,6 +112,11 @@ FReply UEquipMainItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry
 
 void UEquipMainItemWidget::OnItemHovered()
 {
+	if (CurrentEquipMainItem.CurrentItemID == -1)
+	{
+		return;
+	}
+	
 	if (UWorld* World = GetWorld())
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
@@ -140,6 +132,11 @@ void UEquipMainItemWidget::OnItemHovered()
 
 void UEquipMainItemWidget::OnItemUnhovered()
 {
+	if (CurrentEquipMainItem.CurrentItemID == -1)
+	{
+		return;
+	}
+	
 	if (UWorld* World = GetWorld())
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
@@ -159,11 +156,35 @@ void UEquipMainItemWidget::OnItemClicked()
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
 		{
-			// 전송할 메시지 생성
-			FToolTipSwitch Message(CurrentEquipMainItem.CurrentItemID, false);
+			FSwitchLayoutMessage SwitchMessage;
+			FItemSwitchMessage ItemSwitchMessage;
+			if (CurrentItemType == EInventoryItemType::Equipment)
+			{
+				SwitchMessage.LayoutTag = TAG_UI_Layout_EquipmentSelect;
+				ItemSwitchMessage.EquipmentType = CurrentEquipSlotType;
+			}
+			else if (CurrentItemType == EInventoryItemType::Consumable)
+			{
+				SwitchMessage.LayoutTag = TAG_UI_Layout_EquipmentSelect;
+				ItemSwitchMessage.EquipmentType = EEquipmentSlotType::None;
+				
+			}
+			
+			SwitchMessage.bVisible = true;
+			ItemSwitchMessage.ItemType = CurrentItemType;
+			ItemSwitchMessage.QuickSlotNumber = CurrentQuickSlotNumber;
 
+			UE_LOG(LogTemp, Warning, TEXT("[OnItemClicked] SwitchMessage: LayoutTag=%s, bVisible=%s"),
+				*SwitchMessage.LayoutTag.ToString(),
+				SwitchMessage.bVisible ? TEXT("true") : TEXT("false"));
+ 
+			UE_LOG(LogTemp, Warning, TEXT("[OnItemClicked] ItemSwitchMessage: EquipmentType=%d, ItemType=%d"),
+				static_cast<int32>(ItemSwitchMessage.EquipmentType),
+				static_cast<int32>(ItemSwitchMessage.ItemType));
+			
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ToolTipItem, Message);
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, SwitchMessage);
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ItemSwitchSelect, ItemSwitchMessage);
 		}
 	}
 }

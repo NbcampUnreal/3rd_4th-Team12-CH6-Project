@@ -6,6 +6,8 @@
 #include "GameplayTagContainer.h"
 #include "Templates/Function.h"
 #include "SKGameplayMessageTypes.generated.h"
+enum class EEquipmentSlotType : uint8;
+enum class EInventoryItemType : uint8;
 class USKInventoryItemData;
 /**
  * 메시지 매칭 규칙
@@ -126,4 +128,18 @@ struct FToolTipSwitch
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bEnter;
+};
+
+USTRUCT(BlueprintType)
+struct FItemSwitchMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	EInventoryItemType ItemType;
+
+	EEquipmentSlotType EquipmentType;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 QuickSlotNumber;
 };

@@ -7,6 +7,8 @@
 #include "Components/ActorComponent.h"
 #include "QuickSlotComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQuickSlotsUpdated);
+
 USTRUCT(BlueprintType)
 struct FQuickSlot
 {
@@ -60,14 +62,20 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerRefreshQuickSlots();
+
+	UPROPERTY(BlueprintAssignable, Category="Inventory|QuickSlot")
+	FOnQuickSlotsUpdated OnQuickSlotsUpdated;
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_QuickSlots();
 	
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing=OnRep_QuickSlots, VisibleAnywhere, BlueprintReadOnly)
 	TArray<FQuickSlot> QuickSlots = { FQuickSlot(), FQuickSlot(), FQuickSlot() };
 		
 };
