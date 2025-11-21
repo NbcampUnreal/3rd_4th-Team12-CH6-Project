@@ -112,7 +112,7 @@ void USK_GA_Interact::TryInteract()
 	SKPlayerCharacter->CurrentInteractionData = InteractionData;
 
 	// 대상 오브젝트 상호작용 시작
-	ISKInteractable::Execute_Interact(CurrentHitActor, SKPlayerCharacter);
+	SKPlayerCharacter->Server_TryInteract(CurrentHitActor);
 	
 	UAbilitySystemComponent* ASC = SKPlayerState->GetAbilitySystemComponent();
 	if (!ASC) return;

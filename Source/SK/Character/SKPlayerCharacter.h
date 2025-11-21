@@ -135,4 +135,10 @@ private:
 	TArray<AActor*> HitActors;
 	
 #pragma endregion
+
+#pragma region Interaction
+public:
+	UFUNCTION(Server, Reliable)
+	void Server_TryInteract(AActor* Target);
+#pragma endregion
 };

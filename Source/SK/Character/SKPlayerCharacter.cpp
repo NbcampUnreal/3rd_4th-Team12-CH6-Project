@@ -458,6 +458,12 @@ void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGamepl
 	}
 }
 
+void ASKPlayerCharacter::Server_TryInteract_Implementation(AActor* Target)
+{
+	if (!Target) return;
+	
+	ISKInteractable::Execute_Interact(Target, this);
+}
 
 void ASKPlayerCharacter::SetPlayerStateTag()
 {
