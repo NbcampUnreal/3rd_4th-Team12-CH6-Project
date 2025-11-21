@@ -41,8 +41,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Equipment")
 	bool UnequipItem(EEquipmentSlotType Slot);
 
-	UFUNCTION(BlueprintCallable, Category="Equipment")
-	UEquipmentInstance* GetEquipment(EEquipmentSlotType Slot) const;
+	const FEquipmentSlotData* GetEquipment(EEquipmentSlotType Slot);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerEquipItem(const FGuid& UniqueID, const int32 ItemID);

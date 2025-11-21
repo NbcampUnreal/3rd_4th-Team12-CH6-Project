@@ -232,6 +232,11 @@ void UQuickSlotComponent::RefreshQuickSlots()
 	}
 }
 
+TArray<FQuickSlot> UQuickSlotComponent::GetQuickSlots()
+{
+	return QuickSlots;
+}
+
 
 // Called when the game starts
 void UQuickSlotComponent::BeginPlay()

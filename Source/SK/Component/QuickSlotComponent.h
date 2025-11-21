@@ -45,6 +45,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
 	void RefreshQuickSlots();
+
+	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
+	TArray<FQuickSlot> GetQuickSlots();
 	
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerSetQuickSlot(int32 SlotIndex, int32 ItemID);

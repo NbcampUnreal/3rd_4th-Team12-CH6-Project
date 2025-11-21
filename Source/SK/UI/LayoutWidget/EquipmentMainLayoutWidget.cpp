@@ -9,6 +9,7 @@
 void UEquipmentMainLayoutWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+ 
 	EquipMainToInGameHandle = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
 }
 
