@@ -5,8 +5,13 @@
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Character/SKCharacterBase.h"
+#include "Character/SKPlayerCharacter.h"
+#include "Constants/SKGameConstants.h"
+#include "GameData/SKGameConstant.h"
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
+#include "GameInstance/SKGameInstance.h"
+#include "PlayerState/SKPlayerState.h"
 
 ASKPlayerController::ASKPlayerController()
 {
@@ -30,6 +35,56 @@ void ASKPlayerController::BeginPlay()
 	UISubSystem->SettingLayout();
 }
 
+void ASKPlayerController::EnterDungeon()
+{
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Client] Dungeon entry is host-only."));
+		return;
+	}
+
+	auto* GI = GetGameInstance<USKGameInstance>();
+	if (!GI) return;
+
+	UE_LOG(LogTemp, Log, TEXT("[Host] EnterDungeon → TravelToDungeon()"));
+	GI->TravelToDungeon();
+}
+
+void ASKPlayerController::ReturnToTown()
+{
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Client] ReturnToTown is host-only."));
+		return;
+	}
+
+	auto* GI = GetGameInstance<USKGameInstance>();;
+	if (!GI) return;
+
+	UE_LOG(LogTemp, Log, TEXT("[Host] ReturnToTown → TravelToTown()"));
+	GI->TravelToTown();
+}
+
+void ASKPlayerController::LeaveSessionAndReturnToLocalTown()
+{
+	auto* GI = GetGameInstance<USKGameInstance>();
+	if (!GI) return;
+
+	// ✅ Host → 세션 종료 후 로컬 복귀
+	if (HasAuthority())
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Host] Ending Session → Return to Local Town."));
+		GI->LeaveSession();
+	}
+	else
+	{
+		// ✅ Client → 네트워크 연결 종료 후 로컬 복귀
+		UE_LOG(LogTemp, Log, TEXT("[Client] Disconnecting and returning to local Town."));
+		FString TravelCmd = FString::Printf(TEXT("%s"), SKGameConstants::TownLevel);
+		ClientTravel(TravelCmd, TRAVEL_Absolute);
+	}
+}
+
 void ASKPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -43,7 +98,25 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopJumping);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Dash);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this,
+		                                   &ASKPlayerController::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
+		                                   &ASKPlayerController::StopSprint);
+
+		// EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
+		// 						   &ASKPlayerController::NormalMelee);
+		EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::LeftAttack);
+		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Interact);
 	}
+}
+
+void ASKPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	UE_LOG(LogTemp, Warning, TEXT("ASKPlayerController::OnPossess"));
+	OnPawnPossessed.Broadcast(InPawn);;
 }
 
 void ASKPlayerController::Dash(const FInputActionValue& Value)
@@ -60,7 +133,6 @@ void ASKPlayerController::Dash(const FInputActionValue& Value)
 	DashTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Dash")));
 
 	ASC->TryActivateAbilitiesByTag(DashTag);
-	
 }
 
 void ASKPlayerController::Move(const FInputActionValue& Value)
@@ -103,4 +175,72 @@ void ASKPlayerController::StopJumping()
 	{
 		pCharacter->StopJumping();
 	}
+}
+
+void ASKPlayerController::StartSprint(const FInputActionValue& Value)
+{
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+		return;
+
+	FGameplayTag SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Sprint"));
+	FGameplayTagContainer SprintTagContainer;
+	SprintTagContainer.AddTag(SprintTag);
+
+	ASC->TryActivateAbilitiesByTag(SprintTagContainer);
+}
+
+void ASKPlayerController::StopSprint(const FInputActionValue& Value)
+{
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+		return;
+
+	FGameplayTagContainer SprintTagContainer;
+	SprintTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Sprint")));
+
+	ASC->CancelAbilities(&SprintTagContainer);
+}
+
+void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
+{
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	PlayerCharacter->OnLeftATKInput();
+}
+
+void ASKPlayerController::Interact(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Interact"));
+
+	ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
+	if (!SKChar)
+		return;
+	UAbilitySystemComponent* ASC = SKChar->GetAbilitySystemComponent();
+	if (!ASC)
+		return;
+
+	ASC->AbilityLocalInputPressed(SKConstant::GA_Interact_ID);
 }

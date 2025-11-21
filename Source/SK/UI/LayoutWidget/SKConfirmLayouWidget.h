@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameData/ConfirmUITextDataTable.h"
 #include "UI/SKLayoutWidgetBase.h"
 #include "SKConfirmLayouWidget.generated.h"
 
@@ -20,12 +19,4 @@ public:
 	FDataTableRowHandle BackInputActionData;
 
 	FUIActionBindingHandle BackHandle;
-
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UDataTable> ConfirmUIDataTable;
-
-	UFUNCTION(BlueprintCallable, Category = "ConfirmLayout")
-	void SettingConfirmMesseage(FName RowName);
-
-	
 };

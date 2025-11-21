@@ -17,10 +17,29 @@ class SK_API USKGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	// virtual void Init() override;
+	//virtual void Init() override;
 	// virtual void Shutdown() override;
 	//
 	// void HandleLevelChanged(const FName& LevelName);
+
+#pragma region Multi_Single_LevelTransition
+	//호스트로 마을 세션 열기
+	UFUNCTION(BlueprintCallable)
+	void HostTownSession();
+
+	//클라이언트로 호스트 세션 참가
+	UFUNCTION(BlueprintCallable)
+	void JoinHostTown(const FString& Address);
+
+	//던전 / 마을 전환 (서버 전용)
+	void TravelToDungeon();
+	void TravelToTown();
+
+	//세션 종료 후 로컬 마을 복귀
+	UFUNCTION(BlueprintCallable)
+	void LeaveSession();
+	
+#pragma endregion Multi_Single_LevelTransition
 
 #pragma region SOUND
 	
@@ -50,7 +69,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SK|Audio|Volume")
 	float SFXVolume = 1.f;
 
-	#pragma endregion
+#pragma endregion
 
 	//임시. 추후 데이터 에셋 매니저 나오면 변경
 	UPROPERTY(EditAnywhere)

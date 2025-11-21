@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Character/SKCharacterBase.h"
+#include "Character/SKPlayerCharacter.h"
 #include "GameInstance/SKGameInstance.h"
 #include "Utility/SKBGMSubSystem.h"
 
@@ -24,6 +25,7 @@ void USK_GA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	//코스트
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -46,15 +48,19 @@ void USK_GA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 		ASC->AddLooseGameplayTag(DashActiveTag);
 	}
 
+	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
+
+	SKCharacter->ResetComboState();
+
 	if (Character)
 	{
 		const FVector DashDir = Character->GetActorForwardVector();
 
 		// 대시 속도 = 거리 / 시간
 		FVector LaunchVel = DashDir * (DashDistance / FMath::Max(0.001f, DashDuration));
+		Character->LaunchCharacter(LaunchVel, true, true); // 대시 속도 조정
 		// 필요하면 기존 속도나 MaxWalkSpeed 저장
 		// PrevMaxWalkSpeed = MoveComp->MaxWalkSpeed;
-		Character->LaunchCharacter(LaunchVel, true, true); // 대시 속도 조정
 
 		UGameInstance* GI = GetWorld()->GetGameInstance();
 		USKGameInstance* SKGI = Cast<USKGameInstance>(GI);

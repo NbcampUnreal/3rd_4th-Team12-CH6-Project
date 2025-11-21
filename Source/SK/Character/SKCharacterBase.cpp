@@ -6,40 +6,73 @@
 #include "Components/CapsuleComponent.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Net/UnrealNetwork.h"
+#include "PlayerState/SKPlayerState.h"
 
 // Sets default values
 ASKCharacterBase::ASKCharacterBase()
 {
- 	PrimaryActorTick.bCanEverTick = false; // 당장은 false
+	PrimaryActorTick.bCanEverTick = false; // 당장은 false
+}
 
-	// ASC 생성
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); // or Full
+void ASKCharacterBase::InitASCFromPlayerState()
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS)
+		return;
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
 
-	// AttributeSet 생성
-	AttributeSet = CreateDefaultSubobject<USKAttributeSet>(TEXT("AttributeSet"));
+	if (!IsValid(AbilitySystemComponent))
+		return;
 
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	// Delegate 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		USKAttributeSet::GetSpeedAttribute()
+	).AddUObject(this, &ASKCharacterBase::OnSpeedAttributeChanged);
+
+	// 초기 속도 적용
+	OnSpeedAttributeChanged(FOnAttributeChangeData());
 	
 }
 
-UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComponent;
-}
 
 void ASKCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME_CONDITION(ASKCharacterBase, CharacterData, COND_InitialOnly);
+
+	//DOREPLIFETIME_CONDITION(ASKCharacterBase, CharacterData, COND_InitialOnly);
 }
 
 void ASKCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+
+	if (HasAuthority())
+	{
+		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		AttributeSet = PS->GetAttributeSet();
+
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+		PS->SetDAPlayerStat();
+	}
 }
+
+void ASKCharacterBase::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	InitASCFromPlayerState(); // 클라
+}
+
+UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	return PS ? PS->GetAbilitySystemComponent() : nullptr;
+}
+
 
 // Called when the game starts or when spawned
 void ASKCharacterBase::BeginPlay()
@@ -48,6 +81,7 @@ void ASKCharacterBase::BeginPlay()
 
 	//충돌이나 속도,운동관련
 	BaseSetting();
+	InitASCFromPlayerState();
 }
 
 void ASKCharacterBase::BaseSetting()
@@ -68,75 +102,30 @@ void ASKCharacterBase::BaseSetting()
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 }
 
-void ASKCharacterBase::SetDAPlayerStat()
+void ASKCharacterBase::OnSpeedAttributeChanged(const FOnAttributeChangeData& Data)
 {
-	if (!CharacterData.Get())
-		CharacterData.LoadSynchronous();
-	
-	if (!HasAuthority() || !CharacterData.Get())
+	if (!IsValid(AttributeSet))
 		return;
-	// AttributeSet의 초기값을 데이터 에셋의 값으로 설정
-	AttributeSet->SetSpeed(CharacterData->Speed);
-	AttributeSet->SetHealth(CharacterData->Health);
-	AttributeSet->SetMaxHealth(CharacterData->MaxHealth);
-	AttributeSet->SetStamina(CharacterData->Stamina);
-	AttributeSet->SetMaxStamina(CharacterData->MaxStamina);
-	AttributeSet->SetHeat(CharacterData->Heat);
-	AttributeSet->SetMaxHeat(CharacterData->MaxHeat);
-	AttributeSet->SetExp(CharacterData->Exp);
-	AttributeSet->SetLevel(CharacterData->Level);
-	AttributeSet->SetGold(CharacterData->Gold);
-	AttributeSet->SetAttack(CharacterData->Attack);
-	AttributeSet->SetArmor(CharacterData->Armor);
-	AttributeSet->SetPoise(CharacterData->Poise);
-	
-	if (GetCharacterMovement())
-	{
-		GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed();
-	
-		// AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		// 	USKAttributeSet::GetSpeedAttribute()).AddUObject(this, &ASKCharacterBase::OnSpeedAttributeChanged);
-	}
-	
-	//JobDataAsset - Give Ability
-	for (const TSubclassOf<UGameplayAbility>& AbilityClass : CharacterData->StartupAbilities)
-	{
-		if (AbilityClass)
-		{
-			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
-		}
-	}
-	
-	//JobDataAsset - 팀태그 넘겨주는 코드
-	if (CharacterData->GiveTeamtagEffect)
-	{
-		FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-		ContextHandle.AddSourceObject(this);
-	
-		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
-			CharacterData->GiveTeamtagEffect,
-			1.0f,
-			ContextHandle
-		);
-	
-		if (SpecHandle.IsValid())
-		{
-			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		}
-	}
+
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	if (MoveComp == nullptr)
+		return;
+
+	// AttributeSet에서 Speed 값 읽기
+	const float NewSpeed = AttributeSet->GetSpeed();
+
+	// 이동 속도 적용
+	MoveComp->MaxWalkSpeed = NewSpeed;
 }
 
 // Called every frame
 void ASKCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void ASKCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
-

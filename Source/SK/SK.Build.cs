@@ -19,20 +19,31 @@ public class SK : ModuleRules
 			// UI
 			,"UMG", "Slate", "SlateCore", "CommonUI", "CommonInput",
 			"Paper2D",
-			//GAS
+			
+			// GAS
 			"GameplayAbilities",       
 			"GameplayTags",            
-			"GameplayTasks",           
-			//AI
-			"Niagara", 
+			"GameplayTasks",   
+			
+			// AI
 			"AIModule",
 			"NavigationSystem",
+			"StateTreeModule",
+			"GameplayStateTreeModule",
+			
+			// Niagara 관련 추가
+			"Niagara","NiagaraCore", "NiagaraShader", "RenderCore",
 
 			// IP 관련 내용
 			"HTTP",				// 대문자로 수정! ("Http") // Module 'Http' (referenced via Target -> TFD.Build.cs) has incorrect text case. Did you mean 'HTTP'?
 			"Json",				// (선택적 - JSON 파싱 시 필요)
 			"JsonUtilities",	// (선택적 - JSON 구조체 바인딩 시 필요)
 			
+			//폴더 내 에셋 리스트 검색
+			"AssetRegistry",
+			
+			// 지오메트리 컬랙션
+			"GeometryCollectionEngine",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayDebugger" });

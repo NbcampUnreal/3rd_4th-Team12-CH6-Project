@@ -6,6 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "Input/CommonUIInputTypes.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 void UInGameLayoutWidget::NativeConstruct()
@@ -13,9 +15,57 @@ void UInGameLayoutWidget::NativeConstruct()
 	Super::NativeConstruct();
 	
 	InGameMenuHandle = RegisterUIActionBinding(FBindUIActionArgs(InGameInputActionData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInGameAction)));
+	InGameToInventoryHandle = RegisterUIActionBinding(FBindUIActionArgs(InGameToInventoryData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInGameToInventoryAction)));
+	InGameToEquipMainHandle = RegisterUIActionBinding(FBindUIActionArgs(InGameToEquipMainData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInGameToEquipMainAction)));
 }
 
 void UInGameLayoutWidget::HandleInGameAction()
 {
-	CachedASC->AddLooseGameplayTag(TAG_UI_Layout_EscapeMenu);
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FSwitchLayoutMessage Message(TAG_UI_Layout_EscapeMenu, true);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+
+			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+		}
+	}
+}
+
+void UInGameLayoutWidget::HandleInGameToInventoryAction()
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FSwitchLayoutMessage Message(TAG_UI_Layout_Inventory, true);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+
+			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+		}
+	}
+}
+
+void UInGameLayoutWidget::HandleInGameToEquipMainAction()
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FSwitchLayoutMessage Message(TAG_UI_Layout_EquipmentMain, true);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+
+			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+		}
+	}
 }

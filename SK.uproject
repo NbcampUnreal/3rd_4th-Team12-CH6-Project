@@ -12,7 +12,8 @@
 				"Engine",
 				"GameplayAbilities",
 				"CommonUI",
-				"UMG"
+				"UMG",
+				"AIModule"
 			]
 		}
 	],
@@ -30,6 +31,38 @@
 		},
 		{
 			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "MetaHumanCharacter",
+			"Enabled": true
+		},
+		{
+			"Name": "MetaHuman",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64",
+				"Linux"
+			]
+		},
+		{
+			"Name": "MetaHumanCoreTech",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64",
+				"Linux"
+			]
+		},
+		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "PCG",
+			"Enabled": true
+		},
+		{
+			"Name": "PCGGeometryScriptInterop",
 			"Enabled": true
 		}
 	]

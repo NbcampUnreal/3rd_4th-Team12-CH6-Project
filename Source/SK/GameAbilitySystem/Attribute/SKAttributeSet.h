@@ -15,6 +15,17 @@ GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+
+/** 
+ * Delegate used to broadcast attribute events, some of these parameters may be null on clients: 
+ * @param EffectInstigator	The original instigating actor for this event
+ * @param EffectCauser		The physical actor that caused the change
+ * @param EffectSpec		The full effect spec for this change
+ * @param EffectMagnitude	The raw magnitude, this is before clamping
+ * @param OldValue			The value of the attribute before it was changed
+ * @param NewValue			The value after it was changed
+*/
+DECLARE_MULTICAST_DELEGATE_SixParams(FSKAttributeEvent, AActor* /*EffectInstigator*/, AActor* /*EffectCauser*/, const FGameplayEffectSpec* /*EffectSpec*/, float /*EffectMagnitude*/, float /*OldValue*/, float /*NewValue*/);
 /**
  * 
  */
@@ -34,14 +45,18 @@ public:
 	Heat,MaxHeat,
 	Exp,Level,Gold
 	Attack,Armor,
+	,Speed,SprintWeihgt(달리기 가중치)
 	Poiseness(강인도 100에 가까울수록 공격으로부터 회복빠름)
 	
 	*/
 #pragma region AttributeSet
+	// 모든 Attribute들의 이전값
+	//TMap<FGameplayAttribute, float> CachedAttributeValue;
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Speed)
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Speed)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Health)
@@ -96,16 +111,33 @@ public:
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Poise)
 
 
-#pragma endregion
+	//달리기 가중치
+	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_SprintWeight)
+	FGameplayAttributeData SprintWeight;
+	ATTRIBUTE_ACCESSORS(USKAttributeSet, SprintWeight)
 
+#pragma endregion
+	
+	mutable FSKAttributeEvent OnHealthChanged;
+
+	mutable FSKAttributeEvent OnMaxHealthChanged;
+
+	mutable FSKAttributeEvent OnStaminaChanged;
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	//attribute 값이 실제로 변경되기 직전
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)override;
+	//attribute 값이 실제로 변경되기 직후
+	void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+	//GE가 실행된 직후에만 호출
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 #pragma region Replicated
 	UFUNCTION()
 	virtual void OnRep_Speed(const FGameplayAttributeData& OldSpeed);
 
-	
+
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
@@ -146,6 +178,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_Poise(const FGameplayAttributeData& OldPoise);
+
+	UFUNCTION()
+	virtual void OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight);
 
 #pragma endregion
 };
