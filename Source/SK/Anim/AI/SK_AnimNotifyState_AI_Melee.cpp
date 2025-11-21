@@ -1,15 +1,15 @@
-#include "Anim/AI/SKAnimNotifyState.h"
+#include "Anim/AI/SK_AnimNotifyState_AI_Melee.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Abilities/GameplayAbilityTypes.h"
 
-USKAnimNotifyState::USKAnimNotifyState()
+USK_AnimNotifyState_AI_Melee::USK_AnimNotifyState_AI_Melee()
 {
 	
 }
 
-void USKAnimNotifyState::NotifyBegin(
+void USK_AnimNotifyState_AI_Melee::NotifyBegin(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	float TotalDuration,
@@ -37,7 +37,7 @@ void USKAnimNotifyState::NotifyBegin(
 	}
 }
 
-void USKAnimNotifyState::NotifyEnd(
+void USK_AnimNotifyState_AI_Melee::NotifyEnd(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference
@@ -49,7 +49,7 @@ void USKAnimNotifyState::NotifyEnd(
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 }
 
-void USKAnimNotifyState::NotifyTick(
+void USK_AnimNotifyState_AI_Melee::NotifyTick(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	float FrameDeltaTime,

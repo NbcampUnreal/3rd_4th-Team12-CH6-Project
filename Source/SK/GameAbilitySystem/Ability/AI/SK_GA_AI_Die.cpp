@@ -1,13 +1,11 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_Die.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Die.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/AI/SKAICharacter.h"
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 
-USK_GA_Die::USK_GA_Die()
+USK_GA_AI_Die::USK_GA_AI_Die()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
@@ -18,11 +16,36 @@ USK_GA_Die::USK_GA_Die()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_Die::Die(UAnimMontage* AnimMontage)
+void USK_GA_AI_Die::Die(UAnimMontage* AnimMontage)
 {
 }
 
-void USK_GA_Die::ActivateAbility(
+void USK_GA_AI_Die::OnDieCompleted()
+{
+	UAbilitySystemComponent* SourceASC = CachedActorInfo->AbilitySystemComponent.Get();
+	if (!SourceASC)
+	{
+		return;	
+	}
+
+	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
+	if (!IsValid(ST))
+	{
+		return;
+	}
+
+	ACharacter* Character = CachedCharacter;
+	
+	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+
+	SourceASC->CancelAllAbilities();
+	
+	ST->StopLogic(TEXT("AI Death"));
+	
+	Character->Destroy();
+}
+
+void USK_GA_AI_Die::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -30,26 +53,8 @@ void USK_GA_Die::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	CachedHandle = Handle;
-	CachedActorInfo = ActorInfo;
-	CachedActivationInfo = ActivationInfo;
 	
-	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
-	if (!AvatarActor)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	ACharacter* AvatarCharacter = Cast<ACharacter>(AvatarActor);
-	if (!IsValid(AvatarCharacter))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(AvatarCharacter);
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -63,20 +68,10 @@ void USK_GA_Die::ActivateAbility(
 		return;
 	}
 	
-	AController* Controller = AvatarCharacter->GetController();
-	if (!IsValid(Controller))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	CachedController = Controller;
-	
 	Die(AnimMontage);
-	
 }
 
-void USK_GA_Die::EndAbility(
+void USK_GA_AI_Die::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -84,21 +79,5 @@ void USK_GA_Die::EndAbility(
 	bool bWasCancelled
 	)
 {
-	if (!bWasCancelled)
-	{
-		if (!IsValid(CachedController))
-		{
-			return;
-		}
-		
-		UStateTreeComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
-		if (!IsValid(ST))
-		{
-			return;
-		}
-
-		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-	}
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

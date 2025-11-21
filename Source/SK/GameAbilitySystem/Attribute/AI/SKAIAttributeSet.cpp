@@ -53,6 +53,10 @@ void USKAIAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute,
 	// 서버권한 로직 처리용 ex) 몬스터 체력이 50% 이하가 되면 모든 플레이어 이속 감소라든가 등
 	if (Attribute == GetHealthAttribute())
 	{
+		if (FMath::IsNearlyZero(NewValue))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Death"));
+		}
 		FString DebugMsg = FString::Printf(TEXT("Health: %.2f"), NewValue);
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMsg);
 		

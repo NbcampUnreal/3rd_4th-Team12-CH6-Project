@@ -1,26 +1,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SK_GA_AI_Base.h"
 #include "Abilities/GameplayAbility.h"
-#include "SK_GA_Die.generated.h"
+#include "SK_GA_AI_Die.generated.h"
 
 UCLASS()
-class SK_API USK_GA_Die : public UGameplayAbility
+class SK_API USK_GA_AI_Die : public USK_GA_AI_Base
 {
 	GENERATED_BODY()
-
-protected:
-	FGameplayAbilitySpecHandle CachedHandle;
-	const FGameplayAbilityActorInfo* CachedActorInfo;
-	FGameplayAbilityActivationInfo CachedActivationInfo;
-	UPROPERTY()
-	AController* CachedController;
 	
 public:
-	USK_GA_Die();
+	USK_GA_AI_Die();
 
 	void Die(UAnimMontage* AnimMontage);
 
+	void OnDieCompleted();
 
 protected:
 	virtual void ActivateAbility(
