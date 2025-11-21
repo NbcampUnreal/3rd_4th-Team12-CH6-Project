@@ -21,9 +21,10 @@ ASKInteractableBase::ASKInteractableBase()
 
 	TraceCollision->SetBoxExtent(FVector(50.0f));
 	TraceCollision->SetHiddenInGame(false);
-	// 전용 트레이스 채널 추가 필요
-	TraceCollision->SetCollisionResponseToChannel(SKConstant::ECC_Interactable, ECR_Block);
-
+	TraceCollision->SetCollisionProfileName(TEXT("Interact"));
+	TraceCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 75.0f));
+	TraceCollision->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.5f));
+	
 	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
 }
