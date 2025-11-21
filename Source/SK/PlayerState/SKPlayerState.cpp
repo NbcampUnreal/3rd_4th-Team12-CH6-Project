@@ -4,6 +4,7 @@
 #include "PlayerState/SKPlayerState.h"
 
 #include "AbilitySystemComponent.h"
+#include "Character/SKPlayerCharacter.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameData/WeaponDataRow.h"
@@ -71,6 +72,16 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
+}
+
+
+void ASKPlayerState::OnRep_CurrentWeaponTag()
+{
+	ASKPlayerCharacter* PC = GetPawn<ASKPlayerCharacter>();
+	if (PC)
+	{
+		PC->SetTraceSocket();   // 여기서 호출해야 안전!!
+	}
 }
 
 
