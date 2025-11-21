@@ -3,3 +3,173 @@
 
 #include "UI/SlotWidget/QuickItemSlotWidget.h"
 
+#include "Component/InventoryComponent.h"
+#include "Component/QuickSlotComponent.h"
+#include "Components/Image.h"
+#include "Components/TextBlock.h"
+#include "Item/Inventory/Data/SKInventoryItemData.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKNativeGameplayTags.h"
+
+void UQuickItemSlotWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+		
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if(!GameInstance)
+		return;
+		
+	USKGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+	if (!MessageSubsystem)
+		return;
+
+	// 메시지 구독
+	LayoutSwitchHandle = MessageSubsystem->RegisterListener<FSwitchLayoutMessage>(
+		TAG_Message_Channel_SwitchLayout,
+		this,
+		&UQuickItemSlotWidget::OnSwitchLayoutMessageReceived
+	);
+	
+	TryCachedComponent();
+}
+
+void UQuickItemSlotWidget::NativeDestruct()
+{
+	if (CachedQuickSlot)
+	{
+		CachedQuickSlot->OnQuickSlotsUpdated.RemoveDynamic(this, &UQuickItemSlotWidget::SettingWidgetIcons);
+	}
+	Super::NativeDestruct();
+}
+
+void UQuickItemSlotWidget::TryCachedComponent()
+{
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC) return;
+
+	ASKPlayerState* PS = PC->GetPlayerState<ASKPlayerState>();
+	if (!PS)
+	{
+		// 다음 틱에 다시 시도
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
+		return;
+	}
+
+	CachedQuickSlot = PS->FindComponentByClass<UQuickSlotComponent>();
+	
+	if (!CachedQuickSlot)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
+		return;
+	}
+
+	CachedInventory = PS->FindComponentByClass<UInventoryComponent>();
+	
+	if (!CachedInventory)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
+		return;
+	}
+
+	CachedQuickSlot->OnQuickSlotsUpdated.RemoveDynamic(this, &UQuickItemSlotWidget::SettingWidgetIcons);
+	CachedQuickSlot->OnQuickSlotsUpdated.AddDynamic(this, &UQuickItemSlotWidget::SettingWidgetIcons);
+	
+	SettingWidgetIcons();
+}
+
+void UQuickItemSlotWidget::SettingWidgetIcons()
+{
+	if (!CachedQuickSlot)
+		return;
+
+	TArray<FQuickSlot> QuickSlots = CachedQuickSlot->GetQuickSlots();
+	if (ItemImage1)
+	{
+		if (QuickSlots[0].ItemID == -1)
+		{
+			ItemImage1->SetBrush(FSlateBrush());
+		}
+		else
+		{
+			USKInventoryItemData* TempData = CachedInventory->GetItemDataByID(QuickSlots[0].ItemID);
+			ItemImage1->SetBrushFromTexture(TempData->ItemIcon);			
+		}
+	}
+
+	if (CountText1)
+	{
+		if (QuickSlots[0].ItemID == -1)
+		{
+			CountText1->SetText(FText::GetEmpty());
+		}
+		else
+		{
+			CountText1->SetText(FText::AsNumber(QuickSlots[0].Count));
+		}
+	}
+
+	if (ItemImage2)
+	{
+		if (QuickSlots[1].ItemID == -1)
+		{
+			ItemImage2->SetBrush(FSlateBrush());
+		}
+		else
+		{
+			USKInventoryItemData* TempData = CachedInventory->GetItemDataByID(QuickSlots[1].ItemID);
+			ItemImage2->SetBrushFromTexture(TempData->ItemIcon);			
+		}
+	}
+
+	if (CountText2)
+	{
+		if (QuickSlots[1].ItemID == -1)
+		{
+			CountText2->SetText(FText::GetEmpty());
+		}
+		else
+		{
+			CountText2->SetText(FText::AsNumber(QuickSlots[1].Count));
+		}
+	}
+
+	if (ItemImage3)
+	{
+		if (QuickSlots[2].ItemID == -1)
+		{
+			ItemImage3->SetBrush(FSlateBrush());
+		}
+		else
+		{
+			USKInventoryItemData* TempData = CachedInventory->GetItemDataByID(QuickSlots[2].ItemID);
+			ItemImage3->SetBrushFromTexture(TempData->ItemIcon);			
+		}
+	}
+
+	if (CountText3)
+	{
+		if (QuickSlots[2].ItemID == -1)
+		{
+			CountText3->SetText(FText::GetEmpty());
+		}
+		else
+		{
+			CountText3->SetText(FText::AsNumber(QuickSlots[2].Count));
+		}
+	}
+	
+}
+
+void UQuickItemSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message)
+{
+	if (Message.LayoutTag != TAG_UI_Layout_InGame)
+	{
+		return;
+	}
+	SettingWidgetIcons();
+}

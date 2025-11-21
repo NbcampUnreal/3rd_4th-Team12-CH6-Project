@@ -13,5 +13,14 @@ UCLASS()
 class SK_API UEquipmentMainLayoutWidget : public USKLayoutWidgetBase
 {
 	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle EquipMainToInGameData;
 	
+	FUIActionBindingHandle EquipMainToInGameHandle;
+protected:
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void HandleEquipMainToInGameAction();
 };
