@@ -7,6 +7,7 @@
 #include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
+#include "Anim/SkAnimInstance_Axe.h"
 #include "GameData/SKGameConstant.h"
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -312,12 +313,13 @@ void ASKPlayerCharacter::PerformWeaponTrace(float DeltaTime)
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	SetTraceSocket();
+	// SetTraceSocket();
 }
 
 
 void ASKPlayerCharacter::OnRep_ComboState()
 {
+	UpdateAnimInstanceComboState();
 }
 
 int32 ASKPlayerCharacter::GetComboIndex()
@@ -354,10 +356,10 @@ void ASKPlayerCharacter::IncreaseComboIndex(bool bLeft)
 		ResetComboIndex(1);
 	}
 
-	if (HasAuthority())
-	{
-		OnRep_ComboState(); // 이름에 맞게 수정 필요
-	}
+	// if (HasAuthority())
+	// {
+	// 	OnRep_ComboState(); 
+	// }
 }
 
 void ASKPlayerCharacter::OnATKEndNotify(bool bLeft)
@@ -444,7 +446,13 @@ void ASKPlayerCharacter::ResetComboState()
 
 void ASKPlayerCharacter::UpdateAnimInstanceComboState()
 {
-	ResetComboState();
+	USkAnimInstance_Axe* AnimInstance = Cast<USkAnimInstance_Axe>(GetMesh()->GetAnimInstance());
+	if (!AnimInstance) return;
+
+	// ComboState 값으로 Anim BP 변수 갱신
+	AnimInstance->SetComboIndex(ComboState.ComboIndex);
+	AnimInstance->SetIsAttacking(ComboState.bIsAttacking);
+	//AnimInstance->SetCanNextCombo(ComboState.bCanNextCombo);
 }
 
 
