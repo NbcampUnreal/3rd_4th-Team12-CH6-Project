@@ -1,14 +1,11 @@
 #include "SKPickupItem.h"
 
+#include "Character/SKPlayerCharacter.h"
 #include "Data/SKPickupItemData.h"
-#include "Kismet/GameplayStatics.h"
-#include "NiagaraFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 ASKPickupItem::ASKPickupItem()
 {
-	bReplicates = true;
-	
 	UE_LOG(LogTemp, Warning, TEXT("[PickupItem] ASKPickupItem()"));
 	ItemNiagara = CreateDefaultSubobject<UNiagaraComponent>("ItemNiagara");
 	ItemNiagara->SetupAttachment(Root);
@@ -49,16 +46,22 @@ void ASKPickupItem::OnRep_PickupData()
 	}
 }
 
-void ASKPickupItem::PlayPickupSound()
+USoundBase* ASKPickupItem::GetPickupSound() const
 {
 	if (PickupData && PickupData->PickupSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(
-			this,
-			PickupData->PickupSound,
-			GetActorLocation()
-		);
+		return PickupData->PickupSound;
 	}
+	return nullptr;
+}
+
+int32 ASKPickupItem::GetItemID() const
+{
+	if (PickupData && PickupData->ItemID)
+	{
+		return PickupData->ItemID;
+	}
+	return -1;
 }
 
 void ASKPickupItem::Tick(float DeltaTime)
@@ -68,9 +71,10 @@ void ASKPickupItem::Tick(float DeltaTime)
 
 void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 {
-	// UI
-	// 인벤토리
-	PlayPickupSound();
+	if (ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor))
+	{
+		SKPlayerCharacter->Client_PlayPickupSound(GetPickupSound());
+	}
 
 	if (ItemNiagara)
 	{
@@ -78,6 +82,8 @@ void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 		ItemNiagara->DestroyComponent();
 		ItemNiagara = nullptr;
 	}
+
+	AddToInventory(Interactor, GetItemID(), ItemCount);
 	
 	Destroy();
 }
