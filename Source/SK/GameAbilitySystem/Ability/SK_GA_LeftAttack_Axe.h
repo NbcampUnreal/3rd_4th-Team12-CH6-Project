@@ -37,7 +37,7 @@ public:
 	                       const FGameplayAbilityActorInfo* ActorInfo,
 	                       OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const
 	override;
-
+	
 
 	void ApplyDamageFromTrace();
 

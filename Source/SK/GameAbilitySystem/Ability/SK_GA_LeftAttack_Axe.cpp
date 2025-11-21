@@ -36,7 +36,7 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-	
+
 	UAnimInstance* BaseAnim = Character->GetMesh()->GetAnimInstance();
 	if (!IsValid(BaseAnim))
 		return;
@@ -45,8 +45,18 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	if (!AxeAnimInstance)
 		return;
 
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
 
-	AxeAnimInstance->PlayLeftAttackAnim();
+	ASC->PlayMontage(
+		this,
+		ActivationInfo,
+		AxeAnimInstance->GetLeftATKMontage(),
+		1.0f
+	);
+	
+	UE_LOG(LogTemp, Error, TEXT("GA Activated %s"), *GetName());
+//	AxeAnimInstance->PlayLeftAttackAnim();
+	//ASC동기화를 위해 수정
 }
 
 void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -66,9 +76,9 @@ void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
 }
 
 
-
 bool USK_GA_LeftAttack_Axe::CheckCost(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+                                      const FGameplayAbilityActorInfo* ActorInfo,
+                                      FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 	if (!result)
@@ -81,9 +91,8 @@ bool USK_GA_LeftAttack_Axe::CheckCost(const FGameplayAbilitySpecHandle Handle,
 
 		PlayerCharacter->ResetComboState();
 		PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
-		
 	}
-	
+
 	return result;
 }
 
