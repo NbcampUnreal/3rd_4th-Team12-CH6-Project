@@ -32,11 +32,13 @@ public:
 	virtual void GetInteractionData_Implementation(FSKInteractionData& OutData) override;
 
 	virtual void BeginPlay() override;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 	
 #pragma region Inventory
 protected:
 	UFUNCTION(BlueprintCallable, Category = "SK|Inventory")
-	void AddToInventory(AActor* Interactor, FName ItemName, int32 ItemQuantity);
+	void AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity);
 
 #pragma endregion
 

@@ -13,6 +13,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -475,6 +476,17 @@ void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGamepl
 	}
 }
 
+void ASKPlayerCharacter::Client_PlayPickupSound_Implementation(USoundBase* PickupSound)
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
+}
+
+void ASKPlayerCharacter::Server_TryInteract_Implementation(AActor* Target)
+{
+	if (!Target) return;
+	
+	ISKInteractable::Execute_Interact(Target, this);
+}
 
 void ASKPlayerCharacter::SetPlayerStateTag()
 {
