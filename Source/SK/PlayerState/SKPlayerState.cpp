@@ -49,6 +49,8 @@ void ASKPlayerState::BeginPlay()
 	{
 		OnASCReady.Broadcast();
 	}
+	if (HasAuthority())
+		OnRep_CurrentWeaponTag();
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
