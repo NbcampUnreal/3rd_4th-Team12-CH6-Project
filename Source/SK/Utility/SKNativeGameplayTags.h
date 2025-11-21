@@ -132,3 +132,4 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Message_Channel_SwitchLayout);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Message_Channel_RequestConfirm);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Message_Channel_ConfirmResponse);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Message_Channel_SlotVisible);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Message_Channel_ToolTipItem);
