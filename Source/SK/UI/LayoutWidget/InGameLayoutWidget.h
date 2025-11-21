@@ -23,6 +23,11 @@ public:
 	FDataTableRowHandle InGameToInventoryData;
 	
 	FUIActionBindingHandle InGameToInventoryHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle InGameToEquipMainData;
+	
+	FUIActionBindingHandle InGameToEquipMainHandle;
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -31,5 +36,8 @@ protected:
 	void HandleInGameAction();
 
 	UFUNCTION()
-	void HandleInGameToInvnetoryAction();
+	void HandleInGameToInventoryAction();
+
+	UFUNCTION()
+	void HandleInGameToEquipMainAction();
 };

@@ -33,12 +33,14 @@ public:
 	// 네트워크 복제에 필요한 함수 재정의
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 #pragma region GAS
+	UFUNCTION()
+	void OnRep_CurrentWeaponTag();
+	
 	DECLARE_MULTICAST_DELEGATE(FOnASCReady);
 	FOnASCReady OnASCReady;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	USKAttributeSet* GetAttributeSet() const;
-
 
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();
@@ -52,7 +54,7 @@ public:
 protected:
 #pragma region GAS
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Battle")
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeaponTag,editAnywhere, BlueprintReadWrite, Category="SK|Battle")
 	FGameplayTag CurrentWeaponTag;
 	//Tag별 소켓 정보 DT
 	UPROPERTY(EditAnywhere, Category="SK|Weapon")
