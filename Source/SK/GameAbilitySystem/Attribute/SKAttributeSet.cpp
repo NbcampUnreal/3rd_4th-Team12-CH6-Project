@@ -103,6 +103,8 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 	if (Attribute == GetHealthAttribute())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Health1 Changed: OldValue: %f | NewValue: %f"), OldValue, NewValue);
+		FString DebugMsg = FString::Printf(TEXT("Player Health: %.2f"), NewValue);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMsg);
 		OnHealthChanged.Broadcast(
 			nullptr,
 			nullptr,

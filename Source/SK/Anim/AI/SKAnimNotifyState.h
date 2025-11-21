@@ -22,10 +22,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
+	TArray<AActor*> IgnoreActors;
+	
 	TMap<FName, FVector> PrevSocketLocations;
 
-	TMap<FName, TSet<TWeakObjectPtr<AActor>>> SocketHitActors;
-	
 public:
 	USKAnimNotifyState();
 	

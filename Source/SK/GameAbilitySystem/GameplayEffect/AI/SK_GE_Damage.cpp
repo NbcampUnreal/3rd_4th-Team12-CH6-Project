@@ -12,7 +12,7 @@ USK_GE_Damage::USK_GE_Damage()
 	//FSetByCallerFloat SetByCallerData;
 	//SetByCallerData.DataTag = GASProjectTags::SetByCaller_Damage;
 	//FGameplayEffectModifierMagnitude ModMagnitude(SetByCallerData);
-	FGameplayEffectModifierMagnitude ModMagnitude(-0.1f);
+	FGameplayEffectModifierMagnitude ModMagnitude(-10.0f);
 	DamageModifier.ModifierMagnitude = ModMagnitude;
 
 	Modifiers.Add(DamageModifier);
