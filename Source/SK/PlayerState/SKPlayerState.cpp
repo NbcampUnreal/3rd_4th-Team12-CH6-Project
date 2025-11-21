@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
-
+#include "GameData/WeaponDataRow.h"
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
@@ -26,13 +26,13 @@ ASKPlayerState::ASKPlayerState()
 	{
 		InventoryComponent->SetIsReplicated(true);
 	}
- 
+
 	QuickSlotComponent = CreateDefaultSubobject<UQuickSlotComponent>(TEXT("QuickSlotComponent"));
 	if (QuickSlotComponent)
 	{
 		QuickSlotComponent->SetIsReplicated(true);
 	}
- 
+
 	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 	if (EquipmentComponent)
 	{
@@ -69,9 +69,10 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
 }
+
 
 UAbilitySystemComponent* ASKPlayerState::GetAbilitySystemComponent() const
 {
@@ -81,6 +82,60 @@ UAbilitySystemComponent* ASKPlayerState::GetAbilitySystemComponent() const
 USKAttributeSet* ASKPlayerState::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+TArray<FName> ASKPlayerState::GetTraceSocket()
+{
+	TArray<FName> EmptyResult;
+
+	if (!IsValid(CurrentWeaponDT))
+		return EmptyResult;
+
+	// CurrentWeaponTag == RowName 으로 가정
+	FName RowName = CurrentWeaponTag.GetTagName();
+
+	const FSKWeaponDataRow* Row = CurrentWeaponDT->FindRow<FSKWeaponDataRow>(RowName, TEXT("GetTraceSockets"));
+	if (!Row)
+		return EmptyResult;
+
+	return Row->TraceSockets;
+}
+
+const UDataTable* ASKPlayerState::GetWeaponDT() const
+{
+	return CurrentWeaponDT;
+}
+
+int32 ASKPlayerState::GetMaxComobo(bool bLeft)
+{
+	if (!CurrentWeaponDT)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponDataTable is null!"));
+		return 1;
+	}
+
+	// CurrentWeaponTag를 RowName(=TagName)으로 사용
+	FName RowName = CurrentWeaponTag.GetTagName();
+
+	if (RowName.IsNone())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentWeaponTag is None!"));
+		return 1;
+	}
+
+	// DataTable에서 Row 찾기
+	const FSKWeaponDataRow* Row = CurrentWeaponDT->FindRow<FSKWeaponDataRow>(
+		RowName,
+		TEXT("GetMaxCombo")
+	);
+
+	if (!Row)
+	{
+		return 1;
+	}
+
+	// 좌/우에 따라 MaxCombo 반환
+	return bLeft ? Row->MaxLeftCombo : Row->MaxRightCombo;
 }
 
 
@@ -130,8 +185,8 @@ void ASKPlayerState::SetDAPlayerStat()
 			if (GEClass)
 			{
 				AbilitySystemComponent->ApplyGameplayEffectToSelf(
-					GEClass->GetDefaultObject<UGameplayEffect>(), 
-					1.f, 
+					GEClass->GetDefaultObject<UGameplayEffect>(),
+					1.f,
 					Ctx
 				);
 			}
@@ -157,5 +212,14 @@ void ASKPlayerState::SetDAPlayerStat()
 			}
 		}
 	}
-	
+}
+
+void ASKPlayerState::SetWeaponTag(FGameplayTag WeaponTag)
+{
+	CurrentWeaponTag = WeaponTag;
+}
+
+FGameplayTag ASKPlayerState::GetWeapontTag() const
+{
+	return CurrentWeaponTag;
 }
