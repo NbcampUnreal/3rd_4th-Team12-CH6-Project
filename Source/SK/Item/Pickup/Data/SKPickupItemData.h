@@ -18,7 +18,7 @@ public:
 	
 	// 아이템 ID
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	FName ItemID;
+	int32 ItemID;
 	
 	// 줍기 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")

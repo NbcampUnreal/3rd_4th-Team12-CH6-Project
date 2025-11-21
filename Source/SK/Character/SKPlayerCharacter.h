@@ -59,11 +59,7 @@ public:
 	void UpdateMovementTag();
 	void UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable = true);
 
-	UPROPERTY(BlueprintReadWrite)
-	FSKInteractionData CurrentInteractionData;
-
 	void SetPlayerStateTag();
-
 
 #pragma region Combo
 
@@ -139,5 +135,18 @@ private:
 	UPROPERTY()
 	TArray<AActor*> HitActors;
 
+	
+#pragma endregion
+
+#pragma region Interaction
+public:
+	UFUNCTION(Server, Reliable)
+	void Server_TryInteract(AActor* Target);
+
+	UFUNCTION(Client, Reliable)
+	void Client_PlayPickupSound(USoundBase* PickupSound);
+	
+	UPROPERTY(BlueprintReadWrite)
+	FSKInteractionData CurrentInteractionData;
 #pragma endregion
 };

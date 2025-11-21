@@ -1,5 +1,6 @@
 #include "SKInteractableBase.h"
 
+#include <Component/InventoryComponent.h>
 #include <GameData/SKGameConstant.h>
 #include <Utility/SKGameplayMessageSubsystem.h>
 #include <Utility/SKGameplayMessageTypes.h>
@@ -27,17 +28,26 @@ ASKInteractableBase::ASKInteractableBase()
 	
 	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
+
+	bReplicates = true;
 }
 
 void ASKInteractableBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetReplicateMovement(true);
+	
 	InteractionData.InteractionLocation = InteractionPoint->GetComponentLocation();
 	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
 }
 
-void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int32 ItemQuantity)
+void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity)
 {
 	if (!Interactor) return;
 
@@ -50,9 +60,9 @@ void ASKInteractableBase::AddToInventory(AActor* Interactor, FName ItemName, int
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(SKPlayerController->PlayerState);
 	if (!SKPlayerState) return;
 
-	// 수정 필요
-	// USKInventoryComponent* InventoryComponent = Cast<USKInventoryComponent>(SKPlayerState->);
-	// InventoryComponent->AddItem(ItemID, ItemQuantity);
+	// 서버 권한 실행으로 수정
+	UInventoryComponent* InventoryComponent = SKPlayerState->FindComponentByClass<UInventoryComponent>();
+	InventoryComponent->AddItemByIDAndCount(ItemID, ItemQuantity);
 }
 
 void ASKInteractableBase::OnShowWidget(bool bIsVisible)
