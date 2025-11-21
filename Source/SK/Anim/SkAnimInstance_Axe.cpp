@@ -46,8 +46,6 @@ void USkAnimInstance_Axe::PlayLeftAttackAnim()
 	if (LeftAttackMontages.IsValidIndex(LeftComboIndex))
 	{
 		Montage_Play(LeftAttackMontages[LeftComboIndex]);
-		//float Result = Montage_Play(LeftAttackMontages[LeftComboIndex]);
-		//UE_LOG(LogTemp, Warning, TEXT("Montage_Play result: %f"), Result);
 	}
 }
 
@@ -64,6 +62,15 @@ void USkAnimInstance_Axe::SetComboIndex(int32 ComboIndex)
 void USkAnimInstance_Axe::SetIsAttacking(bool isAttacking)
 {
 	bLeftAttacking = isAttacking;
+}
+
+UAnimMontage* USkAnimInstance_Axe::GetLeftATKMontage()
+{
+	if (LeftAttackMontages.IsValidIndex(LeftComboIndex))
+	{
+		return LeftAttackMontages[LeftComboIndex];
+	}
+	return nullptr;
 }
 
 

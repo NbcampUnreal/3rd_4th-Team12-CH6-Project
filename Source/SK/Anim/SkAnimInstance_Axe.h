@@ -32,7 +32,8 @@ public:
 	void SetComboIndex(int32 ComboIndex);
 	void SetIsAttacking(bool isAttacking);
 	//void SetCanNextCombo(bool bCanNextCombo);
-	
+
+	UAnimMontage* GetLeftATKMontage();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage")
 	TArray<UAnimMontage*> LeftAttackMontages;
 
