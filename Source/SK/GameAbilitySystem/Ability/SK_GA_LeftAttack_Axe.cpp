@@ -47,15 +47,24 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
 
+	// int32 ComboIndex = PlayerCharacter->GetComboIndex();
+	 TArray<UAnimMontage*> Array_Montage=  AxeAnimInstance->GetLeftATKMontage();
+
+
+	int32 ComboIndex = PlayerCharacter->GetComboIndex();  
+	UAnimMontage* Montage = Array_Montage[ComboIndex];
+	
 	ASC->PlayMontage(
 		this,
 		ActivationInfo,
-		AxeAnimInstance->GetLeftATKMontage(),
+		// AxeAnimInstance->GetLeftATKMontageIndex(),
+		Montage,
 		1.0f
 	);
-	
+
+
 	UE_LOG(LogTemp, Error, TEXT("GA Activated %s"), *GetName());
-//	AxeAnimInstance->PlayLeftAttackAnim();
+	//AxeAnimInstance->PlayLeftAttackAnim();
 	//ASC동기화를 위해 수정
 }
 
@@ -122,4 +131,10 @@ void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
 			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
 	}
+}
+
+void USK_GA_LeftAttack_Axe::OnStopAttackTrace_Server()
+{
+	ApplyDamageFromTrace();
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

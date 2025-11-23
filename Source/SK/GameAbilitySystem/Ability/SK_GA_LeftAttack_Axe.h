@@ -41,6 +41,8 @@ public:
 
 	void ApplyDamageFromTrace();
 
+	void OnStopAttackTrace_Server();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Event")
 	FGameplayTag Event_LeftATKTraceEnd;
 
