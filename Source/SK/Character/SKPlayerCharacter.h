@@ -102,11 +102,19 @@ public:
 	void StartAttackTrace();
 	void StopAttackTrace();
 	void PerformWeaponTrace(float DeltaTime);
+
+	UFUNCTION(Server, Reliable)
+	void Server_LeftAttackInput();
+	UFUNCTION(Server, Reliable)
+	void Server_OnATKEndNotify();
+	UFUNCTION(Server, Reliable)
+	void Server_Notify_StopAttackTrace();
+
 #pragma endregion
 
 protected:
 	virtual void OnRep_PlayerState() override;
-	
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -135,18 +143,21 @@ private:
 	UPROPERTY()
 	TArray<AActor*> HitActors;
 
-	
+
 #pragma endregion
 
 #pragma region Interaction
+
 public:
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract(AActor* Target);
 
 	UFUNCTION(Client, Reliable)
 	void Client_PlayPickupSound(USoundBase* PickupSound);
-	
+
 	UPROPERTY(BlueprintReadWrite)
 	FSKInteractionData CurrentInteractionData;
 #pragma endregion
 };
+
+
