@@ -36,8 +36,8 @@ void USkAnimInstance_Axe::NativeUpdateAnimation(float DeltaSeconds)
 	
 	//bLeftAttacking = OwnerCharacter->GetIsLeftAttackingByTag();
 	
-	bLeftAttacking = OwnerCharacter->GetIsAttacking();
-	LeftComboIndex = OwnerCharacter->GetComboIndex();
+	// bLeftAttacking = OwnerCharacter->GetIsAttacking();
+	// LeftComboIndex = OwnerCharacter->GetComboIndex();
 	
 }
 
@@ -45,7 +45,7 @@ void USkAnimInstance_Axe::PlayLeftAttackAnim()
 {
 	if (LeftAttackMontages.IsValidIndex(LeftComboIndex))
 	{
-		Montage_Play(LeftAttackMontages[LeftComboIndex]);
+		//Montage_Play(LeftAttackMontages[LeftComboIndex]);
 	}
 }
 
@@ -64,7 +64,12 @@ void USkAnimInstance_Axe::SetIsAttacking(bool isAttacking)
 	bLeftAttacking = isAttacking;
 }
 
-UAnimMontage* USkAnimInstance_Axe::GetLeftATKMontage()
+TArray<UAnimMontage*> USkAnimInstance_Axe::GetLeftATKMontage()
+{
+	return LeftAttackMontages;
+}
+
+UAnimMontage* USkAnimInstance_Axe::GetLeftATKMontageIndex()
 {
 	if (LeftAttackMontages.IsValidIndex(LeftComboIndex))
 	{
@@ -72,5 +77,7 @@ UAnimMontage* USkAnimInstance_Axe::GetLeftATKMontage()
 	}
 	return nullptr;
 }
+
+
 
 
