@@ -13,11 +13,24 @@ class UQuickSlotComponent;
 class UEquipmentComponent;
 class UAbilitySystemComponent;
 class USKAttributeSet;
-// struct FSKWeaponDataRow;
 
-/**
- * 
- */
+
+USTRUCT(BlueprintType)
+struct FSKRepComboState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FGameplayTag WeaponTag;
+
+	UPROPERTY()
+	FGameplayTag AttackTypeTag;
+
+	UPROPERTY()
+	int32 ComboIndex = 0;
+};
+
+
 UCLASS()
 class SK_API ASKPlayerState : public APlayerState
 {
@@ -48,11 +61,26 @@ public:
 	int32 GetMaxComobo(bool bLeft = true);
 	void SetDAPlayerStat();
 	void SetWeaponTag(FGameplayTag WeaponTag);
+
 	FGameplayTag GetWeapontTag() const;
+	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
+	void OnRep_ComboState();
+
+
+	int32 GetComboIndex() const;
+	UFUNCTION(Server, Reliable)
+	void Server_IncreaseComboIndex(bool bLeft = true);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ResetComboIndex(int32 NewIndex);
+
 #pragma endregion
 
 protected:
 #pragma region GAS
+	
+	UPROPERTY(ReplicatedUsing=OnRep_ComboState)
+	FSKRepComboState RepComboState;
 
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeaponTag,editAnywhere, BlueprintReadWrite, Category="SK|Battle")
 	FGameplayTag CurrentWeaponTag;
