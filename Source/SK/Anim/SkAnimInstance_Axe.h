@@ -27,7 +27,6 @@ public:
 	// void HitAnimEnd();
 
 	void PlayLeftAttackAnim();
-	void EndLeftAttackAnim();
 	
 	void SetComboIndex(int32 ComboIndex);
 	void SetIsAttacking(bool isAttacking);

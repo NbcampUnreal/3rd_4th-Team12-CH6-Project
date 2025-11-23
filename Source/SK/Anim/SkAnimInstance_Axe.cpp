@@ -49,10 +49,7 @@ void USkAnimInstance_Axe::PlayLeftAttackAnim()
 	}
 }
 
-void USkAnimInstance_Axe::EndLeftAttackAnim()
-{
-	OwnerCharacter->ResetComboState();
-}
+
 
 void USkAnimInstance_Axe::SetComboIndex(int32 ComboIndex)
 {
