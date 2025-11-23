@@ -101,7 +101,7 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
-	DOREPLIFETIME(ASKPlayerCharacter, ComboState);
+	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
 }
 
 void ASKPlayerCharacter::SetSprinting(bool bSprinting)
@@ -175,6 +175,13 @@ void ASKPlayerCharacter::StartAttackTrace()
 {
 	bIsTracing = true;
 	ClearHitActor();
+
+	PreviousSocketLocations.SetNum(CurrentWeaponTraceSockets.Num());
+
+	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
+	{
+		PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
+	}
 }
 
 void ASKPlayerCharacter::StopAttackTrace()
@@ -297,50 +304,34 @@ void ASKPlayerCharacter::PerformWeaponTrace(float DeltaTime)
 
 void ASKPlayerCharacter::Server_LeftAttackInput_Implementation()
 {
-	if (!ComboState.bIsAttacking)
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	
+	if (!LocalComboState.bIsAttacking)
 	{
-		ResetComboIndex(0);
-		ComboState.bIsAttacking = true;
-		ComboState.bBufferedAttack = false;
+		// PS->Server_ResetComboIndex(0);
+		LocalComboState.bIsAttacking = true;
+		LocalComboState.bBufferedAttack = false;
 
 		// ActivateLeftAttackGA();
 		// return;
 	}
 
-	else if (ComboState.bCanNextCombo)
+	else if (LocalComboState.bCanNextCombo)
 	{
-		ComboState.bBufferedAttack = false;
-		IncreaseComboIndex();
+		LocalComboState.bBufferedAttack = false;
+		// PS->Server_IncreaseComboIndex();
 		// ActivateLeftAttackGA();
 		// return;
 	}
 
 	else
 	{
-		ComboState.bBufferedAttack = true;
+		LocalComboState.bBufferedAttack = true;
 		return;
 	}
 	AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(GetLeftATKTag()));
 }
 
-void ASKPlayerCharacter::Server_OnATKEndNotify_Implementation()
-{
-	OnATKEndNotify(true); // 기존 로직 이동
-
-	// 서버에서만 데미지 처리
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (!ASC)
-		return;
-
-	// GA에게 이벤트 전달하는 방식(권장)
-	FGameplayEventData Payload;
-	Payload.EventTag = TAG_Event_LeftATKTraceEnd;
-	Payload.Instigator = this;
-	Payload.Target = this;
-
-	ASC->HandleGameplayEvent(TAG_Event_LeftATKTraceEnd, &Payload);
-}
 
 void ASKPlayerCharacter::Server_Notify_StopAttackTrace_Implementation()
 {
@@ -356,13 +347,70 @@ void ASKPlayerCharacter::Server_Notify_StopAttackTrace_Implementation()
 			USK_GA_LeftAttack_Axe* GA = Cast<USK_GA_LeftAttack_Axe>(Spec.GetPrimaryInstance());
 			if (GA)
 			{
-				GA->OnStopAttackTrace_Server(); // ★ 서버에서 GA에 직접 호출
+				GA->OnStopAttackTrace_Server(); 
 			}
 			break;
 		}
 	}
 }
 
+
+void ASKPlayerCharacter::Server_OnATKEndNotify_Implementation(bool bLeft)
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+
+	int32 MaxCombo = PS->GetMaxComobo(bLeft);
+	int32 RecComboIndex = PS->GetComboIndex();
+
+	if (LocalComboState.bBufferedAttack && RecComboIndex < MaxCombo)
+	{
+		LocalComboState.bBufferedAttack = false;
+		ActivateLeftAttackGA();  // 이건 서버에서 실행됨
+		return;
+	}
+
+	// 콤보 종료
+	PS->Server_ResetComboIndex(0);
+	
+	LocalComboState.bIsAttacking = false;
+	LocalComboState.bCanNextCombo = false;
+
+
+	FGameplayTagContainer CancelTags;
+	CancelTags.AddTag(TAG_Ability_LeftATK);   // 부모 태그
+
+	AbilitySystemComponent->CancelAbilities(&CancelTags, nullptr);
+	// for (FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
+	// {
+	// 	if (Spec.IsActive() &&
+	// 		Spec.Ability->GetClass() == USK_GA_LeftAttack_Axe::StaticClass())
+	// 	{
+	// 		AbilitySystemComponent->CancelAbilityHandle(Spec.Handle);
+	// 		break;
+	// 	}
+	// }
+
+}
+
+void ASKPlayerCharacter::Client_PlayMontage_Implementation(UAnimMontage* Montage)
+{
+	UAnimInstance* AIM = GetMesh()->GetAnimInstance();
+	if (AIM)
+	{
+		AIM->Montage_Play(Montage, 1.0f);
+	}
+}
+
+void ASKPlayerCharacter::OnComboStateUpdated(const FSKRepComboState& NewState)
+{
+	UE_LOG(LogTemp,Warning,TEXT("[CLIENT] Combo Rep: %d"), NewState.ComboIndex);
+
+	if (USkAnimInstance_Axe* Anim = Cast<USkAnimInstance_Axe>(GetMesh()->GetAnimInstance()))
+	{
+		// Anim->SetComboIndex(NewState.ComboIndex);  
+	}
+}
 
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
@@ -371,82 +419,43 @@ void ASKPlayerCharacter::OnRep_PlayerState()
 }
 
 
-void ASKPlayerCharacter::OnRep_ComboState()
-{
-	UpdateAnimInstanceComboState();
-}
 
-int32 ASKPlayerCharacter::GetComboIndex()
-{
-	return ComboState.ComboIndex;
-}
+
+
 
 bool ASKPlayerCharacter::GetIsAttacking()
 {
-	return ComboState.bIsAttacking;
+	return LocalComboState.bIsAttacking;
 }
 
-void ASKPlayerCharacter::ResetComboIndex(int32 ArgComboIndex)
-{
-	ComboState.ComboIndex = ArgComboIndex;
-}
-
-
-void ASKPlayerCharacter::IncreaseComboIndex(bool bLeft)
-{
-	if (!HasAuthority())
-		return;
-
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-
-	if (!IsValid(PS))
-		return;
-
-	int32 MaxCombo = PS->GetMaxComobo(bLeft);
-
-	ComboState.ComboIndex++;
-
-	// 최대 콤보 수 초과 방지
-	if (ComboState.ComboIndex >= MaxCombo)
-	{
-		// ComboState.ComboIndex = 1;
-		ResetComboIndex(0);
-	}
-
-	//2025.11.25 삭제
-	// if (HasAuthority())
-	// {
-	// 	OnRep_ComboState(); 
-	// }
-}
 
 void ASKPlayerCharacter::OnATKEndNotify(bool bLeft)
 {
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-
-	if (!IsValid(PS))
-		return;
-
-	int32 MaxCombo = PS->GetMaxComobo(bLeft);
-
-
-	// 1) 입력 버퍼가 있고, 아직 마지막 콤보가 아닐 때 → 콤보 이어가기
-	if (ComboState.bBufferedAttack && ComboState.ComboIndex < MaxCombo)
-	{
-		ComboState.bBufferedAttack = false;
-		IncreaseComboIndex();
-		ActivateLeftAttackGA();
-		return;
-	}
-
-	if (ComboState.ComboIndex >= MaxCombo)
-	{
-		ResetComboState();
-		return;
-	}
-
-	// 3) 입력 버퍼 없음 → 콤보 종료
-	ResetComboState();
+// 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+//
+// 	if (!IsValid(PS))
+// 		return;
+//
+// 	int32 MaxCombo = PS->GetMaxComobo(bLeft);
+// 	int32 RecComboIndex = PS->GetComboIndex();
+//
+// 	// 1) 입력 버퍼가 있고, 아직 마지막 콤보가 아닐 때 → 콤보 이어가기
+// 	if (LocalComboState.bBufferedAttack && RecComboIndex < MaxCombo)
+// 	{
+// 		LocalComboState.bBufferedAttack = false;
+// 		// PS->Server_IncreaseComboIndex(); GA에서만하기로
+// 		ActivateLeftAttackGA();
+// 		return;
+// 	}
+//
+// 	if (RecComboIndex >= MaxCombo)
+// 	{
+// 		//ResetComboState();
+// 		return;
+// 	}
+//
+// 	// 3) 입력 버퍼 없음 → 콤보 종료
+// 	//ResetComboState();
 }
 
 bool ASKPlayerCharacter::CheckMaxComboIndex(bool bLeft)
@@ -457,7 +466,7 @@ bool ASKPlayerCharacter::CheckMaxComboIndex(bool bLeft)
 		return false;
 
 	int32 MaxCombo = PS->GetMaxComobo(bLeft);
-	if (ComboState.ComboIndex >= MaxCombo)
+	if (PS->GetComboIndex() >= MaxCombo)
 		return true;
 	return false;
 }
@@ -492,25 +501,27 @@ FGameplayTag ASKPlayerCharacter::GetLeftATKTag() const
 
 void ASKPlayerCharacter::ResetComboState()
 {
-	ResetComboIndex(0);
-	ComboState.bIsAttacking = false;
-	ComboState.bCanNextCombo = false;
-
-	for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
-	{
-		PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
-	}
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// PS->Server_ResetComboIndex(0);
+	LocalComboState.bIsAttacking = false;
+	LocalComboState.bCanNextCombo = false;
+	LocalComboState.bBufferedAttack = false;
+	
+	// for (int32 i = 0; i < CurrentWeaponTraceSockets.Num(); i++)
+	// {
+	// 	PreviousSocketLocations[i] = GetMesh()->GetSocketLocation(CurrentWeaponTraceSockets[i]);
+	// }
 }
 
 void ASKPlayerCharacter::UpdateAnimInstanceComboState()
 {
 	USkAnimInstance_Axe* AnimInstance = Cast<USkAnimInstance_Axe>(GetMesh()->GetAnimInstance());
-	if (!AnimInstance) return;
-
+	if (!AnimInstance)
+		return;
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	// ComboState 값으로 Anim BP 변수 갱신
-	AnimInstance->SetComboIndex(ComboState.ComboIndex);
-	AnimInstance->SetIsAttacking(ComboState.bIsAttacking);
-	//AnimInstance->SetCanNextCombo(ComboState.bCanNextCombo);
+	AnimInstance->SetComboIndex(PS->GetComboIndex());
+	AnimInstance->SetIsAttacking(LocalComboState.bIsAttacking);
 }
 
 
