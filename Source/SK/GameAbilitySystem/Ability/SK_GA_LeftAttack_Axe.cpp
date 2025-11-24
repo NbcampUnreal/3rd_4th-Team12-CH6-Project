@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Anim/SkAnimInstance_Axe.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -43,6 +44,7 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	if (!IsValid(BaseAnim))
 		return;
 
+	// USKPlayerAnimInstance* AxeAnimInstance = Cast<USKPlayerAnimInstance>(BaseAnim); // 새로운 애님 인스턴스 사용 시
 	USkAnimInstance_Axe* AxeAnimInstance = Cast<USkAnimInstance_Axe>(BaseAnim);
 	if (!AxeAnimInstance)
 		return;
