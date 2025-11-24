@@ -25,11 +25,14 @@ void USK_GA_OpenChest::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	
 	FSKInteractionData& InteractionData = SKPlayerCharacter->CurrentInteractionData;
 
-	FVector TargetLocation = InteractionData.InteractionLocation;
-	TargetLocation.Z = SKPlayerCharacter->GetActorLocation().Z;
+	if (SKPlayerCharacter->IsLocallyControlled())
+	{
+		FVector TargetLocation = InteractionData.InteractionLocation;
+		TargetLocation.Z = SKPlayerCharacter->GetActorLocation().Z;
 	
-	SKPlayerCharacter->SetActorLocation(TargetLocation);
-	SKPlayerCharacter->SetActorRotation(InteractionData.InteractionRotation);
+		SKPlayerCharacter->SetActorLocation(TargetLocation);
+		SKPlayerCharacter->SetActorRotation(InteractionData.InteractionRotation);
+	}
 	
 	if (!OpenAnimMontage) return;
 	UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), OpenAnimMontage);
@@ -44,15 +47,11 @@ void USK_GA_OpenChest::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("EndAbility()")));
 
-	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!SKCharacter) return;
-	SKCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!SKPlayerCharacter) return;
+	SKPlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
-	UAbilitySystemComponent* ASC = SKCharacter->GetAbilitySystemComponent();
-	if (ASC)
-	{
-		ASC->ClearAbility(Handle);
-	}
+	SKPlayerCharacter->Server_CancelAbility(Handle);
 }
 
 void USK_GA_OpenChest::OnCompleted()
