@@ -141,5 +141,14 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	FSKInteractionData CurrentInteractionData;
+
+	FORCEINLINE void SetShouldUseInteractionTrace(const bool NewValue) { bShouldUseInteractionTrace = NewValue;}
+protected:
+
+	UFUNCTION()
+	void UpdateInteractionTrace() const;
+	
+	bool bShouldUseInteractionTrace;
+	
 #pragma endregion
 };

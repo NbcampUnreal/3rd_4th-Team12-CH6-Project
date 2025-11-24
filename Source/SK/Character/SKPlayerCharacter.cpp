@@ -48,6 +48,8 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 
 	//틱활성화
 	PrimaryActorTick.bCanEverTick = true;
+
+	bShouldUseInteractionTrace = true;
 }
 
 void ASKPlayerCharacter::BeginPlay()
@@ -77,13 +79,6 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
-
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC)
-	{
-		FGameplayTag InteractTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Interact"));
-		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
-	}
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
@@ -94,6 +89,8 @@ void ASKPlayerCharacter::Tick(float DeltaTime)
 	{
 		PerformWeaponTrace(DeltaTime);
 	}
+
+	UpdateInteractionTrace();
 }
 
 void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
