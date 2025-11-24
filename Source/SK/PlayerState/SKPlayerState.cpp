@@ -4,6 +4,7 @@
 #include "PlayerState/SKPlayerState.h"
 
 #include "AbilitySystemComponent.h"
+#include "Character/SKPlayerCharacter.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameData/WeaponDataRow.h"
@@ -48,6 +49,8 @@ void ASKPlayerState::BeginPlay()
 	{
 		OnASCReady.Broadcast();
 	}
+	if (HasAuthority())
+		OnRep_CurrentWeaponTag();
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
@@ -71,6 +74,18 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
+	
+	DOREPLIFETIME(ASKPlayerState, RepComboState); // 이게 없으면 클라에게 절대 안 감
+}
+
+
+void ASKPlayerState::OnRep_CurrentWeaponTag()
+{
+	ASKPlayerCharacter* PC = GetPawn<ASKPlayerCharacter>();
+	if (PC)
+	{
+		PC->SetTraceSocket();   // 여기서 호출해야 안전!!
+	}
 }
 
 
@@ -219,7 +234,46 @@ void ASKPlayerState::SetWeaponTag(FGameplayTag WeaponTag)
 	CurrentWeaponTag = WeaponTag;
 }
 
+
+
+int32 ASKPlayerState::GetComboIndex() const
+{
+	return RepComboState.ComboIndex;
+}
+
+void ASKPlayerState::Server_IncreaseComboIndex_Implementation(bool bLeft)
+{
+	int32 MaxCombo = GetMaxComobo(bLeft);
+
+	RepComboState.ComboIndex++;
+	UE_LOG(LogTemp, Error, TEXT("[SERVER] Increase -> %d"), RepComboState.ComboIndex);
+	// if (RepComboState.ComboIndex >= MaxCombo)
+	// {
+	// 	RepComboState.ComboIndex = 0;
+	// }
+}
+
+void ASKPlayerState::Server_ResetComboIndex_Implementation(int32 NewIndex)
+{
+	UE_LOG(LogTemp, Error, TEXT("[SERVER] Reset -> %d"), NewIndex);
+	RepComboState.ComboIndex = NewIndex;
+}
+
 FGameplayTag ASKPlayerState::GetWeapontTag() const
 {
 	return CurrentWeaponTag;
+}
+
+void ASKPlayerState::OnRep_ComboState()
+{
+	AActor* PawnActor = GetPawn();
+	if (!PawnActor)
+		return;
+
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(PawnActor);
+	if (!PlayerCharacter)
+		return;
+
+	PlayerCharacter->OnComboStateUpdated(RepComboState);
 }

@@ -13,5 +13,15 @@ UCLASS()
 class SK_API UEquipmentSelectLayoutWidget : public USKLayoutWidgetBase
 {
 	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle SelectToMainActionData;
 	
+	FUIActionBindingHandle SelectToMainHandle;
+	
+protected:
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void HandleSelectToMainAction();
 };

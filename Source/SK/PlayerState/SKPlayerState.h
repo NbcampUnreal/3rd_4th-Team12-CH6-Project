@@ -13,11 +13,24 @@ class UQuickSlotComponent;
 class UEquipmentComponent;
 class UAbilitySystemComponent;
 class USKAttributeSet;
-// struct FSKWeaponDataRow;
 
-/**
- * 
- */
+
+USTRUCT(BlueprintType)
+struct FSKRepComboState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FGameplayTag WeaponTag;
+
+	UPROPERTY()
+	FGameplayTag AttackTypeTag;
+
+	UPROPERTY()
+	int32 ComboIndex = 0;
+};
+
+
 UCLASS()
 class SK_API ASKPlayerState : public APlayerState
 {
@@ -33,12 +46,14 @@ public:
 	// 네트워크 복제에 필요한 함수 재정의
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 #pragma region GAS
+	UFUNCTION()
+	void OnRep_CurrentWeaponTag();
+	
 	DECLARE_MULTICAST_DELEGATE(FOnASCReady);
 	FOnASCReady OnASCReady;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	USKAttributeSet* GetAttributeSet() const;
-
 
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();
@@ -46,13 +61,28 @@ public:
 	int32 GetMaxComobo(bool bLeft = true);
 	void SetDAPlayerStat();
 	void SetWeaponTag(FGameplayTag WeaponTag);
+
 	FGameplayTag GetWeapontTag() const;
+	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
+	void OnRep_ComboState();
+
+
+	int32 GetComboIndex() const;
+	UFUNCTION(Server, Reliable)
+	void Server_IncreaseComboIndex(bool bLeft = true);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ResetComboIndex(int32 NewIndex);
+
 #pragma endregion
 
 protected:
 #pragma region GAS
+	
+	UPROPERTY(ReplicatedUsing=OnRep_ComboState)
+	FSKRepComboState RepComboState;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Battle")
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeaponTag,editAnywhere, BlueprintReadWrite, Category="SK|Battle")
 	FGameplayTag CurrentWeaponTag;
 	//Tag별 소켓 정보 DT
 	UPROPERTY(EditAnywhere, Category="SK|Weapon")

@@ -81,12 +81,12 @@ bool UEquipmentComponent::UnequipItem(EEquipmentSlotType Slot)
 	return true;
 }
 
-UEquipmentInstance* UEquipmentComponent::GetEquipment(EEquipmentSlotType Slot) const
+const FEquipmentSlotData* UEquipmentComponent::GetEquipment(EEquipmentSlotType Slot)
 {
 
 	if (const FEquipmentSlotData* SlotData = Equipments.Find(Slot))
 	{
-		return SlotData->EquipmentInstance;
+		return SlotData;
 	}
 	
 	return nullptr;
@@ -100,6 +100,26 @@ void UEquipmentComponent::BeginPlay()
 
 	// ...
 	Inventory = GetOwner()->FindComponentByClass<UInventoryComponent>();
+
+	UEnum* EnumPtr = StaticEnum<EEquipmentSlotType>();
+	if (!EnumPtr) return;
+
+	int32 Count = EnumPtr->NumEnums();
+
+	for (int32 i = 0; i < Count; i++)
+	{
+		// 언리얼 내부용 _MAX 같은 값은 Hidden 처리됨 → 스킵
+		if (EnumPtr->HasMetaData(TEXT("Hidden"), i))
+			continue;
+
+		EEquipmentSlotType SlotType =
+			static_cast<EEquipmentSlotType>(EnumPtr->GetValueByIndex(i));
+
+		if (SlotType == EEquipmentSlotType::None)
+			continue;
+
+		Equipments.Add(SlotType, FEquipmentSlotData{});
+	}
 }
 
 void UEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
