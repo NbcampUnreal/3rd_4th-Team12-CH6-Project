@@ -57,8 +57,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> SprintAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-	TObjectPtr<UInputAction> NormalMeleeAttack;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
     TObjectPtr<UInputAction> Interaction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> LeftAttackAction;
@@ -66,7 +64,18 @@ protected:
 	TObjectPtr<UInputAction> RightAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> MouseWheelAction;
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotAction_00;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotAction_01;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotAction_02;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotItem_00;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotItem_01;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotItem_02;
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -76,8 +85,16 @@ private:
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
-
 	void LeftAttack(const FInputActionValue& Value);
+	void RightAttack(const FInputActionValue& Value);
+	void Active_MouseWheel(const FInputActionValue& Value);
+	void Active_QuickSlotAction_00(const FInputActionValue& Value);
+	void Active_QuickSlotAction_01(const FInputActionValue& Value);
+	void Active_QuickSlotAction_02(const FInputActionValue& Value);
+	void Active_QuickSlotItem_00(const FInputActionValue& Value);
+	void Active_QuickSlotItem_01(const FInputActionValue& Value);
+	void Active_QuickSlotItem_02(const FInputActionValue& Value);
 
+	
 #pragma	endregion
 };

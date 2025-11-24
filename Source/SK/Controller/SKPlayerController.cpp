@@ -4,6 +4,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
+#include "SNodePanel.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Constants/SKGameConstants.h"
@@ -103,12 +104,26 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopSprint);
 
-		// EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
-		// 						   &ASKPlayerController::NormalMelee);
 		EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::LeftAttack);
+		EnhancedInputComponent->BindAction(RightAttackAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::RightAttack);
+		EnhancedInputComponent->BindAction(MouseWheelAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_MouseWheel);
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
+		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotAction_00);
+		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotAction_01);
+		EnhancedInputComponent->BindAction(QuickSlotAction_02, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotAction_02);
+		EnhancedInputComponent->BindAction(QuickSlotItem_00, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotItem_00);
+		EnhancedInputComponent->BindAction(QuickSlotItem_01, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotItem_01);
+		EnhancedInputComponent->BindAction(QuickSlotItem_02, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotItem_02);
 	}
 }
 
@@ -230,6 +245,47 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 
 	PlayerCharacter->OnLeftATKInput();
 }
+
+void ASKPlayerController::RightAttack(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("RIGHT"));
+}
+
+void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("ACTIVE_MOUSE_WHEEL"));
+}
+
+void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_00"));
+}
+
+void ASKPlayerController::Active_QuickSlotAction_01(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_01"));
+}
+
+void ASKPlayerController::Active_QuickSlotAction_02(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_02"));
+}
+
+void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_00"));
+}
+
+void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_01"));
+}
+
+void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_02"));
+}
+
 
 void ASKPlayerController::Interact(const FInputActionValue& Value)
 {
