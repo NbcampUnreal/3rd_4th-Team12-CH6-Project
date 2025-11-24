@@ -99,6 +99,8 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
 	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
+
+	DOREPLIFETIME(ASKPlayerCharacter, CurrentInteractionData);
 }
 
 void ASKPlayerCharacter::SetSprinting(bool bSprinting)
@@ -549,6 +551,60 @@ void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGamepl
 	}
 }
 
+void ASKPlayerCharacter::Server_GiveAndActivateAbility_Implementation(TSubclassOf<UGameplayAbility> AbilityClass, int32 AbilityLevel, int32 InputID)
+{
+	if (!AbilityClass) return;
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, AbilityLevel, InputID, this));
+	if (NewHandle.IsValid())
+	{
+		TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
+		FTimerHandle TempHandle;
+		ASC->GetWorld()->GetTimerManager().SetTimer(TempHandle, [WeakASC, NewHandle]()
+		{
+			if (WeakASC.IsValid())
+			{
+				WeakASC->TryActivateAbility(NewHandle);
+			}
+		}, 0.01f, false);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Handle Is Invalid"));
+	}
+}
+
+void ASKPlayerCharacter::Server_CancelAbility_Implementation(const FGameplayAbilitySpecHandle Handle)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (ASC && Handle.IsValid())
+	{
+		ASC->ClearAbility(Handle);
+	}
+}
+
+void ASKPlayerCharacter::UpdateInteractionTrace() const
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+	
+	FGameplayTag InteractTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Interact"));
+	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
+	
+	if (bShouldUseInteractionTrace)
+	{
+		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
+	}
+	else
+	{
+		FGameplayTagContainer InteractTagContainer(InteractTag);
+		ASC->CancelAbilities(&InteractTagContainer);
+	}
+}
+
 void ASKPlayerCharacter::Client_PlayPickupSound_Implementation(USoundBase* PickupSound)
 {
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
@@ -557,7 +613,8 @@ void ASKPlayerCharacter::Client_PlayPickupSound_Implementation(USoundBase* Picku
 void ASKPlayerCharacter::Server_TryInteract_Implementation(AActor* Target)
 {
 	if (!Target) return;
-
+	UE_LOG(LogTemp, Warning, TEXT("Role: %d"), Target->GetLocalRole());
+	UE_LOG(LogTemp, Warning, TEXT("Remote: %d"), Target->GetRemoteRole());
 	ISKInteractable::Execute_Interact(Target, this);
 }
 

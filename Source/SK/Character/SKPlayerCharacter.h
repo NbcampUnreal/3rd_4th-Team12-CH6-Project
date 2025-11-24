@@ -139,10 +139,17 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_PlayPickupSound(USoundBase* PickupSound);
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Replicated)
 	FSKInteractionData CurrentInteractionData;
 
 	FORCEINLINE void SetShouldUseInteractionTrace(const bool NewValue) { bShouldUseInteractionTrace = NewValue;}
+
+	UFUNCTION(Server, Reliable)
+	void Server_GiveAndActivateAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 AbilityLevel, int32 InputID);
+
+	UFUNCTION(Server, Reliable)
+	void Server_CancelAbility(const FGameplayAbilitySpecHandle Handle);
+
 protected:
 
 	UFUNCTION()
