@@ -4,10 +4,12 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
-#include "SNodePanel.h"
+#include "Manager/SKCameraManager.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Character/AI/SKAICharacterBase.h"
 #include "Constants/SKGameConstants.h"
+#include "Engine/OverlapResult.h"
 #include "GameData/SKGameConstant.h"
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
@@ -16,6 +18,7 @@
 
 ASKPlayerController::ASKPlayerController()
 {
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ASKPlayerController::BeginPlay()
@@ -34,6 +37,20 @@ void ASKPlayerController::BeginPlay()
 	if (!UISubSystem) return;
 
 	UISubSystem->SettingLayout();
+}
+
+void ASKPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bIsLockedOn && CurrentTarget)
+	{
+		float Dist = FVector::Dist(GetPawn()->GetActorLocation(), CurrentTarget->GetActorLocation());
+		if (Dist > LockOnRadius * 1.2f)
+		{
+			SetLockOnTarget(nullptr);
+		}
+	}
 }
 
 void ASKPlayerController::EnterDungeon()
@@ -170,6 +187,9 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
+	if (bIsLockedOn && CurrentTarget)
+		return;
+	
 	const FVector2D InLookVector = Value.Get<FVector2D>();
 
 	AddYawInput(InLookVector.X);
@@ -254,6 +274,18 @@ void ASKPlayerController::RightAttack(const FInputActionValue& Value)
 void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("ACTIVE_MOUSE_WHEEL"));
+
+	if (bIsLockedOn)
+	{
+		SetLockOnTarget(nullptr);
+		return;
+	}
+
+	AActor* Target = FindNearestTarget();
+	if (Target)
+	{
+		SetLockOnTarget(Target);
+	}
 }
 
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
@@ -284,6 +316,69 @@ void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value
 void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_02"));
+}
+
+AActor* ASKPlayerController::FindNearestTarget()
+{
+	APawn* thisPlayer = GetPawn();
+	if (!thisPlayer)
+		return nullptr;
+	
+	FVector Origin = thisPlayer->GetActorLocation();
+	TArray<FOverlapResult> Overlaps;
+	
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(LockOnRadius);
+	
+	bool bHit = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		Origin,
+		FQuat::Identity,
+		ECC_Pawn,
+		Sphere
+	);
+	
+	if (!bHit)
+		return nullptr;
+	
+	float MinDist = FLT_MAX;
+	AActor* Best = nullptr;
+	
+	for (auto& Result : Overlaps)
+	{
+		AActor* A = Result.GetActor();
+		if (!A || A == thisPlayer) continue;
+
+		ASKAICharacterBase* AI = Cast<ASKAICharacterBase>(A);
+		if (!AI)
+			continue; //AI만찾기
+		
+		float D = FVector::Dist(Origin, A->GetActorLocation());
+		if (D < MinDist)
+		{
+			MinDist = D;
+			Best = A;
+		}
+	}
+
+	return Best;
+}
+
+void ASKPlayerController::SetLockOnTarget(AActor* NewTarget)
+{
+	CurrentTarget = NewTarget;
+	bIsLockedOn = (NewTarget != nullptr);
+
+	UpdateCameraManagerTarget();
+}
+
+void ASKPlayerController::UpdateCameraManagerTarget()
+{
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+	if (Cam)
+	{
+		Cam->LockedTarget = CurrentTarget;
+		Cam->bIsLockedOn = bIsLockedOn;
+	}
 }
 
 
