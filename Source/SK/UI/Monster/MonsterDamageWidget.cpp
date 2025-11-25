@@ -3,10 +3,10 @@
 
 #include "UI/Monster/MonsterDamageWidget.h"
 
-#include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Components/TextBlock.h"
 #include "TimerManager.h"
+#include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 
 
 void UMonsterDamageWidget::SettingWidget(APawn* OwnerPawn)
@@ -25,18 +25,18 @@ void UMonsterDamageWidget::SettingWidget(APawn* OwnerPawn)
 		
 	if (AttributeSet)
 	{
-		AttributeSet->OnHealthChanged.RemoveAll(this);
+		AttributeSet->OnCurrentHealthChanged.RemoveAll(this);
 		AttributeSet = nullptr;
 	}
 	
-	AttributeSet = Cast<USKAttributeSet>(ASC->GetAttributeSet(USKAttributeSet::StaticClass()));
+	AttributeSet = Cast<USKAIAttributeSet>(ASC->GetAttributeSet(USKAIAttributeSet::StaticClass()));
 	
 	if (!AttributeSet)
 	{
 		return;
 	}
 	
-	AttributeSet->OnHealthChanged.AddUObject(this, &UMonsterDamageWidget::HealthChanged);
+	AttributeSet->OnCurrentHealthChanged.AddUObject(this, &UMonsterDamageWidget::HealthChanged);
 }
 
 void UMonsterDamageWidget::NativeConstruct()
