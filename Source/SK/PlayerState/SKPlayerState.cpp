@@ -11,6 +11,7 @@
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
+#include "Utility/SKUIManagerSubSystem.h"
 
 ASKPlayerState::ASKPlayerState()
 {
@@ -51,6 +52,16 @@ void ASKPlayerState::BeginPlay()
 	}
 	if (HasAuthority())
 		OnRep_CurrentWeaponTag();
+
+	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
+	APlayerController* PC = GetPlayerController();
+	if (!PC)
+		return;
+	
+	USKUIManagerSubSystem* UISubSystem = ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(PC->GetLocalPlayer());
+	if (!UISubSystem) return;
+
+	UISubSystem->SettingLayout();
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
