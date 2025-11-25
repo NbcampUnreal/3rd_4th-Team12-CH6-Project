@@ -8,7 +8,7 @@
 
 class UProgressBar;
 struct FGameplayEffectSpec;
-class USKAttributeSet;
+class USKAIAttributeSet;
 /**
  * 
  */
@@ -22,7 +22,8 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
-
+	virtual void NativeDestruct() override;
+	
 	void HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
 
 	UFUNCTION()
@@ -32,7 +33,7 @@ protected:
 	UProgressBar* HealthProgressBar;
 
 	UPROPERTY()
-	const USKAttributeSet* AttributeSet;
+	const USKAIAttributeSet* AttributeSet;
 
 	FTimerHandle HideTimerHandle;
 

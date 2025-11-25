@@ -3,9 +3,9 @@
 
 #include "UI/Monster/MonsterHealthWidget.h"
 
-#include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Components/ProgressBar.h"
+#include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 
 void UMonsterHealthWidget::SettingWidget(APawn* OwnerPawn)
 {
@@ -23,18 +23,18 @@ void UMonsterHealthWidget::SettingWidget(APawn* OwnerPawn)
 		
 	if (AttributeSet)
 	{
-		AttributeSet->OnHealthChanged.RemoveAll(this);
+		AttributeSet->OnCurrentHealthChanged.RemoveAll(this);
 		AttributeSet = nullptr;
 	}
 	
-	AttributeSet = Cast<USKAttributeSet>(ASC->GetAttributeSet(USKAttributeSet::StaticClass()));
+	AttributeSet = Cast<USKAIAttributeSet>(ASC->GetAttributeSet(USKAIAttributeSet::StaticClass()));
 	
 	if (!AttributeSet)
 	{
 		return;
 	}
 	
-	AttributeSet->OnHealthChanged.AddUObject(this, &UMonsterHealthWidget::HealthChanged);
+	AttributeSet->OnCurrentHealthChanged.AddUObject(this, &UMonsterHealthWidget::HealthChanged);
 }
 
 void UMonsterHealthWidget::NativeConstruct()
@@ -44,8 +44,17 @@ void UMonsterHealthWidget::NativeConstruct()
 	SetVisibility(ESlateVisibility::Hidden);
 }
 
+void UMonsterHealthWidget::NativeDestruct()
+{
+	if (AttributeSet)
+	{
+		AttributeSet->OnCurrentHealthChanged.RemoveAll(this);
+	}
+	Super::NativeDestruct();
+}
+
 void UMonsterHealthWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser,
-	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
+                                         const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
 {
 	if (!HealthProgressBar || !AttributeSet)
 	{
