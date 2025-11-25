@@ -35,6 +35,8 @@ public:
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float MaxLockDistance = 2000.f;
 
+	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
+	float MinLockDistance = 200.f;
 	
 protected:
 	virtual void UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime) override;

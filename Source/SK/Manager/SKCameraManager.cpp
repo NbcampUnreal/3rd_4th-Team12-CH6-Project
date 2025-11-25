@@ -32,7 +32,7 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 
 	// 거리 초과 체크
 	float Dist = FVector::Dist(Player->GetActorLocation(), LockedTarget->GetActorLocation());
-	if (Dist > MaxLockDistance)
+	if (Dist > MaxLockDistance || Dist < MinLockDistance)
 	{
 		bIsLockedOn = false;
 		LockedTarget = nullptr;
@@ -41,7 +41,7 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 
 	// 타겟 바라보기
 	FRotator TargetRot = (TargetLoc - CamLoc).Rotation();
-	TargetRot.Pitch -= LockOnPitch; // 숫자 조절: 5~20 정도가 자연스러움
+	TargetRot.Pitch -= LockOnPitch;
 	FRotator NewRot = FMath::RInterpTo(GetCameraRotation(), TargetRot, DeltaTime, LockOnInterpSpeed);
 
 	GetOwningPlayerController()->SetControlRotation(NewRot);
