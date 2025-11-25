@@ -13,8 +13,14 @@ class SK_API USK_GA_AI_Die : public USK_GA_AI_Base
 public:
 	USK_GA_AI_Die();
 
+	void WaitEvent();
+
+	UFUNCTION()
+	void OnWaitEventCompleted(FGameplayEventData EventData);
+	
 	void Die(UAnimMontage* AnimMontage);
 
+	UFUNCTION()
 	void OnDieCompleted();
 
 protected:

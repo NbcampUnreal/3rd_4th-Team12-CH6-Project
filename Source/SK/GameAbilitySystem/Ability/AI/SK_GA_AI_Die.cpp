@@ -4,10 +4,13 @@
 #include "Character/AI/SKAICharacter.h"
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Utility/DropSubsystem.h"
 
 USK_GA_AI_Die::USK_GA_AI_Die()
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Die")));
@@ -16,33 +19,96 @@ USK_GA_AI_Die::USK_GA_AI_Die()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_AI_Die::Die(UAnimMontage* AnimMontage)
+void USK_GA_AI_Die::WaitEvent()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("죽음이벤트대기시작"));
+
+	UAbilityTask_WaitGameplayEvent* EventTask =
+			UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Event.Death")),
+				nullptr,
+				true,
+				false
+			);
+
+	EventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Die::OnWaitEventCompleted);
+	EventTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Die::OnDieCompleted()
+void USK_GA_AI_Die::OnWaitEventCompleted(FGameplayEventData EventData)
 {
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
+	if (!IsValid(AICharacter))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+
+	UAnimMontage* AnimMontage = AICharacter->GetMontages()[1]; // 임시로 일단 1번 인덱스 고정
+	if (!IsValid(AnimMontage))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("죽음이벤트받음"));
+	Die(AnimMontage);
+}
+
+void USK_GA_AI_Die::Die(UAnimMontage* AnimMontage)
+{
+	CachedController->StopMovement();
+	
 	UAbilitySystemComponent* SourceASC = CachedActorInfo->AbilitySystemComponent.Get();
 	if (!SourceASC)
 	{
 		return;	
 	}
 
+	FGameplayTagContainer CancelTags;
+	CancelTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability")));
+	SourceASC->CancelAbilities(&CancelTags, nullptr, this);
+	
 	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
 	if (!IsValid(ST))
 	{
 		return;
 	}
-
-	ACharacter* Character = CachedCharacter;
-	
-	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
-
-	SourceASC->CancelAllAbilities();
 	
 	ST->StopLogic(TEXT("AI Death"));
 	
-	Character->Destroy();
+	UAbilityTask_PlayMontageAndWait* MontageTask =
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			NAME_None,
+			AnimMontage,
+			1.0f,
+			NAME_None,
+			false,
+			1.0f
+		);
+
+	MontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Die::OnDieCompleted);
+	//Task->OnInterrupted.AddDynamic(this, &USK_GA_Melee::OnMontageInterrupted);
+	//Task->OnCancelled.AddDynamic(this, &USK_GA_Melee::OnMontageCancelled);
+	//Task->OnBlendOut.AddDynamic(this, &USK_GA_Melee::OnMontageBlendOut);
+	MontageTask->ReadyForActivation();
+}
+
+void USK_GA_AI_Die::OnDieCompleted()
+{
+	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+
+	auto* DropSubsystem = GetWorld()->GetSubsystem<UDropSubsystem>();
+	if (!IsValid(DropSubsystem))
+	{
+		return;
+	}
+
+	DropSubsystem->ProcessDropTable(1, CachedCharacter->GetActorLocation());
+	
+	CachedCharacter->Destroy();
 }
 
 void USK_GA_AI_Die::ActivateAbility(
@@ -68,7 +134,7 @@ void USK_GA_AI_Die::ActivateAbility(
 		return;
 	}
 	
-	Die(AnimMontage);
+	WaitEvent();
 }
 
 void USK_GA_AI_Die::EndAbility(

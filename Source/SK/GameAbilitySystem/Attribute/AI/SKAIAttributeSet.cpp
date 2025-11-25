@@ -43,6 +43,29 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+
+		if (FMath::IsNearlyZero(GetHealth()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Death"));
+
+			UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
+			if (!OwningASC)
+			{
+				return;
+			}
+			
+			FGameplayEventData EventData;
+			EventData.Instigator = nullptr;
+			EventData.Target = nullptr;
+			EventData.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Death"));
+			EventData.OptionalObject = nullptr;
+
+			OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("죽음이벤트발송"));
+		}
+		
+		FString DebugMsg = FString::Printf(TEXT("Health: %.2f"), GetHealth());
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMsg);
 	}
 }
 
@@ -53,13 +76,6 @@ void USKAIAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute,
 	// 서버권한 로직 처리용 ex) 몬스터 체력이 50% 이하가 되면 모든 플레이어 이속 감소라든가 등
 	if (Attribute == GetHealthAttribute())
 	{
-		if (FMath::IsNearlyZero(NewValue))
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Death"));
-		}
-		FString DebugMsg = FString::Printf(TEXT("Health: %.2f"), NewValue);
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMsg);
-		
 		OnCurrentHealthChanged.Broadcast(
 			nullptr,
 			nullptr,
