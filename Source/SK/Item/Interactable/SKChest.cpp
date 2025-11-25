@@ -7,4 +7,5 @@ ASKChest::ASKChest()
 
 	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>("LidMesh");
 	LidMesh->SetupAttachment(Root);
+	LidMesh->SetIsReplicated(true);
 }
