@@ -94,6 +94,8 @@ void ASKPlayerCharacter::Tick(float DeltaTime)
 	{
 		PerformWeaponTrace(DeltaTime);
 	}
+
+	LockOnTarget(DeltaTime);
 }
 
 void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -549,6 +551,19 @@ void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGamepl
 		{
 			ASC->RemoveLooseGameplayTag(Tag);
 		}
+	}
+}
+
+void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
+{
+	ASKPlayerController* PC = Cast<ASKPlayerController>(Controller);
+	if (PC && PC->bIsLockedOn && PC->CurrentTarget)
+	{
+		FVector Dir = (PC->CurrentTarget->GetActorLocation() - GetActorLocation());
+		Dir.Z = 0;
+	
+		FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
+		SetActorRotation(NewRot);
 	}
 }
 

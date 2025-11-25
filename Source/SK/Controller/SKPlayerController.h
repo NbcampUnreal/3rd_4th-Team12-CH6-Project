@@ -35,9 +35,14 @@ public:
 	//파티 해제 및 로컬 마을 복귀
 	UFUNCTION(BlueprintCallable)
 	void LeaveSessionAndReturnToLocalTown();
-	
+
+	UPROPERTY()
+	AActor* CurrentTarget = nullptr;
+	// 락온 상태
+	bool bIsLockedOn = false;
 protected:
-	virtual void BeginPlay() override; 
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	
@@ -76,6 +81,10 @@ protected:
 	TObjectPtr<UInputAction> QuickSlotItem_01;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> QuickSlotItem_02;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|LockOn")
+	float LockOnRadius = 1500.f;
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -95,6 +104,10 @@ private:
 	void Active_QuickSlotItem_01(const FInputActionValue& Value);
 	void Active_QuickSlotItem_02(const FInputActionValue& Value);
 
-	
+	AActor* FindNearestTarget();
+	void SetLockOnTarget(AActor* NewTarget);
+	void UpdateCameraManagerTarget();
+private:
+
 #pragma	endregion
 };
