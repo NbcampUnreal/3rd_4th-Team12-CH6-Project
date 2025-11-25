@@ -28,12 +28,6 @@ void ASKPlayerController::BeginPlay()
 		check(DefaultMappingContext);
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
-
-	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
-	USKUIManagerSubSystem* UISubSystem = ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(GetLocalPlayer());
-	if (!UISubSystem) return;
-
-	UISubSystem->SettingLayout();
 }
 
 void ASKPlayerController::EnterDungeon()
