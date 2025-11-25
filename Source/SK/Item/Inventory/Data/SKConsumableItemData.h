@@ -13,6 +13,10 @@ class SK_API USKConsumableItemData : public USKInventoryItemData
 	GENERATED_BODY()
 
 public:
+	USKConsumableItemData()
+	{
+		InventoryType = EInventoryItemType::Consumable;
+	}
 	// 회복량
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
 	int32 Amount;
@@ -21,20 +25,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
 	float Duration;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
+	float CoolDown;
+
 	// 퀵 슬롯 최대 소지량
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
 	int32 QuickSlotSize;
 
-	// 투척 가능 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
-	bool bIsThrowable;
-
 	// 소모품 GameplayAbility
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
 	TSubclassOf<UGameplayAbility> ConsumableGA;
-
-	// 소모품 GameplayEffect
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
-	TSubclassOf<UGameplayEffect> ConsumableGE;
-	
 };

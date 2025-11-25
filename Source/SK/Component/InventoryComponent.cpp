@@ -45,21 +45,32 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 
 	if (ItemData->bIsStackable)
 	{
-		bool bAddItem = false;
+		int32 RemainingCount = Count;
+    
+		// 기존 슬롯에 스택 가능한 만큼 더하기
 		for (FInventorySlot& Slot : InventorySlots)
 		{
-			if (Slot.ItemID == ItemID)
+			if (Slot.ItemID == ItemID && Slot.Count < ItemData->SlotSize)
 			{
-				Slot.Count += Count;
-				bAddItem = true;
-				break;
+				int32 Addable = FMath::Min(RemainingCount, ItemData->SlotSize - Slot.Count);
+				Slot.Count += Addable;
+				RemainingCount -= Addable;
+
+				if (RemainingCount <= 0)
+				{
+					break;
+				}
 			}
 		}
-		if (!bAddItem)
+
+		// 남은 수량이 있으면 새 슬롯 생성
+		while (RemainingCount > 0)
 		{
-			InventorySlots.Add(FInventorySlot{ItemID, Count, FGuid()});
+			int32 AddCount = FMath::Min(RemainingCount, ItemData->SlotSize);
+			InventorySlots.Add(FInventorySlot{ItemID, AddCount, FGuid()});
+			RemainingCount -= AddCount;
 		}
-		
+
 		return true;
 	}
 	else if (ItemData->InventoryType == EInventoryItemType::Equipment)
@@ -78,9 +89,10 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 	}
 	else
 	{
-		FInventorySlot NewSlot(ItemID, 1, FGuid());
-			
-		InventorySlots.Add(NewSlot);
+		for (int32 i = 0; i < Count; ++i)
+		{
+			InventorySlots.Add(FInventorySlot{ItemID, 1, FGuid()});
+		}
 	}
 
 	return false;
