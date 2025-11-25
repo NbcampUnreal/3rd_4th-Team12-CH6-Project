@@ -6,9 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "MonsterDamageWidget.generated.h"
 
+class USKAIAttributeSet;
 class UTextBlock;
 struct FGameplayEffectSpec;
-class USKAttributeSet;
 /**
  * 
  */
@@ -32,7 +32,7 @@ protected:
 	UTextBlock* DamageText;
 
 	UPROPERTY()
-	const USKAttributeSet* AttributeSet;
+	const USKAIAttributeSet* AttributeSet;
 
 	FTimerHandle HideTimerHandle;
 };
