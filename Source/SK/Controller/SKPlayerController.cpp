@@ -47,6 +47,20 @@ void ASKPlayerController::Tick(float DeltaTime)
 	}
 }
 
+void ASKPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bIsLockedOn && CurrentTarget)
+	{
+		float Dist = FVector::Dist(GetPawn()->GetActorLocation(), CurrentTarget->GetActorLocation());
+		if (Dist > LockOnRadius * 1.2f)
+		{
+			SetLockOnTarget(nullptr);
+		}
+	}
+}
+
 void ASKPlayerController::EnterDungeon()
 {
 	if (!HasAuthority())
