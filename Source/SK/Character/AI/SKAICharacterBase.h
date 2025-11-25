@@ -24,6 +24,15 @@ public:
 	TSoftObjectPtr<USKAIDataAsset> AIDataAsset;
 
 protected:
+	
+	/** 몬스터 정적 ID (BP에서 고정 입력) */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterID")
+	int32 MonsterID = -1;
+
+	/** 몬스터 정적 ID */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MonsterID")
+	int32 DropTableID = -1;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Montage")
 	TArray<TObjectPtr<UAnimMontage>> Montages;
 	
@@ -37,4 +46,7 @@ public:
 	void InitializeAttributeSetAndAbilitiesFromDataAsset();
 
 	TArray<UAnimMontage*> GetMontages() const;
+
+protected:
+	void ApplyStaticMonsterStats();
 };

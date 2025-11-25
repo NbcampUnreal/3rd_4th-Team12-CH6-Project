@@ -125,6 +125,28 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 			NewValue
 		);
 	}
+	else if (Attribute == GetHeatAttribute())
+	{
+		OnHeatChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			OldValue - NewValue,
+			OldValue,
+			NewValue
+		);
+	}
+	else if (Attribute == GetMaxHeatAttribute())
+	{
+		OnMaxHeatChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			OldValue - NewValue,
+			OldValue,
+			NewValue
+		);
+	}
 }
 
 void USKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)

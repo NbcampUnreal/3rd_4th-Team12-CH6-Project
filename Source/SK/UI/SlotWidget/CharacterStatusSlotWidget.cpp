@@ -4,63 +4,68 @@
 #include "UI/SlotWidget/CharacterStatusSlotWidget.h"
 
 #include "AbilitySystemComponent.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
+#include "Components/Image.h"
 #include "Components/ProgressBar.h"
-#include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
+#include "PlayerState/SKPlayerState.h"
 
 void UCharacterStatusSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] NativeConstruct"));
-	ASKPlayerController* PC = Cast<ASKPlayerController>(GetOwningPlayer());
-	if (!PC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] PC NO"));
-		return;
+ 
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC) return;
+ 
+	APlayerState* PS = PC->GetPlayerState<APlayerState>();
+	if (!PS) return;
 
-	}
-
-	PC->OnPawnPossessed.AddUObject(this, &UCharacterStatusSlotWidget::PossessPawnChanged);
-	PossessPawnChanged(PC->GetPawn());
-}
-
-void UCharacterStatusSlotWidget::PossessPawnChanged(APawn* ChangePawn)
-{
-	UE_LOG(LogTemp, Warning, TEXT("PossessPawnChanged O"));	
-	if (!ChangePawn)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] ChangePawn NO"));
-		return;
-	}
-
-	UAbilitySystemComponent* ASC = ChangePawn->FindComponentByClass<UAbilitySystemComponent>();
-	if (!ASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] ASC NO"));
-		return;
-	}
-		
+	ASKPlayerState* CurrentPS = Cast<ASKPlayerState>(PS);
+	if (!CurrentPS) return;
+	
+	UAbilitySystemComponent* ASC = CurrentPS->FindComponentByClass<UAbilitySystemComponent>();
+	if (!ASC) return;
+ 
+	// 기존 바인딩 해제
 	if (AttributeSet)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] 바인드 초기화"));
 		AttributeSet->OnHealthChanged.RemoveAll(this);
 		AttributeSet->OnStaminaChanged.RemoveAll(this);
+		AttributeSet->OnHeatChanged.RemoveAll(this);
+		AttributeSet->OnMaxHeatChanged.RemoveAll(this);
 		AttributeSet = nullptr;
 	}
-	
+ 
 	AttributeSet = Cast<USKAttributeSet>(ASC->GetAttributeSet(USKAttributeSet::StaticClass()));
-	
-	if (!AttributeSet)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] AttributeSet NO"));
-		return;
-	}
-	
+	if (!AttributeSet) return;
+ 
 	AttributeSet->OnHealthChanged.AddUObject(this, &UCharacterStatusSlotWidget::HealthChanged);
 	AttributeSet->OnStaminaChanged.AddUObject(this, &UCharacterStatusSlotWidget::StaminaChanged);
+	AttributeSet->OnHeatChanged.AddUObject(this, &UCharacterStatusSlotWidget::HeatChanged);
+	AttributeSet->OnMaxHeatChanged.AddUObject(this, &UCharacterStatusSlotWidget::MaxHeatChanged);
+ 
+ 
+	// 초기 UI 업데이트
+	HealthChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHealth());
+	StaminaChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetStamina());
+	MaxHeatChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetMaxHeat());
+	HeatChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHeat());
 }
 
-void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
+void UCharacterStatusSlotWidget::NativeDestruct()
+{
+	if (AttributeSet)
+	{
+		AttributeSet->OnHealthChanged.RemoveAll(this);
+		AttributeSet->OnStaminaChanged.RemoveAll(this);
+		AttributeSet->OnHeatChanged.RemoveAll(this);
+		AttributeSet->OnMaxHeatChanged.RemoveAll(this);
+	}
+	Super::NativeDestruct();
+}
+
+void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
 {
 	if (!HealthProgressBar)
 	{
@@ -73,11 +78,6 @@ void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor*
 		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] AttributeSet NO"));
 		return;
 	}
-	UE_LOG(LogTemp, Log, TEXT("[HealthChanged] Old: %.2f, New: %.2f, Delta: %.2f, Percent: %.2f"), 
-		OldValue, 
-		NewValue, 
-		EffectMagnitude, 
-		NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f));
 	
 	const float Percent = NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f);
 
@@ -85,7 +85,7 @@ void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor*
 }
 
 void UCharacterStatusSlotWidget::StaminaChanged(AActor* EffectInstigator, AActor* EffectCauser,
-	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
+	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
 {
 	if (!StaminaProgressBar)
 	{
@@ -98,13 +98,47 @@ void UCharacterStatusSlotWidget::StaminaChanged(AActor* EffectInstigator, AActor
 		UE_LOG(LogTemp, Warning, TEXT("[StaminaChanged] AttributeSet NO"));
 		return;
 	}
-	// UE_LOG(LogTemp, Log, TEXT("[StaminaChanged] Old: %.2f, New: %.2f, Delta: %.2f, Percent: %.2f"), 
-	// 	OldValue, 
-	// 	NewValue, 
-	// 	EffectMagnitude, 
-	// 	NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f));
 	
 	const float Percent = NewValue / FMath::Max(AttributeSet->GetMaxStamina(), 1.0f);
 
 	StaminaProgressBar->SetPercent(Percent);
+}
+
+void UCharacterStatusSlotWidget::HeatChanged(AActor* EffectInstigator, AActor* EffectCauser,
+	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
+{
+	for (int32 i = 0; i < HeatIcons.Num(); ++i)
+	{
+		if (i < NewValue)
+		{
+			HeatIcons[i]->SetBrushFromTexture(FullHeatTexture);
+		}
+		else
+		{
+			HeatIcons[i]->SetBrushFromTexture(EmptyHeatTexture);
+		}
+	}
+}
+
+void UCharacterStatusSlotWidget::MaxHeatChanged(AActor* EffectInstigator, AActor* EffectCauser,
+	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
+{
+	if (!HeatContainer) return;
+
+	HeatContainer->ClearChildren();
+	HeatIcons.Empty();
+
+	for (int32 i = 0; i < AttributeSet->GetMaxHeat(); ++i)
+	{
+		UImage* NewHeatIcon = NewObject<UImage>(this, UImage::StaticClass());
+		HeatContainer->AddChild(NewHeatIcon);
+
+		// HorizontalBoxSlot 가져와서 Padding 설정
+		if (UHorizontalBoxSlot* HBoxSlot = Cast<UHorizontalBoxSlot>(NewHeatIcon->Slot))
+		{
+			HBoxSlot->SetPadding(FMargin(10.f, 0.f, 10.f, 0.f)); // Left, Top, Right, Bottom
+		}
+
+		HeatIcons.Add(NewHeatIcon);
+	}
 }

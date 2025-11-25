@@ -37,9 +37,11 @@ public:
 	                       const FGameplayAbilityActorInfo* ActorInfo,
 	                       OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const
 	override;
-
+	
 
 	void ApplyDamageFromTrace();
+
+	void OnStopAttackTrace_Server();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Event")
 	FGameplayTag Event_LeftATKTraceEnd;

@@ -22,7 +22,7 @@ public:
 
 	/** 기본 체력 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
-	float MaxHP = 0.f;
+	float MaxHealth = 0.f;
 
 	/** 기본 공격력 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
@@ -30,14 +30,17 @@ public:
 
 	/** 기본 방어력 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
-	float Defence = 0.f;
+	float Armor = 0.f;
 
-	/** 스폰할 액터 클래스 (예: 몬스터 블루프린트) */
-	//APawn? AActor?
+	/** 기본 강인도 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
-	TSoftClassPtr<APawn> MonsterClass;
-	//TSoftClassPtr<AActor> MonsterClass;
+	float Poise = 0.f;
 
+	/** 기본 속도 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
+	float Speed = 0.f;
+	
+	
 	/** 드롭 테이블 ID (FDropTableData의 ID 참조) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	int32 DropTableID = -1;

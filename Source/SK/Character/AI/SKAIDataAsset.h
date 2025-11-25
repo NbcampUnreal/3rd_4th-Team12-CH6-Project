@@ -12,6 +12,8 @@ class SK_API USKAIDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
+
+	/*
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stat|Health")
 	float Health = 100.f;
 
@@ -33,7 +35,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stat|Speed")
 	float SprintWeight = 1.5f;
 
-	// 드랍골드, 드랍아이템, 드랍경험치 등 몬스터데이터테이블 연동?
+	*/
+
+	// 드랍골드, 드랍아이템, 드랍경험치 등 몬스터데이터테이블 연동?	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tag")
 	FGameplayTag TeamTag;
