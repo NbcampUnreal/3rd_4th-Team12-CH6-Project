@@ -148,7 +148,6 @@ void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
 		if (!HitActor)
 			continue;
 
-		// TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[LeftATKIndex];
 		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[SafeIndex];
 
 		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
