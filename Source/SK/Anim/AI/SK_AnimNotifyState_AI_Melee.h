@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "SKAnimNotifyState.generated.h"
+#include "SK_AnimNotifyState_AI_Melee.generated.h"
 
 UCLASS()
-class SK_API USKAnimNotifyState : public UAnimNotifyState
+class SK_API USK_AnimNotifyState_AI_Melee : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
@@ -28,7 +28,7 @@ protected:
 	TMap<FName, FVector> PrevSocketLocations;
 
 public:
-	USKAnimNotifyState();
+	USK_AnimNotifyState_AI_Melee();
 	
 protected:
 	virtual void NotifyBegin(
