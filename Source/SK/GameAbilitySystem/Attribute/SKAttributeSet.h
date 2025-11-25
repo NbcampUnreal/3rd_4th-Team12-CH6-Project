@@ -123,6 +123,10 @@ public:
 	mutable FSKAttributeEvent OnMaxHealthChanged;
 
 	mutable FSKAttributeEvent OnStaminaChanged;
+
+	mutable FSKAttributeEvent OnHeatChanged;
+
+	mutable FSKAttributeEvent OnMaxHeatChanged;
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
