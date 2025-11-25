@@ -18,7 +18,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability, "Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash, "Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash_Active, "Ability.Dash.Active");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interact, "Ability.Interact");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interaction, "Ability.InteractionTrace");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_OpenChest, "Ability.OpenChest");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK, "Ability.LeftATK");
