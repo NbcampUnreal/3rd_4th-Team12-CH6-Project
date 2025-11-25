@@ -153,9 +153,11 @@ public:
 protected:
 
 	UFUNCTION()
-	void UpdateInteractionTrace() const;
+	void UpdateInteractionTrace();
 	
 	bool bShouldUseInteractionTrace;
+
+	bool bIsActivate;
 	
 #pragma endregion
 };

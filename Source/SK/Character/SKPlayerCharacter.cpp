@@ -50,6 +50,7 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bShouldUseInteractionTrace = true;
+	bIsActivate = false;
 }
 
 void ASKPlayerCharacter::BeginPlay()
@@ -79,6 +80,8 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
+
+	UpdateInteractionTrace();
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
@@ -551,6 +554,29 @@ void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGamepl
 	}
 }
 
+void ASKPlayerCharacter::UpdateInteractionTrace()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+	
+	FGameplayTag InteractTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.InteractionTrace"));
+
+	if (bShouldUseInteractionTrace && !bIsActivate)
+	{
+		if (ASC->FindAbilitySpecFromInputID(SKConstant::GA_Interact_ID))
+		{
+			bIsActivate = true;
+			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
+		}
+	}
+	else if (!bShouldUseInteractionTrace && bIsActivate)
+	{
+		bIsActivate = false;
+		FGameplayTagContainer InteractTagContainer(InteractTag);
+		ASC->CancelAbilities(&InteractTagContainer);
+	}
+}
+
 void ASKPlayerCharacter::Server_GiveAndActivateAbility_Implementation(TSubclassOf<UGameplayAbility> AbilityClass, int32 AbilityLevel, int32 InputID)
 {
 	if (!AbilityClass) return;
@@ -586,24 +612,6 @@ void ASKPlayerCharacter::Server_CancelAbility_Implementation(const FGameplayAbil
 	}
 }
 
-void ASKPlayerCharacter::UpdateInteractionTrace() const
-{
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (!ASC) return;
-	
-	FGameplayTag InteractTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Interact"));
-	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
-	
-	if (bShouldUseInteractionTrace)
-	{
-		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
-	}
-	else
-	{
-		FGameplayTagContainer InteractTagContainer(InteractTag);
-		ASC->CancelAbilities(&InteractTagContainer);
-	}
-}
 
 void ASKPlayerCharacter::Client_PlayPickupSound_Implementation(USoundBase* PickupSound)
 {
