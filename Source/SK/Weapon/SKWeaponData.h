@@ -1,22 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
 #include "SKWeaponData.generated.h"
 
 class USKWeaponData;
-
-UENUM(BlueprintType)
-enum class EWeaponType : uint8
-{
-	None UMETA(DisplayName = "None"),
-	TwoHanded UMETA(DisplayName = "TwoHanded"),
-	Dual UMETA(DisplayName = "Dual"),
-	GreatSword UMETA(DisplayName = "GreatSword"),
-	Katana UMETA(DisplayName = "Katana"),
-	Spear UMETA(DisplayName = "Spear"),
-	Warrior UMETA(DisplayName = "Warrior")
-};
 
 USTRUCT(BlueprintType)
 struct FWeaponDataRow : public FTableRowBase
@@ -24,7 +13,7 @@ struct FWeaponDataRow : public FTableRowBase
 	GENERATED_BODY()
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EWeaponType WeaponType;
+	FGameplayTag WeaponTag;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USKWeaponData> WeaponData;
@@ -44,7 +33,7 @@ public:
 	FName WeaponName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon")
-	EWeaponType WeaponType;
+	FGameplayTag WeaponTag;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Attack")
 	TArray<TObjectPtr<UAnimMontage>> LeftAttackMontages;
