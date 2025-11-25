@@ -142,4 +142,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FSKInteractionData CurrentInteractionData;
 #pragma endregion
+
+	//Camera
+	void LockOnTarget(float DeltaTime);
 };

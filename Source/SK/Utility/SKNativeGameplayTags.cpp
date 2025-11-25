@@ -50,8 +50,13 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability, "Cooldown.Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon, "Weapon");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Axe, "Weapon.Axe");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Axe, "Weapon.Axe"); // Axe-> TwoHanded
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Assassin, "Weapon.Assassin");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_TwoHanded, "Weapon.TwoHanded");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Dual, "Weapon.Dual");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Katana, "Weapon.Katana");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Spear, "Weapon.Spear");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Warrior, "Weapon.Warrior");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound, "Sound");

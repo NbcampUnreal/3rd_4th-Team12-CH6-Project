@@ -30,6 +30,11 @@ class SK_API USKInventoryItemData : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	USKInventoryItemData()
+	{
+		InventoryType = EInventoryItemType::None;
+	}
+	
 	// 아이템 ID
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
 	FName ItemID;
@@ -60,13 +65,9 @@ public:
 
 	// 인벤토리 슬롯 최대 사이즈
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
-	bool SlotSize;
+	int32 SlotSize = 1;
 	
 	// UI 표시용 아이템 아이콘
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
 	TObjectPtr<UTexture2D> ItemIcon;
-
-	// UI 표시용 텍스트
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
-	FText ItemText;
 };
