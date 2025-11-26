@@ -155,9 +155,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SlotVisible, "Message.Channel.SlotVis
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ToolTipItem, "Message.Channel.ToolTipItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemSwitchSelect, "Message.Channel.ItemSwitchSelect");
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Health, "Item.Consume.Data.Health");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Attack, "Item.Consume.Data.Attack");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Armor, "Item.Consume.Data.Armor");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Duration, "Item.Consume.Data.Duration");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Cooldown, "Item.Consume.Data.Cooldown");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Equip_Data_Health, "Item.Equip.Data.Health");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Armor, "Item.Armor");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Stamina, "Item.Stamina");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Duration, "Item.Duration");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Cooldown, "Item.Cooldown");
+

@@ -68,7 +68,7 @@ void USK_GA_ConsumableItem::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	if (CooldownSpecHandle.IsValid())
 	{
-		CooldownSpecHandle.Data->SetSetByCallerMagnitude(TAG_Item_Consume_Data_Cooldown, ActiveItemData->Cooldown);
+		CooldownSpecHandle.Data->SetSetByCallerMagnitude(TAG_Item_Cooldown, ActiveItemData->Cooldown);
 	}
 	
 	ASC->ApplyGameplayEffectSpecToSelf(*CooldownSpecHandle.Data);
