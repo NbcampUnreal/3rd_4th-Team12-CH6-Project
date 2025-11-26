@@ -7,11 +7,17 @@ ASKAICharacter::ASKAICharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 }
 
-void ASKAICharacter::BeginPlay()
+void ASKAICharacter::PossessedBy(AController* NewController)
 {
-	Super::BeginPlay();
+	Super::PossessedBy(NewController);
 
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	InitializeAttributeSetAndAbilitiesFromDataAsset();
+}
+
+void ASKAICharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
 }
