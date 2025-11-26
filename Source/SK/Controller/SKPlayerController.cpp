@@ -166,7 +166,7 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector2D InMoveVector = Value.Get<FVector2D>();
-
+		CurrentMoveDirection = GetClosestMoveDirection(InMoveVector);
 		const FRotator ControlrRotation = GetControlRotation();
 		const FRotator ControlYawRotation(0.f, ControlrRotation.Yaw, 0.f);
 
@@ -373,6 +373,50 @@ void ASKPlayerController::UpdateCameraManagerTarget()
 		Cam->LockedTarget = CurrentTarget;
 		Cam->bIsLockedOn = bIsLockedOn;
 	}
+}
+
+EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& InputVector)
+{
+	if (InputVector.IsNearlyZero())
+	{
+		return EMoveDirection::None;
+	}
+ 
+	FVector2D NormalizedInput = InputVector.GetSafeNormal();
+ 
+	const FVector2D Forward(1.f, 0.f);   // X+
+	const FVector2D Backward(-1.f, 0.f); // X-
+	const FVector2D Right(0.f, 1.f);     // Y+
+	const FVector2D Left(0.f, -1.f);     // Y-
+
+ 
+	float Dots[4];
+	Dots[0] = FVector2D::DotProduct(NormalizedInput, Forward);
+	Dots[1] = FVector2D::DotProduct(NormalizedInput, Backward);
+	Dots[2] = FVector2D::DotProduct(NormalizedInput, Left);
+	Dots[3] = FVector2D::DotProduct(NormalizedInput, Right);
+ 
+	// 최대 Dot 값 가진 방향 찾기
+	float MaxDot = -1.0f;
+	EMoveDirection BestDirection = EMoveDirection::None;
+ 
+	for (int i = 0; i < 4; ++i)
+	{
+		if (Dots[i] > MaxDot)
+		{
+			MaxDot = Dots[i];
+
+			switch (i)
+			{
+				case 0: BestDirection = EMoveDirection::Forward; break;
+				case 1: BestDirection = EMoveDirection::Backward; break;
+				case 2: BestDirection = EMoveDirection::Left; break;
+				case 3: BestDirection = EMoveDirection::Right; break;
+			}
+		}
+	}
+ 
+	return BestDirection;
 }
 
 
