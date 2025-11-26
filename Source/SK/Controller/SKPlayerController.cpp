@@ -390,22 +390,29 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 	const FVector2D Left(0.f, -1.f);     // Y-
 
  
-	TMap<EMoveDirection, float> DotMap;
-	DotMap.Add(EMoveDirection::Forward, FVector2D::DotProduct(NormalizedInput, Forward));
-	DotMap.Add(EMoveDirection::Backward, FVector2D::DotProduct(NormalizedInput, Backward));
-	DotMap.Add(EMoveDirection::Left, FVector2D::DotProduct(NormalizedInput, Left));
-	DotMap.Add(EMoveDirection::Right, FVector2D::DotProduct(NormalizedInput, Right));
+	float Dots[4];
+	Dots[0] = FVector2D::DotProduct(NormalizedInput, Forward);
+	Dots[1] = FVector2D::DotProduct(NormalizedInput, Backward);
+	Dots[2] = FVector2D::DotProduct(NormalizedInput, Left);
+	Dots[3] = FVector2D::DotProduct(NormalizedInput, Right);
  
 	// 최대 Dot 값 가진 방향 찾기
 	float MaxDot = -1.0f;
 	EMoveDirection BestDirection = EMoveDirection::None;
  
-	for (const auto& Elem : DotMap)
+	for (int i = 0; i < 4; ++i)
 	{
-		if (Elem.Value > MaxDot)
+		if (Dots[i] > MaxDot)
 		{
-			MaxDot = Elem.Value;
-			BestDirection = Elem.Key;
+			MaxDot = Dots[i];
+
+			switch (i)
+			{
+				case 0: BestDirection = EMoveDirection::Forward; break;
+				case 1: BestDirection = EMoveDirection::Backward; break;
+				case 2: BestDirection = EMoveDirection::Left; break;
+				case 3: BestDirection = EMoveDirection::Right; break;
+			}
 		}
 	}
  
