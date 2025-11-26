@@ -1,15 +1,14 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_Melee.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Melee.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/AI/SKAICharacter.h"
 #include "GameFramework/Character.h"
-#include "Components/StateTreeAIComponent.h"
 
-USK_GA_Melee::USK_GA_Melee()
+USK_GA_AI_Melee::USK_GA_AI_Melee()
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Melee")));
@@ -18,7 +17,7 @@ USK_GA_Melee::USK_GA_Melee()
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action.Melee")));
 }
 
-void USK_GA_Melee::ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor)
+void USK_GA_AI_Melee::ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor)
 {
 	AActor* Target = const_cast<AActor*>(TargetActor.Get());
 	if (!IsValid(Target))
@@ -70,7 +69,7 @@ void USK_GA_Melee::ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor)
 	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
 }
 
-void USK_GA_Melee::Melee(UAnimMontage* AnimMontage)
+void USK_GA_AI_Melee::Melee(UAnimMontage* AnimMontage)
 {
 	UAbilityTask_WaitGameplayEvent* EventTask =
 			UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
@@ -81,7 +80,7 @@ void USK_GA_Melee::Melee(UAnimMontage* AnimMontage)
 				false
 			);
 
-	EventTask->EventReceived.AddDynamic(this, &USK_GA_Melee::OnHitCompleted);
+	EventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Melee::OnHitCompleted);
 	EventTask->ReadyForActivation();
 	
 	UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -95,26 +94,30 @@ void USK_GA_Melee::Melee(UAnimMontage* AnimMontage)
 			1.0f
 		);
 
-	MontageTask->OnCompleted.AddDynamic(this, &USK_GA_Melee::OnMeleeCompleted);
+	MontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Melee::OnMeleeCompleted);
 	//Task->OnInterrupted.AddDynamic(this, &USK_GA_Melee::OnMontageInterrupted);
 	//Task->OnCancelled.AddDynamic(this, &USK_GA_Melee::OnMontageCancelled);
 	//Task->OnBlendOut.AddDynamic(this, &USK_GA_Melee::OnMontageBlendOut);
 	MontageTask->ReadyForActivation();
 }
 
-void USK_GA_Melee::OnHitCompleted(FGameplayEventData EventData)
+void USK_GA_AI_Melee::OnHitCompleted(FGameplayEventData EventData)
 {
 	HitActor = EventData.Target.Get();
-
+	if (!HitActor.IsValid())
+	{
+		return;
+	}
+	
 	ApplyDamageToTarget(HitActor);
 }
 
-void USK_GA_Melee::OnMeleeCompleted()
+void USK_GA_AI_Melee::OnMeleeCompleted()
 {
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
-void USK_GA_Melee::ActivateAbility(
+void USK_GA_AI_Melee::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -122,26 +125,8 @@ void USK_GA_Melee::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	CachedHandle = Handle;
-	CachedActorInfo = ActorInfo;
-	CachedActivationInfo = ActivationInfo;
 	
-	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
-	if (!AvatarActor)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	ACharacter* AvatarCharacter = Cast<ACharacter>(AvatarActor);
-	if (!IsValid(AvatarCharacter))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(AvatarCharacter);
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -155,19 +140,10 @@ void USK_GA_Melee::ActivateAbility(
 		return;
 	}
 	
-	AController* Controller = AvatarCharacter->GetController();
-	if (!IsValid(Controller))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	CachedController = Controller;
-	
 	Melee(AnimMontage);
 }
 
-void USK_GA_Melee::EndAbility(
+void USK_GA_AI_Melee::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -175,21 +151,5 @@ void USK_GA_Melee::EndAbility(
 	bool bWasCancelled
 	)
 {
-	if (!bWasCancelled)
-	{
-		if (!IsValid(CachedController))
-		{
-			return;
-		}
-		
-		UStateTreeComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
-		if (!IsValid(ST))
-		{
-			return;
-		}
-
-		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-	}
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

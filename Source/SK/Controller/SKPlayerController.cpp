@@ -4,9 +4,12 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Manager/SKCameraManager.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Character/AI/SKAICharacterBase.h"
 #include "Constants/SKGameConstants.h"
+#include "Engine/OverlapResult.h"
 #include "GameData/SKGameConstant.h"
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
@@ -15,6 +18,7 @@
 
 ASKPlayerController::ASKPlayerController()
 {
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ASKPlayerController::BeginPlay()
@@ -27,12 +31,20 @@ void ASKPlayerController::BeginPlay()
 		check(DefaultMappingContext);
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+}
 
-	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
-	USKUIManagerSubSystem* UISubSystem = ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(GetLocalPlayer());
-	if (!UISubSystem) return;
+void ASKPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 
-	UISubSystem->SettingLayout();
+	if (bIsLockedOn && CurrentTarget)
+	{
+		float Dist = FVector::Dist(GetPawn()->GetActorLocation(), CurrentTarget->GetActorLocation());
+		if (Dist > LockOnRadius * 1.2f)
+		{
+			SetLockOnTarget(nullptr);
+		}
+	}
 }
 
 void ASKPlayerController::EnterDungeon()
@@ -103,12 +115,26 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopSprint);
 
-		// EnhancedInputComponent->BindAction(NormalMeleeAttack, ETriggerEvent::Started, this,
-		// 						   &ASKPlayerController::NormalMelee);
 		EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::LeftAttack);
+		EnhancedInputComponent->BindAction(RightAttackAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::RightAttack);
+		EnhancedInputComponent->BindAction(MouseWheelAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_MouseWheel);
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
+		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotAction_00);
+		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotAction_01);
+		EnhancedInputComponent->BindAction(QuickSlotAction_02, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotAction_02);
+		EnhancedInputComponent->BindAction(QuickSlotItem_00, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotItem_00);
+		EnhancedInputComponent->BindAction(QuickSlotItem_01, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotItem_01);
+		EnhancedInputComponent->BindAction(QuickSlotItem_02, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Active_QuickSlotItem_02);
 	}
 }
 
@@ -140,7 +166,7 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector2D InMoveVector = Value.Get<FVector2D>();
-
+		CurrentMoveDirection = GetClosestMoveDirection(InMoveVector);
 		const FRotator ControlrRotation = GetControlRotation();
 		const FRotator ControlYawRotation(0.f, ControlrRotation.Yaw, 0.f);
 
@@ -155,6 +181,9 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
+	if (bIsLockedOn && CurrentTarget)
+		return;
+	
 	const FVector2D InLookVector = Value.Get<FVector2D>();
 
 	AddYawInput(InLookVector.X);
@@ -230,6 +259,166 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 
 	PlayerCharacter->OnLeftATKInput();
 }
+
+void ASKPlayerController::RightAttack(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("RIGHT"));
+}
+
+void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("ACTIVE_MOUSE_WHEEL"));
+
+	if (bIsLockedOn)
+	{
+		SetLockOnTarget(nullptr);
+		return;
+	}
+
+	AActor* Target = FindNearestTarget();
+	if (Target)
+	{
+		SetLockOnTarget(Target);
+	}
+}
+
+void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_00"));
+}
+
+void ASKPlayerController::Active_QuickSlotAction_01(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_01"));
+}
+
+void ASKPlayerController::Active_QuickSlotAction_02(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_02"));
+}
+
+void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_00"));
+}
+
+void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_01"));
+}
+
+void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_02"));
+}
+
+AActor* ASKPlayerController::FindNearestTarget()
+{
+	APawn* thisPlayer = GetPawn();
+	if (!thisPlayer)
+		return nullptr;
+	
+	FVector Origin = thisPlayer->GetActorLocation();
+	TArray<FOverlapResult> Overlaps;
+	
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(LockOnRadius);
+	
+	bool bHit = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		Origin,
+		FQuat::Identity,
+		ECC_Pawn,
+		Sphere
+	);
+	
+	if (!bHit)
+		return nullptr;
+	
+	float MinDist = FLT_MAX;
+	AActor* Best = nullptr;
+	
+	for (auto& Result : Overlaps)
+	{
+		AActor* A = Result.GetActor();
+		if (!A || A == thisPlayer) continue;
+
+		ASKAICharacterBase* AI = Cast<ASKAICharacterBase>(A);
+		if (!AI)
+			continue; //AI만찾기
+		
+		float D = FVector::Dist(Origin, A->GetActorLocation());
+		if (D < MinDist)
+		{
+			MinDist = D;
+			Best = A;
+		}
+	}
+
+	return Best;
+}
+
+void ASKPlayerController::SetLockOnTarget(AActor* NewTarget)
+{
+	CurrentTarget = NewTarget;
+	bIsLockedOn = (NewTarget != nullptr);
+
+	UpdateCameraManagerTarget();
+}
+
+void ASKPlayerController::UpdateCameraManagerTarget()
+{
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+	if (Cam)
+	{
+		Cam->LockedTarget = CurrentTarget;
+		Cam->bIsLockedOn = bIsLockedOn;
+	}
+}
+
+EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& InputVector)
+{
+	if (InputVector.IsNearlyZero())
+	{
+		return EMoveDirection::None;
+	}
+ 
+	FVector2D NormalizedInput = InputVector.GetSafeNormal();
+ 
+	const FVector2D Forward(1.f, 0.f);   // X+
+	const FVector2D Backward(-1.f, 0.f); // X-
+	const FVector2D Right(0.f, 1.f);     // Y+
+	const FVector2D Left(0.f, -1.f);     // Y-
+
+ 
+	float Dots[4];
+	Dots[0] = FVector2D::DotProduct(NormalizedInput, Forward);
+	Dots[1] = FVector2D::DotProduct(NormalizedInput, Backward);
+	Dots[2] = FVector2D::DotProduct(NormalizedInput, Left);
+	Dots[3] = FVector2D::DotProduct(NormalizedInput, Right);
+ 
+	// 최대 Dot 값 가진 방향 찾기
+	float MaxDot = -1.0f;
+	EMoveDirection BestDirection = EMoveDirection::None;
+ 
+	for (int i = 0; i < 4; ++i)
+	{
+		if (Dots[i] > MaxDot)
+		{
+			MaxDot = Dots[i];
+
+			switch (i)
+			{
+				case 0: BestDirection = EMoveDirection::Forward; break;
+				case 1: BestDirection = EMoveDirection::Backward; break;
+				case 2: BestDirection = EMoveDirection::Left; break;
+				case 3: BestDirection = EMoveDirection::Right; break;
+			}
+		}
+	}
+ 
+	return BestDirection;
+}
+
 
 void ASKPlayerController::Interact(const FInputActionValue& Value)
 {

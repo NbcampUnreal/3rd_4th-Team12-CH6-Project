@@ -6,8 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterStatusSlotWidget.generated.h"
 
+class UImage;
 struct FGameplayEffectSpec;
 class UProgressBar;
+class UHorizontalBox;
 class USKAttributeSet;
 /**
  * 
@@ -18,6 +20,7 @@ class SK_API UCharacterStatusSlotWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 protected:
 	UPROPERTY()
@@ -28,10 +31,25 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* StaminaProgressBar;
+
+	UPROPERTY(meta = (BindWidget))
+	UHorizontalBox* HeatContainer;
+
+	UPROPERTY()
+	TArray<UImage*> HeatIcons;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Heat")
+	UTexture2D* FullHeatTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Heat")
+	UTexture2D* EmptyHeatTexture;
 	
-	void PossessPawnChanged(APawn* ChangePawn);
+	void HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const;
 	
-	void HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
-	
-	void StaminaChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
+	void StaminaChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const;
+
+	void HeatChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const;
+
+	void MaxHeatChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
+
 };

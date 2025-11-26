@@ -116,7 +116,35 @@ void UInventoryItemToolTipSlotWidget::UpdateAdditionalStats(USKInventoryItemData
  
 	if (USKEquipmentItemData* EquipData = Cast<USKEquipmentItemData>(ItemData))
 	{
-		StatString = FString::Printf(TEXT("공격력: %.0f\n방어력: %.0f"), EquipData->AttackPower, EquipData->DefensePower);
+		for (const TPair<EEquipmentStat, float>& Pair : EquipData->Stats)
+		{
+			const EEquipmentStat StatType = Pair.Key;
+			const float Value = Pair.Value;
+
+			FString StatName;
+
+			switch (StatType)
+			{
+			case EEquipmentStat::Attack:
+				StatName = TEXT("공격력");
+				break;
+			case EEquipmentStat::Defense:
+				StatName = TEXT("방어력");
+				break;
+			case EEquipmentStat::Health:
+				StatName = TEXT("체력");
+				break;
+			case EEquipmentStat::Stamina:
+				StatName = TEXT("스테미나");
+				break;
+				// 필요한 만큼 추가
+			default:
+				StatName = TEXT("알 수 없음");
+				break;
+			}
+
+			StatString += FString::Printf(TEXT("%s: %.0f\n"), *StatName, Value);
+		}
 	}
 	else if (USKConsumableItemData* ConsumableData = Cast<USKConsumableItemData>(ItemData))
 	{
@@ -125,10 +153,24 @@ void UInventoryItemToolTipSlotWidget::UpdateAdditionalStats(USKInventoryItemData
 	else if (USKMiscItemData* MiscData = Cast<USKMiscItemData>(ItemData))
 	{
 		TArray<FString> Flags;
-		if (MiscData->bIsQuestItem) Flags.Add(TEXT("퀘스트 아이템"));
-		if (MiscData->bIsCurrency) Flags.Add(TEXT("통화 아이템"));
-		if (MiscData->bIsKeyItem) Flags.Add(TEXT("열쇠 아이템"));
-		if (MiscData->bIsMaterial) Flags.Add(TEXT("재료 아이템"));
+
+		if (MiscData->MiscItemFlags.Contains(EMiscItemType::Quest))
+		{
+			Flags.Add(TEXT("퀘스트 아이템"));
+		}
+		if (MiscData->MiscItemFlags.Contains(EMiscItemType::Currency))
+		{
+			Flags.Add(TEXT("통화 아이템"));
+		}
+		if (MiscData->MiscItemFlags.Contains(EMiscItemType::Key))
+		{
+			Flags.Add(TEXT("열쇠 아이템"));
+		}
+		if (MiscData->MiscItemFlags.Contains(EMiscItemType::Material))
+		{
+			Flags.Add(TEXT("재료 아이템"));
+		}
+
 		StatString = FString::Join(Flags, TEXT(", "));
 	}
 	else

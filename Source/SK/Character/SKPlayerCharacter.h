@@ -8,29 +8,18 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
+struct FSKRepComboState;
 
 USTRUCT(BlueprintType)
-struct FSKComboState
+struct FSKLocalComboState
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
-	FGameplayTag WeaponTag;
-
-	UPROPERTY()
-	FGameplayTag AttackTypeTag; // 좌,우클릭 스킬
-
-	UPROPERTY()
-	int32 ComboIndex = 0;
-
-	UPROPERTY()
 	bool bIsAttacking = false; //현재공격중인지
 
-	UPROPERTY()
 	bool bCanNextCombo = false; //넘어갈수있는지 공격인지 체크
 
-	UPROPERTY()
 	bool bBufferedAttack = false;
 };
 
@@ -62,11 +51,7 @@ public:
 	void SetPlayerStateTag();
 
 #pragma region Combo
-
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Battle")
-	// FGameplayTag CurrentWeaponTag;
-	UPROPERTY(ReplicatedUsing = OnRep_ComboState)
-	FSKComboState ComboState;
+	FSKLocalComboState LocalComboState;
 
 
 	bool bBufferedAttack = false; // 입력 버퍼링 플래그
@@ -76,14 +61,10 @@ public:
 	TArray<FVector> PreviousSocketLocations;
 
 	//====================FUNC================================//
-	UFUNCTION(BlueprintCallable, Category = "SK|Battle")
-	void OnRep_ComboState();
 
-	int32 GetComboIndex();
+
 	bool GetIsAttacking();
-	void ResetComboIndex(int32 ArgComboIndex = 0);
 	void ResetComboState();
-	void IncreaseComboIndex(bool bLeft = true);
 	void OnATKEndNotify(bool bLeft = true);
 	bool CheckMaxComboIndex(bool bLeft = true);
 
@@ -102,11 +83,22 @@ public:
 	void StartAttackTrace();
 	void StopAttackTrace();
 	void PerformWeaponTrace(float DeltaTime);
+
+	UFUNCTION(Server, Reliable)
+	void Server_LeftAttackInput();
+	UFUNCTION(Server, Reliable)
+	void Server_Notify_StopAttackTrace();
+	UFUNCTION(Server, Reliable)
+	void Server_OnATKEndNotify(bool bLeft);
+	UFUNCTION(Client, Reliable)
+	void Client_PlayMontage(UAnimMontage* Montage);
+
+	void OnComboStateUpdated(const FSKRepComboState& NewState);
 #pragma endregion
 
 protected:
 	virtual void OnRep_PlayerState() override;
-	
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -135,18 +127,22 @@ private:
 	UPROPERTY()
 	TArray<AActor*> HitActors;
 
-	
+
 #pragma endregion
 
 #pragma region Interaction
+
 public:
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract(AActor* Target);
 
 	UFUNCTION(Client, Reliable)
 	void Client_PlayPickupSound(USoundBase* PickupSound);
-	
+
 	UPROPERTY(BlueprintReadWrite)
 	FSKInteractionData CurrentInteractionData;
 #pragma endregion
+
+	//Camera
+	void LockOnTarget(float DeltaTime);
 };

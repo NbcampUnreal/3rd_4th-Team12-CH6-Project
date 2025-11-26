@@ -4,25 +4,27 @@
 #include "SKInventoryItemData.h"
 #include "SKMiscItemData.generated.h"
 
+UENUM(BlueprintType)
+enum class EMiscItemType : uint8
+{
+	Quest,
+	Currency,
+	Key,
+	Material
+};
+
 UCLASS()
 class SK_API USKMiscItemData : public USKInventoryItemData
 {
 	GENERATED_BODY()
 
 public:
-	// 퀘스트 아이템 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
-	bool bIsQuestItem;
+	USKMiscItemData()
+	{
+		InventoryType = EInventoryItemType::Misc;
+	}
 
-	// 통화 아이템 여부
+	// Misc 타입 플래그
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
-	bool bIsCurrency;
-
-	// 열쇠 아이템 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
-	bool bIsKeyItem;
-
-	// 제작 재료 여부
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Misc")
-	bool bIsMaterial;
+	TSet<EMiscItemType> MiscItemFlags;
 };

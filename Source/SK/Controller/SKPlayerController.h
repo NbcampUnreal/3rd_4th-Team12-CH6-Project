@@ -6,6 +6,17 @@
 #include "GameFramework/PlayerController.h"
 #include "SKPlayerController.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EMoveDirection : uint8
+{
+	None        UMETA(DisplayName = "None"),
+	Forward     UMETA(DisplayName = "Forward"),
+	Backward    UMETA(DisplayName = "Backward"),
+	Left        UMETA(DisplayName = "Left"),
+	Right       UMETA(DisplayName = "Right")
+};
+
 struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
@@ -35,9 +46,14 @@ public:
 	//파티 해제 및 로컬 마을 복귀
 	UFUNCTION(BlueprintCallable)
 	void LeaveSessionAndReturnToLocalTown();
-	
+
+	UPROPERTY()
+	AActor* CurrentTarget = nullptr;
+	// 락온 상태
+	bool bIsLockedOn = false;
 protected:
-	virtual void BeginPlay() override; 
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	
@@ -57,8 +73,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> SprintAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-	TObjectPtr<UInputAction> NormalMeleeAttack;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
     TObjectPtr<UInputAction> Interaction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> LeftAttackAction;
@@ -66,7 +80,22 @@ protected:
 	TObjectPtr<UInputAction> RightAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> MouseWheelAction;
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotAction_00;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotAction_01;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotAction_02;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotItem_00;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotItem_01;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> QuickSlotItem_02;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|LockOn")
+	float LockOnRadius = 1500.f;
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -76,8 +105,27 @@ private:
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
-
 	void LeftAttack(const FInputActionValue& Value);
+	void RightAttack(const FInputActionValue& Value);
+	void Active_MouseWheel(const FInputActionValue& Value);
+	void Active_QuickSlotAction_00(const FInputActionValue& Value);
+	void Active_QuickSlotAction_01(const FInputActionValue& Value);
+	void Active_QuickSlotAction_02(const FInputActionValue& Value);
+	void Active_QuickSlotItem_00(const FInputActionValue& Value);
+	void Active_QuickSlotItem_01(const FInputActionValue& Value);
+	void Active_QuickSlotItem_02(const FInputActionValue& Value);
+
+	AActor* FindNearestTarget();
+	void SetLockOnTarget(AActor* NewTarget);
+	void UpdateCameraManagerTarget();
+private:
 
 #pragma	endregion
+	
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	EMoveDirection CurrentMoveDirection;
+
+	UFUNCTION(BlueprintCallable)
+	static EMoveDirection GetClosestMoveDirection(const FVector2D& InputVector);
 };

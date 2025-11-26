@@ -163,7 +163,7 @@ void UInventoryListSlotWidget::RefreshInventory()
             // CurrentRow를 감싼 VerticalBoxSlot 크기 Automatic으로 변경
             if (RowSlot)
             {
-                RowSlot->SetPadding(FMargin(5.f));
+                RowSlot->SetPadding(FMargin(10.f, 0.f, 10.f, 0.f));
                 RowSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
                 RowSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
                 RowSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
@@ -198,7 +198,7 @@ void UInventoryListSlotWidget::RefreshInventory()
         UHorizontalBoxSlot* ItemSlot = CurrentRow->AddChildToHorizontalBox(ItemWidget);
         if (ItemSlot)
         {
-            ItemSlot->SetPadding(FMargin(5.f));
+            ItemSlot->SetPadding(FMargin(10.f, 0.f, 10.f, 0.f));
             ItemSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
             ItemSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
             ItemSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
