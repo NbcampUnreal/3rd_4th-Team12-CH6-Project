@@ -76,10 +76,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	EEquipmentSlotType SlotType;
-	
-	// 착용 슬롯
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
-	int32 AttachmentSlot;
 
 	// 장비 메시
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
