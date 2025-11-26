@@ -34,6 +34,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
 
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
@@ -47,6 +49,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_RightATK);
 UE_DEFINE_GAMEPLAY_TAG(TAG_CoolDown, "Cooldown");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability, "Cooldown.Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_HealPotion, "Cooldown.Item.HealPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_AttackPotion, "Cooldown.Item.AttackPotion");
+
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon, "Weapon");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Axe, "Weapon.Axe"); // Axe-> TwoHanded
@@ -148,3 +153,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ConfirmResponse, "Message.Channel.Con
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SlotVisible, "Message.Channel.SlotVisible");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ToolTipItem, "Message.Channel.ToolTipItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemSwitchSelect, "Message.Channel.ItemSwitchSelect");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Health, "Item.Consume.Data.Health");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Attack, "Item.Consume.Data.Attack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Armor, "Item.Consume.Data.Armor");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Duration, "Item.Consume.Data.Duration");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Consume_Data_Cooldown, "Item.Consume.Data.Cooldown");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Equip_Data_Health, "Item.Equip.Data.Health");
