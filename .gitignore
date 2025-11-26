@@ -16,7 +16,12 @@ Content/Monster_Pack/
 Content/Medieval_Sewer_Dungeon/
 Content/IdaFaber/
 Content/MWK_Medieval/
-
+Content/HFLizardCreatures/
+Content/Arachnid_Boss/
+Content/AncientRuins/
+Content/Medieval_Town/
+Content/SpectraFXBundle/
+Content/GothicGUIKit/
 
 *.sln
 *.suo

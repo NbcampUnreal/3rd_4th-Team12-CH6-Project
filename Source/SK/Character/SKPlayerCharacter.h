@@ -160,4 +160,7 @@ protected:
 	bool bIsActivate;
 	
 #pragma endregion
+
+	//Camera
+	void LockOnTarget(float DeltaTime);
 };

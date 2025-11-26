@@ -97,12 +97,12 @@ protected:
 
 #pragma endregion
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", Replicated)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK|Inventory", Replicated)
 	UInventoryComponent* InventoryComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "QuickSlot", Replicated)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK|QuickSlot", Replicated)
 	UQuickSlotComponent* QuickSlotComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment", Replicated)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK|Equipment", Replicated)
 	UEquipmentComponent* EquipmentComponent;
 };
