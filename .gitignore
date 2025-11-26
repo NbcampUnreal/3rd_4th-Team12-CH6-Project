@@ -22,6 +22,8 @@ Content/AncientRuins/
 Content/Medieval_Town/
 Content/SpectraFXBundle/
 Content/GothicGUIKit/
+Content/__ExternalActors__/
+Content/__ExternalObjects__/
 
 *.sln
 *.suo

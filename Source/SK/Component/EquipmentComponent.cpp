@@ -154,8 +154,28 @@ void UEquipmentComponent::ApplyEquipmentEffect(USKEquipmentItemData* ItemData, U
 	if (ItemData->EquipmentGE)
 	{
 		FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-		Instance->GrantedEffectHandle =
-			ASC->ApplyGameplayEffectToSelf(ItemData->EquipmentGE->GetDefaultObject<UGameplayEffect>(), 1, Context);
+		const int32 EffectLevel = 1;
+ 
+		// GameplayEffectSpec 생성
+		FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(ItemData->EquipmentGE, EffectLevel, Context);
+ 
+		if (SpecHandle.IsValid())
+		{
+			FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+			if (Spec)
+			{
+				// Stats 맵 순회 (EEquipmentStat, FEquipData)
+				for (const TPair<EEquipmentStat, FEquipData>& StatPair : ItemData->Stats)
+				{
+					const FEquipData& EquipData = StatPair.Value;
+					// FGameplayTag(EquipData.DataTag)와 Magnitude를 SetByCaller로 전달
+					Spec->SetSetByCallerMagnitude(EquipData.DataTag, EquipData.Magnitude);
+				}
+ 
+				// Spec을 자기 자신에게 적용 후 핸들 저장
+				Instance->GrantedEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);
+			}
+		}
 	}
 }
 

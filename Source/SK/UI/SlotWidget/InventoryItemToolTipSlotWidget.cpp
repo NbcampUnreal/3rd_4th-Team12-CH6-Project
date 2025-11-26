@@ -116,10 +116,10 @@ void UInventoryItemToolTipSlotWidget::UpdateAdditionalStats(USKInventoryItemData
  
 	if (USKEquipmentItemData* EquipData = Cast<USKEquipmentItemData>(ItemData))
 	{
-		for (const TPair<EEquipmentStat, float>& Pair : EquipData->Stats)
+		for (const TPair<EEquipmentStat, FEquipData>& Pair : EquipData->Stats)
 		{
 			const EEquipmentStat StatType = Pair.Key;
-			const float Value = Pair.Value;
+			const float Value = Pair.Value.Magnitude;
 
 			FString StatName;
 
@@ -148,7 +148,7 @@ void UInventoryItemToolTipSlotWidget::UpdateAdditionalStats(USKInventoryItemData
 	}
 	else if (USKConsumableItemData* ConsumableData = Cast<USKConsumableItemData>(ItemData))
 	{
-		StatString = FString::Printf(TEXT("회복량: %d\n지속시간: %.1f초"), ConsumableData->Amount, ConsumableData->Duration);
+		//StatString = FString::Printf(TEXT("회복량: %d\n지속시간: %.1f초"), ConsumableData->Amount, ConsumableData->Duration);
 	}
 	else if (USKMiscItemData* MiscData = Cast<USKMiscItemData>(ItemData))
 	{

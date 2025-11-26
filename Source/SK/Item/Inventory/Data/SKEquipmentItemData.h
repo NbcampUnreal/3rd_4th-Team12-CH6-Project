@@ -45,7 +45,19 @@ enum class EEquipmentStat : uint8
 	// 필요에 따라 계속 추가
 };
 
-
+USTRUCT(BlueprintType)
+struct FEquipData
+{
+	GENERATED_BODY()
+ 
+	// SetByCaller용 Tag (예: Data.AttackPower, Data.BuffDuration 등)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag DataTag;
+ 
+	// 1.0f, 10.f 등 Magnitude 값
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Magnitude = 0.f;
+};
 
 UCLASS()
 class SK_API USKEquipmentItemData : public USKInventoryItemData
@@ -64,10 +76,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	EEquipmentSlotType SlotType;
-	
-	// 착용 슬롯
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
-	int32 AttachmentSlot;
 
 	// 장비 메시
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
@@ -78,7 +86,7 @@ public:
 	FName SocketName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
-	TMap<EEquipmentStat, float> Stats;
+	TMap<EEquipmentStat, FEquipData> Stats;
 	
 	// 장비 GameplayAbility
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
@@ -87,5 +95,4 @@ public:
 	// 장비 GameplayEffect
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	TSubclassOf<UGameplayEffect> EquipmentGE;
-	
 };

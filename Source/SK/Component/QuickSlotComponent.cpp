@@ -165,15 +165,7 @@ bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 	// ────────────────────────────────────────────────
 	bool bActivated = false;
 
-	// 이미 Ability가 ASC에 부여돼 있다고 가정
-	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
-	{
-		if (Spec.Ability && Spec.Ability->GetClass() == ConsumData->ConsumableGA)
-		{
-			bActivated = ASC->TryActivateAbility(Spec.Handle);
-			break;
-		}
-	}
+	bActivated = ASC->TryActivateAbility(QuickSlots[SlotIndex].GrantedAbilityHandle);
 
 	if (!bActivated)
 	{
