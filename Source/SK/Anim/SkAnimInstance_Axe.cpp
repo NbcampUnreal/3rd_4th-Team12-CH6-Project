@@ -34,10 +34,7 @@ void USkAnimInstance_Axe::NativeUpdateAnimation(float DeltaSeconds)
 
 	OwnerCharacter = Cast<ASKPlayerCharacter>(GetOwningActor());
 	
-	//bLeftAttacking = OwnerCharacter->GetIsLeftAttackingByTag();
-	
-	// bLeftAttacking = OwnerCharacter->GetIsAttacking();
-	// LeftComboIndex = OwnerCharacter->GetComboIndex();
+
 	
 }
 
