@@ -3,8 +3,10 @@
 
 #include "EquipSelectListSlotWidget.h"
 
-#include "SlectItemWidget.h"
+#include "EquipSelectItemWidget.h"
+#include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
+#include "Component/QuickSlotComponent.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/ScrollBox.h"
@@ -20,7 +22,7 @@ void UEquipSelectListSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	TryCachedInventory();
+	TryCachedComponent();
 
 	UWorld* World = GetWorld();
 	if (!World)
@@ -42,7 +44,7 @@ void UEquipSelectListSlotWidget::NativeConstruct()
 	);
 }
 
-void UEquipSelectListSlotWidget::TryCachedInventory()
+void UEquipSelectListSlotWidget::TryCachedComponent()
 {
 	APlayerController* PC = GetOwningPlayer();
 	if (!PC) return;
@@ -51,7 +53,23 @@ void UEquipSelectListSlotWidget::TryCachedInventory()
 	if (!PS)
 	{
 		// 다음 틱에 다시 시도
-		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedInventory(); });
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
+		return;
+	}
+
+	CachedEquipment = PS->FindComponentByClass<UEquipmentComponent>();
+	
+	if (!CachedEquipment)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
+		return;
+	}
+
+	CachedQuickSlot = PS->FindComponentByClass<UQuickSlotComponent>();
+	
+	if (!CachedQuickSlot)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
 		return;
 	}
 
@@ -59,7 +77,7 @@ void UEquipSelectListSlotWidget::TryCachedInventory()
 	
 	if (!CachedInventory)
 	{
-		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedInventory(); });
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
 		return;
 	}
 }
@@ -115,8 +133,9 @@ void UEquipSelectListSlotWidget::RefreshInventory()
     // 아이템 위젯 풀 확보
     while (ItemWidgetPool.Num() < TotalSlots)
     {
-        USlectItemWidget* NewWidget = CreateWidget<USlectItemWidget>(this, ItemWidgetClass);
+        UEquipSelectItemWidget* NewWidget = CreateWidget<UEquipSelectItemWidget>(this, ItemWidgetClass);
         NewWidget->SetVisibility(ESlateVisibility::Visible);
+    	NewWidget->SendComponent(CachedQuickSlot, CachedEquipment, CachedInventory);
         ItemWidgetPool.Add(NewWidget);
     }
  
@@ -139,7 +158,7 @@ void UEquipSelectListSlotWidget::RefreshInventory()
             }
         }
  
-        USlectItemWidget* ItemWidget = ItemWidgetPool[i];
+        UEquipSelectItemWidget* ItemWidget = ItemWidgetPool[i];
  
         if (i < ItemCount)
         {

@@ -5,28 +5,32 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Component/InventoryComponent.h"
-#include "SlectItemWidget.generated.h"
+#include "EquipSelectItemWidget.generated.h"
 
-class UTextBlock;
-class UImage;
-struct FInventorySlot;
 class UEquipmentComponent;
-enum class EInventoryItemType : uint8;
+class UQuickSlotComponent;
+class UImage;
+class UTextBlock;
 enum class EEquipmentSlotType : uint8;
+struct FInventorySlot;
+
 
 /**
  * 
  */
 UCLASS()
-class SK_API USlectItemWidget : public UUserWidget
+class SK_API UEquipSelectItemWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-	void SetItem(FInventorySlot InvenSlot);
+	void SetItem(FInventorySlot SettingInventorySlot);
 
 	UFUNCTION(BlueprintCallable)
 	void SettingSlot(EInventoryItemType ItemType, EEquipmentSlotType SlotType, int32 QuickSlotNum);
+
+	UFUNCTION(BlueprintCallable)
+	void SendComponent(UQuickSlotComponent* QSComponent, UEquipmentComponent* EquipComponent, UInventoryComponent* InventoryComponent);
 	
 	FInventorySlot CurrentInventorySlot;
 
@@ -45,6 +49,15 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UImage* ItemIcon;
 
+	UPROPERTY()
+	UInventoryComponent* CachedInventory;
+
+	UPROPERTY()
+	UQuickSlotComponent* CachedQuickSlot;
+
+	UPROPERTY()
+	UEquipmentComponent* CachedEquipment;
+	
 	UPROPERTY(BlueprintReadWrite)
 	EInventoryItemType CurrentItemType;
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -53,14 +66,11 @@ protected:
  
 	// Blueprint에서 바인딩할 수 있는 이벤트 함수도 선언 가능
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
-	void OnItemHovered();
- 
-	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
-	void OnItemUnhovered();
-
+	void SendHoverMessage(bool bHover);
+	
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
 	void OnItemLeftClicked();
 
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
-	void OnItemRightClicked();
+	void OnItemRightClicked();	
 };
