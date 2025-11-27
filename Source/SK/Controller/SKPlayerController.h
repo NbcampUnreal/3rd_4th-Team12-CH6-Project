@@ -126,6 +126,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EMoveDirection CurrentMoveDirection;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector2D CurrentInputVector;
+	
 	UFUNCTION(BlueprintCallable)
 	static EMoveDirection GetClosestMoveDirection(const FVector2D& InputVector);
 };
