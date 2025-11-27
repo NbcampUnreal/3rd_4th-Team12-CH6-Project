@@ -9,23 +9,8 @@
 #include "SKPlayerCharacter.generated.h"
 
 struct FSKRepComboState;
+class USKCombatComponent; 
 
-USTRUCT(BlueprintType)
-struct FSKLocalComboState
-{
-	GENERATED_BODY()
-
-public:
-	bool bIsAttacking = false; //현재공격중인지
-
-	bool bCanNextCombo = false; //넘어갈수있는지 공격인지 체크
-
-	bool bBufferedAttack = false;
-};
-
-/**
- * 
- */
 UCLASS()
 class SK_API ASKPlayerCharacter : public ASKCharacterBase
 {
@@ -50,51 +35,11 @@ public:
 
 	void SetPlayerStateTag();
 
-#pragma region Combo
-	FSKLocalComboState LocalComboState;
+	UFUNCTION(BlueprintPure)
+	USKCombatComponent* GetCombatComponent() const;
 
-
-	bool bBufferedAttack = false; // 입력 버퍼링 플래그
-
-	// 지난 프레임의 소켓 위치 저장용
-	TArray<FName> CurrentWeaponTraceSockets;
-	TArray<FVector> PreviousSocketLocations;
-
-	//====================FUNC================================//
-
-
-	bool GetIsAttacking();
-	void ResetComboState();
-	void OnATKEndNotify(bool bLeft = true);
-	bool CheckMaxComboIndex(bool bLeft = true);
-
-	FGameplayTag GetLeftATKTag() const;
-
-	void UpdateAnimInstanceComboState();
-	//CurrentTag 바꿔주는 함수
-	void SetWeapon(FGameplayTag NewWeaponTag);
 	void SetTraceSocket();
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	const TArray<AActor*> GetHitActors();
-	void ClearHitActor();
 
-	void ActivateLeftAttackGA();
-	void OnLeftATKInput();
-	void StartAttackTrace();
-	void StopAttackTrace();
-	void PerformWeaponTrace(float DeltaTime);
-
-	UFUNCTION(Server, Reliable)
-	void Server_LeftAttackInput();
-	UFUNCTION(Server, Reliable)
-	void Server_Notify_StopAttackTrace();
-	UFUNCTION(Server, Reliable)
-	void Server_OnATKEndNotify(bool bLeft);
-	UFUNCTION(Client, Reliable)
-	void Client_PlayMontage(UAnimMontage* Montage);
-
-	void OnComboStateUpdated(const FSKRepComboState& NewState);
-#pragma endregion
 
 protected:
 	virtual void OnRep_PlayerState() override;
@@ -107,6 +52,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat")
+	TObjectPtr<USKCombatComponent> CombatComponent;
+	
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 private:
@@ -119,16 +67,7 @@ private:
 
 #pragma endregion
 
-#pragma region Weapon_Collision
 
-
-	bool bIsTracing = false;
-
-	UPROPERTY()
-	TArray<AActor*> HitActors;
-
-
-#pragma endregion
 
 #pragma region Interaction
 
