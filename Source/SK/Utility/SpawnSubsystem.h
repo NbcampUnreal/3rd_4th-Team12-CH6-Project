@@ -32,6 +32,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RespawnGroup(int32 GroupID);
 
+	/** 초기 전체 리스폰 */
 	UFUNCTION(BlueprintCallable)
 	void SpawnAll();
 

@@ -6,6 +6,7 @@
 #include "GameData/StaticData/MonsterDataTable.h"
 #include "GameData/StaticData/MonsterSpawnRule.h"
 #include "GameFramework/Actor.h"
+#include "GameMode/DungeonGameMode.h"
 
 void USpawnSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -192,5 +193,10 @@ void USpawnSubsystem::SpawnAll()
         SpawnByRuleID(RuleID);
     }
 
+    // ★ GameMode에 초기 스폰 끝났다고 알림
+    if (auto* GM = GetWorld()->GetAuthGameMode<ADungeonGameMode>())
+    {
+        GM->NotifyInitialSpawnFinished();
+    }
     UE_LOG(LogTemp, Log, TEXT("[SpawnSubsystem] SpawnAll(): Spawn completed (%d RuleIDs)."), RuleIDSet.Num());
 }
