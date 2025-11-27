@@ -24,11 +24,11 @@ public:
 	
 	FDungeonStartedDelegate OnDungeonStarted;
 
-	// ★ PCG 완료 시 PCG에서 호출
+	// PCG 완료 시 PCG에서 호출
 	UFUNCTION(BlueprintCallable)
 	void NotifyPCGFinished();
 
-	// ★ 초기 스폰 완료
+	// 초기 스폰 완료
 	UFUNCTION(BlueprintCallable)
 	void NotifyInitialSpawnFinished();
 
@@ -62,6 +62,6 @@ protected:
 #pragma endregion
 
 private:
-	// ★ 던전 시작 시도
+	// 던전 시작 시도
 	void TryStartDungeon();
 };

@@ -64,7 +64,7 @@ void ADungeonGameMode::TryStartDungeon()
 
 		UE_LOG(LogTemp, Warning, TEXT("[GameMode] Dungeon STARTED! Broadcasting Event"));
 
-		// ★ 던전 시작 이벤트
+		//던전 시작 이벤트
 		OnDungeonStarted.Broadcast();
 	}
 }
