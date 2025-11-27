@@ -13,6 +13,7 @@
 #include "GameData/SKGameConstant.h"
 #include "GameFramework/Character.h"
 #include "Utility/SKUIManagerSubSystem.h"
+#include "Component/SKCombatComponent.h"
 #include "GameInstance/SKGameInstance.h"
 #include "PlayerState/SKPlayerState.h"
 
@@ -257,7 +258,8 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 	if (!IsValid(PlayerCharacter))
 		return;
 
-	PlayerCharacter->OnLeftATKInput();
+	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
+	CombatComponent->Server_LeftAttackInput();
 }
 
 void ASKPlayerController::RightAttack(const FInputActionValue& Value)
