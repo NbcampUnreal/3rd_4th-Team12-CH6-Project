@@ -8,7 +8,9 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "EquipSelectListSlotWidget.generated.h"
 
-class USlectItemWidget;
+class UEquipSelectItemWidget;
+class UEquipmentComponent;
+class UQuickSlotComponent;
 class UScrollBox;
 class UInventoryComponent;
 /**
@@ -22,19 +24,25 @@ public:
 	virtual void NativeConstruct() override;
 	
 protected:
-	void TryCachedInventory();
+	void TryCachedComponent();
 
 	UPROPERTY(EditAnywhere, Category="Inventory")
-	TSubclassOf<USlectItemWidget> ItemWidgetClass;
+	TSubclassOf<UEquipSelectItemWidget> ItemWidgetClass;
 	
 	UPROPERTY()
-	TArray<USlectItemWidget*> ItemWidgetPool;
+	TArray<UEquipSelectItemWidget*> ItemWidgetPool;
 	
 	UPROPERTY(meta=(BindWidget))
 	UScrollBox* InventoryScroll;
 	
 	UPROPERTY()
 	UInventoryComponent* CachedInventory;
+
+	UPROPERTY()
+	UQuickSlotComponent* CachedQuickSlot;
+
+	UPROPERTY()
+	UEquipmentComponent* CachedEquipment;
 
 	UPROPERTY()
 	EInventoryItemType CurrentItemType;

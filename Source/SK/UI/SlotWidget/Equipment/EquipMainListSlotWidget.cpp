@@ -1,11 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/SlotWidget/EquipMainListSlotWidget.h"
+#include "EquipMainListSlotWidget.h"
 
-#include "EquipMainItemWidget.h"
 #include "Component/EquipmentComponent.h"
+#include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
+#include "EquipmentItemEquipWidget.h"
+#include "EquipmentItemQuickWidget.h"
 
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -13,48 +15,7 @@
 void UEquipMainListSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	if (WeaponSlot)
-	{
-		WeaponSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Weapon, -1);
-	}
-	if (HelmetSlot)
-	{
-		HelmetSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Helmet, -1);
-	}
-	if (ChestSlot)
-	{
-		ChestSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Chest, -1);
-	}
-	if (LegSlot)
-	{
-		LegSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Leg, -1);
-	}
-	if (BootsSlot)
-	{
-		BootsSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Boots, -1);
-	}
-	if (Accessory1Slot)
-	{
-		Accessory1Slot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Accessory1,-1);
-	}
-	if (Accessory2Slot)
-	{
-		Accessory2Slot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Accessory2,-1);
-	}
-	if (QuickSlot1)
-	{
-		QuickSlot1->SettingSlot(EInventoryItemType::Consumable, EEquipmentSlotType::None,0);
-	}
-	if (QuickSlot2)
-	{
-		QuickSlot2->SettingSlot(EInventoryItemType::Consumable, EEquipmentSlotType::None,1);
-	}
-	if (QuickSlot3)
-	{
-		QuickSlot3->SettingSlot(EInventoryItemType::Consumable, EEquipmentSlotType::None,2);
-	}
-
+	
 	UWorld* World = GetWorld();
 	if (!World)
 		return;
@@ -105,6 +66,61 @@ void UEquipMainListSlotWidget::TryCachedComponent()
 		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
 		return;
 	}
+
+	CachedInventory = PS->FindComponentByClass<UInventoryComponent>();
+	
+	if (!CachedInventory)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedComponent(); });
+		return;
+	}
+	SettingSlots();
+}
+
+void UEquipMainListSlotWidget::SettingSlots()
+{
+	if (WeaponSlot)
+	{
+		WeaponSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Weapon, CachedInventory);
+	}
+	if (HelmetSlot)
+	{
+		HelmetSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Helmet, CachedInventory);
+	}
+	if (ChestSlot)
+	{
+		ChestSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Chest, CachedInventory);
+	}
+	if (LegSlot)
+	{
+		LegSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Leg, CachedInventory);
+	}
+	if (BootsSlot)
+	{
+		BootsSlot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Boots, CachedInventory);
+	}
+	if (Accessory1Slot)
+	{
+		Accessory1Slot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Accessory1,CachedInventory);
+	}
+	if (Accessory2Slot)
+	{
+		Accessory2Slot->SettingSlot(EInventoryItemType::Equipment, EEquipmentSlotType::Accessory2,CachedInventory);
+	}
+
+	if (QuickSlot1)
+	{
+		QuickSlot1->SettingSlot(EInventoryItemType::Consumable, 0, CachedInventory);
+	}
+	if (QuickSlot2)
+	{
+		QuickSlot2->SettingSlot(EInventoryItemType::Consumable, 1, CachedInventory);
+	}
+	if (QuickSlot3)
+	{
+		QuickSlot3->SettingSlot(EInventoryItemType::Consumable, 2, CachedInventory);
+	}
+	
 	RefreshEquipMainSlots();
 }
 
@@ -123,24 +139,24 @@ void UEquipMainListSlotWidget::RefreshEquipMainSlots()
 	CheckEquipSlot(BootsSlot);
 	CheckEquipSlot(Accessory1Slot);
 	CheckEquipSlot(Accessory2Slot);
-
+	
 	CheckQuickSlot();
 }
 
-void UEquipMainListSlotWidget::CheckEquipSlot(UEquipMainItemWidget* CheckWidget)
+void UEquipMainListSlotWidget::CheckEquipSlot(UEquipmentItemEquipWidget* CheckWidget)
 {
 	if (!CheckWidget || !CachedEquipment)
 		return;
 		
-	const FEquipmentSlotData* CurrentSlotData = CachedEquipment->GetEquipment(CheckWidget->CurrentEquipSlotType);
+	const FEquipmentSlotData* CurrentSlotData = CachedEquipment->GetEquipment(CheckWidget->GetSlotType());
 
 	if (!CurrentSlotData)
 		return;
 		
 	// Compare with currently displayed instance
-	if (CheckWidget->CurrentEquipMainItem.CurrentEquipInstance != CurrentSlotData->EquipmentInstance || CurrentSlotData->ItemID == -1)
+	if (CheckWidget->GetCurrentInstance() != CurrentSlotData->EquipmentInstance || CurrentSlotData->ItemID == -1)
 	{ 
-		CheckWidget->SetItem(CurrentSlotData->ItemID ,CachedEquipment);
+		CheckWidget->SettingItem(CurrentSlotData->ItemID , CurrentSlotData->EquipmentInstance);
 	}
 }
 
@@ -151,19 +167,19 @@ void UEquipMainListSlotWidget::CheckQuickSlot()
 
 	TArray<FQuickSlot> CurrentQuickSlots = CachedQuickSlot->GetQuickSlots();
  
-	if (QuickSlot1->CurrentEquipMainItem.CurrentItemID != CurrentQuickSlots[0].ItemID || CurrentQuickSlots[0].ItemID == -1)
+	if (QuickSlot1->GetItemID() != CurrentQuickSlots[0].ItemID || CurrentQuickSlots[0].ItemID == -1)
 	{
-		QuickSlot1->SetItem(CurrentQuickSlots[0].ItemID, CachedEquipment);
+		QuickSlot1->SettingItem(CurrentQuickSlots[0].ItemID);
 	}
  
-	if (QuickSlot2->CurrentEquipMainItem.CurrentItemID != CurrentQuickSlots[1].ItemID|| CurrentQuickSlots[1].ItemID == -1)
+	if (QuickSlot2->GetItemID() != CurrentQuickSlots[1].ItemID|| CurrentQuickSlots[1].ItemID == -1)
 	{
-		QuickSlot2->SetItem(CurrentQuickSlots[1].ItemID, CachedEquipment);
+		QuickSlot2->SettingItem(CurrentQuickSlots[1].ItemID);
 	}
  
-	if (QuickSlot3->CurrentEquipMainItem.CurrentItemID != CurrentQuickSlots[2].ItemID || CurrentQuickSlots[2].ItemID == -1)
+	if (QuickSlot3->GetItemID() != CurrentQuickSlots[2].ItemID || CurrentQuickSlots[2].ItemID == -1)
 	{
-		QuickSlot3->SetItem(CurrentQuickSlots[2].ItemID, CachedEquipment);
+		QuickSlot3->SettingItem(CurrentQuickSlots[2].ItemID);
 	}
 	
 }
