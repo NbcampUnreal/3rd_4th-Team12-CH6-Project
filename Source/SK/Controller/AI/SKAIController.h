@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "GameplayTagContainer.h"
+#include "Perception/AIPerceptionTypes.h"
 #include "SKAIController.generated.h"
 
 class UStateTreeAIComponent;
@@ -31,17 +33,20 @@ protected:
 
 private:
 	AActor* TargetActor;
-	
+
 public:
 	ASKAIController();
 	
-	UFUNCTION(BlueprintCallable)
 	AActor* GetTargetActor() const;
-	
+
+	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
+
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	
 	virtual void BeginPlay() override;
+
+	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 	
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);

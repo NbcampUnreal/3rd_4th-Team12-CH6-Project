@@ -2,6 +2,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
+#include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -18,6 +19,13 @@ ASKAICharacterBase::ASKAICharacterBase()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); // or Full
 
 	AttributeSet = CreateDefaultSubobject<USKAIAttributeSet>(TEXT("AttributeSet"));
+}
+
+void ASKAICharacterBase::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	StartLocation = GetActorLocation();
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -93,6 +101,11 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 TArray<UAnimMontage*> ASKAICharacterBase::GetMontages() const
 {
 	return Montages;
+}
+
+FVector ASKAICharacterBase::GetStartLocation() const
+{
+	return StartLocation;
 }
 
 void ASKAICharacterBase::ApplyStaticMonsterStats()

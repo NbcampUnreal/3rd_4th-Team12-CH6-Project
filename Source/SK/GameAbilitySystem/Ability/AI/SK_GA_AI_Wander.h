@@ -1,27 +1,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_AI_Base.h"
-#include "Abilities/GameplayAbility.h"
-#include "SK_GA_AI_Die.generated.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Base.h"
+#include "SK_GA_AI_Wander.generated.h"
 
 UCLASS()
-class SK_API USK_GA_AI_Die : public USK_GA_AI_Base
+class SK_API USK_GA_AI_Wander : public USK_GA_AI_Base
 {
 	GENERATED_BODY()
+
+private:
+	float WanderRadius = 1000.0f;
 	
 public:
-	USK_GA_AI_Die();
-
-	void WaitDieEvent();
-
-	UFUNCTION()
-	void OnWaitDieEventCompleted(FGameplayEventData EventData);
+	USK_GA_AI_Wander();
 	
-	void Die(UAnimMontage* AnimMontage);
+	void Wander();
+
+	void WaitMoveCompleteEvent();
 
 	UFUNCTION()
-	void OnDieCompleted();
+	void OnWaitMoveCompleteEventCompleted(FGameplayEventData EventData);
+	
+	void WaitPerceptionEvent();
+
+	UFUNCTION()
+	void OnWaitPerceptionEventCompleted(FGameplayEventData EventData);
+
 
 protected:
 	virtual void ActivateAbility(

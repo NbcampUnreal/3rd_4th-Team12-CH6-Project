@@ -22,9 +22,8 @@ public:
 
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TSoftObjectPtr<USKAIDataAsset> AIDataAsset;
-
-protected:
 	
+protected:
 	/** 몬스터 정적 ID (BP에서 고정 입력) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterID")
 	int32 MonsterID = -1;
@@ -35,9 +34,14 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Montage")
 	TArray<TObjectPtr<UAnimMontage>> Montages;
+
+private:
+	FVector StartLocation;
 	
 public:
 	ASKAICharacterBase();
+
+	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
@@ -46,6 +50,8 @@ public:
 	void InitializeAttributeSetAndAbilitiesFromDataAsset();
 
 	TArray<UAnimMontage*> GetMontages() const;
+
+	FVector GetStartLocation() const;
 
 protected:
 	void ApplyStaticMonsterStats();

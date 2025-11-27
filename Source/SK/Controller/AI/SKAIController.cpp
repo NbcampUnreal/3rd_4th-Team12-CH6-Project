@@ -1,4 +1,7 @@
 #include "Controller/AI/SKAIController.h"
+#include "AbilitySystemInterface.h"
+#include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -34,6 +37,35 @@ AActor* ASKAIController::GetTargetActor() const
 	return TargetActor;
 }
 
+void ASKAIController::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
+{
+	APawn* OwningPawn = GetPawn();
+	if (!IsValid(OwningPawn))
+	{
+		return;
+	}
+
+	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(OwningPawn);
+	if (!ASCInterface)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* OwningASC = ASCInterface->GetAbilitySystemComponent();
+	if (!OwningASC)
+	{
+		return;
+	}
+
+	FGameplayEventData EventData;
+	EventData.Instigator = LocalInstigator;
+	EventData.Target = LocalTargetActor;
+	EventData.EventTag = EventTag;
+	EventData.OptionalObject = nullptr;
+
+	OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+}
+
 void ASKAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -62,6 +94,13 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
+}
+
+void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	Super::OnMoveCompleted(RequestID, Result);
+	
+	SendEventToASC(this, nullptr, FGameplayTag::RequestGameplayTag("Event.MoveComplete"));
 }
 
 void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)

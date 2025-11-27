@@ -11,6 +11,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_LeftATKTraceEnd, "Event.LeftATKTraceEnd");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_EndAbility, "Event.EndAbility");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Hit, "Event.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Perception, "Event.Perception");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object_SpikeTrap, "Object.SpikeTrap");
@@ -35,7 +37,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Cancel, "Ability.Wander");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Chase, "Ability.Chase");
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);
@@ -141,6 +144,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Stun, "State.Condition.Stun");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Groggy, "State.Condition.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Pause, "State.Condition.Pause");
 
 //Message Chanel Tag
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SwitchLayout, "Message.Channel.SwitchLayout");

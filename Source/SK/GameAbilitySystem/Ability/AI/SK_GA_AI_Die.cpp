@@ -19,7 +19,7 @@ USK_GA_AI_Die::USK_GA_AI_Die()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_AI_Die::WaitEvent()
+void USK_GA_AI_Die::WaitDieEvent()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("죽음이벤트대기시작"));
 
@@ -32,11 +32,11 @@ void USK_GA_AI_Die::WaitEvent()
 				false
 			);
 
-	EventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Die::OnWaitEventCompleted);
+	EventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Die::OnWaitDieEventCompleted);
 	EventTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Die::OnWaitEventCompleted(FGameplayEventData EventData)
+void USK_GA_AI_Die::OnWaitDieEventCompleted(FGameplayEventData EventData)
 {
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
@@ -68,7 +68,10 @@ void USK_GA_AI_Die::Die(UAnimMontage* AnimMontage)
 
 	FGameplayTagContainer CancelTags;
 	CancelTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability")));
-	SourceASC->CancelAbilities(&CancelTags, nullptr, this);
+	FGameplayTagContainer IgnoreTags;
+	IgnoreTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Pause")));
+	
+	SourceASC->CancelAbilities(&CancelTags, &IgnoreTags, this);
 	
 	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
 	if (!IsValid(ST))
@@ -90,9 +93,9 @@ void USK_GA_AI_Die::Die(UAnimMontage* AnimMontage)
 		);
 
 	MontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Die::OnDieCompleted);
-	//Task->OnInterrupted.AddDynamic(this, &USK_GA_Melee::OnMontageInterrupted);
-	//Task->OnCancelled.AddDynamic(this, &USK_GA_Melee::OnMontageCancelled);
-	//Task->OnBlendOut.AddDynamic(this, &USK_GA_Melee::OnMontageBlendOut);
+	//MontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_Die::OnDieInterrupted);
+	//MontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_Die::OnDieCancelled);
+	//MontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_Die::OnMontageBlendOut);
 	MontageTask->ReadyForActivation();
 }
 
@@ -105,7 +108,7 @@ void USK_GA_AI_Die::OnDieCompleted()
 	{
 		return;
 	}
-
+	
 	DropSubsystem->ProcessDropTable(1, CachedCharacter->GetActorLocation());
 	
 	CachedCharacter->Destroy();
@@ -134,7 +137,7 @@ void USK_GA_AI_Die::ActivateAbility(
 		return;
 	}
 	
-	WaitEvent();
+	WaitDieEvent();
 }
 
 void USK_GA_AI_Die::EndAbility(

@@ -1,28 +1,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_AI_Base.h"
-#include "Abilities/GameplayAbility.h"
-#include "SK_GA_AI_Die.generated.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Base.h"
+#include "SK_GA_AI_Cancel.generated.h"
 
 UCLASS()
-class SK_API USK_GA_AI_Die : public USK_GA_AI_Base
+class SK_API USK_GA_AI_Cancel : public USK_GA_AI_Base
 {
 	GENERATED_BODY()
-	
+
 public:
-	USK_GA_AI_Die();
+	USK_GA_AI_Cancel();
 
-	void WaitDieEvent();
+	void WaitPauseEvent();
 
 	UFUNCTION()
-	void OnWaitDieEventCompleted(FGameplayEventData EventData);
+	void OnWaitPauseEventCompleted(FGameplayEventData EventData);
 	
-	void Die(UAnimMontage* AnimMontage);
-
-	UFUNCTION()
-	void OnDieCompleted();
-
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
