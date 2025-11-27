@@ -8,6 +8,9 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "EquipMainListSlotWidget.generated.h"
 
+class UEquipmentItemQuickWidget;
+class UInventoryComponent;
+class UEquipmentItemEquipWidget;
 class UEquipMainItemWidget;
 class UEquipmentComponent;
 class UQuickSlotComponent;
@@ -25,9 +28,11 @@ public:
 protected:
 	void TryCachedComponent();
 
+	void SettingSlots();
+	
 	void RefreshEquipMainSlots();
 
-	void CheckEquipSlot(UEquipMainItemWidget* CheckWidget);
+	void CheckEquipSlot(UEquipmentItemEquipWidget* CheckWidget);
 
 	void CheckQuickSlot();
 
@@ -41,34 +46,37 @@ protected:
 	UPROPERTY()
 	UQuickSlotComponent* CachedQuickSlot;
 
+	UPROPERTY()
+	UInventoryComponent* CachedInventory;
+
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "Equipment|Slots")
-	UEquipMainItemWidget* WeaponSlot;
-	
+	UEquipmentItemEquipWidget* WeaponSlot;
+		
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "Equipment|Slots")
-	UEquipMainItemWidget* HelmetSlot;
+	UEquipmentItemEquipWidget* HelmetSlot;
  
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "Equipment|Slots")
-	UEquipMainItemWidget* ChestSlot;
+	UEquipmentItemEquipWidget* ChestSlot;
  
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "Equipment|Slots")
-	UEquipMainItemWidget* LegSlot;
+	UEquipmentItemEquipWidget* LegSlot;
  
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "Equipment|Slots")
-	UEquipMainItemWidget* BootsSlot;
+	UEquipmentItemEquipWidget* BootsSlot;
  
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "Equipment|Slots")
-	UEquipMainItemWidget* Accessory1Slot;
+	UEquipmentItemEquipWidget* Accessory1Slot;
  
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "Equipment|Slots")
-	UEquipMainItemWidget* Accessory2Slot;
+	UEquipmentItemEquipWidget* Accessory2Slot;
  
 	// 퀵슬롯 위젯들
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "QuickSlots")
-	UEquipMainItemWidget* QuickSlot1;
+	UEquipmentItemQuickWidget* QuickSlot1;
  
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "QuickSlots")
-	UEquipMainItemWidget* QuickSlot2;
+	UEquipmentItemQuickWidget* QuickSlot2;
  
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category = "QuickSlots")
-	UEquipMainItemWidget* QuickSlot3;
+	UEquipmentItemQuickWidget* QuickSlot3;
 };
