@@ -129,12 +129,20 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_Melee);
 // 상호작용
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_Interaction);
 
+// 회피
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_Dodge_Evade);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_Dodge_Step);
+
 //Condition -실제 플레이에 영향끼치는 상태
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition_Stun);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition_Groggy);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition_Death);
+
+// 히트, 넉백 넉다운
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition_Hit); 
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition_KnockBack);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition_KnockDown);
 
 
 //Message Chanel Tag
