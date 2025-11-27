@@ -24,7 +24,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_OpenChest, "Ability.OpenChest");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK, "Ability.LeftATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe, "Ability.LeftATK.Axe");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_TwoHanded, "Ability.LeftATK.TwoHanded");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num01, "Ability.LeftATK.Axe.Num01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num02, "Ability.LeftATK.Axe.Num02");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num03, "Ability.LeftATK.Axe.Num03");
