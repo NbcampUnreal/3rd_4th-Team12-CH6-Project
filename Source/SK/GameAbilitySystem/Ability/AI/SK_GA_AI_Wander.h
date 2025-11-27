@@ -11,16 +11,22 @@ class SK_API USK_GA_AI_Wander : public USK_GA_AI_Base
 
 private:
 	float WanderRadius = 1000.0f;
-	
+	float DelayTime = 3.0f;
+
 public:
 	USK_GA_AI_Wander();
 	
 	void Wander();
-
+	
 	void WaitMoveCompleteEvent();
 
 	UFUNCTION()
 	void OnWaitMoveCompleteEventCompleted(FGameplayEventData EventData);
+
+	void Delay(float DelayDuration);
+
+	UFUNCTION()
+	void OnDelayCompleted();
 	
 	void WaitPerceptionEvent();
 

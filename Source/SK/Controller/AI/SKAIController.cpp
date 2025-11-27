@@ -123,6 +123,7 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 		}
 		
 		TargetActor = Actor;
+		SendEventToASC(this, nullptr, FGameplayTag::RequestGameplayTag("Event.Perception"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("감지성공"));
 	}
 

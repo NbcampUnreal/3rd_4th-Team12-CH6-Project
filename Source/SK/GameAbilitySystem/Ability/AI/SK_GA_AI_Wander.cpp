@@ -1,5 +1,7 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Wander.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "Character/AI/SKAICharacter.h"
@@ -71,7 +73,33 @@ void USK_GA_AI_Wander::WaitMoveCompleteEvent()
 
 void USK_GA_AI_Wander::OnWaitMoveCompleteEventCompleted(FGameplayEventData EventData)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("엔드어빌리티"));
+	if (!IsActive()) 
+	{
+		return;
+	}
+	
+	Delay(DelayTime);
+}
+
+void USK_GA_AI_Wander::Delay(float DelayDuration)
+{
+	UAbilityTask_WaitDelay* DelayTask =
+			UAbilityTask_WaitDelay::WaitDelay(
+				this,
+				DelayDuration
+			);
+	
+	DelayTask->OnFinish.AddDynamic(this, &USK_GA_AI_Wander::OnDelayCompleted);
+	DelayTask->ReadyForActivation();
+}
+
+void USK_GA_AI_Wander::OnDelayCompleted()
+{
+	if (!IsActive()) 
+	{
+		return;
+	}
+	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
@@ -93,6 +121,27 @@ void USK_GA_AI_Wander::WaitPerceptionEvent()
 void USK_GA_AI_Wander::OnWaitPerceptionEventCompleted(FGameplayEventData EventData)
 {
 	CachedController->StopMovement();
+	
+	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
+	if (!ActorInfo)
+	{
+		return;
+	}
+	
+	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
+	if (!SourceASC)
+	{
+		return;	
+	}
+	
+	SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Perception")));
+	
+	if (!IsActive()) 
+	{
+		return;
+	}
+	
+	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
 void USK_GA_AI_Wander::ActivateAbility(
@@ -103,7 +152,7 @@ void USK_GA_AI_Wander::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
+	
 	Wander();
 }
 

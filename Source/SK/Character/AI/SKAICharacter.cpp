@@ -19,5 +19,5 @@ void ASKAICharacter::PossessedBy(AController* NewController)
 void ASKAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 }

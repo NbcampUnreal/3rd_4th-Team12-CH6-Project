@@ -145,6 +145,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Groggy, "State.Condition.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Pause, "State.Condition.Pause");
+//AI 행동 제어
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Perception, "State.Condition.Perception");
+
 
 //Message Chanel Tag
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SwitchLayout, "Message.Channel.SwitchLayout");
