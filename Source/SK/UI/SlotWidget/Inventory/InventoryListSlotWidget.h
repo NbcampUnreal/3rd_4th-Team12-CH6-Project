@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "UI/SlotWidget/InventoryItemWidget.h"
+#include "InventoryItemWidget.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "InventoryListSlotWidget.generated.h"

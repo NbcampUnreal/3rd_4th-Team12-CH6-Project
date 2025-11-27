@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/SlotWidget/EquipMainListSlotWidget.h"
+#include "EquipMainListSlotWidget.h"
 
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
-#include "Equipment/EquipmentItemEquipWidget.h"
-#include "Equipment/EquipmentItemQuickWidget.h"
+#include "EquipmentItemEquipWidget.h"
+#include "EquipmentItemQuickWidget.h"
 
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
