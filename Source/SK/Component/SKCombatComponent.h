@@ -8,7 +8,8 @@
 #include "SKCombatComponent.generated.h"
 
 
- struct FSKWeaponDataRow;
+struct FSKWeaponDataRow;
+struct FWeaponDataRow;
 
 USTRUCT(BlueprintType)
 struct FSKComboState
@@ -61,7 +62,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_OnATKEndNotify(bool bLeft);
 	UFUNCTION(Client, Reliable)
-	void Client_PlayMontage(UAnimMontage* Montage);
+	void Client_PlayMontage(UAnimMontage* Montage, FName StartSection);
 	UFUNCTION(Server, Reliable)
 	void Server_IncreaseComboIndex(bool bLeft = true);
 	UFUNCTION(Server, Reliable)
@@ -79,11 +80,25 @@ public:
 	const TArray<AActor*>& GetHitActors();
 
 	void InitializeWeaponData(const FSKWeaponDataRow* Row);
+	const FWeaponDataRow* GetWeaponData() const;
+
+	void SetWeaponMesh(UStaticMeshComponent* InWeaponMesh);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	void ActivateLeftAttackGA();
+
+	UPROPERTY(EditDefaultsOnly, Category="WeaponData")
+	UDataTable* WeaponDataTable;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* WeaponMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CapsuleRadius = 80.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CapsultHalfHeight = 20.f;
 private:
 	int32 GetMaxComboIndex(bool bLeft);
 	
@@ -98,6 +113,21 @@ private:
 
 	bool bIsTracing = false;
 
+
+
+	
 	UPROPERTY()
 	TArray<AActor*> HitActors;
+
+	FVector PrevStart;
+	FVector PrevEnd;
+
+	// 소켓 이름
+	UPROPERTY(EditDefaultsOnly, Category="SK|Weapon|Trace")
+	FName WeaponStartSocket = "Weapon_Socket_Start";
+
+	UPROPERTY(EditDefaultsOnly, Category="SK|Weapon|Trace")
+	FName WeaponEndSocket = "Weapon_Socket_End";
+
+	FString FindWeaponTagName();
 };

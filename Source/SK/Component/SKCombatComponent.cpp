@@ -10,6 +10,7 @@
 #include "GameData/WeaponDataRow.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Weapon/SKWeaponData.h"
 
 // Sets default values for this component's properties
 USKCombatComponent::USKCombatComponent()
@@ -27,7 +28,22 @@ void USKCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+
+	// 모든 스태틱메쉬 컴포넌트 가져오기
+	TArray<UStaticMeshComponent*> MeshComponents;
+	OwnerCharacter->GetComponents<UStaticMeshComponent>(MeshComponents);
+
+	FName TargetTag = FName(*FindWeaponTagName()); // FString → FName 변환
+
+	for (UStaticMeshComponent* Comp : MeshComponents)
+	{
+		if (Comp && Comp->ComponentHasTag(TargetTag))
+		{
+			SetWeaponMesh(Comp);
+			break;
+		}
+	}
 }
 
 void USKCombatComponent::ActivateLeftAttackGA()
@@ -53,6 +69,24 @@ int32 USKCombatComponent::GetMaxComboIndex(bool bLeft)
 	else
 		result = MaxRightComboIndex;
 	return result;
+}
+
+FString USKCombatComponent::FindWeaponTagName()
+{
+	const FGameplayTag& WeaponTag = ComboState.WeaponTag;
+
+	FString TargetName;
+
+	if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.TwoHanded")))
+	{
+		TargetName = "TwoHanded";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Warrior")))
+	{
+		TargetName = "Warrior";
+	}
+
+	return TargetName;
 }
 
 
@@ -105,9 +139,9 @@ FGameplayTag USKCombatComponent::GetLeftATKTag() const
 
 	FGameplayTag ComboState_WeaponTag = ComboState.WeaponTag;
 
-	if (ComboState_WeaponTag.MatchesTagExact(TAG_Weapon_Axe))
+	if (ComboState_WeaponTag.MatchesTagExact(TAG_Weapon_TwoHanded))
 	{
-		returnTag = TAG_Ability_LeftATK_Axe;
+		returnTag = TAG_Ability_LeftATK_TwoHanded;
 	}
 
 	return returnTag;
@@ -120,13 +154,6 @@ int32 USKCombatComponent::GetComboIndex() const
 
 void USKCombatComponent::Server_LeftAttackInput_Implementation()
 {
-	// ASKPlayerState* PS = nullptr;
-
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	// if (OwnerCharacter)
-	// {
-	// 	PS = OwnerCharacter->GetPlayerState<ASKPlayerState>();
-	// }
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
 
@@ -148,9 +175,10 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 	}
 	FGameplayTagContainer Container;
 	Container.AddTag(GetLeftATKTag());
-	
+
 	ASC->TryActivateAbilitiesByTag(Container);
 }
+
 void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
 {
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
@@ -211,8 +239,11 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	// }
 }
 
-void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage)
+void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage, FName StartSection)
 {
+	if (!Montage)
+		return;
+
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (!OwnerCharacter)
 		return;
@@ -220,11 +251,14 @@ void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage
 	USkeletalMeshComponent* Mesh = OwnerCharacter->GetMesh();
 	if (!Mesh)
 		return;
-
 	UAnimInstance* AIM = Mesh->GetAnimInstance();
 	if (AIM)
 	{
-		AIM->Montage_Play(Montage, 1.0f);
+		AIM->Montage_Play(Montage, 1.f);
+		if (StartSection != NAME_None)
+		{
+			AIM->Montage_JumpToSection(StartSection, Montage);
+		}
 	}
 }
 
@@ -269,69 +303,68 @@ void USKCombatComponent::StopTrace()
 
 void USKCombatComponent::PerformTrace(float DeltaTime)
 {
-	if (TraceSockets.Num() == 0)
-		return;
+	// if (TraceSockets.Num() == 0)
+	// 	return;
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (!OwnerCharacter)
 		return;
 
-	USkeletalMeshComponent* Mesh = OwnerCharacter->GetMesh();
-	if (!Mesh)
-		return;
+	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
+	FVector CurrEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
 
-	// 이전 프레임 배열과 개수 매칭
-	if (PrevSocketLocations.Num() != TraceSockets.Num())
-	{
-		PrevSocketLocations.SetNum(TraceSockets.Num());
-		for (int32 i = 0; i < TraceSockets.Num(); i++)
-		{
-			PrevSocketLocations[i] =
-				Mesh->GetSocketLocation(TraceSockets[i]);
-		}
-	}
+	// 캡슐 반지름 & 하프헛(길이/2)
+	float Radius = CapsuleRadius;
+	float HalfHeight = CapsultHalfHeight;
+
+	// Start→End 방향 벡터
+	FVector TraceDir = CurrEnd - CurrStart;
+
+	// 캡슐 회전 (Start→End 방향으로 캡슐 축을 회전시킴)
+	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceDir).ToQuat();
+
+	// Sweep는 중심과 회전을 기준으로 하기 때문에
+	// 캡슐 중심 좌표 구하기 (Start와 End 중간지점)
+	FVector CapsuleCenter = (CurrStart + CurrEnd) * 0.5f;
+
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwner());
 
 
-	for (int32 i = 0; i < TraceSockets.Num(); i++)
-	{
-		FVector PrevLocation = PrevSocketLocations[i];
-		FVector CurrLocation =
-			Mesh->GetSocketLocation(TraceSockets[i]);
+	bool bHit = GetWorld()->SweepSingleByChannel(
+		Hit,
+		PrevStart,
+		CurrStart,
+		CapsuleRot, 
+		ECC_Pawn,
+		FCollisionShape::MakeCapsule(Radius, HalfHeight),
+		Params
+	);
 
-		DrawDebugLine(
+
+	DrawDebugCapsule(
 			GetWorld(),
-			PrevLocation,
-			CurrLocation,
-			FColor::Red,
+			CapsuleCenter,
+			HalfHeight,
+			Radius,
+			CapsuleRot, // ★ 핵심: 회전 적용
+			FColor::Green,
 			false,
-			0.05f,
-			0,
-			2.0f
+			0.05f
 		);
 
-		FHitResult Hit;
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(OwnerCharacter);
-
-		bool bHit = GetWorld()->LineTraceSingleByChannel(
-			Hit,
-			PrevLocation,
-			CurrLocation,
-			ECC_Pawn,
-			Params
-		);
-
-		if (bHit)
+	if (bHit)
+	{
+		AActor* HitActor = Hit.GetActor();
+		if (HitActor && !HitActors.Contains(HitActor))
 		{
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor && !HitActors.Contains(HitActor))
-			{
-				HitActors.Add(HitActor); // 충돌한 액터만 저장
-			}
+			HitActors.Add(HitActor);
 		}
-
-		PrevSocketLocations[i] = CurrLocation;
 	}
+
+	PrevStart = CurrStart;
+	PrevEnd = CurrEnd;
 }
 
 
@@ -359,9 +392,54 @@ void USKCombatComponent::InitializeWeaponData(const FSKWeaponDataRow* Row)
 	if (!Row)
 		return;
 
-	ComboState.WeaponTag = Row->WeaponTag;
-	
+	ComboState.WeaponTag = FGameplayTag::RequestGameplayTag(Row->WeaponTag.GetTagName());
+
 	TraceSockets = Row->TraceSockets;
 	MaxLeftComboIndex = Row->MaxLeftCombo;
 	MaxRightComboIndex = Row->MaxRightCombo;
+}
+
+const FWeaponDataRow* USKCombatComponent::GetWeaponData() const
+{
+	if (!WeaponDataTable)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDataTable is null in CombatComponent!"));
+		return nullptr;
+	}
+
+	const FGameplayTag& WeaponTag = ComboState.WeaponTag;
+
+	FString FullName = WeaponTag.GetTagName().ToString();
+	FString LastName;
+	FullName.Split(TEXT("."), nullptr, &LastName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName(*LastName);
+
+	const FWeaponDataRow* Row =
+		WeaponDataTable->FindRow<FWeaponDataRow>(RowName, TEXT(""));
+
+	if (!Row)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponDataRow NOT FOUND: %s (RowName = %s)"),
+		       *WeaponTag.ToString(),
+		       *RowName.ToString());
+		return nullptr;
+	}
+
+	return Row;
+}
+
+void USKCombatComponent::SetWeaponMesh(UStaticMeshComponent* InWeaponMesh)
+{
+	if (!InWeaponMesh)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SetWeaponMesh: InWeaponMesh is NULL"));
+		return;
+	}
+
+	WeaponMesh = InWeaponMesh;
+
+	// 초기 Prev 값 설정
+	PrevStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
+	PrevEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
 }
