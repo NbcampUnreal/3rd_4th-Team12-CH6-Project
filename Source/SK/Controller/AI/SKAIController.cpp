@@ -3,6 +3,7 @@
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "GameMode/DungeonGameMode.h"
 
 ASKAIController::ASKAIController()
 {
@@ -37,19 +38,6 @@ AActor* ASKAIController::GetTargetActor() const
 void ASKAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-
-	if (!StateTreeAIComponent)
-	{
-		return;
-	}
-	
-	if (!StateTreeAsset)
-	{
-		return;
-	}
-
-	StateTreeAIComponent->SetStateTree(StateTreeAsset);
-	//StateTreeAIComponent->StartLogic(); 기본적으로 자동 호출, 에디터 컴포넌트 디테일에서 설정 가능.
 }
 
 void ASKAIController::BeginPlay()
@@ -62,6 +50,18 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
+
+	auto* GM = GetWorld()->GetAuthGameMode<ADungeonGameMode>();
+	if (!GM) return;
+	
+	//던전 시작 이벤트 구독
+	GM->OnDungeonStarted.AddUObject(this, &ASKAIController::OnDungeonStarted);
+
+	// ★ Dungeon이 이미 시작된 상태에서 스폰된 경우 처리
+	if (GM->bDungeonStarted)
+	{
+		OnDungeonStarted();
+	}
 }
 
 void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -91,3 +91,12 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 	// 피격에 대한 감각으로 피격 시 행동 추가 가능 // 청각은 굳이 안 쓸 듯.
 }
 
+void ASKAIController::OnDungeonStarted()
+{
+	if (!StateTreeAIComponent || !StateTreeAsset) return;
+	
+	UE_LOG(LogTemp, Warning, TEXT("[AIController] StateTree StartLogic"));
+	StateTreeAIComponent->SetStateTree(StateTreeAsset);
+	StateTreeAIComponent->StartLogic();
+	
+}
