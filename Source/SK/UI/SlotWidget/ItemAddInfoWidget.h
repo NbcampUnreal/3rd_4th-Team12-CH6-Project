@@ -18,20 +18,27 @@ class SK_API UItemAddInfoWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-
+	UFUNCTION(BlueprintCallable)
+	void SettingViewItem(const FText& ItemName, int32 ItemCount, UTexture2D* InItemIcon);
+	
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
-	FSKGameplayMessageListenerHandle ItemAddHandle;
+	// 텍스트 및 이미지 바인딩
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ItemNameText;
 
-	void OnAddItemMessageReceived(FGameplayTag Channel, const FItemAddMessage& Message);
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ItemCountText;
 
-	/** 팝업에 표시할 텍스트 */
-	UPROPERTY(meta=(BindWidget))
-	UTextBlock* ItemText;
+	UPROPERTY(meta = (BindWidget))
+	class UImage* ItemIconImage;
 
 	/** 팝업 Fade 애니메이션 */
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* PopupFadeAnimation;
+
+	UFUNCTION(BlueprintCallable)
+	void PlayViewAnimation();
 };
