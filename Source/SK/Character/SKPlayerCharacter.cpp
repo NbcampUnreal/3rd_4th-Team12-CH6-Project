@@ -14,6 +14,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
+#include "Interaction/ActorComponent/InteractionComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerState/SKPlayerState.h"
@@ -48,6 +49,9 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 
 	//틱활성화
 	PrimaryActorTick.bCanEverTick = true;
+
+	// InteractionComponent
+	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 }
 
 void ASKPlayerCharacter::BeginPlay()
@@ -78,7 +82,6 @@ void ASKPlayerCharacter::BeginPlay()
 		}
 	}
 
-	UpdateInteractionTrace();
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
@@ -90,8 +93,6 @@ void ASKPlayerCharacter::Tick(float DeltaTime)
 		PerformWeaponTrace(DeltaTime);
 	}
 
-	UpdateInteractionTrace();
-
 	LockOnTarget(DeltaTime);
 }
 
@@ -101,8 +102,6 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
 	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
-
-	DOREPLIFETIME(ASKPlayerCharacter, CurrentInteractionData);
 }
 
 void ASKPlayerCharacter::SetSprinting(bool bSprinting)
@@ -564,78 +563,6 @@ void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
 		FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
 		SetActorRotation(NewRot);
 	}
-}
-
-void ASKPlayerCharacter::UpdateInteractionTrace()
-{
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (!ASC) return;
-	
-	FGameplayTag InteractTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.InteractionTrace"));
-
-	if (bShouldUseInteractionTrace && !bIsActivate)
-	{
-		if (ASC->FindAbilitySpecFromInputID(SKConstant::GA_Interact_ID))
-		{
-			bIsActivate = true;
-			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
-		}
-	}
-	else if (!bShouldUseInteractionTrace && bIsActivate)
-	{
-		bIsActivate = false;
-		FGameplayTagContainer InteractTagContainer(InteractTag);
-		ASC->CancelAbilities(&InteractTagContainer);
-	}
-}
-
-void ASKPlayerCharacter::Server_GiveAndActivateAbility_Implementation(TSubclassOf<UGameplayAbility> AbilityClass, int32 AbilityLevel, int32 InputID)
-{
-	if (!AbilityClass) return;
-
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (!ASC) return;
-
-	FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, AbilityLevel, InputID, this));
-	if (NewHandle.IsValid())
-	{
-		TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
-		FTimerHandle TempHandle;
-		ASC->GetWorld()->GetTimerManager().SetTimer(TempHandle, [WeakASC, NewHandle]()
-		{
-			if (WeakASC.IsValid())
-			{
-				WeakASC->TryActivateAbility(NewHandle);
-			}
-		}, 0.01f, false);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Handle Is Invalid"));
-	}
-}
-
-void ASKPlayerCharacter::Server_CancelAbility_Implementation(const FGameplayAbilitySpecHandle Handle)
-{
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC && Handle.IsValid())
-	{
-		ASC->ClearAbility(Handle);
-	}
-}
-
-
-void ASKPlayerCharacter::Client_PlayPickupSound_Implementation(USoundBase* PickupSound)
-{
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
-}
-
-void ASKPlayerCharacter::Server_TryInteract_Implementation(AActor* Target)
-{
-	if (!Target) return;
-	UE_LOG(LogTemp, Warning, TEXT("Role: %d"), Target->GetLocalRole());
-	UE_LOG(LogTemp, Warning, TEXT("Remote: %d"), Target->GetRemoteRole());
-	ISKInteractable::Execute_Interact(Target, this);
 }
 
 void ASKPlayerCharacter::SetPlayerStateTag()

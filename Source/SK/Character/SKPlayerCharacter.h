@@ -8,6 +8,7 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
+class UInteractionComponent;
 struct FSKRepComboState;
 
 USTRUCT(BlueprintType)
@@ -132,32 +133,13 @@ private:
 
 #pragma region Interaction
 
-public:
-	UFUNCTION(Server, Reliable)
-	void Server_TryInteract(AActor* Target);
-
-	UFUNCTION(Client, Reliable)
-	void Client_PlayPickupSound(USoundBase* PickupSound);
-
-	UPROPERTY(BlueprintReadWrite, Replicated)
-	FSKInteractionData CurrentInteractionData;
-
-	FORCEINLINE void SetShouldUseInteractionTrace(const bool NewValue) { bShouldUseInteractionTrace = NewValue;}
-
-	UFUNCTION(Server, Reliable)
-	void Server_GiveAndActivateAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 AbilityLevel, int32 InputID);
-
-	UFUNCTION(Server, Reliable)
-	void Server_CancelAbility(const FGameplayAbilitySpecHandle Handle);
-
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
+	TObjectPtr<UInteractionComponent> InteractionComponent;
 
-	UFUNCTION()
-	void UpdateInteractionTrace();
-	
-	bool bShouldUseInteractionTrace;
-
-	bool bIsActivate;
+public:
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
 	
 #pragma endregion
 
