@@ -48,18 +48,14 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 
 	// 컴뱃컴포넌트 활성화
 	CombatComponent = CreateDefaultSubobject<USKCombatComponent>(TEXT("CombatComponent"));
-
 }
 
 void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	// PS->SetDAPlayerStat();
 	SetPlayerStateTag();
-	// SetWeapon(CurrentWeaponTag);
-	//SetTraceSocket();
+
 
 	if (AController* PC = GetController())
 	{
@@ -153,7 +149,7 @@ void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
 void ASKPlayerCharacter::SetTraceSocket()
 {
 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	
+
 	if (!PS || !PS->GetWeaponDT())
 		return;
 
@@ -162,50 +158,37 @@ void ASKPlayerCharacter::SetTraceSocket()
 	{
 		UE_LOG(LogTemp, Error, TEXT("SetTraceSocket: WeaponTag INVALID"));
 		return;
-		
 	}
-	const UDataTable* WeaponDT = PS->GetWeaponDT();
-	const FSKWeaponDataRow* FoundRow = nullptr;
+	
+	TSoftObjectPtr<UDataTable>  WeaponDT = PS->GetWeaponDT();
+	const FSKWeaponDataRow* FoundRow =
+		WeaponDT->FindRow<FSKWeaponDataRow>(WeaponTag.GetTagName(), TEXT("SetTraceSocket"));
 
-	for (const auto& Pair : WeaponDT->GetRowMap())
-	{
-		const FSKWeaponDataRow* Row = reinterpret_cast<const FSKWeaponDataRow*>(Pair.Value);
-		if (!Row)
-			continue;
-
-		if (Row->WeaponTag == WeaponTag)
-		{
-			FoundRow = Row;
-			break;
-		}
-	}
-
+	
 	if (!FoundRow)
 	{
 		UE_LOG(LogTemp, Error,
-			TEXT("SetTraceSocket: Row not found for Tag %s"),
-			*WeaponTag.ToString());
+			   TEXT("SetTraceSocket: Row not found for Tag %s"),
+			   *WeaponTag.ToString());
 		return;
 	}
 
-	// === CombatComponent에게 Row 전달 ===
 	if (CombatComponent)
 	{
 		CombatComponent->InitializeWeaponData(FoundRow);
 		UE_LOG(LogTemp, Log,
-			TEXT("SetTraceSocket: Weapon '%s' sockets initialized."),
-			*WeaponTag.ToString());
+			   TEXT("SetTraceSocket: Weapon '%s' sockets initialized."),
+			   *WeaponTag.ToString());
+		
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("SetTraceSocket: CombatComponent is NULL"));
-	}
-	
+
 }
 
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+
+	SetTraceSocket(); // 안전
 }
 
 
@@ -243,7 +226,7 @@ void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
 	{
 		FVector Dir = (PC->CurrentTarget->GetActorLocation() - GetActorLocation());
 		Dir.Z = 0;
-	
+
 		FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
 		SetActorRotation(NewRot);
 	}
