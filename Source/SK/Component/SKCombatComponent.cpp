@@ -30,12 +30,12 @@ void USKCombatComponent::BeginPlay()
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 
 	// 모든 스태틱메쉬 컴포넌트 가져오기
-	TArray<UStaticMeshComponent*> MeshComponents;
-	OwnerCharacter->GetComponents<UStaticMeshComponent>(MeshComponents);
+	TArray<USkeletalMeshComponent*> MeshComponents;
+	OwnerCharacter->GetComponents<USkeletalMeshComponent>(MeshComponents);
 
 	FName TargetTag = FName(*FindWeaponTagName()); // FString → FName 변환
 
-	for (UStaticMeshComponent* Comp : MeshComponents)
+	for (USkeletalMeshComponent* Comp : MeshComponents)
 	{
 		if (Comp && Comp->ComponentHasTag(TargetTag))
 		{
@@ -453,7 +453,7 @@ const FWeaponDataRow* USKCombatComponent::GetWeaponData() const
 	return Row;
 }
 
-void USKCombatComponent::SetWeaponMesh(UStaticMeshComponent* InWeaponMesh)
+void USKCombatComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
 {
 	if (!InWeaponMesh)
 	{
