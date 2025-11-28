@@ -2,11 +2,8 @@
 
 
 #include "Anim/SKAnimNotify_StopAttackTrace.h"
-
-#include "AbilitySystemComponent.h"
+#include "Component/SKCombatComponent.h"
 #include "Character/SKPlayerCharacter.h"
-#include "GameplayAbilitySpec.h"
-#include "GameAbilitySystem/Ability/SK_GA_LeftAttack_Axe.h"
 
 void USKAnimNotify_StopAttackTrace::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                            const FAnimNotifyEventReference& EventReference)
@@ -20,7 +17,9 @@ void USKAnimNotify_StopAttackTrace::Notify(USkeletalMeshComponent* MeshComp, UAn
 	if (!PC->HasAuthority())
 		return;
 
-	PC->StopAttackTrace();
-	PC->Server_Notify_StopAttackTrace();
-
+	// PC->StopAttackTrace();
+	// PC->Server_Notify_StopAttackTrace();
+	USKCombatComponent* CombatComponent =  PC->GetCombatComponent();
+	CombatComponent->StopTrace();
+	CombatComponent->Server_Notify_StopAttackTrace();
 }

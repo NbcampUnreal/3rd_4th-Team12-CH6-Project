@@ -22,16 +22,12 @@ public:
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-	// void PlayHitAnim(FGameplayTag Direction);
-	// void HitAnimEnd();
-
+	
 	void PlayLeftAttackAnim();
 	
 	void SetComboIndex(int32 ComboIndex);
 	void SetIsAttacking(bool isAttacking);
-	//void SetCanNextCombo(bool bCanNextCombo);
-
+	
 	TArray<UAnimMontage*> GetLeftATKMontage();
 	UAnimMontage* GetLeftATKMontageIndex();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage")
