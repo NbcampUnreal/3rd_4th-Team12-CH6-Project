@@ -19,10 +19,7 @@ struct FSKComboState
 	//  Replicated 영역 (서버 관리)
 	UPROPERTY()
 	FGameplayTag WeaponTag;
-
-	// UPROPERTY()
-	// FGameplayTag AttackTypeTag;
-
+	
 	UPROPERTY()
 	int32 ComboIndex = 0;
 
@@ -46,13 +43,17 @@ public:
 	// Sets default values for this component's properties
 	USKCombatComponent();
 
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	
 	bool GetIsAttacking();
 	void ResetComboState();
 	bool CheckMaxComboIndex(bool bLeft = true);
 	FGameplayTag GetLeftATKTag() const;
+	FGameplayTag GetWeaponTag() const;
 	int32 GetComboIndex() const;
 
 	UFUNCTION(Server, Reliable)
@@ -67,7 +68,9 @@ public:
 	void Server_IncreaseComboIndex(bool bLeft = true);
 	UFUNCTION(Server, Reliable)
 	void Server_ResetComboIndex(int32 NewIndex);
-
+	UFUNCTION(Server, Reliable)
+	void Server_SetWeaponTag(FGameplayTag NewWeaponTag);
+	void SetWeaponTag(const FGameplayTag& NewTag);
 
 	void StartTrace();
 	void StopTrace();
@@ -80,7 +83,6 @@ public:
 	const TArray<AActor*>& GetHitActors();
 
 	void InitializeWeaponData(const FSKWeaponDataRow* Row);
-	const FWeaponDataRow* GetWeaponData() const;
 
 	void SetWeaponMesh(UStaticMeshComponent* InWeaponMesh);
 protected:
@@ -88,9 +90,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	void ActivateLeftAttackGA();
-
-	UPROPERTY(EditDefaultsOnly, Category="WeaponData")
-	UDataTable* WeaponDataTable;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* WeaponMesh;
@@ -102,7 +101,7 @@ protected:
 private:
 	int32 GetMaxComboIndex(bool bLeft);
 	
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=OnRep_ComboState)
 	FSKComboState ComboState;
 
 	TArray<FName> TraceSockets;
@@ -112,9 +111,6 @@ private:
 	int32 MaxRightComboIndex = 1;
 
 	bool bIsTracing = false;
-
-
-
 	
 	UPROPERTY()
 	TArray<AActor*> HitActors;
@@ -130,4 +126,10 @@ private:
 	FName WeaponEndSocket = "Weapon_Socket_End";
 
 	FString FindWeaponTagName();
+
+	UFUNCTION()
+	void OnRep_ComboState();
+	
 };
+
+

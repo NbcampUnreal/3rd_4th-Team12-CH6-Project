@@ -8,8 +8,11 @@
 #include "GameAbilitySystem/Ability/SK_GA_LeftAttack_Axe.h"
 #include "GameFramework/Character.h"
 #include "GameData/WeaponDataRow.h"
+#include "Net/UnrealNetwork.h"
+#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/SKWeaponData.h"
+
 
 // Sets default values for this component's properties
 USKCombatComponent::USKCombatComponent()
@@ -17,7 +20,7 @@ USKCombatComponent::USKCombatComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
+	SetIsReplicatedByDefault(true);
 	// ...
 }
 
@@ -34,7 +37,7 @@ void USKCombatComponent::BeginPlay()
 	OwnerCharacter->GetComponents<UStaticMeshComponent>(MeshComponents);
 
 	FName TargetTag = FName(*FindWeaponTagName()); // FString → FName 변환
-
+	
 	for (UStaticMeshComponent* Comp : MeshComponents)
 	{
 		if (Comp && Comp->ComponentHasTag(TargetTag))
@@ -90,6 +93,14 @@ FString USKCombatComponent::FindWeaponTagName()
 	return TargetName;
 }
 
+void USKCombatComponent::OnRep_ComboState()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_ComboState: %s"),
+			  *ComboState.WeaponTag.ToString());
+
+
+}
+
 
 // Called every frame
 void USKCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -136,17 +147,14 @@ bool USKCombatComponent::CheckMaxComboIndex(bool bLeft)
 
 FGameplayTag USKCombatComponent::GetLeftATKTag() const
 {
-	// FGameplayTag returnTag = FGameplayTag();
-
 	FGameplayTag returnTag = TAG_Ability_LeftATK;
-	// FGameplayTag ComboState_WeaponTag = ComboState.WeaponTag;
-	//
-	// if (ComboState_WeaponTag.MatchesTagExact(TAG_Weapon_TwoHanded))
-	// {
-	// 	returnTag = TAG_Ability_LeftATK_TwoHanded;
-	// }
 
 	return returnTag;
+}
+
+FGameplayTag USKCombatComponent::GetWeaponTag() const
+{
+	return ComboState.WeaponTag;
 }
 
 int32 USKCombatComponent::GetComboIndex() const
@@ -289,6 +297,7 @@ void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage
 void USKCombatComponent::Server_IncreaseComboIndex_Implementation(bool bLeft)
 {
 	ComboState.ComboIndex++;
+	OnRep_ComboState(); 
 	UE_LOG(LogTemp, Error, TEXT("[SERVER] Increase -> %d"), ComboState.ComboIndex);
 }
 
@@ -298,6 +307,26 @@ void USKCombatComponent::Server_ResetComboIndex_Implementation(int32 NewIndex)
 	ComboState.ComboIndex = NewIndex;
 }
 
+
+void USKCombatComponent::Server_SetWeaponTag_Implementation(FGameplayTag NewWeaponTag)
+{
+	ComboState.WeaponTag = NewWeaponTag;   
+	OnRep_ComboState();     
+}
+
+
+void USKCombatComponent::SetWeaponTag(const FGameplayTag& NewTag)
+{
+	if (GetOwnerRole() == ROLE_Authority)  // 서버에서만 세팅
+	{
+		ComboState.WeaponTag = NewTag;
+	}
+	else
+	{
+		// 클라이언트가 호출하면 서버 RPC로 전달
+		Server_SetWeaponTag(NewTag);
+	}
+}
 
 void USKCombatComponent::StartTrace()
 {
@@ -332,6 +361,8 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (!OwnerCharacter)
+		return;
+	if (!IsValid(WeaponMesh))
 		return;
 
 	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
@@ -423,36 +454,6 @@ void USKCombatComponent::InitializeWeaponData(const FSKWeaponDataRow* Row)
 	MaxRightComboIndex = Row->MaxRightCombo;
 }
 
-const FWeaponDataRow* USKCombatComponent::GetWeaponData() const
-{
-	if (!WeaponDataTable)
-	{
-		UE_LOG(LogTemp, Error, TEXT("WeaponDataTable is null in CombatComponent!"));
-		return nullptr;
-	}
-
-	const FGameplayTag& WeaponTag = ComboState.WeaponTag;
-
-	FString FullName = WeaponTag.GetTagName().ToString();
-	FString LastName;
-	FullName.Split(TEXT("."), nullptr, &LastName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-
-	FName RowName(*LastName);
-
-	const FWeaponDataRow* Row =
-		WeaponDataTable->FindRow<FWeaponDataRow>(RowName, TEXT(""));
-
-	if (!Row)
-	{
-		UE_LOG(LogTemp, Error, TEXT("WeaponDataRow NOT FOUND: %s (RowName = %s)"),
-		       *WeaponTag.ToString(),
-		       *RowName.ToString());
-		return nullptr;
-	}
-
-	return Row;
-}
-
 void USKCombatComponent::SetWeaponMesh(UStaticMeshComponent* InWeaponMesh)
 {
 	if (!InWeaponMesh)
@@ -466,4 +467,11 @@ void USKCombatComponent::SetWeaponMesh(UStaticMeshComponent* InWeaponMesh)
 	// 초기 Prev 값 설정
 	PrevStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	PrevEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
+}
+
+void USKCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USKCombatComponent, ComboState);
 }
