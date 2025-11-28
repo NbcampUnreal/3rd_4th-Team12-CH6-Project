@@ -167,6 +167,7 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector2D InMoveVector = Value.Get<FVector2D>();
+		CurrentInputVector = InMoveVector;
 		CurrentMoveDirection = GetClosestMoveDirection(InMoveVector);
 		const FRotator ControlrRotation = GetControlRotation();
 		const FRotator ControlYawRotation(0.f, ControlrRotation.Yaw, 0.f);
