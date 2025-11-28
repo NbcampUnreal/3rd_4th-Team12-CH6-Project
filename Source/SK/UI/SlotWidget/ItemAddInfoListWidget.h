@@ -26,13 +26,23 @@ protected:
 
 	UFUNCTION()
 	void InitializePopupPool();
+
+	UFUNCTION()
+	void ProcessPendingMessages();
+	
+	UFUNCTION()
+	UItemAddInfoWidget* GetWidgetPool();
 	
 	UPROPERTY()
 	TArray<UItemAddInfoWidget*> ItemPopupPool;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<UItemAddInfoWidget> ItemPopupWidget;
+	
+	TQueue<FItemAddMessage> PendingMessages;
 
+	FTimerHandle RetryTimerHandle;
+	
 	UPROPERTY(meta = (BindWidget))
 	class UVerticalBox* PopupContainer;
 	

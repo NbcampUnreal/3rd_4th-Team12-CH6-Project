@@ -5,13 +5,14 @@
 
 #include "Component/InventoryComponent.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Item/Inventory/Data/SKEquipmentItemData.h"
 #include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
-void UEquipmentItemQuickWidget::SettingItem(int32 ItemID)
+void UEquipmentItemQuickWidget::SettingItem(int32 ItemID, int32 ItenQuantitiy)
 {
 	CurrentItemID = ItemID;
 
@@ -29,8 +30,12 @@ void UEquipmentItemQuickWidget::SettingItem(int32 ItemID)
 	{
 		ItemIcon->SetBrushFromTexture(CurrentItemData->ItemIcon);
 	}
-}
 
+	if (ItemQuantityText)
+	{
+		ItemQuantityText->SetText(FText::AsNumber(ItenQuantitiy));
+	}
+}
 void UEquipmentItemQuickWidget::SettingSlot(EInventoryItemType ItemType, int32 QuickSlotNumber, UInventoryComponent* InventoryComponent)
 {
 	CurrentItemType = ItemType;

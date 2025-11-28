@@ -95,14 +95,43 @@ void UItemAddInfoListWidget::InitializePopupPool()
 	}
 }
 
-void UItemAddInfoListWidget::OnAddItemMessageReceived(FGameplayTag Channel, const FItemAddMessage& Message)
+void UItemAddInfoListWidget::ProcessPendingMessages()
 {
-	if (!CachedInventory)
-	{
-		return;
-	}
+	if (PendingMessages.IsEmpty())
+            return;
+    
+        // 빈 팝업 찾기
+        UItemAddInfoWidget* PopupToUse = GetWidgetPool();
+        if (!PopupToUse)
+        {
+            // 풀 없으면 1.5초 후 재시도
+            if (!GetWorld()->GetTimerManager().IsTimerActive(RetryTimerHandle))
+            {
+                GetWorld()->GetTimerManager().SetTimer(RetryTimerHandle, this, &UItemAddInfoListWidget::ProcessPendingMessages, 1.5f, false);
+            }
+            return;
+        }
+    
+        // 메시지 처리
+        FItemAddMessage Message;
+        if (PendingMessages.Dequeue(Message))
+        {
+            USKInventoryItemData* ItemData = CachedInventory->GetItemDataByID(Message.ItemID);
+            if (ItemData)
+            {
+                PopupToUse->SettingViewItem(ItemData->ItemName, Message.ItemCount, ItemData->ItemIcon);
+            }
+        }
+    
+        // 메시지 남아있으면 즉시 재호출
+        if (!PendingMessages.IsEmpty())
+        {
+            ProcessPendingMessages();
+        }
+}
 
-	// 빈 팝업 찾기
+UItemAddInfoWidget* UItemAddInfoListWidget::GetWidgetPool()
+{
 	UItemAddInfoWidget* PopupToUse = nullptr;
 
 	for (int32 i = 0; i < ItemPopupPool.Num(); ++i)
@@ -117,17 +146,11 @@ void UItemAddInfoListWidget::OnAddItemMessageReceived(FGameplayTag Channel, cons
 		}
 	}
 
-	if (!PopupToUse)
-	{
-		return;
-	}
+	return PopupToUse;
+}
 
-	// 아이템 데이터 가져오기
-	USKInventoryItemData* ItemData = CachedInventory->GetItemDataByID(Message.ItemID);
-	if (!ItemData)
-	{
-		return;
-	}
-
-	PopupToUse->SettingViewItem(ItemData->ItemName, Message.ItemCount, ItemData->ItemIcon);
+void UItemAddInfoListWidget::OnAddItemMessageReceived(FGameplayTag Channel, const FItemAddMessage& Message)
+{
+	PendingMessages.Enqueue(Message);
+	ProcessPendingMessages();
 }
