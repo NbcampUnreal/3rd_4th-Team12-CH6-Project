@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Component/SKCombatComponent.h"
 #include "GameInstance/SKGameInstance.h"
 #include "Utility/SKBGMSubSystem.h"
 
@@ -49,8 +50,14 @@ void USK_GA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
-
-	SKCharacter->ResetComboState();
+	
+	if (SKCharacter)
+	{
+		if (USKCombatComponent* Combat = SKCharacter->GetCombatComponent())
+		{
+			Combat->ResetComboState();
+		}
+	}
 
 	if (Character)
 	{
