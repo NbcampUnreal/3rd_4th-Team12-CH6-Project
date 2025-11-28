@@ -10,6 +10,7 @@
 #include "Component/SKCombatComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
+#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/SKWeaponData.h"
 
@@ -26,6 +27,9 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
+	if (!IsValid(SKPlayerState))
+		return;
 
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
@@ -44,19 +48,49 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	UAnimInstance* BaseAnim = Character->GetMesh()->GetAnimInstance();
 	if (!IsValid(BaseAnim))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
+	}
 
 	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(BaseAnim);
 	if (!IsValid(PlayerAnimInstance))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
+	}
+
+	TSoftObjectPtr<UDataTable> DT_Weapon = SKPlayerState->GetWeaponData();
+
+	UDataTable* DT = DT_Weapon.LoadSynchronous();
+	if (!DT)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
+	const FGameplayTag& WeaponTag = SKPlayerState->GetWeaponTag();
+
+	FString FullName = WeaponTag.GetTagName().ToString();
+	FString Last;
+
+	FullName.Split(TEXT("."), nullptr, &Last, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName = FName(*Last);
 
 
-	const FWeaponDataRow* DA_Weapon = CombatComponent->GetWeaponData();
+	const FWeaponDataRow* Row = DT->FindRow<FWeaponDataRow>(RowName, TEXT("GetWeaponData"));
+	if (!Row)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Row not found for %s"), *RowName.ToString());
 
-	TObjectPtr<USKWeaponData> Weapon_Data = DA_Weapon->WeaponData;
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
+	USKWeaponData* Weapon_Data = Row->WeaponData;
 
 	TArray<TObjectPtr<UAnimMontage>> LeftATKMontage = Weapon_Data->LeftAttackMontages;
-	
 
 	TArray<UAnimMontage*> Array_Montage = PlayerAnimInstance->GetLeftATKMontage();
 
@@ -72,12 +106,12 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	       MaxIndex,
 	       Array_Montage.Num()
 	);
-	
+
 	UAnimMontage* Montage = Weapon_Data->LeftAttackMontages[0];
 	FName SectionName = FName(*FString::Printf(TEXT("Combo_%02d"), SafeIndex + 1));
 	ASC->PlayMontage(this, ActivationInfo, Montage, 1.0f);
 	PlayerAnimInstance->Montage_JumpToSection(SectionName, Montage);
-	
+
 
 	// 클라이언트 전용
 	if (ActorInfo->IsLocallyControlled())
@@ -86,7 +120,7 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		AIM->Montage_Play(Montage, 1.f);
 		AIM->Montage_JumpToSection(SectionName, Montage);
 	}
-	
+
 	CombatComponent->Client_PlayMontage(Montage, SectionName);
 }
 
