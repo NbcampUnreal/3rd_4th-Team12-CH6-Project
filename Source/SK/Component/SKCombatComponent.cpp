@@ -8,7 +8,6 @@
 #include "GameAbilitySystem/Ability/SK_GA_LeftAttack_Axe.h"
 #include "GameFramework/Character.h"
 #include "GameData/WeaponDataRow.h"
-#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/SKWeaponData.h"
 
@@ -135,14 +134,15 @@ bool USKCombatComponent::CheckMaxComboIndex(bool bLeft)
 
 FGameplayTag USKCombatComponent::GetLeftATKTag() const
 {
-	FGameplayTag returnTag = FGameplayTag();
+	// FGameplayTag returnTag = FGameplayTag();
 
-	FGameplayTag ComboState_WeaponTag = ComboState.WeaponTag;
-
-	if (ComboState_WeaponTag.MatchesTagExact(TAG_Weapon_TwoHanded))
-	{
-		returnTag = TAG_Ability_LeftATK_TwoHanded;
-	}
+	FGameplayTag returnTag = TAG_Ability_LeftATK;
+	// FGameplayTag ComboState_WeaponTag = ComboState.WeaponTag;
+	//
+	// if (ComboState_WeaponTag.MatchesTagExact(TAG_Weapon_TwoHanded))
+	// {
+	// 	returnTag = TAG_Ability_LeftATK_TwoHanded;
+	// }
 
 	return returnTag;
 }
@@ -203,6 +203,25 @@ void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
 	}
 }
 
+static FString TagsToString(const FGameplayTagContainer& Tags)
+{
+	FString Result;
+
+	for (const FGameplayTag& Tag : Tags)
+	{
+		Result += Tag.ToString();
+		Result += TEXT(" | ");
+	}
+
+	if (Result.Len() == 0)
+	{
+		Result = TEXT("(EMPTY)");
+	}
+
+	return Result;
+}
+
+
 void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 {
 	int32 MaxCombo = GetMaxComboIndex(bLeft);
@@ -223,20 +242,33 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 
 
 	FGameplayTagContainer CancelTags;
-	CancelTags.AddTag(TAG_Ability_LeftATK); // 부모 태그
+	CancelTags.AddTag(TAG_Ability_LeftATK_Cancel); // 부모 태그
 
+	UE_LOG(LogTemp, Error, TEXT("[CANCEL] Sending Cancel Tag: %s"), 
+		   *TagsToString(CancelTags));
+	
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	// GA 스펙 정보 출력
+	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (Spec.Ability)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[CANCEL] Ability: %s"),
+				   *Spec.Ability->GetName());
+
+			UE_LOG(LogTemp, Error, TEXT("   AbilityTags: %s"), 
+				   *TagsToString(Spec.Ability->AbilityTags));
+
+			UE_LOG(LogTemp, Error, TEXT("   IsActive: %d"), 
+				   Spec.IsActive());
+		}
+	}
+
+	
 	ASC->CancelAbilities(&CancelTags, nullptr);
-	// for (FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
-	// {
-	// 	if (Spec.IsActive() &&
-	// 		Spec.Ability->GetClass() == USK_GA_LeftAttack_Axe::StaticClass())
-	// 	{
-	// 		AbilitySystemComponent->CancelAbilityHandle(Spec.Handle);
-	// 		break;
-	// 	}
-	// }
+	UE_LOG(LogTemp, Error, TEXT("[CANCEL] CancelAbilities 호출 완료"));
+	
 }
 
 void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage, FName StartSection)
