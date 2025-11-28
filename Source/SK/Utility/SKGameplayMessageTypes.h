@@ -138,8 +138,21 @@ struct FItemSwitchMessage
 	UPROPERTY(BlueprintReadWrite)
 	EInventoryItemType ItemType;
 
+	UPROPERTY(BlueprintReadWrite)
 	EEquipmentSlotType EquipmentType;
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 QuickSlotNumber;
+};
+
+USTRUCT(BlueprintType)
+struct FItemAddMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 ItemID;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 ItemCount;
 };
