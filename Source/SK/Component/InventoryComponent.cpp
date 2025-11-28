@@ -7,11 +7,12 @@
 #include "Abilities/GameplayAbility.h"
 #include "Engine/ActorChannel.h"
 #include "GameData/StaticData/ItemDataTable.h"
-#include "GameFramework/PlayerState.h"
 #include "Item/Inventory/Data/SKConsumableItemData.h"
 #include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "Net/UnrealNetwork.h"
 #include "Object/EquipmentInstance.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/StaticDataSubsystem.h"
 
 // Sets default values for this component's properties
@@ -24,6 +25,34 @@ UInventoryComponent::UInventoryComponent()
 	// ...
 }
 
+
+void UInventoryComponent::TryAddItem(const int32& ItemID, int32 Count)
+{
+	if (!GetOwner())
+	{
+		return;
+	}
+	if (GetOwner()->HasAuthority())
+	{
+		if (AddItemByIDAndCount(ItemID, Count))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Server Message gg"));
+			if (UWorld* World = GetWorld())
+			{
+				if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+				{
+					FItemAddMessage ItemAddMessage(ItemID,  Count);
+				
+					MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ItemAddInfo, ItemAddMessage);
+				}
+			}
+		}
+	}
+	else
+	{
+		ServerAddItem(ItemID, Count);
+	}
+}
 
 bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 {
@@ -302,7 +331,7 @@ bool UInventoryComponent::ItemAbilityCheckAndActive(UAbilitySystemComponent* ASC
 		}
 	}
  
-	bool bActivated = false;
+	bool bActivated;
  
 	if (FoundHandle.IsValid())
 	{
@@ -386,7 +415,10 @@ bool UInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch*
 
 void UInventoryComponent::ServerAddItem_Implementation(const int32& ItemID, int32 Count)
 {
-	AddItemByIDAndCount(ItemID, Count);
+	if (AddItemByIDAndCount(ItemID, Count))
+	{
+		Client_NotifyItemAdded(ItemID, Count);
+	}
 }
 bool UInventoryComponent::ServerAddItem_Validate(const int32& ItemID, int32 Count)
 {
@@ -420,6 +452,20 @@ void UInventoryComponent::ServerUseItemByID_Implementation(const int32& UseItemI
 bool UInventoryComponent::ServerUseItemByID_Validate(const int32& UseItemID)
 {
 	return true;
+}
+
+void UInventoryComponent::Client_NotifyItemAdded_Implementation(int32 ItemID, int32 Count)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Client Message gg"));
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			FItemAddMessage ItemAddMessage(ItemID,  Count);
+				
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ItemAddInfo, ItemAddMessage);
+		}
+	}
 }
 
 // Called when the game starts
