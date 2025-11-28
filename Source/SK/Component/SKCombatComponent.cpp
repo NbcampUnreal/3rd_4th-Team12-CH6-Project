@@ -57,6 +57,8 @@ void USKCombatComponent::ActivateLeftAttackGA()
 	FGameplayTagContainer Container;
 	Container.AddTag(LeftAtkTag);
 
+
+	UE_LOG(LogTemp, Error, TEXT("[ActivateLeftAttackGA] "));
 	ASC->TryActivateAbilitiesByTag(Container);
 }
 
@@ -230,7 +232,7 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	if (ComboState.bBufferedAttack && RecComboIndex < MaxCombo)
 	{
 		ComboState.bBufferedAttack = false;
-		ActivateLeftAttackGA(); // 이건 서버에서 실행됨
+		ActivateLeftAttackGA(); 
 		return;
 	}
 
@@ -244,31 +246,21 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	FGameplayTagContainer CancelTags;
 	CancelTags.AddTag(TAG_Ability_LeftATK_Cancel); // 부모 태그
 
-	UE_LOG(LogTemp, Error, TEXT("[CANCEL] Sending Cancel Tag: %s"), 
-		   *TagsToString(CancelTags));
+
 	
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
-	// GA 스펙 정보 출력
-	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
-	{
-		if (Spec.Ability)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[CANCEL] Ability: %s"),
-				   *Spec.Ability->GetName());
 
-			UE_LOG(LogTemp, Error, TEXT("   AbilityTags: %s"), 
-				   *TagsToString(Spec.Ability->AbilityTags));
-
-			UE_LOG(LogTemp, Error, TEXT("   IsActive: %d"), 
-				   Spec.IsActive());
-		}
-	}
 
 	
 	ASC->CancelAbilities(&CancelTags, nullptr);
-	UE_LOG(LogTemp, Error, TEXT("[CANCEL] CancelAbilities 호출 완료"));
-	
+
+	UAnimInstance* AnimInstance = SKPlayer->GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_Stop(0.15f);  // BlendOut 0.15f 정도 추천
+
+	}
 }
 
 void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage, FName StartSection)
