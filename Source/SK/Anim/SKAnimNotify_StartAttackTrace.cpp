@@ -2,8 +2,7 @@
 
 
 #include "Anim/SKAnimNotify_StartAttackTrace.h"
-
-#include "GameplayTagContainer.h"
+#include "Component/SKCombatComponent.h"
 #include "Character/SKPlayerCharacter.h"
 
 class ASKPlayerCharacter;
@@ -32,6 +31,6 @@ void USKAnimNotify_StartAttackTrace::Notify(USkeletalMeshComponent* MeshComp, UA
 		return; 
 	}
 
-	PlayerCharacter->StartAttackTrace();
-	
+	USKCombatComponent* CombatComponent =  PlayerCharacter->GetCombatComponent();
+	CombatComponent->StartTrace();
 }

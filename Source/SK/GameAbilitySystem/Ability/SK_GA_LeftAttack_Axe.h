@@ -43,8 +43,8 @@ public:
 
 	void OnStopAttackTrace_Server();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Event")
-	FGameplayTag Event_LeftATKTraceEnd;
+	// UPROPERTY(EditDefaultsOnly, Category = "Event")
+	// FGameplayTag Event_LeftATKTraceEnd;
 
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> LeftAttackDamageGE;
