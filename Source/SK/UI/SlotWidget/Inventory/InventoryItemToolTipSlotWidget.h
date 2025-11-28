@@ -8,6 +8,7 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "InventoryItemToolTipSlotWidget.generated.h"
 
+class UStaticDataSubsystem;
 class USKInventoryItemData;
 class UImage;
 class UTextBlock;
@@ -42,6 +43,9 @@ protected:
 	UPROPERTY(meta=(BindWidgetOptional))
 	UTextBlock* ItemStatText;
 
+	UPROPERTY()
+	UStaticDataSubsystem* CachedSDS = nullptr;
+	
 	FSKGameplayMessageListenerHandle ToolTipSwitchHandle;
 
 	void OnToolTipSwitchMessageReceived(FGameplayTag Channel, const FToolTipSwitch& Message);
@@ -51,5 +55,6 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-	
+	UFUNCTION()
+	void TryCachedSystem();
 };

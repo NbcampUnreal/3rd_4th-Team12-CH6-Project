@@ -84,7 +84,7 @@ public:
 
 	void InitializeWeaponData(const FSKWeaponDataRow* Row);
 
-	void SetWeaponMesh(UStaticMeshComponent* InWeaponMesh);
+	void SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -92,12 +92,17 @@ protected:
 	void ActivateLeftAttackGA();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* WeaponMesh;
+	USkeletalMeshComponent* WeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CapsuleRadius = 80.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CapsultHalfHeight = 20.f;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetComboStateWeaponTag(FGameplayTag NewWeaponTag) { ComboState.WeaponTag = NewWeaponTag; }
+	
 private:
 	int32 GetMaxComboIndex(bool bLeft);
 	

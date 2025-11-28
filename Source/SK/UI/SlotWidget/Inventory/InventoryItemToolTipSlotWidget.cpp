@@ -70,7 +70,7 @@ void UInventoryItemToolTipSlotWidget::SetItemData(USKInventoryItemData* ItemData
 void UInventoryItemToolTipSlotWidget::OnToolTipSwitchMessageReceived(FGameplayTag Channel,
 	const FToolTipSwitch& Message)
 {
-	if (!Message.bEnter || !Message.MessageItemID)
+	if (!Message.bEnter || !Message.MessageItemID || Message.MessageItemID == -1)
 	{
 		if (ItemIcon) ItemIcon->SetBrush(FSlateBrush());
 		if (ItemNameText) ItemNameText->SetText(FText::GetEmpty());
@@ -81,17 +81,8 @@ void UInventoryItemToolTipSlotWidget::OnToolTipSwitchMessageReceived(FGameplayTa
 		SetVisibility(ESlateVisibility::Hidden);
 		return;
 	}
-
-	UWorld* World = GetWorld();
-	if (!World) return;
-
-	UGameInstance* GI = World->GetGameInstance();
-	if (!GI) return;
 	
-	UStaticDataSubsystem* SDS = GI->GetSubsystem<UStaticDataSubsystem>();
-	if(!SDS) return;
-
-	const FItemData* ItemData = SDS->GetData<FItemData>(Message.MessageItemID);
+	const FItemData* ItemData = CachedSDS->GetData<FItemData>(Message.MessageItemID);
 	if (!ItemData)
 	{
 		return;
@@ -205,5 +196,23 @@ void UInventoryItemToolTipSlotWidget::NativeConstruct()
 		this,
 		&UInventoryItemToolTipSlotWidget::OnToolTipSwitchMessageReceived
 	);
+
+	TryCachedSystem();
+}
+
+void UInventoryItemToolTipSlotWidget::TryCachedSystem()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	UGameInstance* GI = World->GetGameInstance();
+	if (!GI) return;
+	
+	CachedSDS = GI->GetSubsystem<UStaticDataSubsystem>();
+	if(!CachedSDS)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryCachedSystem(); });
+	}
+
 }
 

@@ -169,17 +169,17 @@ void UEquipMainListSlotWidget::CheckQuickSlot()
  
 	if (QuickSlot1->GetItemID() != CurrentQuickSlots[0].ItemID || CurrentQuickSlots[0].ItemID == -1)
 	{
-		QuickSlot1->SettingItem(CurrentQuickSlots[0].ItemID);
+		QuickSlot1->SettingItem(CurrentQuickSlots[0].ItemID, CurrentQuickSlots[0].Count);
 	}
  
 	if (QuickSlot2->GetItemID() != CurrentQuickSlots[1].ItemID|| CurrentQuickSlots[1].ItemID == -1)
 	{
-		QuickSlot2->SettingItem(CurrentQuickSlots[1].ItemID);
+		QuickSlot2->SettingItem(CurrentQuickSlots[1].ItemID, CurrentQuickSlots[1].Count);
 	}
  
 	if (QuickSlot3->GetItemID() != CurrentQuickSlots[2].ItemID || CurrentQuickSlots[2].ItemID == -1)
 	{
-		QuickSlot3->SettingItem(CurrentQuickSlots[2].ItemID);
+		QuickSlot3->SettingItem(CurrentQuickSlots[2].ItemID, CurrentQuickSlots[2].Count);
 	}
 	
 }

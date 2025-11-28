@@ -158,6 +158,19 @@ void UEquipSelectItemWidget::OnItemLeftClicked()
 			CachedEquipment->ServerEquipItem(CurrentInventorySlot.UniqueID, CurrentInventorySlot.ItemID);
 		}
 	}
+
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FSwitchLayoutMessage Message(TAG_UI_Layout_EquipmentMain, true);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+		}
+	}
+	
 }
 
 void UEquipSelectItemWidget::OnItemRightClicked()
@@ -195,6 +208,18 @@ void UEquipSelectItemWidget::OnItemRightClicked()
 		else
 		{
 			CachedEquipment->ServerUnequipItem(CurrentEquipSlotType);
+		}
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FSwitchLayoutMessage Message(TAG_UI_Layout_EquipmentMain, true);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
 		}
 	}
 }
