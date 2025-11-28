@@ -114,7 +114,7 @@ TArray<FName> ASKPlayerState::GetTraceSocket()
 {
 	TArray<FName> EmptyResult;
 
-	if (!IsValid(CurrentWeaponDT))
+	if (CurrentWeaponDT.IsNull())
 		return EmptyResult;
 
 	// CurrentWeaponTag == RowName 으로 가정
@@ -127,10 +127,16 @@ TArray<FName> ASKPlayerState::GetTraceSocket()
 	return Row->TraceSockets;
 }
 
-const UDataTable* ASKPlayerState::GetWeaponDT() const
+TSoftObjectPtr<UDataTable> ASKPlayerState::GetWeaponDT() const
 {
 	return CurrentWeaponDT;
 }
+
+TSoftObjectPtr<UDataTable> ASKPlayerState::GetWeaponData() const
+{
+	return WeaponDataTable;
+}
+
 
 void ASKPlayerState::SetDAPlayerStat()
 {

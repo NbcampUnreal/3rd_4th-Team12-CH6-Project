@@ -46,7 +46,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();
-	const UDataTable* GetWeaponDT() const;
+	TSoftObjectPtr<UDataTable> GetWeaponDT() const;
+	TSoftObjectPtr<UDataTable> GetWeaponData() const;
+	
 	FGameplayTag GetWeaponTag() const;
 
 
@@ -61,7 +63,10 @@ protected:
 
 	//Tag별 소켓 정보 DT
 	UPROPERTY(EditAnywhere, Category="SK|Weapon")
-	UDataTable* CurrentWeaponDT;
+	TSoftObjectPtr<UDataTable> CurrentWeaponDT;
+
+	UPROPERTY(EditAnywhere, Category="SK|WeaponData")
+	TSoftObjectPtr<UDataTable> WeaponDataTable;
 
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "SK|GAS")
 	TSoftObjectPtr<USKPlayerDataAsset> CharacterData;
