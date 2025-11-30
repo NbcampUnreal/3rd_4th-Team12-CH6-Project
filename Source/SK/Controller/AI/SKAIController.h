@@ -10,6 +10,7 @@ class UStateTreeAIComponent;
 class UStateTree;
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
+class UAbilitySystemComponent;
 
 UCLASS()
 class SK_API ASKAIController : public AAIController
@@ -18,20 +19,23 @@ class SK_API ASKAIController : public AAIController
 
 protected:
 	// StateTree
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI|StateTree")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="StateTree")
 	TObjectPtr<UStateTreeAIComponent> StateTreeAIComponent;
 	
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
 
 	// Perception
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI|Perception")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perception")
 	TObjectPtr<UAIPerceptionComponent> AIPerceptionComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AI|Perception")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perception")
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 
-private:
+	UPROPERTY()
+	UAbilitySystemComponent* OwningASC;
+	
+	UPROPERTY()
 	AActor* TargetActor;
 
 public:
@@ -39,6 +43,10 @@ public:
 	
 	AActor* GetTargetActor() const;
 
+	void AddTag(FGameplayTag Tag) const;
+
+	void RemoveTag(FGameplayTag Tag) const;
+	
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 
 protected:

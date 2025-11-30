@@ -61,6 +61,7 @@ public:
 
 	// delegate
 	mutable FSKAttributeEvent OnCurrentHealthChanged;
+	
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -91,4 +92,11 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight);
+
+	// AI Control
+	void AddTag(FGameplayTag Tag) const;
+
+	void RemoveTag(FGameplayTag Tag) const;
+
+	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 };

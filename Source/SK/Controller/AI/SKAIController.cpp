@@ -29,6 +29,8 @@ ASKAIController::ASKAIController()
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
 	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
 
+	OwningASC = nullptr;
+	
 	TargetActor = nullptr;
 }
 
@@ -37,22 +39,29 @@ AActor* ASKAIController::GetTargetActor() const
 	return TargetActor;
 }
 
+void ASKAIController::AddTag(FGameplayTag Tag) const
+{
+	if (!IsValid(OwningASC))
+	{
+		return;
+	}
+
+	OwningASC->AddLooseGameplayTag(Tag);
+}
+
+void ASKAIController::RemoveTag(FGameplayTag Tag) const
+{
+	if (!IsValid(OwningASC))
+	{
+		return;
+	}
+
+	OwningASC->RemoveLooseGameplayTag(Tag);
+}
+
 void ASKAIController::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
 {
-	APawn* OwningPawn = GetPawn();
-	if (!IsValid(OwningPawn))
-	{
-		return;
-	}
-
-	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(OwningPawn);
-	if (!ASCInterface)
-	{
-		return;
-	}
-
-	UAbilitySystemComponent* OwningASC = ASCInterface->GetAbilitySystemComponent();
-	if (!OwningASC)
+	if (!IsValid(OwningASC))
 	{
 		return;
 	}
@@ -82,6 +91,14 @@ void ASKAIController::OnPossess(APawn* InPawn)
 
 	StateTreeAIComponent->SetStateTree(StateTreeAsset);
 	//StateTreeAIComponent->StartLogic(); 기본적으로 자동 호출, 에디터 컴포넌트 디테일에서 설정 가능.
+
+	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InPawn);
+	if (!ASCInterface)
+	{
+		return;
+	}
+
+	OwningASC = ASCInterface->GetAbilitySystemComponent();
 }
 
 void ASKAIController::BeginPlay()
@@ -100,7 +117,7 @@ void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowi
 {
 	Super::OnMoveCompleted(RequestID, Result);
 	
-	SendEventToASC(this, nullptr, FGameplayTag::RequestGameplayTag("Event.MoveComplete"));
+	SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.MoveComplete"));
 }
 
 void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -119,11 +136,14 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 		if (!bCanSeePlayer)
 		{
 			TargetActor = nullptr;
+			RemoveTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
+			SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 			return;
 		}
 		
 		TargetActor = Actor;
-		SendEventToASC(this, nullptr, FGameplayTag::RequestGameplayTag("Event.Perception"));
+		AddTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
+		SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("감지성공"));
 	}
 

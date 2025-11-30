@@ -1,5 +1,4 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Wander.h"
-#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "AIController.h"
@@ -19,22 +18,22 @@ USK_GA_AI_Wander::USK_GA_AI_Wander()
 
 void USK_GA_AI_Wander::Wander()
 {
-	WaitMoveCompleteEvent();
-	
-	WaitPerceptionEvent();
+	WaitMoveComplete();
 	
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
-	FVector StartLocation = AICharacter->GetActorLocation();
+	FVector StartLocation = AICharacter->GetStartLocation();
 	
 	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 
 	if (!IsValid(NavSystem))
 	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 	
@@ -42,6 +41,7 @@ void USK_GA_AI_Wander::Wander()
 	bool bSucceed = NavSystem->GetRandomReachablePointInRadius(StartLocation, WanderRadius, ResultLocation);
 	if (!bSucceed)
 	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
@@ -50,96 +50,44 @@ void USK_GA_AI_Wander::Wander()
 	AAIController* AIController = Cast<AAIController>(CachedController);
 	if (!IsValid(AIController))
 	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 	
 	AIController->MoveToLocation(TargetLocation);
 }
 
-void USK_GA_AI_Wander::WaitMoveCompleteEvent()
+void USK_GA_AI_Wander::WaitMoveComplete()
 {
-	UAbilityTask_WaitGameplayEvent* EventTask =
-			UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.MoveComplete")),
 				nullptr,
 				true,
 				false
-			);
-
-	EventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Wander::OnWaitMoveCompleteEventCompleted);
-	EventTask->ReadyForActivation();
+				);
+	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Wander::OnWaitMoveCompleteCompleted);
+	OwnEventTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Wander::OnWaitMoveCompleteEventCompleted(FGameplayEventData EventData)
+void USK_GA_AI_Wander::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
 {
-	if (!IsActive()) 
-	{
-		return;
-	}
-	
 	Delay(DelayTime);
 }
 
 void USK_GA_AI_Wander::Delay(float DelayDuration)
 {
-	UAbilityTask_WaitDelay* DelayTask =
-			UAbilityTask_WaitDelay::WaitDelay(
+	OwnDelayTask = UAbilityTask_WaitDelay::WaitDelay(
 				this,
 				DelayDuration
-			);
-	
-	DelayTask->OnFinish.AddDynamic(this, &USK_GA_AI_Wander::OnDelayCompleted);
-	DelayTask->ReadyForActivation();
+				);
+	OwnDelayTask->OnFinish.AddDynamic(this, &USK_GA_AI_Wander::OnDelayCompleted);
+	OwnDelayTask->ReadyForActivation();
 }
 
 void USK_GA_AI_Wander::OnDelayCompleted()
 {
-	if (!IsActive()) 
-	{
-		return;
-	}
-	
-	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
-}
-
-void USK_GA_AI_Wander::WaitPerceptionEvent()
-{
-	UAbilityTask_WaitGameplayEvent* EventTask =
-			UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-				this,
-				FGameplayTag::RequestGameplayTag(TEXT("Event.Perception")),
-				nullptr,
-				true,
-				false
-			);
-
-	EventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Wander::OnWaitPerceptionEventCompleted);
-	EventTask->ReadyForActivation();
-}
-
-void USK_GA_AI_Wander::OnWaitPerceptionEventCompleted(FGameplayEventData EventData)
-{
-	CachedController->StopMovement();
-	
-	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
-	if (!ActorInfo)
-	{
-		return;
-	}
-	
-	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
-	if (!SourceASC)
-	{
-		return;	
-	}
-	
-	SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Perception")));
-	
-	if (!IsActive()) 
-	{
-		return;
-	}
+	CommonEventTask->EndTask();
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }

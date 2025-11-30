@@ -2,18 +2,25 @@
 
 #include "CoreMinimal.h"
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Base.h"
-#include "SK_GA_AI_Chase.generated.h"
+#include "SK_GA_AI_BaseCombat.generated.h"
 
 UCLASS()
-class SK_API USK_GA_AI_Chase : public USK_GA_AI_Base
+class SK_API USK_GA_AI_BaseCombat : public USK_GA_AI_Base
 {
 	GENERATED_BODY()
 
-public:
-	USK_GA_AI_Chase();
-
-	void Chase();
+protected:
+	UPROPERTY(EditAnywhere, Category = "SK|GAS")
+	TArray<TSubclassOf<UGameplayEffect>> DamageEffectClasses;
 	
+	UPROPERTY()
+	TWeakObjectPtr<const AActor> HitActor;
+
+public:
+	USK_GA_AI_BaseCombat();
+
+	void ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor);
+
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

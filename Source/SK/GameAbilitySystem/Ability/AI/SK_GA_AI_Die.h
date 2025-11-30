@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "SK_GA_AI_Base.h"
-#include "Abilities/GameplayAbility.h"
 #include "SK_GA_AI_Die.generated.h"
 
 UCLASS()
@@ -12,11 +11,6 @@ class SK_API USK_GA_AI_Die : public USK_GA_AI_Base
 	
 public:
 	USK_GA_AI_Die();
-
-	void WaitDieEvent();
-
-	UFUNCTION()
-	void OnWaitDieEventCompleted(FGameplayEventData EventData);
 	
 	void Die(UAnimMontage* AnimMontage);
 
@@ -29,7 +23,7 @@ protected:
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData
-		) override;
+	) override;
 
 	virtual void EndAbility(
 		const FGameplayAbilitySpecHandle Handle,

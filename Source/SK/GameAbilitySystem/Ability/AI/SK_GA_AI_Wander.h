@@ -17,30 +17,25 @@ public:
 	USK_GA_AI_Wander();
 	
 	void Wander();
+
+	void WaitMoveComplete();
 	
-	void WaitMoveCompleteEvent();
-
 	UFUNCTION()
-	void OnWaitMoveCompleteEventCompleted(FGameplayEventData EventData);
-
+	void OnWaitMoveCompleteCompleted(FGameplayEventData EventData);
+	
 	void Delay(float DelayDuration);
 
 	UFUNCTION()
 	void OnDelayCompleted();
+
 	
-	void WaitPerceptionEvent();
-
-	UFUNCTION()
-	void OnWaitPerceptionEventCompleted(FGameplayEventData EventData);
-
-
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData
-		) override;
+	) override;
 
 	virtual void EndAbility(
 		const FGameplayAbilitySpecHandle Handle,

@@ -2,6 +2,8 @@
 #include "AbilitySystemComponent.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -13,6 +15,14 @@ ASKAICharacterBase::ASKAICharacterBase()
 	
 	bReplicates = true;
 
+	GetCapsuleComponent()->SetCollisionProfileName("AI");
+	
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp|CombatArea"));
+	BoxComponent->SetupAttachment(GetRootComponent());
+	BoxComponent->SetCollisionProfileName("CombatArea");
+	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentBeginOverlap);
+	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentEndOverlap);
+	
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); // or Full
@@ -25,6 +35,30 @@ void ASKAICharacterBase::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	StartLocation = GetActorLocation();
+}
+
+void ASKAICharacterBase::OnBoxComponentBeginOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+	)
+{
+	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+}
+
+void ASKAICharacterBase::OnBoxComponentEndOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+	)
+{
+	AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -95,6 +129,17 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*GESpecHandle.Data.Get());
 		}
 	}
+}
+
+void ASKAICharacterBase::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
+{
+	FGameplayEventData EventData;
+	EventData.Instigator = LocalInstigator;
+	EventData.Target = LocalTargetActor;
+	EventData.EventTag = EventTag;
+	EventData.OptionalObject = nullptr;
+
+	AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
 
 TArray<UAnimMontage*> ASKAICharacterBase::GetMontages() const

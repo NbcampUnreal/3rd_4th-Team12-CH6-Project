@@ -11,7 +11,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_LeftATKTraceEnd, "Event.LeftATKTraceEnd");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_EndAbility, "Event.EndAbility");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Hit, "Event.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Perception, "Event.Perception");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
@@ -144,9 +143,11 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Stun, "State.Condition.Stun");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Groggy, "State.Condition.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Pause, "State.Condition.Pause");
 //AI 행동 제어
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Perception, "State.Condition.Perception");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Combat, "AI.Combat");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Death, "AI.Death");
 
 
 //Message Chanel Tag

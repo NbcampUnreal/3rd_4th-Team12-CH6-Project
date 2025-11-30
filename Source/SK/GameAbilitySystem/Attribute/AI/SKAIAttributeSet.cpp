@@ -46,22 +46,8 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 		if (FMath::IsNearlyZero(GetHealth()))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Death"));
-
-			UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
-			if (!OwningASC)
-			{
-				return;
-			}
-			
-			FGameplayEventData EventData;
-			EventData.Instigator = nullptr;
-			EventData.Target = nullptr;
-			EventData.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Death"));
-			EventData.OptionalObject = nullptr;
-
-			OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("죽음이벤트발송"));
+			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+			SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag(TEXT("Event.EndAbility")));
 		}
 		
 		FString DebugMsg = FString::Printf(TEXT("Health: %.2f"), GetHealth());
@@ -130,4 +116,43 @@ void USKAIAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 void USKAIAttributeSet::OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAIAttributeSet, SprintWeight, OldSprintWeight);
+}
+
+void USKAIAttributeSet::AddTag(FGameplayTag Tag) const
+{
+	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
+	if (!OwningASC)
+	{
+		return;
+	}
+
+	OwningASC->AddLooseGameplayTag(Tag);
+}
+
+void USKAIAttributeSet::RemoveTag(FGameplayTag Tag) const
+{
+	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
+	if (!OwningASC)
+	{
+		return;
+	}
+
+	OwningASC->RemoveLooseGameplayTag(Tag);
+}
+
+void USKAIAttributeSet::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
+{
+	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
+	if (!OwningASC)
+	{
+		return;
+	}
+
+	FGameplayEventData EventData;
+	EventData.Instigator = LocalInstigator;
+	EventData.Target = LocalTargetActor;
+	EventData.EventTag = EventTag;
+	EventData.OptionalObject = nullptr;
+
+	OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
