@@ -33,25 +33,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	FSKInteractionData CurrentInteractionData;
 
-	FORCEINLINE void SetShouldUseInteractionTrace(const bool NewValue) { bShouldUseInteractionTrace = NewValue;}
-
-	UFUNCTION(Server, Reliable)
-	void Server_GiveAndActivateAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 AbilityLevel, int32 InputID);
-
-	UFUNCTION(Server, Reliable)
-	void Server_CancelAbility(const FGameplayAbilitySpecHandle Handle);
-
 	FORCEINLINE FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
-	
-protected:
-	UFUNCTION()
-	void UpdateInteractionTrace();
-
-private:
-	bool bShouldUseInteractionTrace;
-	bool bIsActivate;
-	
-	FGameplayTag InteractionTraceTag;
-	FGameplayTag StateActionTag;
 
 };

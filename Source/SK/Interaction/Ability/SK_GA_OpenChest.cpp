@@ -56,7 +56,7 @@ void USK_GA_OpenChest::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 	SKPlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	
 	UInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
-	InteractionComponent->Server_CancelAbility(Handle);
+	// InteractionComponent->Server_CancelAbility(Handle);
 }
 
 void USK_GA_OpenChest::OnCompleted()

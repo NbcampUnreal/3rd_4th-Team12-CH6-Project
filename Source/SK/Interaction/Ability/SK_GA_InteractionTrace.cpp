@@ -115,5 +115,5 @@ void USK_GA_InteractionTrace::TryInteract()
 	InteractionComponent->Server_TryInteract(CurrentHitActor);
 
 	// 캐릭터 쪽 상호작용 실행
-	InteractionComponent->Server_GiveAndActivateAbility(InteractionData.GrantedAbility, 1, INDEX_NONE);
+	// InteractionComponent->Server_GiveAndActivateAbility(InteractionData.GrantedAbility, 1, INDEX_NONE);
 }
