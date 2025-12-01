@@ -71,8 +71,6 @@ void ASKInteractableBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AAct
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ASKInteractableBase, bIsInteractable);
 }
 
 void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity)
@@ -93,11 +91,6 @@ void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32
 	// 서버 권한 실행으로 수정
 	UInventoryComponent* InventoryComponent = SKPlayerState->FindComponentByClass<UInventoryComponent>();
 	InventoryComponent->AddItemByIDAndCount(ItemID, ItemQuantity);
-}
-
-void ASKInteractableBase::OnRep_IsInteractable()
-{
-	ToggleWidget(bIsInteractable);
 }
 
 void ASKInteractableBase::ToggleWidget(bool bIsVisible)

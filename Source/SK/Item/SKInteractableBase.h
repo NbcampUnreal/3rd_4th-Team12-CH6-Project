@@ -58,12 +58,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|UI")
 	TObjectPtr<UWidgetComponent> InteractionWidget;
 
-	UPROPERTY(ReplicatedUsing=OnRep_IsInteractable)
-	bool bIsInteractable = true;
- 
-	UFUNCTION()
-	void OnRep_IsInteractable();
-	
 	UFUNCTION()
 	void ToggleWidget(bool bIsVisible);
 	
