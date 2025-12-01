@@ -1,33 +1,29 @@
 #include "SKInteractableBase.h"
 
 #include <Component/InventoryComponent.h>
-#include <GameData/SKGameConstant.h>
 #include <Utility/SKGameplayMessageSubsystem.h>
 #include <Utility/SKGameplayMessageTypes.h>
 
 #include "Character/SKPlayerCharacter.h"
-#include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 
 ASKInteractableBase::ASKInteractableBase()
 {
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 	
-	TraceCollision = CreateDefaultSubobject<UBoxComponent>("TraceCollision");
-	TraceCollision->SetupAttachment(Root);
+	InteractionCollision = CreateDefaultSubobject<USphereComponent>("Interaction");
+	InteractionCollision->SetupAttachment(Root);
 
-	TraceCollision->SetBoxExtent(FVector(50.0f));
-	TraceCollision->SetHiddenInGame(false);
-	TraceCollision->SetCollisionProfileName(TEXT("Interact"));
-	TraceCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 75.0f));
-	TraceCollision->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.5f));
+	InteractionCollision->SetHiddenInGame(false);
 	
-	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
-	InteractionPoint->SetupAttachment(Root);
+	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapBegin);
+	InteractionCollision->OnComponentEndOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapEnd);
+	InteractionCollision->SetIsReplicated(true);
 
 	bReplicates = true;
 }
@@ -37,9 +33,16 @@ void ASKInteractableBase::BeginPlay()
 	Super::BeginPlay();
 	
 	SetReplicateMovement(true);
-	
-	InteractionData.InteractionLocation = InteractionPoint->GetComponentLocation();
-	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
+}
+
+void ASKInteractableBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+}
+
+void ASKInteractableBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

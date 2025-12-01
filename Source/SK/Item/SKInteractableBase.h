@@ -17,14 +17,15 @@ class SK_API ASKInteractableBase : public AActor, public ISKInteractable
 public:
 	ASKInteractableBase();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<USceneComponent> Root;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<USceneComponent> InteractionPoint;
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<UBoxComponent> TraceCollision;
+	TObjectPtr<USceneComponent> Root;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<USphereComponent> InteractionCollision;
+
+#pragma region Interaction
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
 	FSKInteractionData InteractionData;
@@ -33,7 +34,16 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	UFUNCTION()
+	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
+						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+						bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION()
+	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+#pragma endregion
 	
 #pragma region Inventory
 protected:
