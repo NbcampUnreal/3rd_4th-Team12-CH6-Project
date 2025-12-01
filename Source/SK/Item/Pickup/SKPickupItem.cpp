@@ -3,13 +3,17 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Data/SKPickupItemData.h"
 #include "Net/UnrealNetwork.h"
-#include "Interaction/ActorComponent/InteractionComponent.h"
+#include "Components/SphereComponent.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 
 ASKPickupItem::ASKPickupItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[PickupItem] ASKPickupItem()"));
 	ItemNiagara = CreateDefaultSubobject<UNiagaraComponent>("ItemNiagara");
 	ItemNiagara->SetupAttachment(Root);
+
+	InteractionCollision->SetSphereRadius(100.0f);
+	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 }
 
 void ASKPickupItem::BeginPlay()
@@ -18,6 +22,31 @@ void ASKPickupItem::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("[PickupItem] BeginPlay()"));
 }
+
+void ASKPickupItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+							  bool bFromSweep, const FHitResult& SweepResult)
+{
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!SKPlayerCharacter) return;
+	
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	InteractionComponent->SetCurrentTagetActor(this);	
+
+}
+
+void ASKPickupItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	Super::OnOverlapEnd(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!SKPlayerCharacter) return;
+
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	InteractionComponent->SetCurrentTagetActor(nullptr);	
+
+};
 
 void ASKPickupItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
