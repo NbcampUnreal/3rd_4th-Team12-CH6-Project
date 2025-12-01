@@ -8,7 +8,7 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
-class UInteractionComponent;
+class USKInteractionComponent;
 struct FSKRepComboState;
 class USKCombatComponent; 
 
@@ -74,11 +74,11 @@ private:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
-	TObjectPtr<UInteractionComponent> InteractionComponent;
+	TObjectPtr<USKInteractionComponent> InteractionComponent;
 
 public:
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE UInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
+	FORCEINLINE USKInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
 	
 #pragma endregion
 

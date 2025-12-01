@@ -8,11 +8,13 @@
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
 #include "Component/SKCombatComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameData/SKGameConstant.h"
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
-#include "Interaction/ActorComponent/InteractionComponent.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -51,7 +53,7 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 
 
 	// InteractionComponent
-	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
+	InteractionComponent = CreateDefaultSubobject<USKInteractionComponent>(TEXT("InteractionComponent"));
 }
 
 void ASKPlayerCharacter::BeginPlay()
