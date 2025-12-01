@@ -8,6 +8,7 @@
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameData/WeaponDataRow.h"
+#include "Weapon/SKWeaponData.h"
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
@@ -114,13 +115,13 @@ TArray<FName> ASKPlayerState::GetTraceSocket()
 {
 	TArray<FName> EmptyResult;
 
-	if (CurrentWeaponDT.IsNull())
+	if (WeaponSocketDT.IsNull())
 		return EmptyResult;
 
 	// CurrentWeaponTag == RowName 으로 가정
 	FName RowName = CurrentWeaponTag.GetTagName();
 
-	const FSKWeaponDataRow* Row = CurrentWeaponDT->FindRow<FSKWeaponDataRow>(RowName, TEXT("GetTraceSockets"));
+	const FSKWeaponDataRow* Row = WeaponSocketDT->FindRow<FSKWeaponDataRow>(RowName, TEXT("GetTraceSockets"));
 	if (!Row)
 		return EmptyResult;
 
@@ -129,7 +130,7 @@ TArray<FName> ASKPlayerState::GetTraceSocket()
 
 TSoftObjectPtr<UDataTable> ASKPlayerState::GetWeaponDT() const
 {
-	return CurrentWeaponDT;
+	return WeaponSocketDT;
 }
 
 TSoftObjectPtr<UDataTable> ASKPlayerState::GetWeaponData() const
@@ -216,6 +217,32 @@ void ASKPlayerState::SetDAPlayerStat()
 void ASKPlayerState::SetWeaponTag(FGameplayTag WeaponTag)
 {
 	CurrentWeaponTag = WeaponTag;
+}
+
+const FSKWeaponDataRow* ASKPlayerState::GetWeaponSocketDataRow() const
+{
+	UDataTable* DT = WeaponSocketDT.LoadSynchronous();
+	if (!DT)
+		return nullptr;
+
+	FString TagName = CurrentWeaponTag.GetTagName().ToString();
+	return DT->FindRow<FSKWeaponDataRow>(FName(*TagName), TEXT(""));
+}
+
+const FWeaponDataRow* ASKPlayerState::GetWeaponDataRow() const
+{
+	UDataTable* DT = WeaponDataTable.LoadSynchronous();
+	if (!DT)
+		return nullptr;
+
+	FString FullTag = CurrentWeaponTag.GetTagName().ToString();
+	FString RowString;
+
+	// 마지막 . 뒤의 문자열만 추출
+	FullTag.Split(TEXT("."), nullptr, &RowString, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName = FName(*RowString);
+	return DT->FindRow<FWeaponDataRow>(RowName, TEXT("GetWeaponDataRow"));
 }
 
 

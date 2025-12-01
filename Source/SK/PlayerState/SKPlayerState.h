@@ -15,6 +15,8 @@ class UAbilitySystemComponent;
 class USKAttributeSet;
 
 
+struct FWeaponDataRow;
+struct FSKWeaponDataRow;
 
 UCLASS()
 class SK_API ASKPlayerState : public APlayerState
@@ -43,7 +45,9 @@ public:
 	void SetDAPlayerStat();
 	void SetWeaponTag(FGameplayTag WeaponTag);
 
-
+	const FSKWeaponDataRow* GetWeaponSocketDataRow() const;
+	const FWeaponDataRow* GetWeaponDataRow() const; 
+	
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();
 	TSoftObjectPtr<UDataTable> GetWeaponDT() const;
@@ -63,7 +67,7 @@ protected:
 
 	//Tag별 소켓 정보 DT
 	UPROPERTY(EditAnywhere, Category="SK|Weapon")
-	TSoftObjectPtr<UDataTable> CurrentWeaponDT;
+	TSoftObjectPtr<UDataTable> WeaponSocketDT;
 
 	UPROPERTY(EditAnywhere, Category="SK|WeaponData")
 	TSoftObjectPtr<UDataTable> WeaponDataTable;
