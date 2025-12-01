@@ -52,7 +52,10 @@ void ASKPickupItem::OnRep_PickupData()
 
 void ASKPickupItem::Multicast_PlayPickupEffects_Implementation(AActor* Interactor)
 {
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), GetPickupSound(), GetOwner()->GetActorLocation());
+	if (USoundBase* PickupSound = GetPickupSound())
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, Interactor->GetActorLocation());
+	}
 
 	if (ItemNiagara)
 	{
