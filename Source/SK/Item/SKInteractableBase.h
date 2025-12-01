@@ -35,12 +35,12 @@ public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
 						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
 						bool bFromSweep, const FHitResult& SweepResult);
 	
 	UFUNCTION()
-	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 #pragma endregion
@@ -54,6 +54,19 @@ protected:
 
 #pragma region UI
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|UI")
+	TObjectPtr<UWidgetComponent> InteractionWidget;
+
+	UPROPERTY(ReplicatedUsing=OnRep_IsInteractable)
+	bool bIsInteractable = true;
+ 
+	UFUNCTION()
+	void OnRep_IsInteractable();
+	
+	UFUNCTION()
+	void ToggleWidget(bool bIsVisible);
+	
 	UFUNCTION(BlueprintCallable, Category = "SK|UI")
 	void OnShowWidget(bool bIsVisible);
 		

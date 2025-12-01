@@ -6,9 +6,11 @@
 
 #include "Character/SKPlayerCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Net/UnrealNetwork.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 
 ASKInteractableBase::ASKInteractableBase()
@@ -24,7 +26,11 @@ ASKInteractableBase::ASKInteractableBase()
 	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapBegin);
 	InteractionCollision->OnComponentEndOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapEnd);
 	InteractionCollision->SetIsReplicated(true);
-
+	
+	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>("InteractionWidget");
+	InteractionWidget->SetupAttachment(Root);
+	InteractionWidget->SetVisibility(false);
+	
 	bReplicates = true;
 }
 
@@ -36,22 +42,43 @@ void ASKInteractableBase::BeginPlay()
 }
 
 void ASKInteractableBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+							  bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!HasAuthority()) return;
+	
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!SKPlayerCharacter) return;
+	
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	InteractionComponent->CandidateActors.Add(this);
+
 }
 
 void ASKInteractableBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-}
+	if (!HasAuthority()) return;
+
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!SKPlayerCharacter) return;
+
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	InteractionComponent->CandidateActors.Remove(this);	
+
+};
 
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASKInteractableBase, bIsInteractable);
 }
 
 void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity)
 {
+	if (!HasAuthority()) return;
+	
 	if (!Interactor) return;
 
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
@@ -66,6 +93,19 @@ void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32
 	// 서버 권한 실행으로 수정
 	UInventoryComponent* InventoryComponent = SKPlayerState->FindComponentByClass<UInventoryComponent>();
 	InventoryComponent->AddItemByIDAndCount(ItemID, ItemQuantity);
+}
+
+void ASKInteractableBase::OnRep_IsInteractable()
+{
+	ToggleWidget(bIsInteractable);
+}
+
+void ASKInteractableBase::ToggleWidget(bool bIsVisible)
+{
+	if (InteractionWidget)
+	{
+		InteractionWidget->SetVisibility(bIsVisible);
+	}
 }
 
 void ASKInteractableBase::OnShowWidget(bool bIsVisible)

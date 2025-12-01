@@ -23,31 +23,6 @@ void ASKPickupItem::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("[PickupItem] BeginPlay()"));
 }
 
-void ASKPickupItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-							  bool bFromSweep, const FHitResult& SweepResult)
-{
-	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
-	if (!SKPlayerCharacter) return;
-	
-	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
-	InteractionComponent->SetCurrentTagetActor(this);	
-
-}
-
-void ASKPickupItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	Super::OnOverlapEnd(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
-
-	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
-	if (!SKPlayerCharacter) return;
-
-	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
-	InteractionComponent->SetCurrentTagetActor(nullptr);	
-
-};
-
 void ASKPickupItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
