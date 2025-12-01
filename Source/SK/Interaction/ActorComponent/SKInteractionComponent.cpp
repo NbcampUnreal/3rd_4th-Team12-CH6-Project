@@ -1,7 +1,6 @@
 #include "SKInteractionComponent.h"
 
 #include "Character/SKPlayerCharacter.h"
-#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 USKInteractionComponent::USKInteractionComponent()
@@ -31,9 +30,7 @@ void USKInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void USKInteractionComponent::Client_PlayPickupSound_Implementation(USoundBase* PickupSound)
 {
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetOwner()->GetActorLocation());
 }
 
 void USKInteractionComponent::Server_TryInteract_Implementation()

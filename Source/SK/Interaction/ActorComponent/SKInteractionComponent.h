@@ -28,7 +28,6 @@ public:
 	void Server_TryInteract();
 
 	UFUNCTION(Client, Reliable)
-	void Client_PlayPickupSound(USoundBase* PickupSound);
 
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	FSKInteractionData CurrentInteractionData;

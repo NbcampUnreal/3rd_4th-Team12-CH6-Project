@@ -1,10 +1,9 @@
 #include "SKPickupItem.h"
 
-#include "Character/SKPlayerCharacter.h"
 #include "Data/SKPickupItemData.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/SphereComponent.h"
-#include "Interaction/ActorComponent/SKInteractionComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ASKPickupItem::ASKPickupItem()
 {
@@ -51,6 +50,20 @@ void ASKPickupItem::OnRep_PickupData()
 	}
 }
 
+void ASKPickupItem::Multicast_PlayPickupEffects_Implementation(AActor* Interactor)
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), GetPickupSound(), GetOwner()->GetActorLocation());
+
+	if (ItemNiagara)
+	{
+		ItemNiagara->Deactivate();
+		ItemNiagara->DestroyComponent();
+		ItemNiagara = nullptr;
+	}
+
+	// 아이템 관련 효과 여기서
+}
+
 USoundBase* ASKPickupItem::GetPickupSound() const
 {
 	if (PickupData && PickupData->PickupSound)
@@ -76,20 +89,11 @@ void ASKPickupItem::Tick(float DeltaTime)
 
 void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 {
-	if (ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor))
-	{
-		USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
-		InteractionComponent->Client_PlayPickupSound(GetPickupSound());
-	}
-
-	if (ItemNiagara)
-	{
-		ItemNiagara->Deactivate();
-		ItemNiagara->DestroyComponent();
-		ItemNiagara = nullptr;
-	}
+	if (!HasAuthority()) return;
 
 	AddToInventory(Interactor, ItemInfo.ItemCount, ItemInfo.ItemCount);
+
+	Multicast_PlayPickupEffects(Interactor);
 	
 	Destroy();
 }

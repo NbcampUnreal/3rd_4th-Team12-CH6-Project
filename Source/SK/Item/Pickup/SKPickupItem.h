@@ -54,6 +54,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_PickupData();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayPickupEffects(AActor* Interactor);
 	
 public:
 	virtual void Tick(float DeltaTime) override;
