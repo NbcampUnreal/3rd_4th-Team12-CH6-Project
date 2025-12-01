@@ -12,7 +12,6 @@
 #include "GameFramework/Character.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
-#include "Weapon/SKWeaponData.h"
 
 USK_GA_LeftAttack_Axe::USK_GA_LeftAttack_Axe()
 {
@@ -59,55 +58,16 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-
-	TSoftObjectPtr<UDataTable> DT_Weapon = SKPlayerState->GetWeaponData();
-
-	UDataTable* DT = DT_Weapon.LoadSynchronous();
-	if (!DT)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-
-	const FGameplayTag& WeaponTag = SKPlayerState->GetWeaponTag();
-
-	FString FullName = WeaponTag.GetTagName().ToString();
-	FString Last;
-
-	FullName.Split(TEXT("."), nullptr, &Last, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-
-	FName RowName = FName(*Last);
-
-
-	const FWeaponDataRow* Row = DT->FindRow<FWeaponDataRow>(RowName, TEXT("GetWeaponData"));
-	if (!Row)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Row not found for %s"), *RowName.ToString());
-
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-
-	USKWeaponData* Weapon_Data = Row->WeaponData;
-
-	TArray<TObjectPtr<UAnimMontage>> LeftATKMontage = Weapon_Data->LeftAttackMontages;
-
-	TArray<UAnimMontage*> Array_Montage = PlayerAnimInstance->GetLeftATKMontage();
-
+	
 	CombatComponent->Server_IncreaseComboIndex(true);
 
 	int32 ComboIndex = CombatComponent->GetComboIndex();
 	int32 MaxIndex = LeftAttackDamageGE.Num() - 1;
 	int32 SafeIndex = FMath::Clamp(ComboIndex - 1, 0, MaxIndex);
-	UE_LOG(LogTemp, Error,
-	       TEXT("[GA] ComboIndex = %d | SafeIndex = %d | MaxIndex = %d | MontageCount = %d"),
-	       ComboIndex,
-	       SafeIndex,
-	       MaxIndex,
-	       Array_Montage.Num()
-	);
 
-	UAnimMontage* Montage = Weapon_Data->LeftAttackMontages[0];
+
+	// UAnimMontage* Montage = Weapon_Data->LeftAttackMontages[0];
+	UAnimMontage* Montage = CombatComponent->GetLeftAttackMontage(0);
 	FName SectionName = FName(*FString::Printf(TEXT("Combo_%02d"), SafeIndex + 1));
 	ASC->PlayMontage(this, ActivationInfo, Montage, 1.0f);
 	PlayerAnimInstance->Montage_JumpToSection(SectionName, Montage);
@@ -136,8 +96,18 @@ void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
 
 	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
+	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
+
+	// CombatComponent->Server_OnATKEndNotify_Implementation(true);
+	// CombatComponent->StopMontage_Local(0.2f);
+	//
+	// if (GetOwningActorFromActorInfo()->HasAuthority())
+	// {
+	// 	CombatComponent->Multicast_StopMontage(0.2f);
+	// }
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
 }
 
 
