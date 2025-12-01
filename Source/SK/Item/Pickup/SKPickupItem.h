@@ -9,6 +9,20 @@ class UWidgetComponent;
 class USphereComponent;
 class USKPickupItemData;
 
+USTRUCT(BlueprintType)
+struct FSKItemInfo
+{
+	GENERATED_BODY()
+	
+	// 아이템 ID
+	UPROPERTY(VisibleAnywhere, Category = "SK|Pickup")
+	int32 ItemID;
+	
+	/** 드랍된 아이템 개수 */
+	UPROPERTY(VisibleAnywhere, Category="SK|Pickup")
+	int32 ItemCount = 1;
+};
+
 UCLASS()
 class SK_API ASKPickupItem : public ASKInteractableBase
 {
@@ -34,19 +48,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data", ReplicatedUsing=OnRep_PickupData)
 	TObjectPtr<USKPickupItemData> PickupData;
 
-	/** 드랍된 아이템 개수 */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category="Pickup")
-	int32 ItemCount = 1;
-
 	USoundBase* GetPickupSound() const;
 
 	int32 GetItemID() const;
 
 	UFUNCTION()
 	void OnRep_PickupData();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayPickupEffects(AActor* Interactor);
 	
 public:
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void Interact_Implementation(AActor* Interactor) override;
+
+	FORCEINLINE void SetItemInfo(const int32 NewItemID, const float NewItemCount) { ItemInfo.ItemID = NewItemID; ItemInfo.ItemCount = NewItemCount; }
+	FORCEINLINE FSKItemInfo GetItemInfo() const { return ItemInfo; }
+	
+private:
+	// 아이템 ID
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "SK|Pickup")
+	FSKItemInfo ItemInfo;
 };
