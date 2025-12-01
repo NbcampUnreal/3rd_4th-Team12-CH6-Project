@@ -8,13 +8,14 @@
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
 #include "Component/SKCombatComponent.h"
-#include "GameData/WeaponDataRow.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "GameData/WeaponDataRow.h"
+#include "Weapon/SKWeaponData.h"
 
 ASKPlayerCharacter::ASKPlayerCharacter()
 {
@@ -153,35 +154,16 @@ void ASKPlayerCharacter::SetTraceSocket()
 	if (!PS || !PS->GetWeaponDT())
 		return;
 
-	FGameplayTag WeaponTag = PS->GetWeaponTag();
-	if (!WeaponTag.IsValid())
-	{
-		UE_LOG(LogTemp, Error, TEXT("SetTraceSocket: WeaponTag INVALID"));
+	const FSKWeaponDataRow* Row = PS->GetWeaponSocketDataRow();
+	if (!Row)
 		return;
-	}
-	
-	TSoftObjectPtr<UDataTable>  WeaponDT = PS->GetWeaponDT();
-	const FSKWeaponDataRow* FoundRow =
-		WeaponDT->FindRow<FSKWeaponDataRow>(WeaponTag.GetTagName(), TEXT("SetTraceSocket"));
 
+	CombatComponent->InitializeWeaponSocket(Row);
 	
-	if (!FoundRow)
-	{
-		UE_LOG(LogTemp, Error,
-			   TEXT("SetTraceSocket: Row not found for Tag %s"),
-			   *WeaponTag.ToString());
+	const FWeaponDataRow* DataRow = PS->GetWeaponDataRow();
+	if (!DataRow)
 		return;
-	}
-
-	if (CombatComponent)
-	{
-		CombatComponent->InitializeWeaponData(FoundRow);
-		UE_LOG(LogTemp, Log,
-			   TEXT("SetTraceSocket: Weapon '%s' sockets initialized."),
-			   *WeaponTag.ToString());
-		
-	}
-
+	CombatComponent->InitializeWeaponData(DataRow);
 }
 
 void ASKPlayerCharacter::OnRep_PlayerState()
