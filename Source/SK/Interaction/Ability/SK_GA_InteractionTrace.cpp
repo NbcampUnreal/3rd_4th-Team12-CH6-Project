@@ -8,7 +8,7 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "Item/Pickup/SKPickupItem.h"
 #include "PlayerState/SKPlayerState.h"
-#include "Interaction/ActorComponent/InteractionComponent.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 
 
 USK_GA_InteractionTrace::USK_GA_InteractionTrace()
@@ -108,11 +108,11 @@ void USK_GA_InteractionTrace::TryInteract()
 	// 상호작용 데이터 가져오기
 	ISKInteractable::Execute_GetInteractionData(CurrentHitActor, InteractionData);
 
-	UInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
 	InteractionComponent->GetInteractionData() = InteractionData;
 
 	// 대상 오브젝트 상호작용 시작
-	InteractionComponent->Server_TryInteract(CurrentHitActor);
+	// InteractionComponent->Server_TryInteract(CurrentHitActor);
 
 	// 캐릭터 쪽 상호작용 실행
 	// InteractionComponent->Server_GiveAndActivateAbility(InteractionData.GrantedAbility, 1, INDEX_NONE);

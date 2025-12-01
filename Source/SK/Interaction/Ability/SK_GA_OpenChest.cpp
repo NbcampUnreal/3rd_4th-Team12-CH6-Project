@@ -4,7 +4,7 @@
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Interaction/ActorComponent/InteractionComponent.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 
 class UAbilityTask_PlayMontageAndWait;
 
@@ -26,7 +26,7 @@ void USK_GA_OpenChest::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	FSKInteractionData InteractionData;
 	
-	UInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
 	InteractionComponent->GetInteractionData() = InteractionData;
 
 	if (SKPlayerCharacter->IsLocallyControlled())
@@ -55,7 +55,7 @@ void USK_GA_OpenChest::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 	if (!SKPlayerCharacter) return;
 	SKPlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	
-	UInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
 	// InteractionComponent->Server_CancelAbility(Handle);
 }
 
