@@ -13,12 +13,12 @@ class USKPickupItemData : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	// 삭제 예정
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
 	FName ItemName;
 	
-	// 아이템 ID
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	int32 ItemID;
+	FName PickupName;
 	
 	// 줍기 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")

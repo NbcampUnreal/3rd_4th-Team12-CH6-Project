@@ -24,13 +24,13 @@ void ASKPickupItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASKPickupItem, PickupData);
-	DOREPLIFETIME(ASKPickupItem, ItemCount);
+	DOREPLIFETIME(ASKPickupItem, ItemInfo);
 }
 
 void ASKPickupItem::InitializePickup(USKPickupItemData* InPickupData, int32 Count)
 {
 	PickupData = InPickupData;
-	ItemCount = Count;
+	SetItemInfo(1, Count);
 
 	if (PickupData->DropEffect)
 	{
@@ -43,7 +43,7 @@ void ASKPickupItem::OnRep_PickupData()
 {
 	if (PickupData)
 	{
-		InitializePickup(PickupData, ItemCount);
+		InitializePickup(PickupData, ItemInfo.ItemCount);
 	}
 }
 
@@ -58,9 +58,9 @@ USoundBase* ASKPickupItem::GetPickupSound() const
 
 int32 ASKPickupItem::GetItemID() const
 {
-	if (PickupData && PickupData->ItemID)
+	if (PickupData && ItemInfo.ItemID)
 	{
-		return PickupData->ItemID;
+		return ItemInfo.ItemID;
 	}
 	return -1;
 }
@@ -74,7 +74,7 @@ void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 {
 	if (ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor))
 	{
-		UInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+		USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
 		InteractionComponent->Client_PlayPickupSound(GetPickupSound());
 	}
 
@@ -85,7 +85,7 @@ void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 		ItemNiagara = nullptr;
 	}
 
-	AddToInventory(Interactor, GetItemID(), ItemCount);
+	AddToInventory(Interactor, ItemInfo.ItemCount, ItemInfo.ItemCount);
 	
 	Destroy();
 }
