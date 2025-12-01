@@ -15,6 +15,7 @@
 #include "Utility/SKUIManagerSubSystem.h"
 #include "Component/SKCombatComponent.h"
 #include "GameInstance/SKGameInstance.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
 
 ASKPlayerController::ASKPlayerController()
@@ -427,12 +428,13 @@ void ASKPlayerController::Interact(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Interact"));
 
-	ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
-	if (!SKChar)
-		return;
-	UAbilitySystemComponent* ASC = SKChar->GetAbilitySystemComponent();
-	if (!ASC)
-		return;
-
-	ASC->AbilityLocalInputPressed(SKConstant::GA_Interact_ID);
-}
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
+	if (!SKPlayerCharacter) return;
+	
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	if (InteractionComponent)
+	{
+		InteractionComponent->Server_TryInteract();
+	}
+	
+};
