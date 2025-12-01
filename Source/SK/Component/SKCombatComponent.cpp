@@ -9,9 +9,9 @@
 #include "GameFramework/Character.h"
 #include "GameData/WeaponDataRow.h"
 #include "Net/UnrealNetwork.h"
-#include "PlayerState/SKPlayerState.h"
-#include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/SKWeaponData.h"
+#include "Utility/SKNativeGameplayTags.h"
+
 
 
 // Sets default values for this component's properties
@@ -162,6 +162,28 @@ int32 USKCombatComponent::GetComboIndex() const
 	return ComboState.ComboIndex;
 }
 
+void USKCombatComponent::StopMontage_Local(float InBlendOut)
+{
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (!OwnerCharacter) return;
+
+	UAnimInstance* AIM = OwnerCharacter->GetMesh()->GetAnimInstance();
+	if (AIM)
+	{
+		AIM->Montage_Stop(InBlendOut);
+	}
+}
+
+void USKCombatComponent::Multicast_StopMontage_Implementation(float InBlendOut)
+{
+	StopMontage_Local(InBlendOut);
+}
+
+void USKCombatComponent::Client_StopMontage_Implementation(float InBlendOut)
+{
+	StopMontage_Local(InBlendOut);
+}
+
 void USKCombatComponent::Server_LeftAttackInput_Implementation()
 {
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
@@ -213,23 +235,7 @@ void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
 	}
 }
 
-static FString TagsToString(const FGameplayTagContainer& Tags)
-{
-	FString Result;
 
-	for (const FGameplayTag& Tag : Tags)
-	{
-		Result += Tag.ToString();
-		Result += TEXT(" | ");
-	}
-
-	if (Result.Len() == 0)
-	{
-		Result = TEXT("(EMPTY)");
-	}
-
-	return Result;
-}
 
 
 void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
@@ -313,6 +319,8 @@ void USKCombatComponent::Server_SetWeaponTag_Implementation(FGameplayTag NewWeap
 	ComboState.WeaponTag = NewWeaponTag;   
 	OnRep_ComboState();     
 }
+
+
 
 
 void USKCombatComponent::SetWeaponTag(const FGameplayTag& NewTag)
@@ -442,7 +450,7 @@ const TArray<AActor*>& USKCombatComponent::GetHitActors()
 	return HitActors;
 }
 
-void USKCombatComponent::InitializeWeaponData(const FSKWeaponDataRow* Row)
+void USKCombatComponent::InitializeWeaponSocket(const FSKWeaponDataRow* Row)
 {
 	if (!Row)
 		return;
@@ -453,6 +461,27 @@ void USKCombatComponent::InitializeWeaponData(const FSKWeaponDataRow* Row)
 	MaxLeftComboIndex = Row->MaxLeftCombo;
 	MaxRightComboIndex = Row->MaxRightCombo;
 }
+
+void USKCombatComponent::InitializeWeaponData(const FWeaponDataRow* Row)
+{
+	if (!Row)
+		return;
+
+	CurrentWeaponData = Row->WeaponData;
+}
+
+UAnimMontage* USKCombatComponent::GetLeftAttackMontage(int32 Index)
+{
+	if (!CurrentWeaponData)
+		return nullptr;
+
+	if (CurrentWeaponData->LeftAttackMontages.IsValidIndex(Index))
+		return CurrentWeaponData->LeftAttackMontages[Index];
+
+	return nullptr;
+}
+
+
 
 void USKCombatComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
 {

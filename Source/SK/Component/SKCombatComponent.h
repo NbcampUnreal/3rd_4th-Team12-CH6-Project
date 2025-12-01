@@ -10,6 +10,7 @@
 
 struct FSKWeaponDataRow;
 struct FWeaponDataRow;
+class USKWeaponData;
 
 USTRUCT(BlueprintType)
 struct FSKComboState
@@ -55,6 +56,7 @@ public:
 	FGameplayTag GetLeftATKTag() const;
 	FGameplayTag GetWeaponTag() const;
 	int32 GetComboIndex() const;
+	void StopMontage_Local(float InBlendOut);
 
 	UFUNCTION(Server, Reliable)
 	void Server_LeftAttackInput();
@@ -64,12 +66,20 @@ public:
 	void Server_OnATKEndNotify(bool bLeft);
 	UFUNCTION(Client, Reliable)
 	void Client_PlayMontage(UAnimMontage* Montage, FName StartSection);
+	UFUNCTION(Client, Reliable)
+	void Client_StopMontage(float InBlendOut);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_StopMontage(float InBlendOut);
+	
 	UFUNCTION(Server, Reliable)
 	void Server_IncreaseComboIndex(bool bLeft = true);
 	UFUNCTION(Server, Reliable)
 	void Server_ResetComboIndex(int32 NewIndex);
 	UFUNCTION(Server, Reliable)
 	void Server_SetWeaponTag(FGameplayTag NewWeaponTag);
+
+
+	
 	void SetWeaponTag(const FGameplayTag& NewTag);
 
 	void StartTrace();
@@ -82,8 +92,11 @@ public:
 	void SetIsTraced(bool ArgIsTracing);
 	const TArray<AActor*>& GetHitActors();
 
-	void InitializeWeaponData(const FSKWeaponDataRow* Row);
+	void InitializeWeaponSocket(const FSKWeaponDataRow* Row);
+	void InitializeWeaponData(const FWeaponDataRow* Row);
 
+
+	UAnimMontage* GetLeftAttackMontage(int32 Index);
 	void SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh);
 protected:
 	// Called when the game starts
@@ -91,6 +104,10 @@ protected:
 
 	void ActivateLeftAttackGA();
 
+	//애니메이션 등등있음
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
+	TObjectPtr<USKWeaponData> CurrentWeaponData;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* WeaponMesh;
 
@@ -104,11 +121,14 @@ public:
 	FORCEINLINE void SetComboStateWeaponTag(FGameplayTag NewWeaponTag) { ComboState.WeaponTag = NewWeaponTag; }
 	
 private:
+	
 	int32 GetMaxComboIndex(bool bLeft);
 	
 	UPROPERTY(ReplicatedUsing=OnRep_ComboState)
 	FSKComboState ComboState;
 
+
+	
 	TArray<FName> TraceSockets;
 	TArray<FVector> PrevSocketLocations;
 
