@@ -54,13 +54,13 @@ public:
 
 	FORCEINLINE FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
 
-	FORCEINLINE void SetCurrentTagetActor(AActor* NewActor) { CurrentTargetActor = NewActor; };  
-	FORCEINLINE AActor* GetCurrentTagetActor() const { return CurrentTargetActor; };  
+	FORCEINLINE void SetCurrentTagetActor(ASKInteractableBase* NewActor) { CurrentTargetActor = NewActor; };  
+	FORCEINLINE ASKInteractableBase* GetCurrentTagetActor() const { return CurrentTargetActor; };  
 
 	UPROPERTY()
-	TSet<AActor*> CandidateActors;
+	TSet<ASKInteractableBase*> CandidateActors;
 
 private:
 	UPROPERTY(Replicated)
-	AActor* CurrentTargetActor;
+	ASKInteractableBase* CurrentTargetActor;
 };

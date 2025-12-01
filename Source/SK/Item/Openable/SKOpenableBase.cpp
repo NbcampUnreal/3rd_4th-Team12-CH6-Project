@@ -16,6 +16,8 @@ ASKOpenableBase::ASKOpenableBase()
 	
 	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
+	
+	ObjectType = EObjectType::Openable;
 }
 
 void ASKOpenableBase::BeginPlay()

@@ -3,6 +3,7 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Controller/SKPlayerController.h"
 #include "Item/SKInteractableBase.h"
+#include "Components/SphereComponent.h"
 #include "Net/UnrealNetwork.h"
 
 USKInteractionComponent::USKInteractionComponent()
@@ -43,7 +44,7 @@ void USKInteractionComponent::UpdateTargetActor()
 	
 	float MaxDot = -1.f;
 	float MinDist = INFINITY;
-	AActor* MaxActor = nullptr;
+	ASKInteractableBase* MaxActor = nullptr;
 		
 	const FVector OwnerLocation = GetOwner()->GetActorLocation();
 	const FVector OwnerForwardVector = GetOwner()->GetActorForwardVector();
@@ -54,7 +55,17 @@ void USKInteractionComponent::UpdateTargetActor()
 
 		// 두 벡터 내적이 0보다 큰지
 		FVector ToActor = (ActorLocation - OwnerLocation).GetSafeNormal();
-		float Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
+		float Dot = 0;
+		switch (Actor->ObjectType)
+		{
+		case EObjectType::Pickup:
+			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
+			break;
+		case EObjectType::Openable:
+			USphereComponent* Sphere = Actor->InteractionCollision;
+			Dot = FVector::DotProduct(Sphere->GetRightVector(), OwnerForwardVector) * -1.0f;
+			break;
+		}
 		if (Dot > 0)
 		{
 			FVector Distance = OwnerLocation - ActorLocation;
@@ -88,24 +99,21 @@ void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 {
 	if (IsValid(CurrentTargetActor))
 	{
-		ASKInteractableBase* Interactable = Cast<ASKInteractableBase>(CurrentTargetActor);
-		if (Interactable)
-		{
-			APawn* OwnerPawn = Cast<APawn>(GetOwner());
-			if (!OwnerPawn) return;
+		APawn* OwnerPawn = Cast<APawn>(GetOwner());
+		if (!OwnerPawn) return;
  
-			ASKPlayerController* PC = Cast<ASKPlayerController>(OwnerPawn->GetController());
-			if (!PC) return;
+		ASKPlayerController* PC = Cast<ASKPlayerController>(OwnerPawn->GetController());
+		if (!PC) return;
 
-			if (PC->HasAuthority())
-			{
-				Client_ToggleInteractableWidget(Interactable, bIsVisible);
-			}
-			else
-			{
-				Interactable->ToggleWidget(bIsVisible);
-			}
+		if (PC->HasAuthority())
+		{
+			Client_ToggleInteractableWidget(CurrentTargetActor, bIsVisible);
 		}
+		else
+		{
+			CurrentTargetActor->ToggleWidget(bIsVisible);
+		}
+
 	}
 }
 

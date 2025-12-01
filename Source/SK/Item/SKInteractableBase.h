@@ -5,6 +5,13 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKInteractableBase.generated.h"
 
+UENUM()
+enum class EObjectType : uint8
+{
+	Pickup UMETA(DisplayName = "Pickup"),
+	Openable UMETA(DisplayName = "Openable"),
+};
+
 class UBoxComponent;
 class USphereComponent;
 class UWidgetComponent;
@@ -27,9 +34,6 @@ public:
 
 #pragma region Interaction
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
-	FSKInteractionData InteractionData;
-	
 	virtual void GetInteractionData_Implementation(FSKInteractionData& OutData) override;
 
 	virtual void BeginPlay() override;
@@ -42,6 +46,11 @@ public:
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
+	FSKInteractionData InteractionData;
+
+	EObjectType ObjectType;
 	
 #pragma endregion
 	

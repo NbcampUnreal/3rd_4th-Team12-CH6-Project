@@ -13,6 +13,8 @@ ASKPickupItem::ASKPickupItem()
 
 	InteractionCollision->SetSphereRadius(100.0f);
 	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
+
+	ObjectType = EObjectType::Pickup;
 }
 
 void ASKPickupItem::BeginPlay()
