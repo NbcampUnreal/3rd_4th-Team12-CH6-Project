@@ -15,9 +15,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayAbility> GrantedAbility;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector InteractionLocation;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRotator InteractionRotation;
 };
 

@@ -3,6 +3,7 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Data/SKPickupItemData.h"
 #include "Net/UnrealNetwork.h"
+#include "Interaction/ActorComponent/InteractionComponent.h"
 
 ASKPickupItem::ASKPickupItem()
 {
@@ -73,7 +74,8 @@ void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 {
 	if (ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor))
 	{
-		SKPlayerCharacter->Client_PlayPickupSound(GetPickupSound());
+		UInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+		InteractionComponent->Client_PlayPickupSound(GetPickupSound());
 	}
 
 	if (ItemNiagara)

@@ -8,6 +8,7 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
+class UInteractionComponent;
 struct FSKRepComboState;
 class USKCombatComponent; 
 
@@ -71,15 +72,14 @@ private:
 
 #pragma region Interaction
 
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
+	TObjectPtr<UInteractionComponent> InteractionComponent;
+
 public:
-	UFUNCTION(Server, Reliable)
-	void Server_TryInteract(AActor* Target);
-
-	UFUNCTION(Client, Reliable)
-	void Client_PlayPickupSound(USoundBase* PickupSound);
-
-	UPROPERTY(BlueprintReadWrite)
-	FSKInteractionData CurrentInteractionData;
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UInteractionComponent* GetInteractionComponent() const { return InteractionComponent; }
+	
 #pragma endregion
 
 	//Camera

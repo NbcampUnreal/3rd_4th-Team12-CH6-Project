@@ -12,7 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
-#include "Kismet/GameplayStatics.h"
+#include "Interaction/ActorComponent/InteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -49,6 +49,9 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 	// 컴뱃컴포넌트 활성화
 	CombatComponent = CreateDefaultSubobject<USKCombatComponent>(TEXT("CombatComponent"));
 
+
+	// InteractionComponent
+	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 }
 
 void ASKPlayerCharacter::BeginPlay()
@@ -79,12 +82,6 @@ void ASKPlayerCharacter::BeginPlay()
 		}
 	}
 
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC)
-	{
-		FGameplayTag InteractTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Interact"));
-		ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(InteractTag));
-	}
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
@@ -247,18 +244,6 @@ void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
 		FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
 		SetActorRotation(NewRot);
 	}
-}
-
-void ASKPlayerCharacter::Client_PlayPickupSound_Implementation(USoundBase* PickupSound)
-{
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, GetActorLocation());
-}
-
-void ASKPlayerCharacter::Server_TryInteract_Implementation(AActor* Target)
-{
-	if (!Target) return;
-
-	ISKInteractable::Execute_Interact(Target, this);
 }
 
 void ASKPlayerCharacter::SetPlayerStateTag()
