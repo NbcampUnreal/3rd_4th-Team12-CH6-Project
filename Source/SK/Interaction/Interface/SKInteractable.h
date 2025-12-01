@@ -17,6 +17,9 @@ public:
 	TSubclassOf<UGameplayAbility> GrantedAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAnimMontage> InteractMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector InteractionLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
