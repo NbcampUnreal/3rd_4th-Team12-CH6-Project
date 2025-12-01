@@ -3,17 +3,17 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Interaction/Interface/SKInteractable.h"
-#include "InteractionComponent.generated.h"
+#include "SKInteractionComponent.generated.h"
 
 class ASKPlayerCharacter;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class SK_API UInteractionComponent : public UActorComponent
+class SK_API USKInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	UInteractionComponent();
+	USKInteractionComponent();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
@@ -25,7 +25,7 @@ public:
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 	
 	UFUNCTION(Server, Reliable)
-	void Server_TryInteract(AActor* Target);
+	void Server_TryInteract();
 
 	UFUNCTION(Client, Reliable)
 	void Client_PlayPickupSound(USoundBase* PickupSound);
@@ -35,4 +35,9 @@ public:
 
 	FORCEINLINE FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
 
+	FORCEINLINE void SetCurrentTagetActor(AActor* NewActor) { CurrentTargetActor = NewActor; };  
+
+private:
+	UPROPERTY(Replicated)
+	AActor* CurrentTargetActor;
 };
