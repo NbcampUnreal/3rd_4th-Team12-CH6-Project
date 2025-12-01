@@ -96,6 +96,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_SkillBar, "UI.Slot.SkillBar");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GameExitRequest, "UI.Slot.GameExitRequest");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ItemAddInfo, "UI.Slot.ItemAddInfo");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryList, "UI.Slot.InventoryList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryItemToolTip, "UI.Slot.InventoryItemToolTip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipMainList, "UI.Slot.EquipMainList");
@@ -164,6 +165,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ConfirmResponse, "Message.Channel.Con
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SlotVisible, "Message.Channel.SlotVisible");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ToolTipItem, "Message.Channel.ToolTipItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemSwitchSelect, "Message.Channel.ItemSwitchSelect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemAddInfo, "Message.Channel.ItemAddInfo");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
