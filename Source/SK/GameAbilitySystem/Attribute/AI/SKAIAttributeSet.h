@@ -62,6 +62,8 @@ public:
 	// delegate
 	mutable FSKAttributeEvent OnCurrentHealthChanged;
 
+	mutable FSKAttributeEvent OnCurrentPoiseChanged;
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

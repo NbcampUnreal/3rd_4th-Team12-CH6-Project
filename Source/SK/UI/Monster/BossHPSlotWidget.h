@@ -4,38 +4,45 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "MonsterHealthWidget.generated.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "BossHPSlotWidget.generated.h"
 
-class UProgressBar;
+class UTextBlock;
+struct FSettingBossHPWidget;
 struct FGameplayEffectSpec;
+class UProgressBar;
 class USKAIAttributeSet;
 /**
  * 
  */
 UCLASS()
-class SK_API UMonsterHealthWidget : public UUserWidget
+class SK_API UBossHPSlotWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
 	void SettingWidget(APawn* OwnerPawn);
-
+	
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 	
 	void HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
+	void PoiseChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
 
-	UFUNCTION()
-	void HideHealthBar();
+	FSKGameplayMessageListenerHandle SettingBossHandle;
+
+	void OnSettingBossMessageReceived(FGameplayTag Channel, const FSettingBossHPWidget& Message);
 	
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthProgressBar;
 
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* PoiseProgressBar;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* NameText;
+	
 	UPROPERTY()
 	const USKAIAttributeSet* AttributeSet;
-
-	FTimerHandle HideTimerHandle;
-
-
 };
