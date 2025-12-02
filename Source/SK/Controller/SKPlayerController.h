@@ -37,7 +37,7 @@ public:
 
 	//던전 입장 (Host 전용)
 	UFUNCTION(BlueprintCallable)
-	void EnterDungeon();
+	void EnterDungeonByID(int32 DungeonID);
 
 	//마을 복귀 (Host 전용)
 	UFUNCTION(BlueprintCallable)

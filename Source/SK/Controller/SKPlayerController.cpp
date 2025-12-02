@@ -49,7 +49,7 @@ void ASKPlayerController::Tick(float DeltaTime)
 	}
 }
 
-void ASKPlayerController::EnterDungeon()
+void ASKPlayerController::EnterDungeonByID(int32 DungeonID)
 {
 	if (!HasAuthority())
 	{
@@ -60,8 +60,8 @@ void ASKPlayerController::EnterDungeon()
 	auto* GI = GetGameInstance<USKGameInstance>();
 	if (!GI) return;
 
-	UE_LOG(LogTemp, Log, TEXT("[Host] EnterDungeon → TravelToDungeon()"));
-	GI->TravelToDungeon();
+	UE_LOG(LogTemp, Log, TEXT("[Host] EnterDungeon → TravelToDungeon(%d)"), DungeonID);
+	GI->TravelToDungeon(DungeonID);
 }
 
 void ASKPlayerController::ReturnToTown()
