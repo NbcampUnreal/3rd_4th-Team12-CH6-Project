@@ -26,17 +26,24 @@ protected:
 	UButton* ContinueButton;
 
 	UPROPERTY(meta = (BindWidget))
+	UButton* DungeonExitButton;
+	
+	UPROPERTY(meta = (BindWidget))
 	UButton* ExitButton;
 
+	UPROPERTY()
+	int32 RequestButton = 0;
+	
 	// 버튼 클릭 함수
 	UFUNCTION()
 	void OnContinueClicked();
 
 	UFUNCTION()
-	void OnExitClicked();
-
+	void OnDungeonExitClicked();
 	
-
+	UFUNCTION()
+	void OnExitClicked();
+	
 	FSKGameplayMessageListenerHandle ConfirmResponseHandle;
 
 	void OnConfirmResponseMessageReceived(FGameplayTag Channel, const FConfirmResponseMessage& Message);
