@@ -71,8 +71,11 @@ void USKInteractionComponent::UpdateTargetActor()
 			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
 		case EObjectType::Openable:
-			USphereComponent* Sphere = Actor->InteractionCollision;
-			Dot = FVector::DotProduct(Sphere->GetRightVector(), OwnerForwardVector) * -1.0f;
+			FVector ToOwner = (OwnerLocation - ActorLocation).GetSafeNormal();
+			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0)
+			{
+				Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
+			}
 			break;
 		}
 		if (Dot > 0)
