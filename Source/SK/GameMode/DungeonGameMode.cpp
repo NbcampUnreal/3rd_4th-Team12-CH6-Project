@@ -50,7 +50,7 @@ void ADungeonGameMode::HandleSeamlessTravelPlayer(AController*& C)
 		return;
 	}
 
-	// ★ 이미 PlayerCount 초기화 완료 → 즉시 처리
+	// 이미 PlayerCount 초기화 완료 → 즉시 처리
 	HandlePlayerReady(C);
 }
 
