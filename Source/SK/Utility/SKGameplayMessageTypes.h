@@ -156,3 +156,20 @@ struct FItemAddMessage
 	UPROPERTY(BlueprintReadWrite)
 	int32 ItemCount;
 };
+
+USTRUCT(BlueprintType)
+struct FSettingBossHPWidget
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	APawn* OwnerActor;
+
+	UPROPERTY(BlueprintReadWrite)
+	FText NameText;
+
+	/* 필요하면 추가. 보스 이미지
+	UPROPERTY(BlueprintReadWrite)
+	UImage* WidgetImage
+	*/
+};

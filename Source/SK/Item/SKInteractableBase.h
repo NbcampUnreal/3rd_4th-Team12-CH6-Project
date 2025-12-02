@@ -5,6 +5,13 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKInteractableBase.generated.h"
 
+UENUM()
+enum class EObjectType : uint8
+{
+	Pickup UMETA(DisplayName = "Pickup"),
+	Openable UMETA(DisplayName = "Openable"),
+};
+
 class UBoxComponent;
 class USphereComponent;
 class UWidgetComponent;
@@ -17,23 +24,35 @@ class SK_API ASKInteractableBase : public AActor, public ISKInteractable
 public:
 	ASKInteractableBase();
 	
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USceneComponent> Root;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<USphereComponent> InteractionCollision;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<USceneComponent> InteractionPoint;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<UBoxComponent> TraceCollision;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
-	FSKInteractionData InteractionData;
+#pragma region Interaction
 	
 	virtual void GetInteractionData_Implementation(FSKInteractionData& OutData) override;
 
 	virtual void BeginPlay() override;
 
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
+						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+						bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
+	FSKInteractionData InteractionData;
+
+	EObjectType ObjectType;
+	
+#pragma endregion
 	
 #pragma region Inventory
 protected:
@@ -44,7 +63,20 @@ protected:
 
 #pragma region UI
 public:
-	UFUNCTION(BlueprintCallable, Category = "SK|UI")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	TObjectPtr<UWidgetComponent> InteractionWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
+	TObjectPtr<UUserWidget> InteractionUI;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
+	FText InteractableText;
+
+	UFUNCTION()
+	void ToggleWidget(bool bIsVisible);
+	
+	UFUNCTION()
 	void OnShowWidget(bool bIsVisible);
 		
 #pragma endregion 

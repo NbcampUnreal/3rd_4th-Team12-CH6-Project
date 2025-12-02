@@ -32,7 +32,7 @@ public:
 	void JoinHostTown(const FString& Address);
 
 	//던전 / 마을 전환 (서버 전용)
-	void TravelToDungeon();
+	void TravelToDungeon(int32 DungeonID);
 	void TravelToTown();
 
 	//세션 종료 후 로컬 마을 복귀

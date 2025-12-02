@@ -16,4 +16,9 @@ public:
 	//레벨 경로
 	static constexpr const TCHAR* TownLevel = TEXT("/Game/BluePrint/Level/TownLevel");
 	static constexpr const TCHAR* DungeonLevel = TEXT("/Game/BluePrint/Level/DungeonLevel");
+
+	inline static const TMap<int32, FString> DungeonLevels = {
+		{ 1, TEXT("/Game/BluePrint/Level/DungeonLevel") },
+		{ 2, TEXT("/Game/BluePrint/Level/DungeonLevel02") },
+	};
 };

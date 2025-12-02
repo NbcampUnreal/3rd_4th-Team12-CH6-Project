@@ -1,14 +1,20 @@
 #include "SKPickupItem.h"
 
-#include "Character/SKPlayerCharacter.h"
 #include "Data/SKPickupItemData.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ASKPickupItem::ASKPickupItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[PickupItem] ASKPickupItem()"));
 	ItemNiagara = CreateDefaultSubobject<UNiagaraComponent>("ItemNiagara");
 	ItemNiagara->SetupAttachment(Root);
+
+	InteractionCollision->SetSphereRadius(100.0f);
+	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
+
+	ObjectType = EObjectType::Pickup;
 }
 
 void ASKPickupItem::BeginPlay()
@@ -23,13 +29,13 @@ void ASKPickupItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASKPickupItem, PickupData);
-	DOREPLIFETIME(ASKPickupItem, ItemCount);
+	DOREPLIFETIME(ASKPickupItem, ItemInfo);
 }
 
 void ASKPickupItem::InitializePickup(USKPickupItemData* InPickupData, int32 Count)
 {
 	PickupData = InPickupData;
-	ItemCount = Count;
+	SetItemInfo(1, Count);
 
 	if (PickupData->DropEffect)
 	{
@@ -42,8 +48,25 @@ void ASKPickupItem::OnRep_PickupData()
 {
 	if (PickupData)
 	{
-		InitializePickup(PickupData, ItemCount);
+		InitializePickup(PickupData, ItemInfo.ItemCount);
 	}
+}
+
+void ASKPickupItem::Multicast_PlayPickupEffects_Implementation(AActor* Interactor)
+{
+	if (USoundBase* PickupSound = GetPickupSound())
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, Interactor->GetActorLocation());
+	}
+
+	if (ItemNiagara)
+	{
+		ItemNiagara->Deactivate();
+		ItemNiagara->DestroyComponent();
+		ItemNiagara = nullptr;
+	}
+
+	// 아이템 관련 효과 여기서
 }
 
 USoundBase* ASKPickupItem::GetPickupSound() const
@@ -57,9 +80,9 @@ USoundBase* ASKPickupItem::GetPickupSound() const
 
 int32 ASKPickupItem::GetItemID() const
 {
-	if (PickupData && PickupData->ItemID)
+	if (PickupData && ItemInfo.ItemID)
 	{
-		return PickupData->ItemID;
+		return ItemInfo.ItemID;
 	}
 	return -1;
 }
@@ -71,19 +94,11 @@ void ASKPickupItem::Tick(float DeltaTime)
 
 void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 {
-	if (ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor))
-	{
-		SKPlayerCharacter->Client_PlayPickupSound(GetPickupSound());
-	}
+	if (!HasAuthority()) return;
 
-	if (ItemNiagara)
-	{
-		ItemNiagara->Deactivate();
-		ItemNiagara->DestroyComponent();
-		ItemNiagara = nullptr;
-	}
+	AddToInventory(Interactor, ItemInfo.ItemCount, ItemInfo.ItemCount);
 
-	AddToInventory(Interactor, GetItemID(), ItemCount);
+	Multicast_PlayPickupEffects(Interactor);
 	
 	Destroy();
 }
