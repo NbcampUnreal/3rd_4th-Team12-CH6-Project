@@ -17,14 +17,14 @@ void USK_GA_AI_Chase::Chase()
 	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
 	if (!IsValid(AIController))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		return;
 	}
 
 	AActor* TargetActor = AIController->GetTargetActor();
 	if (!IsValid(TargetActor))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		return;
 	}
 

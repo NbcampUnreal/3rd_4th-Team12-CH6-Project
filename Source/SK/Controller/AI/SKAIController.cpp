@@ -87,6 +87,20 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	}
 
 	OwningASC = ASCInterface->GetAbilitySystemComponent();
+
+	////// 테스트
+	if (!StateTreeAIComponent)
+	{
+		return;
+	}
+
+	if (!StateTreeAsset)
+	{
+		return;
+	}
+
+	StateTreeAIComponent->SetStateTree(StateTreeAsset);
+	//StateTreeAIComponent->StartLogic();
 }
 
 void ASKAIController::BeginPlay()
@@ -103,7 +117,7 @@ void ASKAIController::BeginPlay()
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
-	// 상태 변경 이벤트 수신
+	/*/ 상태 변경 이벤트 수신
 	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
 	// 이미 진행 중일 수도 있음
@@ -111,6 +125,7 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
+	*/
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
