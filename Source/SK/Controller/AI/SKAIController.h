@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "GameplayTagContainer.h"
+#include "GameMode/MatchState/DungeonMatchState.h"
 #include "Perception/AIPerceptionTypes.h"
 #include "SKAIController.generated.h"
 
@@ -49,9 +50,7 @@ public:
 	
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 
-	UFUNCTION()
-	void OnDungeonStarted() const;
-
+	
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	
@@ -61,4 +60,6 @@ protected:
 	
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+
+	void OnDungeonStateChanged(EDungeonMatchState NewState);
 };

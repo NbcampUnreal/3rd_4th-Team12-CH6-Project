@@ -6,7 +6,7 @@
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
-#include "GameMode/DungeonGameMode.h"
+#include "GameState/DungeonGameState.h"
 
 ASKAIController::ASKAIController()
 {
@@ -100,16 +100,16 @@ void ASKAIController::BeginPlay()
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
 
-	auto* GM = GetWorld()->GetAuthGameMode<ADungeonGameMode>();
-	if (!GM) return;
+	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
+	if (!GS) return;
 
-	//던전 시작 이벤트 구독
-	GM->OnDungeonStarted.AddUObject(this, &ASKAIController::OnDungeonStarted);
+	// 상태 변경 이벤트 수신
+	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
-	// ★ Dungeon이 이미 시작된 상태에서 스폰된 경우 처리
-	if (GM->bDungeonStarted)
+	// 이미 진행 중일 수도 있음
+	if (GS->DungeonState == EDungeonMatchState::Dungeon_InProgress)
 	{
-		OnDungeonStarted();
+		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
 }
 
@@ -151,19 +151,21 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 	// 피격에 대한 감각으로 피격 시 행동 추가 가능 // 청각은 굳이 안 쓸 듯.
 }
 
-void ASKAIController::OnDungeonStarted() const
+void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 {
-	if (!StateTreeAIComponent)
+	if (NewState == EDungeonMatchState::Dungeon_InProgress)
 	{
-		return;
-	}
-	
-	if (!StateTreeAsset)
-	{
-		return;
-	}
+		if (!StateTreeAIComponent)
+		{
+			return;
+		}
 
-	UE_LOG(LogTemp, Warning, TEXT("[AIController] StateTree StartLogic"));
-	StateTreeAIComponent->SetStateTree(StateTreeAsset);
-	StateTreeAIComponent->StartLogic();
+		if (!StateTreeAsset)
+		{
+			return;
+		}
+
+		StateTreeAIComponent->SetStateTree(StateTreeAsset);
+		StateTreeAIComponent->StartLogic();
+	}
 }
