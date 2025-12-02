@@ -1,8 +1,12 @@
 #include "Controller/AI/SKAIController.h"
+#include "AbilitySystemInterface.h"
+#include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "GameState/DungeonGameState.h"
 
 ASKAIController::ASKAIController()
 {
@@ -26,6 +30,8 @@ ASKAIController::ASKAIController()
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
 	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
 
+	OwningASC = nullptr;
+	
 	TargetActor = nullptr;
 }
 
@@ -34,22 +40,53 @@ AActor* ASKAIController::GetTargetActor() const
 	return TargetActor;
 }
 
+void ASKAIController::AddTag(FGameplayTag Tag) const
+{
+	if (!IsValid(OwningASC))
+	{
+		return;
+	}
+
+	OwningASC->AddLooseGameplayTag(Tag);
+}
+
+void ASKAIController::RemoveTag(FGameplayTag Tag) const
+{
+	if (!IsValid(OwningASC))
+	{
+		return;
+	}
+
+	OwningASC->RemoveLooseGameplayTag(Tag);
+}
+
+void ASKAIController::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
+{
+	if (!IsValid(OwningASC))
+	{
+		return;
+	}
+
+	FGameplayEventData EventData;
+	EventData.Instigator = LocalInstigator;
+	EventData.Target = LocalTargetActor;
+	EventData.EventTag = EventTag;
+	EventData.OptionalObject = nullptr;
+
+	OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+}
+
 void ASKAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	if (!StateTreeAIComponent)
-	{
-		return;
-	}
-	
-	if (!StateTreeAsset)
+	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(InPawn);
+	if (!ASCInterface)
 	{
 		return;
 	}
 
-	StateTreeAIComponent->SetStateTree(StateTreeAsset);
-	//StateTreeAIComponent->StartLogic(); 기본적으로 자동 호출, 에디터 컴포넌트 디테일에서 설정 가능.
+	OwningASC = ASCInterface->GetAbilitySystemComponent();
 }
 
 void ASKAIController::BeginPlay()
@@ -62,6 +99,25 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
+
+	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
+	if (!GS) return;
+
+	// 상태 변경 이벤트 수신
+	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
+
+	// 이미 진행 중일 수도 있음
+	if (GS->DungeonState == EDungeonMatchState::Dungeon_InProgress)
+	{
+		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
+	}
+}
+
+void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	Super::OnMoveCompleted(RequestID, Result);
+	
+	SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.MoveComplete"));
 }
 
 void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -80,10 +136,14 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 		if (!bCanSeePlayer)
 		{
 			TargetActor = nullptr;
+			RemoveTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
+			SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 			return;
 		}
 		
 		TargetActor = Actor;
+		AddTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
+		SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("감지성공"));
 	}
 
@@ -91,3 +151,21 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 	// 피격에 대한 감각으로 피격 시 행동 추가 가능 // 청각은 굳이 안 쓸 듯.
 }
 
+void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
+{
+	if (NewState == EDungeonMatchState::Dungeon_InProgress)
+	{
+		if (!StateTreeAIComponent)
+		{
+			return;
+		}
+
+		if (!StateTreeAsset)
+		{
+			return;
+		}
+
+		StateTreeAIComponent->SetStateTree(StateTreeAsset);
+		StateTreeAIComponent->StartLogic();
+	}
+}

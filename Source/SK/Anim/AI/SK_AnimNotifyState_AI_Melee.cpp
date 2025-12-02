@@ -2,7 +2,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
-#include "Abilities/GameplayAbilityTypes.h"
 
 USK_AnimNotifyState_AI_Melee::USK_AnimNotifyState_AI_Melee()
 {
