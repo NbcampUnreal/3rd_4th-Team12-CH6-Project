@@ -34,6 +34,7 @@ void USKInteractionComponent::BeginPlay()
 
 void USKInteractionComponent::UpdateTargetActor()
 {
+	if (!GetOwner()->HasAuthority()) return;
 	
 	if (CandidateActors.Num() == 0)
 	{
