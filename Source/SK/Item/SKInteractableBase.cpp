@@ -1,34 +1,36 @@
 #include "SKInteractableBase.h"
 
 #include <Component/InventoryComponent.h>
-#include <GameData/SKGameConstant.h>
 #include <Utility/SKGameplayMessageSubsystem.h>
 #include <Utility/SKGameplayMessageTypes.h>
 
 #include "Character/SKPlayerCharacter.h"
-#include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Net/UnrealNetwork.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 
 ASKInteractableBase::ASKInteractableBase()
 {
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 	
-	TraceCollision = CreateDefaultSubobject<UBoxComponent>("TraceCollision");
-	TraceCollision->SetupAttachment(Root);
+	InteractionCollision = CreateDefaultSubobject<USphereComponent>("Interaction");
+	InteractionCollision->SetupAttachment(Root);
 
-	TraceCollision->SetBoxExtent(FVector(50.0f));
-	TraceCollision->SetHiddenInGame(false);
-	TraceCollision->SetCollisionProfileName(TEXT("Interact"));
-	TraceCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 75.0f));
-	TraceCollision->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.5f));
+	InteractionCollision->SetHiddenInGame(false);
 	
-	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
-	InteractionPoint->SetupAttachment(Root);
-
+	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapBegin);
+	InteractionCollision->OnComponentEndOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapEnd);
+	InteractionCollision->SetIsReplicated(true);
+	
+	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>("InteractionWidget");
+	InteractionWidget->SetupAttachment(Root);
+	InteractionWidget->SetVisibility(false);
+	
 	bReplicates = true;
 }
 
@@ -37,10 +39,34 @@ void ASKInteractableBase::BeginPlay()
 	Super::BeginPlay();
 	
 	SetReplicateMovement(true);
-	
-	InteractionData.InteractionLocation = InteractionPoint->GetComponentLocation();
-	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
 }
+
+void ASKInteractableBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+							  bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!HasAuthority()) return;
+	
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!SKPlayerCharacter) return;
+	
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	InteractionComponent->CandidateActors.Add(this);
+
+}
+
+void ASKInteractableBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!HasAuthority()) return;
+
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!SKPlayerCharacter) return;
+
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	InteractionComponent->CandidateActors.Remove(this);	
+
+};
 
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -49,6 +75,8 @@ void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity)
 {
+	if (!HasAuthority()) return;
+	
 	if (!Interactor) return;
 
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
@@ -63,6 +91,14 @@ void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32
 	// 서버 권한 실행으로 수정
 	UInventoryComponent* InventoryComponent = SKPlayerState->FindComponentByClass<UInventoryComponent>();
 	InventoryComponent->AddItemByIDAndCount(ItemID, ItemQuantity);
+}
+
+void ASKInteractableBase::ToggleWidget(bool bIsVisible)
+{
+	if (InteractionWidget)
+	{
+		InteractionWidget->SetVisibility(bIsVisible);
+	}
 }
 
 void ASKInteractableBase::OnShowWidget(bool bIsVisible)

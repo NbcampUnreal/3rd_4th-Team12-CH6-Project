@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Item/SKInteractableBase.h"
+#include "SKOpenableBase.h"
 #include "SKChest.generated.h"
 
 UCLASS()
-class SK_API ASKChest : public ASKInteractableBase
+class SK_API ASKChest : public ASKOpenableBase
 {
 	GENERATED_BODY()
 

@@ -1,24 +1,22 @@
-#include "SK_GA_Interact.h"
+#include "SK_GA_InteractionTrace.h"
 
 #include <GameData/SKGameConstant.h>
 
 #include "AbilitySystemComponent.h"
-#include "Blueprint/UserWidget.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Camera/CameraComponent.h"
-#include "Components/WidgetComponent.h"
-#include "Controller/SKPlayerController.h"
 #include "Interaction/Interface/SKInteractable.h"
 #include "Item/Pickup/SKPickupItem.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 
 
-USK_GA_Interact::USK_GA_Interact()
+USK_GA_InteractionTrace::USK_GA_InteractionTrace()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,const FGameplayAbilityActorInfo* ActorInfo,const FGameplayAbilityActivationInfo ActivationInfo,const FGameplayEventData* TriggerEventData)
+void USK_GA_InteractionTrace::ActivateAbility(const FGameplayAbilitySpecHandle Handle,const FGameplayAbilityActorInfo* ActorInfo,const FGameplayAbilityActivationInfo ActivationInfo,const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
@@ -27,20 +25,20 @@ void USK_GA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,co
 		Owner->GetWorldTimerManager().SetTimer(
 			TraceTimerHandle,
 			this,
-			&USK_GA_Interact::LineTraceWithChannel,
+			&USK_GA_InteractionTrace::LineTraceWithChannel,
 			0.033f,
 			true
 		);
 	}
 }
 
-void USK_GA_Interact::InputPressed(const FGameplayAbilitySpecHandle Handle,const FGameplayAbilityActorInfo* ActorInfo,const FGameplayAbilityActivationInfo ActivationInfo)
+void USK_GA_InteractionTrace::InputPressed(const FGameplayAbilitySpecHandle Handle,const FGameplayAbilityActorInfo* ActorInfo,const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 	TryInteract();
 }
 
-void USK_GA_Interact::LineTraceWithChannel()
+void USK_GA_InteractionTrace::LineTraceWithChannel()
 {
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!SKPlayerCharacter) return;
@@ -95,7 +93,7 @@ void USK_GA_Interact::LineTraceWithChannel()
 	
 }
 
-void USK_GA_Interact::TryInteract()
+void USK_GA_InteractionTrace::TryInteract()
 {
 	if (!CurrentHitActor) return;
 	
@@ -109,34 +107,13 @@ void USK_GA_Interact::TryInteract()
 
 	// 상호작용 데이터 가져오기
 	ISKInteractable::Execute_GetInteractionData(CurrentHitActor, InteractionData);
-	SKPlayerCharacter->CurrentInteractionData = InteractionData;
+
+	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
+	InteractionComponent->GetInteractionData() = InteractionData;
 
 	// 대상 오브젝트 상호작용 시작
-	SKPlayerCharacter->Server_TryInteract(CurrentHitActor);
-	
-	UAbilitySystemComponent* ASC = SKPlayerState->GetAbilitySystemComponent();
-	if (!ASC) return;
-	
-	// 캐릭터 쪽 상호작용 실행
-	if (InteractionData.GrantedAbility)
-	{
-		UE_LOG(LogTemp, Log, TEXT("TryActivate Ability: %s"), *InteractionData.GrantedAbility->GetName())
-		FGameplayAbilitySpecHandle NewHandle = ASC->GiveAbility(
-			FGameplayAbilitySpec(InteractionData.GrantedAbility, 1, INDEX_NONE, this)
-			);
+	// InteractionComponent->Server_TryInteract(CurrentHitActor);
 
-		if (NewHandle.IsValid())
-		{
-			FTimerHandle TempHandle;
-			TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
-			SKPlayerCharacter->GetWorldTimerManager().SetTimer(TempHandle, [WeakASC, NewHandle]()
-			{
-				WeakASC->TryActivateAbility(NewHandle);
-			}, 0.01f, false);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Handle Is Invalid"));
-		}
-	}
+	// 캐릭터 쪽 상호작용 실행
+	// InteractionComponent->Server_GiveAndActivateAbility(InteractionData.GrantedAbility, 1, INDEX_NONE);
 }
