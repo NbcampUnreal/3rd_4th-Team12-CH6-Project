@@ -53,7 +53,7 @@ void USKInteractionComponent::UpdateTargetActor()
 	}
 	
 	float MaxDot = -1.f;
-	float MinDist = INFINITY;
+	float MinDist = FLT_MAX;
 	ASKInteractableBase* MaxActor = nullptr;
 		
 	const FVector OwnerLocation = GetOwner()->GetActorLocation();
