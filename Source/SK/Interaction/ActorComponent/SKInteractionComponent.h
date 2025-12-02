@@ -48,10 +48,8 @@ protected:
 	float UpdateInterval = 0.1f;
 	
 public:
-	
-	UPROPERTY(BlueprintReadWrite, Replicated)
-	FSKInteractionData CurrentInteractionData;
 
+	FORCEINLINE void SetInteractionData(const FSKInteractionData& NewInteractionData) { CurrentInteractionData = NewInteractionData; }
 	FORCEINLINE FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
 
 	FORCEINLINE void SetCurrentTagetActor(ASKInteractableBase* NewActor) { CurrentTargetActor = NewActor; };  
@@ -61,6 +59,9 @@ public:
 	TSet<ASKInteractableBase*> CandidateActors;
 
 private:
+	UPROPERTY(Replicated)
+	FSKInteractionData CurrentInteractionData;
+	
 	UPROPERTY(Replicated)
 	ASKInteractableBase* CurrentTargetActor;
 };

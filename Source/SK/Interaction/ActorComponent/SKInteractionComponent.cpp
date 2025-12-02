@@ -1,5 +1,6 @@
 #include "SKInteractionComponent.h"
 
+#include "AbilitySystemComponent.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Controller/SKPlayerController.h"
 #include "Item/SKInteractableBase.h"
@@ -151,4 +152,21 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	UE_LOG(LogTemp, Warning, TEXT("Role: %d"), CurrentTargetActor->GetLocalRole());
 	UE_LOG(LogTemp, Warning, TEXT("Remote: %d"), CurrentTargetActor->GetRemoteRole());
 	ISKInteractable::Execute_Interact(CurrentTargetActor, GetOwner());
+
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+
+	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
+	if (!InteractionComponent) return;
+
+	FSKInteractionData Data;
+	ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, Data);
+	InteractionComponent->SetInteractionData(Data);
+	
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	FGameplayTagContainer InteractionTag;
+	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.SimpleInteract")));
+	ASC->TryActivateAbilitiesByTag(InteractionTag);
 }
