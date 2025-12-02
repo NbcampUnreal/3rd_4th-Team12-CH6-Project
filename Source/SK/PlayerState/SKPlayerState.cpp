@@ -52,7 +52,10 @@ void ASKPlayerState::BeginPlay()
 		OnASCReady.Broadcast();
 	}
 	if (HasAuthority())
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, GetPawn());
 		OnRep_CurrentWeaponTag();
+	}
 
 	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
 	APlayerController* PC = GetPlayerController();
