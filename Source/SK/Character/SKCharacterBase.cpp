@@ -34,7 +34,6 @@ void ASKCharacterBase::InitASCFromPlayerState()
 
 	// 초기 속도 적용
 	OnSpeedAttributeChanged(FOnAttributeChangeData());
-	
 }
 
 
@@ -49,22 +48,48 @@ void ASKCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (HasAuthority())
-	{
-		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-		AbilitySystemComponent = PS->GetAbilitySystemComponent();
-		AttributeSet = PS->GetAttributeSet();
 
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
 
-		PS->SetDAPlayerStat();
-	}
+	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	PS->SetDAPlayerStat();
+	
+	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] PossessedBy (Server) 성공"));
 }
 
 void ASKCharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	InitASCFromPlayerState(); // 클라
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS)
+		return;
+
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
+
+	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] OnRep_PlayerState 초기화 성공"));
+}
+
+void ASKCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
+
+	// AnimInstance가 이 시점에서 100% 존재함
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] PostInitializeComponents 초기화 성공"));
 }
 
 UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
