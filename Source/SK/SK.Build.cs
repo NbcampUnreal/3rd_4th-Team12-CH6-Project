@@ -31,6 +31,9 @@ public class SK : ModuleRules
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			
+			// Animation
+			"MotionWarping",
+			
 			// Niagara 관련 추가
 			"Niagara","NiagaraCore", "NiagaraShader", "RenderCore",
 
