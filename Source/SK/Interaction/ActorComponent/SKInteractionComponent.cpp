@@ -4,6 +4,7 @@
 #include "Controller/SKPlayerController.h"
 #include "Item/SKInteractableBase.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 USKInteractionComponent::USKInteractionComponent()
@@ -34,7 +35,7 @@ void USKInteractionComponent::BeginPlay()
 }
 
 void USKInteractionComponent::UpdateTargetActor()
-{
+{ 
 	if (!GetOwner()->HasAuthority()) return;
 
 	if (Cast<ACharacter>(GetOwner())->GetMovementComponent()->IsFalling())
