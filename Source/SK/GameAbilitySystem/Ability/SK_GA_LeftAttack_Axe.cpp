@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Animation/SKPlayerAnimInstance.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Component/SKCombatComponent.h"
@@ -26,6 +27,12 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	// if (!ActorInfo->IsNetAuthority() && !ActorInfo->IsLocallyControlled())
+	// {
+	// 	UE_LOG(LogTemp, Error, TEXT("[GA] Blocked SimulatedProxy execution"));
+	// 	return;
+	// }
+	
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
 	if (!IsValid(SKPlayerState))
 		return;
@@ -64,24 +71,57 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	int32 ComboIndex = CombatComponent->GetComboIndex();
 	int32 MaxIndex = LeftAttackDamageGE.Num() - 1;
 	int32 SafeIndex = FMath::Clamp(ComboIndex - 1, 0, MaxIndex);
-
-
-	// UAnimMontage* Montage = Weapon_Data->LeftAttackMontages[0];
+	
 	UAnimMontage* Montage = CombatComponent->GetLeftAttackMontage(0);
 	FName SectionName = FName(*FString::Printf(TEXT("Combo_%02d"), SafeIndex + 1));
-	ASC->PlayMontage(this, ActivationInfo, Montage, 1.0f);
-	PlayerAnimInstance->Montage_JumpToSection(SectionName, Montage);
+
+	if (PlayerAnimInstance->Montage_IsPlaying(Montage))
+	{
+		PlayerAnimInstance->Montage_Stop(0.1f, Montage);
+	}
+	UAbilityTask_PlayMontageAndWait* Task =
+	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		Montage,
+		1.f
+		,SectionName
+		,false
+	);
+
+	Task->OnCompleted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageCompleted);
+	Task->OnInterrupted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageInterrupted);
+	Task->ReadyForActivation();
 
 
 	// 클라이언트 전용
-	if (ActorInfo->IsLocallyControlled())
-	{
-		UAnimInstance* AIM = Character->GetMesh()->GetAnimInstance();
-		AIM->Montage_Play(Montage, 1.f);
-		AIM->Montage_JumpToSection(SectionName, Montage);
-	}
+	// if (ActorInfo->IsLocallyControlled())
+	// {
+	// 	UAnimInstance* AIM = Character->GetMesh()->GetAnimInstance();
+	// 	AIM->Montage_Play(Montage, 1.f);
+	// 	AIM->Montage_JumpToSection(SectionName, Montage);
+	// }
 
-	CombatComponent->Client_PlayMontage(Montage, SectionName);
+	// CombatComponent->Client_PlayMontage(Montage, SectionName);
+
+	UE_LOG(LogTemp, Error, TEXT("GA 시작시 AnimInstance = %s"),
+		ActorInfo->AnimInstance.IsValid() ? *ActorInfo->AnimInstance->GetName() : TEXT("NULL"));
+	
+		const FGameplayAbilityActorInfo* AI = ASC->AbilityActorInfo.Get();
+
+		UAnimInstance* Anim = AI && AI->AnimInstance.IsValid() 
+			? AI->AnimInstance.Get() 
+			: nullptr;
+
+		UE_LOG(LogTemp, Error, TEXT("ASC AvatarActor = %s"),
+			AI && AI->AvatarActor.IsValid() ? *AI->AvatarActor->GetName() : TEXT("NULL"));
+
+		UE_LOG(LogTemp, Error, TEXT("ASC OwnerActor = %s"),
+			AI && AI->OwnerActor.IsValid() ? *AI->OwnerActor->GetName() : TEXT("NULL"));
+
+		UE_LOG(LogTemp, Error, TEXT("ASC AnimInstance = %s"),
+			Anim ? *Anim->GetName() : TEXT("NULL"));
+	
 }
 
 void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -110,6 +150,15 @@ void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
 
 }
 
+void USK_GA_LeftAttack_Axe::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
+{
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+}
+
 
 bool USK_GA_LeftAttack_Axe::CheckCost(const FGameplayAbilitySpecHandle Handle,
                                       const FGameplayAbilityActorInfo* ActorInfo,
@@ -129,6 +178,44 @@ bool USK_GA_LeftAttack_Axe::CheckCost(const FGameplayAbilitySpecHandle Handle,
 	}
 
 	return result;
+}
+
+void USK_GA_LeftAttack_Axe::OnMontageCompleted()
+{
+	UE_LOG(LogTemp, Error, TEXT("[GA] Montage Completed"));
+
+	// // 공격 끝났으므로 EndNotify 호출
+	// ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	// if (PC)
+	// {
+	// 	USKCombatComponent* Combat = PC->GetCombatComponent();
+	// 	if (Combat)
+	// 	{
+	// 		Combat->Server_OnATKEndNotify_Implementation(true);
+	// 	}
+	// }
+
+	// Ability 종료
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void USK_GA_LeftAttack_Axe::OnMontageInterrupted()
+{
+	UE_LOG(LogTemp, Error, TEXT("[GA] Montage Interrupted"));
+
+	// 공격 콤보 상태 리셋
+	// ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	// if (PC)
+	// {
+	// 	USKCombatComponent* Combat = PC->GetCombatComponent();
+	// 	if (Combat)
+	// 	{
+	// 		Combat->ResetComboState();
+	// 	}
+	// }
+
+	// Ability 종료
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
 
