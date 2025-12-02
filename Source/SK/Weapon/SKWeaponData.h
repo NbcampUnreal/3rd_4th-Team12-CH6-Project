@@ -5,6 +5,7 @@
 #include "Engine/DataAsset.h"
 #include "SKWeaponData.generated.h"
 
+class USKWeaponStateData;
 class USKWeaponData;
 
 USTRUCT(BlueprintType)
@@ -17,6 +18,9 @@ struct FWeaponDataRow : public FTableRowBase
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USKWeaponData> WeaponData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<USKWeaponStateData> WeaponStateData;
 };
 
 

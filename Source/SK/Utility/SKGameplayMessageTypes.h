@@ -138,8 +138,38 @@ struct FItemSwitchMessage
 	UPROPERTY(BlueprintReadWrite)
 	EInventoryItemType ItemType;
 
+	UPROPERTY(BlueprintReadWrite)
 	EEquipmentSlotType EquipmentType;
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 QuickSlotNumber;
+};
+
+USTRUCT(BlueprintType)
+struct FItemAddMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 ItemID;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 ItemCount;
+};
+
+USTRUCT(BlueprintType)
+struct FSettingBossHPWidget
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	APawn* OwnerActor;
+
+	UPROPERTY(BlueprintReadWrite)
+	FText NameText;
+
+	/* 필요하면 추가. 보스 이미지
+	UPROPERTY(BlueprintReadWrite)
+	UImage* WidgetImage
+	*/
 };

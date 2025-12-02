@@ -39,7 +39,8 @@ bool UQuickSlotComponent::SetQuickSlot(int32 SlotIndex, int32 ItemID)
 		UE_LOG(LogTemp, Error, TEXT("SetQuickSlot: 인벤토리 컴포넌트를 찾을 수 없습니다."));
 		return false;
 	}
-	
+
+	//Clear QuickSlot으로 변경
 	if (QuickSlots[SlotIndex].ItemID != -1)
 	{
 		USKInventoryItemData* PrevItem = Inventory->GetItemDataByID(QuickSlots[SlotIndex].ItemID);
@@ -92,6 +93,19 @@ bool UQuickSlotComponent::SetQuickSlot(int32 SlotIndex, int32 ItemID)
 			QuickSlots[SlotIndex].GrantedAbilityHandle = ASC->GiveAbility(Spec);
 		}
 	}
+
+	for (int i = 0; i < QuickSlots.Num(); i++)
+	{
+		if (SlotIndex == i)
+		{
+			continue;
+		}
+		else if (QuickSlots[SlotIndex].ItemID == QuickSlots[i].ItemID)
+		{
+			ClearQuickSlot(i);
+		}
+	}
+	
 	return true;
 }
 
@@ -165,15 +179,7 @@ bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 	// ────────────────────────────────────────────────
 	bool bActivated = false;
 
-	// 이미 Ability가 ASC에 부여돼 있다고 가정
-	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
-	{
-		if (Spec.Ability && Spec.Ability->GetClass() == ConsumData->ConsumableGA)
-		{
-			bActivated = ASC->TryActivateAbility(Spec.Handle);
-			break;
-		}
-	}
+	bActivated = ASC->TryActivateAbility(QuickSlots[SlotIndex].GrantedAbilityHandle);
 
 	if (!bActivated)
 	{

@@ -20,12 +20,13 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability, "Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash, "Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dash_Active, "Ability.Dash.Active");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interact, "Ability.Interact");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interaction, "Ability.InteractionTrace");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_OpenChest, "Ability.OpenChest");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK, "Ability.LeftATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe, "Ability.LeftATK.Axe");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_TwoHanded, "Ability.LeftATK.TwoHanded");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Cancel, "Ability.LeftATK.Cancel");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num01, "Ability.LeftATK.Axe.Num01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num02, "Ability.LeftATK.Axe.Num02");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num03, "Ability.LeftATK.Axe.Num03");
@@ -42,6 +43,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Ready, "Ability.Ready");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Rush, "Ability.Rush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
+
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe_1);
@@ -53,6 +57,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_RightATK);
 UE_DEFINE_GAMEPLAY_TAG(TAG_CoolDown, "Cooldown");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability, "Cooldown.Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_HealPotion, "Cooldown.Item.HealPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_AttackPotion, "Cooldown.Item.AttackPotion");
+
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon, "Weapon");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Axe, "Weapon.Axe"); // Axe-> TwoHanded
@@ -95,6 +102,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_SkillBar, "UI.Slot.SkillBar");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GameExitRequest, "UI.Slot.GameExitRequest");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BossHP, "UI.Slot.BossHP");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterDeath, "UI.Slot.CharacterDeath");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ItemAddInfo, "UI.Slot.ItemAddInfo");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryList, "UI.Slot.InventoryList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryItemToolTip, "UI.Slot.InventoryItemToolTip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipMainList, "UI.Slot.EquipMainList");
@@ -140,18 +150,29 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RigthMelee, "State.Action.ATK.RigthM
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Melee, "State.Action.Melee");
 // State-Action-Interaction (상호작용)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Interaction, "State.Action.Interaction");
+
+// 회피
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Dodge_Evade, "State.Action.Dodge.Evade");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Dodge_Step, "State.Action.Dodge.Step");
+
 // State-Condition (실제 플레이에 영향끼치는 상태)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition, "State.Condition");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Stun, "State.Condition.Stun");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Groggy, "State.Condition.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
+
+// 히트, 넉백, 넉다운
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
+
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Combat, "AI.Combat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Death, "AI.Death");
 
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockDown, "State.Condition.KnockDown");
 
 //Message Chanel Tag
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SwitchLayout, "Message.Channel.SwitchLayout");
@@ -160,3 +181,13 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ConfirmResponse, "Message.Channel.Con
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SlotVisible, "Message.Channel.SlotVisible");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ToolTipItem, "Message.Channel.ToolTipItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemSwitchSelect, "Message.Channel.ItemSwitchSelect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemAddInfo, "Message.Channel.ItemAddInfo");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BossWidgetSetting, "Message.Channel.BossWidgetSetting");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Armor, "Item.Armor");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Stamina, "Item.Stamina");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Duration, "Item.Duration");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Cooldown, "Item.Cooldown");
+

@@ -2,7 +2,7 @@
 
 
 #include "Anim/SKAnimNotify_ResetLeftAttack.h"
-
+#include "Component/SKCombatComponent.h"
 #include "Character/SKPlayerCharacter.h"
 
 void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -28,8 +28,6 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 		//UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to cast Owner Actor to ASKPlayerCharacter."));
 		return; 
 	}
-	
-	// PlayerCharacter->OnLeftAttackEndNotify();
-	// PlayerCharacter->OnATKEndNotify();
-	PlayerCharacter->Server_OnATKEndNotify(true);
+	USKCombatComponent* CombatComponent =  PlayerCharacter->GetCombatComponent();
+	CombatComponent->Server_OnATKEndNotify(true);
 }

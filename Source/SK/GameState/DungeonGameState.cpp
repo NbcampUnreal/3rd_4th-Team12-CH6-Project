@@ -1,5 +1,5 @@
 #include "GameState/DungeonGameState.h"
-#include "GameFramework/GameMode.h"
+#include "Net/UnrealNetwork.h"
 
 
 ADungeonGameState::ADungeonGameState()
@@ -10,40 +10,46 @@ ADungeonGameState::ADungeonGameState()
 void ADungeonGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADungeonGameState, DungeonState);
+	DOREPLIFETIME(ADungeonGameState, PlayerReadyCount);
+	DOREPLIFETIME(ADungeonGameState, TotalPlayers);
 }
 
-void ADungeonGameState::OnRep_MatchState()
+void ADungeonGameState::SetDungeonState(EDungeonMatchState NewState)
 {
-	Super::OnRep_MatchState();
+	if (!HasAuthority()) return;
+
+	DungeonState = NewState;
+	OnDungeonMatchStateChanged.Broadcast(NewState);
 	
-	if (MatchState == MatchState::EnteringMap) // 맵 진입 상태
-	{
-		//EnteringMap는 OnRep_MatchState를 호출할수없음... 그냥 초기상태임
-		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] MatchState: EnteringMap"));
+	OnRep_DungeonState();
+}
+
+void ADungeonGameState::OnRep_DungeonState()
+{
+	if (DungeonState == EDungeonMatchState::Dungeon_Loading) // 맵 진입 상태
+	{ 
+		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] DungeonState: Dungeon_Loading"));
 	}
-	else if (MatchState == MatchState::WaitingToStart) // 게임 시작 전 대기 상태
+	else if (DungeonState == EDungeonMatchState::Dungeon_PlayerReady) // 게임 시작 전 대기 상태
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] MatchState: WaitingToStart"));
+		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] DungeonState: Dungeon_PlayerReady"));
 		// 대기 UI 표시, 입력 비활성화 등
 	}
-	else if (MatchState == MatchState::InProgress) //실제 게임 시작 상태
+	else if (DungeonState == EDungeonMatchState::Dungeon_InProgress) //실제 게임 시작 상태
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] MatchState: InProgress"));
+		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] DungeonState: Dungeon_InProgress"));
 
 	}
-	else if (MatchState == MatchState::WaitingPostMatch) // 게임 결과 후 상태
+	else if (DungeonState == EDungeonMatchState::Dungeon_Cleared) //던전 클리어
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] MatchState: WaitingPostMatch"));
+		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] DungeonState: Dungeon_Cleared"));
 
 	}
-	else if (MatchState == MatchState::LeavingMap) // 맵을 떠나는 상태
+	else if (DungeonState == EDungeonMatchState::Dungeon_Failed) //던전 공략 실패
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] MatchState: LeavingMap"));
-		// 세션종료, 레벨 전환 준비 UI 처리
-	}
-	else if (MatchState == MatchState::Aborted) // 강제 종료 상태
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] MatchState: Aborted"));
-		// 정상적인 종료가 아닌, 강제로 경기가 중단된 상태일때 UI 처리
+		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] DungeonState: Dungeon_Failed"));
+
 	}
 }

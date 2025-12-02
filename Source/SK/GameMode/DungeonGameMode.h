@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "GameMode/MatchState/DungeonMatchState.h"
 #include "GameState/DungeonGameState.h"
 #include "DungeonGameMode.generated.h"
 
 /**
  * 
  */
+DECLARE_MULTICAST_DELEGATE(FDungeonStartedDelegate); //던전 시작 이벤트
+
 UCLASS()
 class SK_API ADungeonGameMode : public AGameMode
 {
@@ -17,8 +20,23 @@ class SK_API ADungeonGameMode : public AGameMode
 public:
 
 	ADungeonGameMode();
+	
+	FDungeonStartedDelegate OnDungeonStarted;
 
-	FORCEINLINE ADungeonGameState* GetGameState() { return Super::GetGameState<ADungeonGameState>(); }
+	// PCG 완료 시 PCG에서 호출
+	UFUNCTION(BlueprintCallable)
+	void NotifyPCGFinished();
+
+	// 초기 스폰 완료
+	UFUNCTION(BlueprintCallable)
+	void NotifyInitialSpawnFinished();
+
+	// 현재 던전 상태 반환
+	EDungeonMatchState GetDungeonState() const;
+
+	// 상태
+	bool bPCGFinished = false;
+	bool bInitialSpawnFinished = false;
 
 protected:
 	
@@ -29,18 +47,23 @@ protected:
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override; //플레이어 맵 로드 후
 #pragma endregion
 
-#pragma region 게임 상태 변화에 따른 로직
+	//상태변경
+	void ChangeDungeonState(EDungeonMatchState NewState);
 
-	//StartMatch()가 호출됐을 때 WaitingToStart 에서 InProgress 로 넘어가기 전에 넘어가도 되는지 판단 (bool 값)
-	virtual bool ReadyToStartMatch_Implementation() override;
+	// 상태 흐름 처리
+	void TryProgressState();
 
-	//MatchState 가 WaitingToStart로 바뀔 때 호출
-	virtual void HandleMatchIsWaitingToStart() override;
+	// ★ 전체 플레이어 수 계산용
+	void InitializePlayerCount();
 
-	//StartMatch()가 성공해서 MatchState::InProgress 로 진입할 때 호출
-	virtual void HandleMatchHasStarted() override;
+private:
+	// ListenServer 순서 문제 해결을 위한 지연 큐
+	UPROPERTY()
+	TArray<AController*> PendingReadyPlayers;
 
-	//EndMatch()가 호출되어 MatchState::WaitingPostMatch 로 바뀔 때 실행
-	virtual void HandleMatchHasEnded() override;
-#pragma endregion
+	// PostSeamlessTravel 호출 여부
+	bool bPostSeamlessTravelCalled = false;
+
+	// ★ PlayerReadyCount 증가 처리 함수
+	void HandlePlayerReady(AController* C);
 };
