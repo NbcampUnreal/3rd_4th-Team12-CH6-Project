@@ -70,6 +70,8 @@ public:
 	void Client_StopMontage(float InBlendOut);
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_StopMontage(float InBlendOut);
+	UFUNCTION(Server, Reliable)
+	void Server_TryActivateGA(const FGameplayTag& Tag);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_IncreaseComboIndex(bool bLeft = true);
@@ -98,6 +100,8 @@ public:
 
 	UAnimMontage* GetLeftAttackMontage(int32 Index);
 	void SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
+	TObjectPtr<USKWeaponData> CurrentWeaponData;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -105,8 +109,6 @@ protected:
 	void ActivateLeftAttackGA();
 
 	//애니메이션 등등있음
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
-	TObjectPtr<USKWeaponData> CurrentWeaponData;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* WeaponMesh;

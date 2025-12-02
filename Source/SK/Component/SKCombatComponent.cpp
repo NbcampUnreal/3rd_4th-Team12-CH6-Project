@@ -208,7 +208,11 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 	FGameplayTagContainer Container;
 	Container.AddTag(GetLeftATKTag());
 
-	ASC->TryActivateAbilitiesByTag(Container);
+	
+	// ASC->TryActivateAbilitiesByTag(Container);
+	bool success = ASC->TryActivateAbilitiesByTag(Container);
+	UE_LOG(LogTemp, Error, TEXT("[SERVER] TryActivateAbilitiesByTag: %d"), success);
+	
 }
 
 void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
@@ -257,24 +261,26 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	ComboState.bCanNextCombo = false;
 
 
-	FGameplayTagContainer CancelTags;
-	CancelTags.AddTag(TAG_Ability_LeftATK_Cancel); // 부모 태그
+	// FGameplayTagContainer CancelTags;
+	// CancelTags.AddTag(TAG_Ability_LeftATK_Cancel); // 부모 태그
+	//
+	// ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	// UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
 
+	// ASC->CancelAbilities(&CancelTags, nullptr);
+	//
+	// UAnimInstance* AnimInstance = SKPlayer->GetMesh()->GetAnimInstance();
+	// if (AnimInstance)
+	// {
+	// 	AnimInstance->Montage_Stop(0.15f);  // BlendOut 0.15f 정도 추천
+	//
+	// }
 
+	UE_LOG(LogTemp, Error, TEXT("[ATK_END] Buffered=%d | Combo=%d / %d"),
+	ComboState.bBufferedAttack,
+	RecComboIndex,
+	MaxCombo);
 	
-	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
-	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
-
-
-	
-	ASC->CancelAbilities(&CancelTags, nullptr);
-
-	UAnimInstance* AnimInstance = SKPlayer->GetMesh()->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_Stop(0.15f);  // BlendOut 0.15f 정도 추천
-
-	}
 }
 
 void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage, FName StartSection)
@@ -321,7 +327,20 @@ void USKCombatComponent::Server_SetWeaponTag_Implementation(FGameplayTag NewWeap
 }
 
 
+void USKCombatComponent::Server_TryActivateGA_Implementation(const FGameplayTag& Tag)
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!SKPlayer) return;
 
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	FGameplayTagContainer Container;
+	Container.AddTag(Tag);
+
+	// 서버에서 GA 실행
+	ASC->TryActivateAbilitiesByTag(Container);
+}
 
 void USKCombatComponent::SetWeaponTag(const FGameplayTag& NewTag)
 {
@@ -468,6 +487,12 @@ void USKCombatComponent::InitializeWeaponData(const FWeaponDataRow* Row)
 		return;
 
 	CurrentWeaponData = Row->WeaponData;
+
+	UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CombatComponent %p | Owner %s"),
+	this,
+	*GetOwner()->GetName());
+
+	UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CurrentWeaponData = %p"), CurrentWeaponData.Get());
 }
 
 UAnimMontage* USKCombatComponent::GetLeftAttackMontage(int32 Index)
