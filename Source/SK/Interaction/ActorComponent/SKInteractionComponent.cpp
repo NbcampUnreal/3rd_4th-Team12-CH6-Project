@@ -36,6 +36,13 @@ void USKInteractionComponent::BeginPlay()
 void USKInteractionComponent::UpdateTargetActor()
 {
 	if (!GetOwner()->HasAuthority()) return;
+
+	if (Cast<ACharacter>(GetOwner())->GetMovementComponent()->IsFalling())
+	{
+		// 점프 중에는 UI 끄기
+		SetInteractionUI(false);
+		return;
+	}
 	
 	if (CandidateActors.Num() == 0)
 	{
