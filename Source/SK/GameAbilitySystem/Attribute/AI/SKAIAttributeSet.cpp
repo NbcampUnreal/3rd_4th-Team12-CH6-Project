@@ -1,6 +1,9 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USKAIAttributeSet::USKAIAttributeSet()
 {
@@ -62,6 +65,18 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 			OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("죽음이벤트발송"));
+
+			/* 보스 죽었을 때 처리 로직에 추가
+			if (USKGameplayMessageSubsystem* MessageSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USKGameplayMessageSubsystem>())
+			{
+				FSlotVisibilityMessage Message;
+
+				Message.LayoutTag = TAG_UI_Layout_InGame;
+				Message.SlotTags.AddTag(TAG_UI_Slot_BossHP);
+				Message.bVisible = false;
+				MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, Message);
+			}
+			*/
 		}
 		
 		FString DebugMsg = FString::Printf(TEXT("Health: %.2f"), GetHealth());
@@ -77,6 +92,17 @@ void USKAIAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute,
 	if (Attribute == GetHealthAttribute())
 	{
 		OnCurrentHealthChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			NewValue - OldValue,
+			OldValue,
+			NewValue
+		);
+	}
+	else if (Attribute == GetPoiseAttribute())
+	{
+		OnCurrentPoiseChanged.Broadcast(
 			nullptr,
 			nullptr,
 			nullptr,
