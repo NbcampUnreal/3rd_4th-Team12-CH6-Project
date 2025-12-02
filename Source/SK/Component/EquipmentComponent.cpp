@@ -45,12 +45,14 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	{
 		UnequipItem(Slot);
 	}
-
+	
 	FEquipmentSlotData& SlotData = Equipments.FindOrAdd(Slot);
 	SlotData.ItemID = ItemID;
 	SlotData.UniqueID = UniqueID;
 	SlotData.EquipmentInstance = Instance;
-
+		
+	SlotData.EquipmentInstance->SpawnEquipmentActors(GetEquipPawn(), ItemData->ActorsToSpawnData);
+	
 	ApplyEquipmentEffect(ItemData, Instance);
 
 	Client_UpdateEquipment(Slot, SlotData);
@@ -70,6 +72,11 @@ bool UEquipmentComponent::UnequipItem(EEquipmentSlotType Slot)
 
 	FEquipmentSlotData& SlotData = Equipments[Slot];
 
+	if (SlotData.EquipmentInstance)
+	{
+		SlotData.EquipmentInstance->DestroyEquipmentActors();
+	}
+	
 	RemoveEquipmentEffect(SlotData);
 
 	FEquipmentSlotData EmptyData;
@@ -204,6 +211,23 @@ void UEquipmentComponent::RemoveEquipmentEffect(FEquipmentSlotData& SlotData)
 	{
 		ASC->RemoveActiveGameplayEffect(SlotData.EquipmentInstance->GrantedEffectHandle);
 	}
+}
+
+APawn* UEquipmentComponent::GetEquipPawn()
+{
+	APlayerState* PlayerState = Cast<APlayerState>(GetOwner());
+	if (!PlayerState)
+	{
+		return nullptr;
+	}
+ 
+	APlayerController* PC = PlayerState->GetPlayerController();
+	if (!PC)
+	{
+		return nullptr;
+	}
+ 
+	return PC->GetPawn();
 }
 
 void UEquipmentComponent::ServerEquipItem_Implementation(const FGuid& UniqueID, const int32 ItemID)
