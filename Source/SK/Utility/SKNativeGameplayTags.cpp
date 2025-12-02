@@ -104,6 +104,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BossHP, "UI.Slot.BossHP");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterDeath, "UI.Slot.CharacterDeath");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GoldStat, "UI.Slot.GoldStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ItemAddInfo, "UI.Slot.ItemAddInfo");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryList, "UI.Slot.InventoryList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryItemToolTip, "UI.Slot.InventoryItemToolTip");
@@ -188,6 +189,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Armor, "Item.Armor");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Stamina, "Item.Stamina");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Gold, "Item.Gold");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Duration, "Item.Duration");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Cooldown, "Item.Cooldown");
 

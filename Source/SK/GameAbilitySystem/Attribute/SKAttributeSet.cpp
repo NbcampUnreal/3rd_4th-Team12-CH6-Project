@@ -147,6 +147,17 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 			NewValue
 		);
 	}
+	else if (Attribute == GetGoldAttribute())
+	{
+		OnGoldChanged.Broadcast(
+			nullptr,
+			nullptr,
+			nullptr,
+			NewValue - OldValue,
+			OldValue,
+			NewValue
+		);
+	}
 }
 
 void USKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -231,6 +242,15 @@ void USKAttributeSet::OnRep_Level(const FGameplayAttributeData& OldLevel)
 void USKAttributeSet::OnRep_Gold(const FGameplayAttributeData& OldGold)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Gold, OldGold);
+
+	OnGoldChanged.Broadcast(
+		nullptr,
+		nullptr,
+		nullptr,
+		GetGold() - OldGold.GetCurrentValue(),
+		OldGold.GetCurrentValue(),
+		GetGold()
+	);
 }
 
 void USKAttributeSet::OnRep_Attack(const FGameplayAttributeData& OldAttack)
