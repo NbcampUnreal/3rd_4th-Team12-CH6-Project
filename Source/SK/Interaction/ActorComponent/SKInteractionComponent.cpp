@@ -113,21 +113,18 @@ void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 {
 	if (IsValid(CurrentTargetActor))
 	{
-		APawn* OwnerPawn = Cast<APawn>(GetOwner());
-		if (!OwnerPawn) return;
- 
-		ASKPlayerController* PC = Cast<ASKPlayerController>(OwnerPawn->GetController());
-		if (!PC) return;
+		Client_ToggleInteractableWidget(CurrentTargetActor, bIsVisible);
+	}
+}
 
-		if (PC->HasAuthority())
-		{
-			Client_ToggleInteractableWidget(CurrentTargetActor, bIsVisible);
-		}
-		else
-		{
-			CurrentTargetActor->ToggleWidget(bIsVisible);
-		}
+void USKInteractionComponent::OnRep_CurrentInteractionData()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
 
+	if (Char->IsLocallyControlled())
+	{
+		Server_ActivateInteractionAbility();
 	}
 }
 
@@ -137,8 +134,26 @@ void USKInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+void USKInteractionComponent::Server_ActivateInteractionAbility_Implementation()
+{
+	ActivateInteractionAbility();
+}
+
+void USKInteractionComponent::ActivateInteractionAbility() const
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	FGameplayTagContainer InteractionTag;
+	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.SimpleInteract")));
+	ASC->TryActivateAbilitiesByTag(InteractionTag);
+}
+
 void USKInteractionComponent::Client_ToggleInteractableWidget_Implementation(ASKInteractableBase* Interactable,
-	bool bIsVisible)
+                                                                             bool bIsVisible)
 {
 	if (Interactable)
 	{
@@ -162,11 +177,15 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	FSKInteractionData Data;
 	ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, Data);
 	InteractionComponent->SetInteractionData(Data);
-	
-	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
-	if (!ASC) return;
 
-	FGameplayTagContainer InteractionTag;
-	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.SimpleInteract")));
-	ASC->TryActivateAbilitiesByTag(InteractionTag);
+	// 서버는 바로 실행 서버에 복제 된 클라는 클라에 도착하면 서버 RPC로 실행
+	
+	// if (!GetOwner()->HasAuthority()) return;
+
+	if (!Char->IsLocallyControlled()) return;
+
+	// APlayerController* PC = Cast<APlayerController>(Char->GetController());
+	// if (!PC || !PC->IsLocalController()) return;
+
+	ActivateInteractionAbility();
 }

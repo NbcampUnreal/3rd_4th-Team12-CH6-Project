@@ -29,6 +29,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void Server_TryInteract();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ActivateInteractionAbility();
 	
 #pragma endregion
 
@@ -44,6 +47,8 @@ protected:
 
 	void SetInteractionUI(const bool bIsVisible);
 
+	void ActivateInteractionAbility() const;
+
 	FTimerHandle UpdateTargetHandle;
 	float UpdateInterval = 0.1f;
 	
@@ -55,11 +60,14 @@ public:
 	FORCEINLINE void SetCurrentTagetActor(ASKInteractableBase* NewActor) { CurrentTargetActor = NewActor; };  
 	FORCEINLINE ASKInteractableBase* GetCurrentTagetActor() const { return CurrentTargetActor; };  
 
+	UFUNCTION()
+	void OnRep_CurrentInteractionData();
+	
 	UPROPERTY()
 	TSet<ASKInteractableBase*> CandidateActors;
 
 private:
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentInteractionData)
 	FSKInteractionData CurrentInteractionData;
 	
 	UPROPERTY(Replicated)
