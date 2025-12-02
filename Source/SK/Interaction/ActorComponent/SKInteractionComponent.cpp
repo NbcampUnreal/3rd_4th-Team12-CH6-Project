@@ -1,5 +1,4 @@
 #include "SKInteractionComponent.h"
-
 #include "Character/SKPlayerCharacter.h"
 #include "Controller/SKPlayerController.h"
 #include "Item/SKInteractableBase.h"
@@ -43,9 +42,9 @@ void USKInteractionComponent::UpdateTargetActor()
 	}
 	
 	float MaxDot = -1.f;
-	float MinDist = INFINITY;
+	float MinDist = FLT_MAX;
 	ASKInteractableBase* MaxActor = nullptr;
-		
+	
 	const FVector OwnerLocation = GetOwner()->GetActorLocation();
 	const FVector OwnerForwardVector = GetOwner()->GetActorForwardVector();
 
