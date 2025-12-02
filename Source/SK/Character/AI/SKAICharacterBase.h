@@ -7,6 +7,7 @@
 #include "SKAICharacterBase.generated.h"
 
 class UBoxComponent;
+class UMotionWarpingComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 
@@ -18,6 +19,9 @@ class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterf
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
 	TObjectPtr<UBoxComponent> BoxComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component|Animation")
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;

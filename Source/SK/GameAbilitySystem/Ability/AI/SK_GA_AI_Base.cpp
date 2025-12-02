@@ -4,8 +4,6 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
-#include "Components/CapsuleComponent.h"
-#include "Controller/AI/SKAIController.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 USK_GA_AI_Base::USK_GA_AI_Base()
@@ -62,53 +60,6 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 	CachedController->StopMovement();
 
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
-}
-
-float USK_GA_AI_Base::GetDistance() const
-{
-	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
-	if (!IsValid(AIController))
-	{
-		return 10000.0f;
-	}
-
-	AActor* TargetActor = AIController->GetTargetActor();
-	if (!IsValid(TargetActor))
-	{
-		return 10000.0f;
-	}
-	
-	float Distance = CachedCharacter->GetDistanceTo(TargetActor);
-	
-	return Distance;
-}
-
-float USK_GA_AI_Base::GetCapsuleRadiusSum() const
-{
-	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
-	if (!IsValid(AIController))
-	{
-		return 0.0f;
-	}
-
-	AActor* TargetActor = AIController->GetTargetActor();
-	if (!IsValid(TargetActor))
-	{
-		return 0.0f;
-	}
-
-	ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
-	if (!IsValid(TargetCharacter))
-	{
-		return 0.0f;
-	}
-	
-	float AICapsuleRadius = CachedCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius();
-	float PlayerCapsuleRadius = TargetCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius();
-
-	float Result = AICapsuleRadius + PlayerCapsuleRadius;
-	
-	return Result;
 }
 
 void USK_GA_AI_Base::ActivateAbility(

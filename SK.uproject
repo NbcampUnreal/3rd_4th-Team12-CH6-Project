@@ -13,7 +13,8 @@
 				"GameplayAbilities",
 				"CommonUI",
 				"UMG",
-				"AIModule"
+				"AIModule",
+				"MotionWarping"
 			]
 		}
 	],
@@ -63,6 +64,10 @@
 		},
 		{
 			"Name": "PCGGeometryScriptInterop",
+			"Enabled": true
+		},
+		{
+			"Name": "MotionWarping",
 			"Enabled": true
 		}
 	]

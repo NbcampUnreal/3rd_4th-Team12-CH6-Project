@@ -1,6 +1,7 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_BaseCombat.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Controller/AI/SKAIController.h"
 
 USK_GA_AI_BaseCombat::USK_GA_AI_BaseCombat()
 {
@@ -57,6 +58,41 @@ void USK_GA_AI_BaseCombat::ApplyDamageToTarget(TWeakObjectPtr<const AActor> Targ
 		);
 	*/
 	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
+}
+
+AActor* USK_GA_AI_BaseCombat::GetTargetActor() const
+{
+	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
+	if (!IsValid(AIController))
+	{
+		return nullptr;
+	}
+
+	AActor* TargetActor = AIController->GetTargetActor();
+
+	return TargetActor;
+}
+
+void USK_GA_AI_BaseCombat::SetFocus() const
+{
+	ASKAIController*  AIController = Cast<ASKAIController>(CachedController);
+	if (IsValid(AIController))
+	{
+		AActor* TargetActor = AIController->GetTargetActor();
+		if (IsValid(TargetActor))
+		{
+			AIController->SetFocus(TargetActor);
+		}
+	}
+}
+
+void USK_GA_AI_BaseCombat::ClearFocus() const
+{
+	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
+	if (IsValid(AIController))
+	{
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	}
 }
 
 void USK_GA_AI_BaseCombat::ActivateAbility(

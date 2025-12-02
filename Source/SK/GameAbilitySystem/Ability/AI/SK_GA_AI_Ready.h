@@ -1,32 +1,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Base.h"
-#include "SK_GA_AI_BaseCombat.generated.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_BaseCombat.h"
+#include "SK_GA_AI_Ready.generated.h"
 
 UCLASS()
-class SK_API USK_GA_AI_BaseCombat : public USK_GA_AI_Base
+class SK_API USK_GA_AI_Ready : public USK_GA_AI_BaseCombat
 {
 	GENERATED_BODY()
-
-protected:
-	UPROPERTY(EditAnywhere, Category = "SK|GAS")
-	TArray<TSubclassOf<UGameplayEffect>> DamageEffectClasses;
 	
-	UPROPERTY()
-	TWeakObjectPtr<const AActor> HitActor;
-
 public:
-	USK_GA_AI_BaseCombat();
+	USK_GA_AI_Ready();
 
-	void ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor);
+	void Ready(UAnimMontage* AnimMontage);
 
-	AActor* GetTargetActor() const;
-
-	void SetFocus() const;
-
-	void ClearFocus() const;
-
+	UFUNCTION()
+	void OnReadyCompleted();
+	
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

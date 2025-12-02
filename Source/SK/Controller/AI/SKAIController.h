@@ -49,6 +49,9 @@ public:
 	
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 
+	UFUNCTION()
+	void OnDungeonStarted() const;
+
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	

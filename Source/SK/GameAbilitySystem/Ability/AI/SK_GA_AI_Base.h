@@ -40,10 +40,6 @@ public:
 	UFUNCTION()
 	void OnWaitEndAbilityCompleted(FGameplayEventData EventData);
 	
-	float GetDistance() const;
-
-	float GetCapsuleRadiusSum() const;
-	
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

@@ -38,6 +38,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Cancel, "Ability.Wander");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Chase, "Ability.Chase");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Ready, "Ability.Ready");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Rush, "Ability.Rush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);

@@ -3,7 +3,9 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
+#include "MotionWarpingComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Controller/AI/SKAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -22,6 +24,8 @@ ASKAICharacterBase::ASKAICharacterBase()
 	BoxComponent->SetCollisionProfileName("CombatArea");
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentBeginOverlap);
 	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentEndOverlap);
+
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -47,7 +51,10 @@ void ASKAICharacterBase::OnBoxComponentBeginOverlap(
 	)
 {
 	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("전투시작"));
 }
 
 void ASKAICharacterBase::OnBoxComponentEndOverlap(
@@ -58,7 +65,10 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	)
 {
 	AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("전투종료"));
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
