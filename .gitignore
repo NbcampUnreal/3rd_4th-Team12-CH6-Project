@@ -13,7 +13,19 @@ Content/Third_Party_Object/
 Content/MetaHumans/
 Content/DrapEffet/
 Content/Monster_Pack/
-
+Content/Medieval_Sewer_Dungeon/
+Content/IdaFaber/
+Content/MWK_Medieval/
+Content/HFLizardCreatures/
+Content/Arachnid_Boss/
+Content/AncientRuins/
+Content/Medieval_Town/
+Content/SpectraFXBundle/
+Content/GothicGUIKit/
+Content/__ExternalActors__/
+Content/__ExternalObjects__/
+Content/GenericNPCAnimPack/
+Content/OpenAndCloseAnimationsPack/
 
 *.sln
 *.suo
