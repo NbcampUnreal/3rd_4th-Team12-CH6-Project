@@ -64,13 +64,19 @@ protected:
 #pragma region UI
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|UI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UWidgetComponent> InteractionWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
+	TObjectPtr<UUserWidget> InteractionUI;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
+	FText InteractableText;
 
 	UFUNCTION()
 	void ToggleWidget(bool bIsVisible);
 	
-	UFUNCTION(BlueprintCallable, Category = "SK|UI")
+	UFUNCTION()
 	void OnShowWidget(bool bIsVisible);
 		
 #pragma endregion 
