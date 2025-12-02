@@ -17,7 +17,7 @@ class SK_API UMonsterDamageWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void SettingWidget(APawn* OwnerPawn);
 	
 protected:

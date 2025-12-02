@@ -127,6 +127,8 @@ public:
 	mutable FSKAttributeEvent OnHeatChanged;
 
 	mutable FSKAttributeEvent OnMaxHeatChanged;
+
+	mutable FSKAttributeEvent OnGoldChanged;
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

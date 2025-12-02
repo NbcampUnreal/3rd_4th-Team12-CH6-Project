@@ -46,6 +46,22 @@ enum class EEquipmentStat : uint8
 };
 
 USTRUCT(BlueprintType)
+struct FSKEquipmentActorToSpawn
+{
+	GENERATED_BODY()
+ 
+	UPROPERTY(EditAnywhere, Category=Equipment)
+	TSubclassOf<AActor> ActorToSpawn;
+
+	UPROPERTY(EditAnywhere, Category=Equipment)
+	FName AttachSocket;
+
+	UPROPERTY(EditAnywhere, Category=Equipment)
+	FTransform AttachTransform;
+};
+
+
+USTRUCT(BlueprintType)
 struct FEquipData
 {
 	GENERATED_BODY()
@@ -76,17 +92,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	EEquipmentSlotType SlotType;
-
-	// 장비 메시
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
-	TObjectPtr<USkeletalMesh> SkeletalMesh;
-
-	// 장착 소켓
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
-	FName SocketName;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	TMap<EEquipmentStat, FEquipData> Stats;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
+	TArray<FSKEquipmentActorToSpawn> ActorsToSpawnData;
 	
 	// 장비 GameplayAbility
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")

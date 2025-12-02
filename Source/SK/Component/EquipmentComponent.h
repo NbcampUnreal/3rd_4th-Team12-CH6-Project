@@ -72,6 +72,9 @@ protected:
 	void ApplyEquipmentEffect(USKEquipmentItemData* ItemData, UEquipmentInstance* Instance);
 	void RemoveEquipmentEffect(FEquipmentSlotData& SlotData);
 
+	UFUNCTION(BlueprintCallable, Category="Equipment")
+	APawn* GetEquipPawn();
+
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateEquipment(EEquipmentSlotType Slot, const FEquipmentSlotData& NewData);
 	

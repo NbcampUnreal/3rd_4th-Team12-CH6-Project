@@ -35,7 +35,7 @@ void USKGameInstance::JoinHostTown(const FString& Address)
 	}
 }
 
-void USKGameInstance::TravelToDungeon()
+void USKGameInstance::TravelToDungeon(int32 DungeonID)
 {
 	UWorld* World = GetWorld();
 	if (!World) return;
@@ -46,7 +46,15 @@ void USKGameInstance::TravelToDungeon()
 		return;
 	}
 
-	FString TravelCmd = FString::Printf(TEXT("%s?listen"), SKGameConstants::DungeonLevel);
+	const FString* LevelPath = SKGameConstants::DungeonLevels.Find(DungeonID);
+
+	if (!LevelPath)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid DungeonID: %d"), DungeonID);
+		return;
+	}
+
+	FString TravelCmd = FString::Printf(TEXT("%s?listen"), **LevelPath);
 	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → DungeonMap : %s"), *TravelCmd);
 	World->ServerTravel(TravelCmd, true);
 }
