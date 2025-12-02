@@ -64,7 +64,7 @@ void ASKPlayerCharacter::BeginPlay()
 
 	SetPlayerStateTag();
 
-
+	// InitASCFromPlayerState();
 	if (AController* PC = GetController())
 	{
 		ASKPlayerController* MyPC = Cast<ASKPlayerController>(PC);
@@ -103,16 +103,16 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 void ASKPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	if (PS)
-	{
-		AbilitySystemComponent = PS->GetAbilitySystemComponent();
-		AttributeSet = PS->GetAttributeSet();
-
-		// 서버에서 ASC 초기화
-		// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-	}
-
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// if (PS)
+	// {
+	// 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	// 	AttributeSet = PS->GetAttributeSet();
+	//
+	// 	// 서버에서 ASC 초기화
+	// 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	// }
+	//InitASCFromPlayerState();
 	SetTraceSocket();
 }
 
@@ -208,25 +208,25 @@ void ASKPlayerCharacter::SetTraceSocket()
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	// InitASCFromPlayerState();
 
-	UE_LOG(LogTemp, Error, TEXT("🔥 OnRep_PlayerState 호출됨"));
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	if (!PS)
-		return;
-
-	AbilitySystemComponent = PS->GetAbilitySystemComponent();
-	AttributeSet = PS->GetAttributeSet();
-
-	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-	SetTraceSocket();
-	UE_LOG(LogTemp, Error, TEXT("🔥 OnRep_PlayerState - PS OK, 타이머 시작"));
-	GetWorld()->GetTimerManager().SetTimer(
-		InitASCTimerHandle,
-		this,
-		&ASKPlayerCharacter::TryInitASC,
-		0.01f,
-		true
-	);
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// if (!PS)
+	// 	return;
+	//
+	// AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	// AttributeSet = PS->GetAttributeSet();
+	//
+	// // AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	// SetTraceSocket();
+	//
+	// GetWorld()->GetTimerManager().SetTimer(
+	// 	InitASCTimerHandle,
+	// 	this,
+	// 	&ASKPlayerCharacter::TryInitASC,
+	// 	0.01f,
+	// 	true
+	// );
 }
 
 

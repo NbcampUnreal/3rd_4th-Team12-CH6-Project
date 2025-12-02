@@ -22,12 +22,11 @@ void ASKCharacterBase::InitASCFromPlayerState()
 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	AttributeSet = PS->GetAttributeSet();
 
-	if (!IsValid(AbilitySystemComponent))
+	if (!AbilitySystemComponent)
 		return;
 
 	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
-	// Delegate 바인딩
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		USKAttributeSet::GetSpeedAttribute()
 	).AddUObject(this, &ASKCharacterBase::OnSpeedAttributeChanged);
@@ -56,6 +55,7 @@ void ASKCharacterBase::PossessedBy(AController* NewController)
 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
 	PS->SetDAPlayerStat();
+	InitASCFromPlayerState();
 	
 	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] PossessedBy (Server) 성공"));
 }
@@ -63,7 +63,6 @@ void ASKCharacterBase::PossessedBy(AController* NewController)
 void ASKCharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	InitASCFromPlayerState(); // 클라
 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	if (!PS)
 		return;
@@ -72,24 +71,22 @@ void ASKCharacterBase::OnRep_PlayerState()
 	AttributeSet = PS->GetAttributeSet();
 
 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	InitASCFromPlayerState(); // 클라
+	// UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] OnRep_PlayerState 초기화 성공"));
 
-	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] OnRep_PlayerState 초기화 성공"));
+	UE_LOG(LogTemp, Error, TEXT("[ONREP] Mesh=%s AnimClass=%s"),
+	 *GetNameSafe(GetMesh()),
+	 *GetNameSafe(GetMesh()->AnimClass));
+	
+	UE_LOG(LogTemp, Error, TEXT("[ASC DEBUG] Avatar=%s Owner=%s Anim=%s"),
+	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get()),
+	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get()),
+	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AnimInstance.Get()));
 }
 
 void ASKCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	if (!PS) return;
-
-	AbilitySystemComponent = PS->GetAbilitySystemComponent();
-	AttributeSet = PS->GetAttributeSet();
-
-	// AnimInstance가 이 시점에서 100% 존재함
-	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-
-	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] PostInitializeComponents 초기화 성공"));
 }
 
 UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
@@ -104,9 +101,13 @@ void ASKCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Error, TEXT("[DEBUG BeginPlay] Mesh=%s AnimClass=%s"),
+	 *GetNameSafe(GetMesh()),
+	 *GetNameSafe(GetMesh()->AnimClass));
+	
 	//충돌이나 속도,운동관련
 	BaseSetting();
-	InitASCFromPlayerState();
+	// InitASCFromPlayerState();
 }
 
 void ASKCharacterBase::BaseSetting()

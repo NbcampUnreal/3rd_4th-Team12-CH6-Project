@@ -208,10 +208,32 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 	FGameplayTagContainer Container;
 	Container.AddTag(GetLeftATKTag());
 
-	
 	// ASC->TryActivateAbilitiesByTag(Container);
 	bool success = ASC->TryActivateAbilitiesByTag(Container);
-	UE_LOG(LogTemp, Error, TEXT("[SERVER] TryActivateAbilitiesByTag: %d"), success);
+	UE_LOG(LogTemp, Error, TEXT("=== TAG CHECK START ==="));
+
+	FGameplayTagContainer OwnedTags;
+	ASC->GetOwnedGameplayTags(OwnedTags);
+	UE_LOG(LogTemp, Error, TEXT("OwnedTags: %s"), *OwnedTags.ToStringSimple());
+
+	// for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	// {
+	// 	UGameplayAbility* AbilityCDO = Spec.Ability;
+	//
+	// 	UE_LOG(LogTemp, Error, TEXT("----- Ability: %s -----"), *AbilityCDO->GetName());
+	//
+	// 	// 1) AbilityTags
+	// 	UE_LOG(LogTemp, Error, TEXT("AbilityTags: %s"),
+	// 		*AbilityCDO->AbilityTags.ToStringSimple());
+	//
+	// 	// 2) 이 Ability가 활성화 가능한가? (중요!)
+	// 	FString FailReason;
+	// 	const bool bCanActivate = AbilityCDO->CanActivateAbility(
+	// 		Spec.Handle, ASC->AbilityActorInfo.Get(), nullptr, &FailReason);
+	//
+	// 	UE_LOG(LogTemp, Error, TEXT("CanActivate: %d | FailReason: %s"),
+	// 		bCanActivate, *FailReason);
+	// }
 	
 }
 

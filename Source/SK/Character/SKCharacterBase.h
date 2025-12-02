@@ -34,7 +34,7 @@ protected:
 	//충돌이나 속도,운동관련
 	void BaseSetting();
 	void InitASCFromPlayerState();
-
+	void InitASCIfReady();
 	void OnSpeedAttributeChanged(const FOnAttributeChangeData& Data);
 
 	/** PlayerState가 가진 ASC를 참조 (소유 X) */
