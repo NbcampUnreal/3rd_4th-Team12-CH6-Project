@@ -2,9 +2,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Controller/SKPlayerController.h"
 #include "Item/SKInteractableBase.h"
-#include "Components/SphereComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -54,7 +52,7 @@ void USKInteractionComponent::UpdateTargetActor()
 	}
 	
 	float MaxDot = -1.f;
-	float MinDist = FLT_MAX;
+	float MinDist = INFINITY;
 	ASKInteractableBase* MaxActor = nullptr;
 		
 	const FVector OwnerLocation = GetOwner()->GetActorLocation();

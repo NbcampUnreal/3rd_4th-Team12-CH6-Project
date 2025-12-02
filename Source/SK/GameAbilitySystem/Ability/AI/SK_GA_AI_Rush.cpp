@@ -22,20 +22,20 @@ void USK_GA_AI_Rush::Rush(UAnimMontage* AnimMontage)
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		return;
 	}
 
 	if (!AICharacter->MotionWarpingComponent)
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		return;
 	}
 
 	AActor* TargetActor = GetTargetActor();
 	if (!IsValid(TargetActor))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		return;
 	}
 
@@ -102,7 +102,7 @@ void USK_GA_AI_Rush::OnRushCompleted()
 	CorrectRotation.Pitch = 0.f;
 	CorrectRotation.Roll = 0.f;
 	CachedCharacter->SetActorRotation(CorrectRotation);
-	// 필요하다면 보간보정 필요
+	// 필요하다면 커스텀 틱 태스크에서 보간보정 필요
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
@@ -121,14 +121,14 @@ void USK_GA_AI_Rush::ActivateAbility(
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
 	UAnimMontage* AnimMontage = AICharacter->GetMontages()[0]; // 임시로 일단 0번 인덱스 고정
 	if (!IsValid(AnimMontage))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	

@@ -12,6 +12,13 @@ class SK_API USK_GA_AI_Recovery : public USK_GA_AI_BaseCombat
 public:
 	USK_GA_AI_Recovery();
 
+	void Backstep();
+
+	void WaitMoveComplete();
+	
+	UFUNCTION()
+	void OnWaitMoveCompleteCompleted(FGameplayEventData EventData);
+
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

@@ -78,14 +78,14 @@ void USK_GA_AI_Base::ActivateAbility(
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	if (!AvatarActor)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	
 	ACharacter* AvatarCharacter = Cast<ACharacter>(AvatarActor);
 	if (!IsValid(AvatarCharacter))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
@@ -94,7 +94,7 @@ void USK_GA_AI_Base::ActivateAbility(
 	AController* Controller = AvatarCharacter->GetController();
 	if (!IsValid(Controller))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	
@@ -111,6 +111,7 @@ void USK_GA_AI_Base::EndAbility(
 	bool bWasCancelled
 	)
 {
+	// 나중에 실제 캔슬될 일이 생기면 그땐 조건 지워야 함.
 	if (!bWasCancelled)
 	{
 		UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
