@@ -66,14 +66,7 @@ void UMonsterDamageWidget::HealthChanged(AActor* EffectInstigator, AActor* Effec
 	SetVisibility(ESlateVisibility::Visible);
 
 	GetWorld()->GetTimerManager().ClearTimer(HideTimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(HideTimerHandle, this, &UMonsterDamageWidget::HideDamageText, 1.0f, false);
-	
-	FVector2D RandomOffset = FVector2D(
-		FMath::FRandRange(-10.f, 10.f),
-		FMath::FRandRange(-40.f, -20.f)
-	);
-	
-	DamageText->SetRenderTranslation(RandomOffset);
+	GetWorld()->GetTimerManager().SetTimer(HideTimerHandle, this, &UMonsterDamageWidget::HideDamageText, 3.0f, false);
 }
 
 void UMonsterDamageWidget::HideDamageText()
