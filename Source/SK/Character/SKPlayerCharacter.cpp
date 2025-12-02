@@ -99,6 +99,44 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
 }
 
+void ASKPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (PS)
+	{
+		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		AttributeSet = PS->GetAttributeSet();
+
+		// 서버에서 ASC 초기화
+		// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	}
+
+	SetTraceSocket();
+}
+
+void ASKPlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// if (PS)
+	// {
+	// 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	// 	ASC->InitAbilityActorInfo(PS, this);
+	// }
+
+	UE_LOG(LogTemp, Warning, TEXT("[CHECK] Mesh=%s"), *GetMesh()->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("[CHECK] AnimInstance=%s"),
+	       GetMesh()->GetAnimInstance() ? *GetMesh()->GetAnimInstance()->GetName() : TEXT("NULL"));
+
+	if (USkeletalMeshComponent* SKMesh = GetMesh())
+	{
+		SKMesh->OnAnimInitialized.AddDynamic(this, &ASKPlayerCharacter::OnAnimInitialized);
+		UE_LOG(LogTemp, Warning, TEXT("[CHECK] OnAnimInitialized 바인딩 완료"));
+	}
+}
+
 void ASKPlayerCharacter::SetSprinting(bool bSprinting)
 {
 	bIsSprinting = bSprinting;
@@ -159,7 +197,7 @@ void ASKPlayerCharacter::SetTraceSocket()
 		return;
 
 	CombatComponent->InitializeWeaponSocket(Row);
-	
+
 	const FWeaponDataRow* DataRow = PS->GetWeaponDataRow();
 	if (!DataRow)
 		return;
@@ -170,7 +208,24 @@ void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	SetTraceSocket(); // 안전
+	UE_LOG(LogTemp, Error, TEXT("🔥 OnRep_PlayerState 호출됨"));
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS)
+		return;
+
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
+
+	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	SetTraceSocket();
+	UE_LOG(LogTemp, Error, TEXT("🔥 OnRep_PlayerState - PS OK, 타이머 시작"));
+	GetWorld()->GetTimerManager().SetTimer(
+		InitASCTimerHandle,
+		this,
+		&ASKPlayerCharacter::TryInitASC,
+		0.01f,
+		true
+	);
 }
 
 
@@ -178,6 +233,46 @@ void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, u
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 	UpdateMovementTag(); // Idle/Move 상태 갱신 함수
+}
+
+void ASKPlayerCharacter::TryInitASC()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] 타이머 Tick 실행됨"));
+
+	if (!GetMesh())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] Mesh NULL"));
+		return;
+	}
+
+	if (!GetMesh()->GetAnimInstance())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] AnimInstance NULL"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] AnimInstance OK"));
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] PlayerState NULL"));
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] ASC NULL"));
+		return;
+	}
+
+	ASC->InitAbilityActorInfo(PS, this);
+
+	UE_LOG(LogTemp, Error, TEXT("[ASC INIT] 성공! AnimInstance=%s"),
+		   *GetMesh()->GetAnimInstance()->GetName());
+
+	GetWorld()->GetTimerManager().ClearTimer(InitASCTimerHandle);
 }
 
 void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable)
@@ -237,4 +332,18 @@ void ASKPlayerCharacter::SetPlayerStateTag()
 USKCombatComponent* ASKPlayerCharacter::GetCombatComponent() const
 {
 	return CombatComponent;
+}
+
+void ASKPlayerCharacter::OnAnimInitialized()
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS)
+		return;
+
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
+
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	UE_LOG(LogTemp, Error, TEXT("[ASC INIT] AnimInstance Initialized!"));
 }
