@@ -66,8 +66,8 @@ void USK_GA_AI_Chase::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (GetAbilitySystemComponentFromActorInfo()->ComponentHasTag("AI.Combat"))
+	
+	if (GetAbilitySystemComponentFromActorInfo()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Combat"))))
 	{
 		bSpeedUp = true;
 		CachedCharacter->GetCharacterMovement()->MaxWalkSpeed *= 1.5f;
@@ -89,6 +89,6 @@ void USK_GA_AI_Chase::EndAbility(
 		bSpeedUp = false;
 		CachedCharacter->GetCharacterMovement()->MaxWalkSpeed /= 1.5f;
 	}
-	
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

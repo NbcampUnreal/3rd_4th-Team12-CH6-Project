@@ -1,5 +1,6 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Backstep.h"
 #include "AIController.h"
+#include "NavigationSystem.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GameFramework/Character.h"
 
@@ -20,7 +21,21 @@ void USK_GA_AI_Backstep::Backstep()
 	
 	WaitMoveComplete();
 
-	float BackstepDistance = 300.0f; 
+	AAIController* AIController = Cast<AAIController>(CachedController);
+	if (!IsValid(AIController))
+	{
+		if (OwnEventTask->IsActive())
+		{
+			OwnEventTask->EndTask();
+		}
+
+		ClearFocus();
+
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		return;
+	}
+	
+	float BackstepDistance = 1000.0f;
 
 	FVector AILocation = CachedCharacter->GetActorLocation();
 	FVector PlayerLocation;
@@ -43,9 +58,30 @@ void USK_GA_AI_Backstep::Backstep()
 		FVector AIForwardVector = CachedCharacter->GetActorForwardVector();
 		TargetLocation = AILocation - AIForwardVector * BackstepDistance;
 	}
+
+	FNavLocation NewLocation;
 	
-	AAIController* AIController = Cast<AAIController>(CachedController);
-	if (!IsValid(AIController))
+	if (UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld()))
+	{
+		FVector Extent(100.f, 100.f, 400.f);
+
+		if (NavSystem->ProjectPointToNavigation(TargetLocation, NewLocation, Extent))
+		{
+			AIController->MoveToLocation(NewLocation.Location);
+		}
+		else
+		{
+			if (OwnEventTask->IsActive())
+			{
+				OwnEventTask->EndTask();
+			}
+
+			ClearFocus();
+
+			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		}
+	}
+	else
 	{
 		if (OwnEventTask->IsActive())
 		{
@@ -55,11 +91,7 @@ void USK_GA_AI_Backstep::Backstep()
 		ClearFocus();
 
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
-		
-		return;
 	}
-	
-	AIController->MoveToLocation(TargetLocation);
 }
 
 void USK_GA_AI_Backstep::WaitMoveComplete()
