@@ -20,6 +20,8 @@ public:
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	FORCEINLINE void SetForceMove(const bool bNewForceMove) {	bForceMove = bNewForceMove; };
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<ASKCharacterBase> OwnerCharacter;
@@ -35,6 +37,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 bShouldMove : 1;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	uint8 bForceMove : 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 bISFalling : 1;
