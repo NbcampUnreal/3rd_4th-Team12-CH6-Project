@@ -23,6 +23,7 @@ void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 		
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Char) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 	// if (!Char && Char->HasAuthority()) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 	
 	UE_LOG(LogTemp, Warning, TEXT("Active Simple Interact Ability, %s"), Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
