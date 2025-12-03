@@ -17,7 +17,7 @@ USK_GA_AI_Rush::USK_GA_AI_Rush()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_AI_Rush::Rush(UAnimMontage* AnimMontage)
+void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
@@ -125,7 +125,7 @@ void USK_GA_AI_Rush::ActivateAbility(
 		return;
 	}
 
-	UAnimMontage* AnimMontage = AICharacter->GetMontages()[0]; // 임시로 일단 0번 인덱스 고정
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Rush");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

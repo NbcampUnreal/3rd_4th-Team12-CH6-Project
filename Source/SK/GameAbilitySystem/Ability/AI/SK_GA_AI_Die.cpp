@@ -16,7 +16,7 @@ USK_GA_AI_Die::USK_GA_AI_Die()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_AI_Die::Die(UAnimMontage* AnimMontage)
+void USK_GA_AI_Die::Die(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
@@ -75,7 +75,7 @@ void USK_GA_AI_Die::ActivateAbility(
 		return;
 	}
 
-	UAnimMontage* AnimMontage = AICharacter->GetMontages()[1]; // 임시로 일단 1번 인덱스 고정
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Death");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

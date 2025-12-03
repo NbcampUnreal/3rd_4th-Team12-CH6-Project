@@ -14,7 +14,7 @@ USK_GA_AI_Melee::USK_GA_AI_Melee()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action.Melee")));
 }
 
-void USK_GA_AI_Melee::Melee(UAnimMontage* AnimMontage)
+void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
@@ -76,7 +76,7 @@ void USK_GA_AI_Melee::ActivateAbility(
 		return;
 	}
 
-	UAnimMontage* AnimMontage = AICharacter->GetMontages()[0]; // 임시로 일단 0번 인덱스 고정
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Melee");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

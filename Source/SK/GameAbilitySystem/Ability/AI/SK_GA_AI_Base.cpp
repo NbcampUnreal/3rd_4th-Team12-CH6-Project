@@ -5,10 +5,28 @@
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Character/AI/SKAICharacterBase.h"
 
 USK_GA_AI_Base::USK_GA_AI_Base()
 {
+
+}
+
+TObjectPtr<UAnimMontage> USK_GA_AI_Base::GetAnimMontage(FName AbilityName)
+{
+	TObjectPtr<UAnimMontage>* MapAnimMontage = Montages.Find(AbilityName);
+	if (!MapAnimMontage)
+	{
+		return nullptr;
+	}
 	
+	TObjectPtr<UAnimMontage> AnimMontage = *MapAnimMontage;
+	if (!IsValid(AnimMontage))
+	{
+		return nullptr;
+	}
+
+	return AnimMontage;
 }
 
 void USK_GA_AI_Base::WaitEndAbility()
@@ -100,6 +118,15 @@ void USK_GA_AI_Base::ActivateAbility(
 	
 	CachedController = Controller;
 
+	ASKAICharacterBase* BaseAI = Cast<ASKAICharacterBase>(CachedCharacter);
+	if (!IsValid(BaseAI))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
+	Montages = BaseAI->GetMontages();
+	
 	WaitEndAbility();
 }
 

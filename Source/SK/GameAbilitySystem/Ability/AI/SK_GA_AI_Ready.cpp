@@ -14,7 +14,7 @@ USK_GA_AI_Ready::USK_GA_AI_Ready()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_AI_Ready::Ready(UAnimMontage* AnimMontage)
+void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	SetFocus();
 	
@@ -59,7 +59,7 @@ void USK_GA_AI_Ready::ActivateAbility(
 		return;
 	}
 
-	UAnimMontage* AnimMontage = AICharacter->GetMontages()[1]; // 임시로 일단 1번 인덱스 고정
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Ready");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
