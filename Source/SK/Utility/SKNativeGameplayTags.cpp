@@ -146,7 +146,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action, "State.Action");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK, "State.Action.ATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_Skill, "State.Action.ATK.Skill");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_LeftMelee, "State.Action.ATK.LeftMelee");
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RigthMelee, "State.Action.ATK.RigthMelee");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RightMelee, "State.Action.ATK.RightMelee");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Melee, "State.Action.Melee");
 // State-Action-Interaction (상호작용)
