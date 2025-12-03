@@ -54,6 +54,7 @@ public:
 	void ResetComboState();
 	bool CheckMaxComboIndex(bool bLeft = true);
 	FGameplayTag GetLeftATKTag() const;
+	FGameplayTag GetATKMeleeTag(bool bLeft = true) const;
 	FGameplayTag GetWeaponTag() const;
 	int32 GetComboIndex() const;
 	void StopMontage_Local(float InBlendOut);
@@ -72,15 +73,22 @@ public:
 	void Multicast_StopMontage(float InBlendOut);
 	UFUNCTION(Server, Reliable)
 	void Server_TryActivateGA(const FGameplayTag& Tag);
-	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayLeftAttackMontage(UAnimMontage* Montage, FName SectionName);
+	UFUNCTION(Server, Reliable)
+	void Server_StartTrace();
+	UFUNCTION(Server, Reliable)
+	void Server_StopTrace();
 	UFUNCTION(Server, Reliable)
 	void Server_IncreaseComboIndex(bool bLeft = true);
 	UFUNCTION(Server, Reliable)
 	void Server_ResetComboIndex(int32 NewIndex);
 	UFUNCTION(Server, Reliable)
 	void Server_SetWeaponTag(FGameplayTag NewWeaponTag);
-
-
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ActivateLeftGA();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_RemoveATKTag(bool bLeft = true);
 	
 	void SetWeaponTag(const FGameplayTag& NewTag);
 
@@ -158,5 +166,6 @@ private:
 	void OnRep_ComboState();
 	
 };
+
 
 

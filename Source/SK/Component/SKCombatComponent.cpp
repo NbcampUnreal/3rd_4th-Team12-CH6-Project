@@ -13,7 +13,6 @@
 #include "Utility/SKNativeGameplayTags.h"
 
 
-
 // Sets default values for this component's properties
 USKCombatComponent::USKCombatComponent()
 {
@@ -48,22 +47,6 @@ void USKCombatComponent::BeginPlay()
 	}
 }
 
-void USKCombatComponent::ActivateLeftAttackGA()
-{
-	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
-	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
-
-	if (!IsValid(ASC))
-		return;
-
-	FGameplayTag LeftAtkTag = GetLeftATKTag();
-	FGameplayTagContainer Container;
-	Container.AddTag(LeftAtkTag);
-
-
-	UE_LOG(LogTemp, Error, TEXT("[ActivateLeftAttackGA] "));
-	ASC->TryActivateAbilitiesByTag(Container);
-}
 
 int32 USKCombatComponent::GetMaxComboIndex(bool bLeft)
 {
@@ -96,9 +79,7 @@ FString USKCombatComponent::FindWeaponTagName()
 void USKCombatComponent::OnRep_ComboState()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_ComboState: %s"),
-			  *ComboState.WeaponTag.ToString());
-
-
+	       *ComboState.WeaponTag.ToString());
 }
 
 
@@ -152,6 +133,13 @@ FGameplayTag USKCombatComponent::GetLeftATKTag() const
 	return returnTag;
 }
 
+FGameplayTag USKCombatComponent::GetATKMeleeTag(bool bLeft) const
+{
+	FGameplayTag returnTag = bLeft ? TAG_State_Action_ATK_LeftMelee : TAG_State_Action_ATK_RightMelee;
+
+	return returnTag;
+}
+
 FGameplayTag USKCombatComponent::GetWeaponTag() const
 {
 	return ComboState.WeaponTag;
@@ -195,10 +183,10 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 		ComboState.bBufferedAttack = false;
 	}
 
-	else if (ComboState.bCanNextCombo)
-	{
-		ComboState.bBufferedAttack = false;
-	}
+	// else if (ComboState.bCanNextCombo)
+	// {
+	// 	ComboState.bBufferedAttack = false;
+	// }
 
 	else
 	{
@@ -210,31 +198,26 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 
 	// ASC->TryActivateAbilitiesByTag(Container);
 	bool success = ASC->TryActivateAbilitiesByTag(Container);
-	UE_LOG(LogTemp, Error, TEXT("=== TAG CHECK START ==="));
 
+	UE_LOG(LogTemp, Error, TEXT("=== ACTIVATE LEFT ATK INPUT ==="));
+	UE_LOG(LogTemp, Error, TEXT("TryActivateAbilitiesByTag success = %s"), success ? TEXT("TRUE") : TEXT("FALSE"));
+
+	// Current owned tags
 	FGameplayTagContainer OwnedTags;
 	ASC->GetOwnedGameplayTags(OwnedTags);
 	UE_LOG(LogTemp, Error, TEXT("OwnedTags: %s"), *OwnedTags.ToStringSimple());
 
-	// for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
-	// {
-	// 	UGameplayAbility* AbilityCDO = Spec.Ability;
-	//
-	// 	UE_LOG(LogTemp, Error, TEXT("----- Ability: %s -----"), *AbilityCDO->GetName());
-	//
-	// 	// 1) AbilityTags
-	// 	UE_LOG(LogTemp, Error, TEXT("AbilityTags: %s"),
-	// 		*AbilityCDO->AbilityTags.ToStringSimple());
-	//
-	// 	// 2) 이 Ability가 활성화 가능한가? (중요!)
-	// 	FString FailReason;
-	// 	const bool bCanActivate = AbilityCDO->CanActivateAbility(
-	// 		Spec.Handle, ASC->AbilityActorInfo.Get(), nullptr, &FailReason);
-	//
-	// 	UE_LOG(LogTemp, Error, TEXT("CanActivate: %d | FailReason: %s"),
-	// 		bCanActivate, *FailReason);
-	// }
-	
+	// Check if ATK tag still exists (this is the key)
+	if (OwnedTags.HasTag(GetLeftATKTag()))
+	{
+		UE_LOG(LogTemp, Error, TEXT("[WARNING] LeftATKTag STILL EXISTS! (GA cannot activate)"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[OK] LeftATKTag is removed. GA can activate normally."));
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("================================"));
 }
 
 void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
@@ -262,6 +245,22 @@ void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
 }
 
 
+void USKCombatComponent::ActivateLeftAttackGA()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+
+	if (!IsValid(ASC))
+		return;
+
+	FGameplayTag LeftAtkTag = GetLeftATKTag();
+	FGameplayTagContainer Container;
+	Container.AddTag(LeftAtkTag);
+
+
+	UE_LOG(LogTemp, Error, TEXT("[ActivateLeftAttackGA] "));
+	ASC->TryActivateAbilitiesByTag(Container);
+}
 
 
 void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
@@ -272,7 +271,8 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	if (ComboState.bBufferedAttack && RecComboIndex < MaxCombo)
 	{
 		ComboState.bBufferedAttack = false;
-		ActivateLeftAttackGA(); 
+		// Multicast_ActivateLeftGA();
+		ActivateLeftAttackGA();
 		return;
 	}
 
@@ -282,27 +282,19 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	ComboState.bIsAttacking = false;
 	ComboState.bCanNextCombo = false;
 
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!SKPlayer) return;
 
-	// FGameplayTagContainer CancelTags;
-	// CancelTags.AddTag(TAG_Ability_LeftATK_Cancel); // 부모 태그
-	//
-	// ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
-	// UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	if (!ASC) return;
 
-	// ASC->CancelAbilities(&CancelTags, nullptr);
-	//
-	// UAnimInstance* AnimInstance = SKPlayer->GetMesh()->GetAnimInstance();
-	// if (AnimInstance)
-	// {
-	// 	AnimInstance->Montage_Stop(0.15f);  // BlendOut 0.15f 정도 추천
-	//
-	// }
+	ASC->RemoveLooseGameplayTag(GetATKMeleeTag());
+	Multicast_RemoveATKTag();
 
 	UE_LOG(LogTemp, Error, TEXT("[ATK_END] Buffered=%d | Combo=%d / %d"),
-	ComboState.bBufferedAttack,
-	RecComboIndex,
-	MaxCombo);
-	
+	       ComboState.bBufferedAttack,
+	       RecComboIndex,
+	       MaxCombo);
 }
 
 void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage, FName StartSection)
@@ -331,7 +323,7 @@ void USKCombatComponent::Client_PlayMontage_Implementation(UAnimMontage* Montage
 void USKCombatComponent::Server_IncreaseComboIndex_Implementation(bool bLeft)
 {
 	ComboState.ComboIndex++;
-	OnRep_ComboState(); 
+	// OnRep_ComboState(); 
 	UE_LOG(LogTemp, Error, TEXT("[SERVER] Increase -> %d"), ComboState.ComboIndex);
 }
 
@@ -344,8 +336,8 @@ void USKCombatComponent::Server_ResetComboIndex_Implementation(int32 NewIndex)
 
 void USKCombatComponent::Server_SetWeaponTag_Implementation(FGameplayTag NewWeaponTag)
 {
-	ComboState.WeaponTag = NewWeaponTag;   
-	OnRep_ComboState();     
+	ComboState.WeaponTag = NewWeaponTag;
+	OnRep_ComboState();
 }
 
 
@@ -364,9 +356,38 @@ void USKCombatComponent::Server_TryActivateGA_Implementation(const FGameplayTag&
 	ASC->TryActivateAbilitiesByTag(Container);
 }
 
+void USKCombatComponent::Multicast_PlayLeftAttackMontage_Implementation(UAnimMontage* Montage, FName SectionName)
+{
+	ACharacter* OwnerChar = Cast<ACharacter>(GetOwner());
+	if (!OwnerChar) return;
+
+	UAnimInstance* Anim = OwnerChar->GetMesh()->GetAnimInstance();
+	if (!Anim) return;
+
+	Anim->Montage_Play(Montage);
+	Anim->Montage_JumpToSection(SectionName, Montage);
+}
+
+void USKCombatComponent::Server_StartTrace_Implementation()
+{
+	StartTrace();
+}
+
+void USKCombatComponent::Server_StopTrace_Implementation()
+{
+	StopTrace();
+}
+
+void USKCombatComponent::Multicast_ActivateLeftGA_Implementation()
+{
+	if (GetOwner()->HasAuthority())
+		return;
+	ActivateLeftAttackGA();
+}
+
 void USKCombatComponent::SetWeaponTag(const FGameplayTag& NewTag)
 {
-	if (GetOwnerRole() == ROLE_Authority)  // 서버에서만 세팅
+	if (GetOwnerRole() == ROLE_Authority) // 서버에서만 세팅
 	{
 		ComboState.WeaponTag = NewTag;
 	}
@@ -440,7 +461,7 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		Hit,
 		PrevStart,
 		CurrStart,
-		CapsuleRot, 
+		CapsuleRot,
 		ECC_Pawn,
 		FCollisionShape::MakeCapsule(Radius, HalfHeight),
 		Params
@@ -448,15 +469,15 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 
 
 	DrawDebugCapsule(
-			GetWorld(),
-			CapsuleCenter,
-			HalfHeight,
-			Radius,
-			CapsuleRot, // ★ 핵심: 회전 적용
-			FColor::Green,
-			false,
-			0.05f
-		);
+		GetWorld(),
+		CapsuleCenter,
+		HalfHeight,
+		Radius,
+		CapsuleRot, // ★ 핵심: 회전 적용
+		FColor::Green,
+		false,
+		0.05f
+	);
 
 	if (bHit)
 	{
@@ -511,8 +532,8 @@ void USKCombatComponent::InitializeWeaponData(const FWeaponDataRow* Row)
 	CurrentWeaponData = Row->WeaponData;
 
 	UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CombatComponent %p | Owner %s"),
-	this,
-	*GetOwner()->GetName());
+	       this,
+	       *GetOwner()->GetName());
 
 	UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CurrentWeaponData = %p"), CurrentWeaponData.Get());
 }
@@ -527,7 +548,6 @@ UAnimMontage* USKCombatComponent::GetLeftAttackMontage(int32 Index)
 
 	return nullptr;
 }
-
 
 
 void USKCombatComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
@@ -550,4 +570,17 @@ void USKCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(USKCombatComponent, ComboState);
+}
+
+void USKCombatComponent::Multicast_RemoveATKTag_Implementation(bool bLeft)
+{
+	FGameplayTag returnTag = GetATKMeleeTag(bLeft);
+
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+
+	if (ASC)
+	{
+		ASC->RemoveLooseGameplayTag(returnTag);
+	}
 }

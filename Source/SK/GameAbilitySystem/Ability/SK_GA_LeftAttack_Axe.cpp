@@ -17,7 +17,7 @@
 USK_GA_LeftAttack_Axe::USK_GA_LeftAttack_Axe()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
 }
 
@@ -71,21 +71,21 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	UAnimMontage* Montage = CombatComponent->GetLeftAttackMontage(0);
 	FName SectionName = FName(*FString::Printf(TEXT("Combo_%02d"), SafeIndex + 1));
 
-	UAbilityTask_PlayMontageAndWait* Task =
-		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			Montage,
-			1.f
-			, SectionName
-			, false
-		);
-
-	Task->OnCompleted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageCompleted);
-	Task->OnInterrupted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageInterrupted);
-	Task->ReadyForActivation();
-
-
+	CombatComponent->Multicast_PlayLeftAttackMontage(Montage, SectionName);
+	
+	// UAbilityTask_PlayMontageAndWait* Task =
+	// 	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+	// 		this,
+	// 		NAME_None,
+	// 		Montage,
+	// 		1.f
+	// 		, SectionName
+	// 		, false
+	// 	);
+	//
+	// Task->OnCompleted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageCompleted);
+	// Task->OnInterrupted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageInterrupted);
+	// Task->ReadyForActivation();
 }
 
 void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
