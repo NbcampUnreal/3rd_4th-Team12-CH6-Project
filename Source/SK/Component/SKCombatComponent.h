@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Weapon/SKWeaponData.h"
 #include "SKCombatComponent.generated.h"
 
 
@@ -112,6 +114,10 @@ public:
 	void SetWeaponMesh_Init();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
 	TObjectPtr<USKWeaponData> CurrentWeaponData;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
+	TObjectPtr<USKWeaponStateData> CurrentWeaponStateData;
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -180,6 +186,19 @@ public:
 		FString LastName;
 		FullName.Split(TEXT("."), nullptr, &LastName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 		FName RowName(*LastName);
+
+		APawn* Owner = Cast<APawn>(GetOwner());
+		
+		ASKPlayerState* PS = Cast<ASKPlayerState>(Owner);
+
+		UDataTable* WeaponDataTable = nullptr;
+		
+		if (PS)
+		{
+			WeaponDataTable = PS->GetWeaponData().LoadSynchronous();
+		}
+
+		
 		FWeaponDataRow* WeaponDataRow = WeaponDataTable->FindRow<FWeaponDataRow>(RowName, TEXT("Get Weapon State Data"));
 		if (WeaponDataRow)
 		{

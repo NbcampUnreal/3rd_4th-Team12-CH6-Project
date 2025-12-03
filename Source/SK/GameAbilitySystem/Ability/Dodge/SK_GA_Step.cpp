@@ -4,7 +4,7 @@
 
 void USK_GA_Step::SetAnimMontage(USKCombatComponent* CombatComponent)
 {
-	UAnimMontage* StepMontage = CombatComponent->GetWeaponStateData()->StepMontage;
+	UAnimMontage* StepMontage = CombatComponent->CurrentWeaponStateData->StepMontage;
 	if (!StepMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Step montage is null"));
