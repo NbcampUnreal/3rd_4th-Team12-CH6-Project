@@ -58,7 +58,7 @@ void USKInteractionComponent::UpdateTargetActor()
 	const FVector OwnerLocation = GetOwner()->GetActorLocation();
 	const FVector OwnerForwardVector = GetOwner()->GetActorForwardVector();
 
-	for (auto const Actor : CandidateActors)
+	for (auto* Actor : CandidateActors)
 	{
 		FVector ActorLocation = Actor->GetActorLocation();
 
