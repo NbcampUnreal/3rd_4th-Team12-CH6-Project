@@ -466,16 +466,7 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		0.05f
 	);
 
-	DrawDebugCapsule(
-		GetWorld(),
-		CapsuleCenter,
-		HalfHeight,
-		Radius,
-		CapsuleRot,
-		FColor::Red,
-		false,
-		0.5f 
-	);
+
 	if (bHit)
 	{
 		AActor* HitActor = Hit.GetActor();
