@@ -171,6 +171,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Combat, "AI.Combat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Death, "AI.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Rush, "AI.Rush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Backstep, "AI.Backstep");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");

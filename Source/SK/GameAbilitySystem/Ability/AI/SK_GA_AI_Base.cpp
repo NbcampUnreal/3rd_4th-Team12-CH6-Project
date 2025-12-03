@@ -45,39 +45,46 @@ void USK_GA_AI_Base::WaitEndAbility()
 
 void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 {
-	if (OwnEventTask)
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (IsValid(SourceASC))
 	{
-		if (OwnEventTask->IsActive())
+		FGameplayTagContainer AITags;
+		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Rush"));
+		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Backstep"));
+		
+		if (!SourceASC->HasAnyMatchingGameplayTags(AITags))
 		{
-			OwnEventTask->EndTask();
-		}
-	}
-	if (OwnMontageTask)
-	{
-		if (OwnMontageTask->IsActive())
-		{
-			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-			if (!IsValid(SourceASC))
+			if (OwnEventTask)
 			{
-				return;
+				if (OwnEventTask->IsActive())
+				{
+					OwnEventTask->EndTask();
+				}
+			}
+			
+			if (OwnMontageTask)
+			{
+				if (OwnMontageTask->IsActive())
+				{
+					SourceASC->CurrentMontageStop();
+			
+					OwnMontageTask->EndTask();
+				}
+			}
+			
+			if (OwnDelayTask)
+			{
+				if (OwnDelayTask->IsActive())
+				{
+					OwnDelayTask->EndTask();
+				}
 			}
 
-			SourceASC->CurrentMontageStop();
-			
-			OwnMontageTask->EndTask();
+			CachedController->StopMovement();
+
+			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		}
 	}
-	if (OwnDelayTask)
-	{
-		if (OwnDelayTask->IsActive())
-		{
-			OwnDelayTask->EndTask();
-		}
-	}
-
-	CachedController->StopMovement();
-
-	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
 void USK_GA_AI_Base::ActivateAbility(
