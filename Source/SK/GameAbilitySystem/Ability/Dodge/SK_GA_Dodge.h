@@ -33,7 +33,7 @@ protected:
 	void OnCanceled();
 
 	UFUNCTION()
-	virtual void SetAnimMontage(USKCombatComponent* CombatComponent);
+	virtual void SetAnimMontage(USKActionComponent* ActionComponent);
 
 	UPROPERTY()
 	UAnimMontage* DodgeMontage;

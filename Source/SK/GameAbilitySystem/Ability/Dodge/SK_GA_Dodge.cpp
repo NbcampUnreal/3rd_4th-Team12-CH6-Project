@@ -1,9 +1,8 @@
 ﻿
 #include "SK_GA_Dodge.h"
 
-#include "Component/SKCombatComponent.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Weapon/ActionData/SKWeaponActionData.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Controller/SKPlayerController.h"
 
@@ -24,11 +23,11 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	
 	UE_LOG(LogTemp, Warning, TEXT("Active %s Ability, %s"), *GetName(), Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 
-	USKCombatComponent* CombatComponent = Char->GetCombatComponent();
-	if (!CombatComponent) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
+	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	if (!ActionComponent) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 
 	// 캐릭터 회전
-	Char->SetActorRotation(CombatComponent->GetDodgeRotator());
+	Char->SetActorRotation(ActionComponent->GetDodgeRotator());
 
 	// 몽타주 섹션
 	FName SectionName;
@@ -45,7 +44,7 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	}
 	
 	// 몽타주 재생
-	SetAnimMontage(CombatComponent);
+	SetAnimMontage(ActionComponent);
 	
 	if (DodgeMontage)
 	{
@@ -69,7 +68,7 @@ void USK_GA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 
 }
 
-void USK_GA_Dodge::SetAnimMontage(USKCombatComponent* CombatComponent)
+void USK_GA_Dodge::SetAnimMontage(USKActionComponent* ActionComponent)
 {
 }
 
