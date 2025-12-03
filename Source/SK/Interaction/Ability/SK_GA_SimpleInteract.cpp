@@ -13,7 +13,7 @@
 USK_GA_SimpleInteract::USK_GA_SimpleInteract()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
 void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
