@@ -1,20 +1,20 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Recovery.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Backstep.h"
 #include "AIController.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GameFramework/Character.h"
 
-USK_GA_AI_Recovery::USK_GA_AI_Recovery()
+USK_GA_AI_Backstep::USK_GA_AI_Backstep()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Recovery")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Backstep")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_AI_Recovery::Backstep()
+void USK_GA_AI_Backstep::Backstep()
 {
 	SetFocus();
 	
@@ -62,7 +62,7 @@ void USK_GA_AI_Recovery::Backstep()
 	AIController->MoveToLocation(TargetLocation);
 }
 
-void USK_GA_AI_Recovery::WaitMoveComplete()
+void USK_GA_AI_Backstep::WaitMoveComplete()
 {
 	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
@@ -71,18 +71,18 @@ void USK_GA_AI_Recovery::WaitMoveComplete()
 				true,
 				false
 				);
-	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Recovery::OnWaitMoveCompleteCompleted);
+	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Backstep::OnWaitMoveCompleteCompleted);
 	OwnEventTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Recovery::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
+void USK_GA_AI_Backstep::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
 {
 	ClearFocus();
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
-void USK_GA_AI_Recovery::ActivateAbility(
+void USK_GA_AI_Backstep::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -96,7 +96,7 @@ void USK_GA_AI_Recovery::ActivateAbility(
 	Backstep();
 }
 
-void USK_GA_AI_Recovery::EndAbility(
+void USK_GA_AI_Backstep::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,

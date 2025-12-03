@@ -42,6 +42,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Chase, "Ability.Chase");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Ready, "Ability.Ready");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Rush, "Ability.Rush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
