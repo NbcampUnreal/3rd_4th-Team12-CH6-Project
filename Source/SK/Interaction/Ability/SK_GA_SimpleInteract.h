@@ -4,6 +4,8 @@
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_SimpleInteract.generated.h"
 
+class ASKInteractableBase;
+
 struct FSKInteractionData;
 
 UCLASS()
@@ -26,10 +28,18 @@ public:
 		bool bWasCancelled) override;
 
 protected:
+
+	UFUNCTION()
+	void OnMoveCompleted();
 	
 	UFUNCTION()
 	void OnCompleted();
 
 	UFUNCTION()
 	void OnCanceled();
+
+private:
+	
+	UPROPERTY()
+	TObjectPtr<ASKInteractableBase> CachedTargetActor;
 };
