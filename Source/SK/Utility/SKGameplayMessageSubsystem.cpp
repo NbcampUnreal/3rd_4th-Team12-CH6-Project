@@ -1,6 +1,7 @@
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
+#include "StructUtils/InstancedStruct.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSKGameplayMessageSubsystem, Log, All);
 
@@ -10,6 +11,17 @@ void FSKGameplayMessageListenerHandle::Unregister()
 	{
 		Subsystem->UnregisterListener(*this);
 	}
+}
+
+void USKGameplayMessageSubsystem::BroadcastMessage_BP(FGameplayTag Channel, const FInstancedStruct& Message)
+{
+	if (!Message.IsValid())
+		return;
+
+	const UScriptStruct* StructType = Message.GetScriptStruct();
+	const void* StructData = Message.GetMemory();
+
+	BroadcastMessageInternal(Channel, StructType, StructData);
 }
 
 void USKGameplayMessageSubsystem::BroadcastMessageInternal(

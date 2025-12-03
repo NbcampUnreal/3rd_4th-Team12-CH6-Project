@@ -95,6 +95,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Inventory, "UI.Layout.Inventory");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EquipmentMain, "UI.Layout.EquipmentMain");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EquipmentSelect, "UI.Layout.EquipmentSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_QuickSlotSelect, "UI.Layout.QuickSlotSelect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_DungeonSelect, "UI.Layout.DungeonSelect");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterStatus, "UI.Slot.CharacterStatus");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickItem, "UI.Slot.QuickItem");
@@ -116,6 +117,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_EquipToolTip, "UI.Slot.EquipToolTip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotList, "UI.Slot.QuickSlotList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotToolTip, "UI.Slot.QuickSlotToolTip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Interaction, "UI.Slot.Interaction");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_DungeonSelect, "UI.Slot.DungeonSelect");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState, "PlayerState");
@@ -146,7 +148,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action, "State.Action");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK, "State.Action.ATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_Skill, "State.Action.ATK.Skill");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_LeftMelee, "State.Action.ATK.LeftMelee");
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RigthMelee, "State.Action.ATK.RigthMelee");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_ATK_RightMelee, "State.Action.ATK.RightMelee");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Melee, "State.Action.Melee");
 // State-Action-Interaction (상호작용)
@@ -183,6 +185,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SlotVisible, "Message.Channel.SlotVis
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ToolTipItem, "Message.Channel.ToolTipItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemSwitchSelect, "Message.Channel.ItemSwitchSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemAddInfo, "Message.Channel.ItemAddInfo");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UseQuickSlotItem, "Message.Channel.UseQuickSlotItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BossWidgetSetting, "Message.Channel.BossWidgetSetting");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");

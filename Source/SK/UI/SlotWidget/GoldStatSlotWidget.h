@@ -19,7 +19,8 @@ class SK_API UGoldStatSlotWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	
+
+	void TryBind();
 protected:
 	UPROPERTY()
 	const USKAttributeSet* AttributeSet;
