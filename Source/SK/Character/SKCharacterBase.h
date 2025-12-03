@@ -22,6 +22,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+	virtual void PostInitializeComponents() override;
 
 	UFUNCTION(BlueprintCallable)
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -33,7 +34,7 @@ protected:
 	//충돌이나 속도,운동관련
 	void BaseSetting();
 	void InitASCFromPlayerState();
-
+	void InitASCIfReady();
 	void OnSpeedAttributeChanged(const FOnAttributeChangeData& Data);
 
 	/** PlayerState가 가진 ASC를 참조 (소유 X) */

@@ -23,7 +23,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void PostInitializeComponents() override;
+	
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
@@ -38,7 +40,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	USKCombatComponent* GetCombatComponent() const;
-
+	UFUNCTION()
+	void OnAnimInitialized();
 	void SetTraceSocket();
 
 
@@ -59,6 +62,8 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 private:
+	FTimerHandle InitASCTimerHandle;
+	void TryInitASC();
 	void SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable);
 
 

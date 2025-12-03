@@ -22,19 +22,17 @@ void ASKCharacterBase::InitASCFromPlayerState()
 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	AttributeSet = PS->GetAttributeSet();
 
-	if (!IsValid(AbilitySystemComponent))
+	if (!AbilitySystemComponent)
 		return;
 
 	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
-	// Delegate 바인딩
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		USKAttributeSet::GetSpeedAttribute()
 	).AddUObject(this, &ASKCharacterBase::OnSpeedAttributeChanged);
 
 	// 초기 속도 적용
 	OnSpeedAttributeChanged(FOnAttributeChangeData());
-	
 }
 
 
@@ -49,22 +47,46 @@ void ASKCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (HasAuthority())
-	{
-		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-		AbilitySystemComponent = PS->GetAbilitySystemComponent();
-		AttributeSet = PS->GetAttributeSet();
 
-		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
 
-		PS->SetDAPlayerStat();
-	}
+	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	PS->SetDAPlayerStat();
+	InitASCFromPlayerState();
+	
+	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] PossessedBy (Server) 성공"));
 }
 
 void ASKCharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS)
+		return;
+
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
+
+	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	InitASCFromPlayerState(); // 클라
+	// UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] OnRep_PlayerState 초기화 성공"));
+
+	UE_LOG(LogTemp, Error, TEXT("[ONREP] Mesh=%s AnimClass=%s"),
+	 *GetNameSafe(GetMesh()),
+	 *GetNameSafe(GetMesh()->AnimClass));
+	
+	UE_LOG(LogTemp, Error, TEXT("[ASC DEBUG] Avatar=%s Owner=%s Anim=%s"),
+	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get()),
+	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get()),
+	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AnimInstance.Get()));
+}
+
+void ASKCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 }
 
 UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
@@ -79,9 +101,13 @@ void ASKCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Error, TEXT("[DEBUG BeginPlay] Mesh=%s AnimClass=%s"),
+	 *GetNameSafe(GetMesh()),
+	 *GetNameSafe(GetMesh()->AnimClass));
+	
 	//충돌이나 속도,운동관련
 	BaseSetting();
-	InitASCFromPlayerState();
+	// InitASCFromPlayerState();
 }
 
 void ASKCharacterBase::BaseSetting()

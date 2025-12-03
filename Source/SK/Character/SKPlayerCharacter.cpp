@@ -17,6 +17,8 @@
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "GameData/WeaponDataRow.h"
+#include "Weapon/SKWeaponData.h"
 
 ASKPlayerCharacter::ASKPlayerCharacter()
 {
@@ -60,12 +62,9 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	// PS->SetDAPlayerStat();
 	SetPlayerStateTag();
-	// SetWeapon(CurrentWeaponTag);
-	//SetTraceSocket();
 
+	// InitASCFromPlayerState();
 	if (AController* PC = GetController())
 	{
 		ASKPlayerController* MyPC = Cast<ASKPlayerController>(PC);
@@ -99,6 +98,44 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
 	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
+}
+
+void ASKPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// if (PS)
+	// {
+	// 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	// 	AttributeSet = PS->GetAttributeSet();
+	//
+	// 	// 서버에서 ASC 초기화
+	// 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	// }
+	//InitASCFromPlayerState();
+	SetTraceSocket();
+}
+
+void ASKPlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// if (PS)
+	// {
+	// 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	// 	ASC->InitAbilityActorInfo(PS, this);
+	// }
+
+	UE_LOG(LogTemp, Warning, TEXT("[CHECK] Mesh=%s"), *GetMesh()->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("[CHECK] AnimInstance=%s"),
+	       GetMesh()->GetAnimInstance() ? *GetMesh()->GetAnimInstance()->GetName() : TEXT("NULL"));
+
+	if (USkeletalMeshComponent* SKMesh = GetMesh())
+	{
+		SKMesh->OnAnimInitialized.AddDynamic(this, &ASKPlayerCharacter::OnAnimInitialized);
+		UE_LOG(LogTemp, Warning, TEXT("[CHECK] OnAnimInitialized 바인딩 완료"));
+	}
 }
 
 void ASKPlayerCharacter::SetSprinting(bool bSprinting)
@@ -152,59 +189,44 @@ void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
 void ASKPlayerCharacter::SetTraceSocket()
 {
 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	
+
 	if (!PS || !PS->GetWeaponDT())
 		return;
 
-	FGameplayTag WeaponTag = PS->GetWeaponTag();
-	if (!WeaponTag.IsValid())
-	{
-		UE_LOG(LogTemp, Error, TEXT("SetTraceSocket: WeaponTag INVALID"));
+	const FSKWeaponDataRow* Row = PS->GetWeaponSocketDataRow();
+	if (!Row)
 		return;
-		
-	}
-	const UDataTable* WeaponDT = PS->GetWeaponDT();
-	const FSKWeaponDataRow* FoundRow = nullptr;
 
-	for (const auto& Pair : WeaponDT->GetRowMap())
-	{
-		const FSKWeaponDataRow* Row = reinterpret_cast<const FSKWeaponDataRow*>(Pair.Value);
-		if (!Row)
-			continue;
+	CombatComponent->InitializeWeaponSocket(Row);
 
-		if (Row->WeaponTag == WeaponTag)
-		{
-			FoundRow = Row;
-			break;
-		}
-	}
-
-	if (!FoundRow)
-	{
-		UE_LOG(LogTemp, Error,
-			TEXT("SetTraceSocket: Row not found for Tag %s"),
-			*WeaponTag.ToString());
+	const FWeaponDataRow* DataRow = PS->GetWeaponDataRow();
+	if (!DataRow)
 		return;
-	}
-
-	// === CombatComponent에게 Row 전달 ===
-	if (CombatComponent)
-	{
-		CombatComponent->InitializeWeaponData(FoundRow);
-		UE_LOG(LogTemp, Log,
-			TEXT("SetTraceSocket: Weapon '%s' sockets initialized."),
-			*WeaponTag.ToString());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("SetTraceSocket: CombatComponent is NULL"));
-	}
-	
+	CombatComponent->InitializeWeaponData(DataRow);
 }
 
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	// InitASCFromPlayerState();
+
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// if (!PS)
+	// 	return;
+	//
+	// AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	// AttributeSet = PS->GetAttributeSet();
+	//
+	// // AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+	// SetTraceSocket();
+	//
+	// GetWorld()->GetTimerManager().SetTimer(
+	// 	InitASCTimerHandle,
+	// 	this,
+	// 	&ASKPlayerCharacter::TryInitASC,
+	// 	0.01f,
+	// 	true
+	// );
 }
 
 
@@ -212,6 +234,46 @@ void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, u
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 	UpdateMovementTag(); // Idle/Move 상태 갱신 함수
+}
+
+void ASKPlayerCharacter::TryInitASC()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] 타이머 Tick 실행됨"));
+
+	if (!GetMesh())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] Mesh NULL"));
+		return;
+	}
+
+	if (!GetMesh()->GetAnimInstance())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] AnimInstance NULL"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] AnimInstance OK"));
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] PlayerState NULL"));
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] ASC NULL"));
+		return;
+	}
+
+	ASC->InitAbilityActorInfo(PS, this);
+
+	UE_LOG(LogTemp, Error, TEXT("[ASC INIT] 성공! AnimInstance=%s"),
+		   *GetMesh()->GetAnimInstance()->GetName());
+
+	GetWorld()->GetTimerManager().ClearTimer(InitASCTimerHandle);
 }
 
 void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable)
@@ -242,7 +304,7 @@ void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
 	{
 		FVector Dir = (PC->CurrentTarget->GetActorLocation() - GetActorLocation());
 		Dir.Z = 0;
-	
+
 		FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
 		SetActorRotation(NewRot);
 	}
@@ -259,4 +321,18 @@ void ASKPlayerCharacter::SetPlayerStateTag()
 USKCombatComponent* ASKPlayerCharacter::GetCombatComponent() const
 {
 	return CombatComponent;
+}
+
+void ASKPlayerCharacter::OnAnimInitialized()
+{
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS)
+		return;
+
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
+
+	AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+	UE_LOG(LogTemp, Error, TEXT("[ASC INIT] AnimInstance Initialized!"));
 }
