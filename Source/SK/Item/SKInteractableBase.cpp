@@ -34,6 +34,7 @@ ASKInteractableBase::ASKInteractableBase()
 	InteractionWidget->SetVisibility(false);
 	
 	bReplicates = true;
+	bCanInteract = true;
 }
 
 void ASKInteractableBase::BeginPlay()
@@ -76,6 +77,11 @@ void ASKInteractableBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AAct
 	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
 	InteractionComponent->CandidateActors.Remove(this);	
 
+}
+
+void ASKInteractableBase::PreExecuteInteraction()
+{
+	bCanInteract = false;
 };
 
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -60,6 +60,8 @@ void USKInteractionComponent::UpdateTargetActor()
 
 	for (auto* Actor : CandidateActors)
 	{
+		if (!Actor->bCanInteract) continue;
+		
 		FVector ActorLocation = Actor->GetActorLocation();
 
 		// 두 벡터 내적이 0보다 큰지
