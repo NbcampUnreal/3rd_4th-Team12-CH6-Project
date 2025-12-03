@@ -42,10 +42,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MonsterID")
 	int32 DropTableID = -1;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Montages")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation|Montages")
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AI")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
 
 private:

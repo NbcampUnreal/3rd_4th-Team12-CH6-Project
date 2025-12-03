@@ -52,7 +52,7 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Rush"));
 		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Backstep"));
 		
-		if (!SourceASC->HasAnyMatchingGameplayTags(AITags))
+		if (SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("AI.Death")) || !SourceASC->HasAnyMatchingGameplayTags(AITags))
 		{
 			if (OwnEventTask)
 			{
