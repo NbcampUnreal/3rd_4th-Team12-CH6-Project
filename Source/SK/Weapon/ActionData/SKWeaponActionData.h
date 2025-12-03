@@ -3,10 +3,10 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
-#include "SKWeaponStateData.generated.h"
+#include "SKWeaponActionData.generated.h"
 
 UCLASS()
-class SK_API USKWeaponStateData : public UDataAsset
+class SK_API USKWeaponActionData : public UDataAsset
 {
 	GENERATED_BODY()
 
