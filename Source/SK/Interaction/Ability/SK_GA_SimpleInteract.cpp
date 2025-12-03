@@ -108,7 +108,7 @@ void USK_GA_SimpleInteract::OnMoveCompleted()
 	if (Data.InteractMontage)
 	{
 		
-		Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		// Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 		UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), Data.InteractMontage);
 		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
@@ -125,7 +125,7 @@ void USK_GA_SimpleInteract::EndAbility(const FGameplayAbilitySpecHandle Handle,
 
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!Char) return;
-	Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	// Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	
 	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
