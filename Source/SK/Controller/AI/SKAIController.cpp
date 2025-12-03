@@ -2,7 +2,7 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
-#include "GameFramework/Character.h"
+#include "Character/AI/SKAICharacter.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -94,12 +94,19 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		return;
 	}
 
-	if (!StateTreeAsset)
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(InPawn);
+	if (!IsValid(AICharacter))
 	{
 		return;
 	}
 
-	StateTreeAIComponent->SetStateTree(StateTreeAsset);
+	UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
+	if (!OwningStateTree)
+	{
+		return;
+	}
+	
+	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
 }
 
@@ -168,6 +175,7 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 
 void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 {
+	/*
 	if (NewState == EDungeonMatchState::Dungeon_InProgress)
 	{
 		if (!StateTreeAIComponent)
@@ -175,12 +183,13 @@ void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 			return;
 		}
 
-		if (!StateTreeAsset)
+		if (!OwningStateTree)
 		{
 			return;
 		}
 
-		StateTreeAIComponent->SetStateTree(StateTreeAsset);
+		StateTreeAIComponent->SetStateTree(OwningStateTree);
 		StateTreeAIComponent->StartLogic();
 	}
+	*/
 }

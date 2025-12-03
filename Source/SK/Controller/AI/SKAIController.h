@@ -8,7 +8,6 @@
 #include "SKAIController.generated.h"
 
 class UStateTreeAIComponent;
-class UStateTree;
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 class UAbilitySystemComponent;
@@ -22,9 +21,6 @@ protected:
 	// StateTree
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="StateTree")
 	TObjectPtr<UStateTreeAIComponent> StateTreeAIComponent;
-	
-	UPROPERTY(EditDefaultsOnly, Category="AI")
-	TObjectPtr<UStateTree> StateTreeAsset;
 
 	// Perception
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perception")

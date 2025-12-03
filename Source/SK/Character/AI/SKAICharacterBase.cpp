@@ -5,7 +5,6 @@
 #include "Components/BoxComponent.h"
 #include "MotionWarpingComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Controller/AI/SKAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -109,6 +108,7 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 		}
 	}
 
+	/*
 	FGameplayEffectContextHandle GEContextHandle = AbilitySystemComponent->MakeEffectContext();
 	for (const TSubclassOf<UGameplayEffect>& GameEffectClass : AIDataAsset->StartupGE)
 	{
@@ -117,12 +117,14 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 			AbilitySystemComponent->ApplyGameplayEffectToSelf(GameEffectClass->GetDefaultObject<UGameplayEffect>(), 1.f, GEContextHandle);
 		}
 	}
+	*/
 	
 	if (AIDataAsset->TeamTag.IsValid())
 	{
 		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TeamTag);
 	}
-		
+
+	/*
 	if (AIDataAsset->GiveTeamTagEffect)
 	{
 		FGameplayEffectContextHandle GEContextHandle_ = AbilitySystemComponent->MakeEffectContext();
@@ -139,6 +141,16 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*GESpecHandle.Data.Get());
 		}
 	}
+	*/
+	if (!AIDataAsset->Montages.IsEmpty())
+	{
+		Montages = AIDataAsset->Montages;
+	}
+
+	if (AIDataAsset->StateTreeAsset)
+	{
+		StateTreeAsset = AIDataAsset->StateTreeAsset;
+	}
 }
 
 void ASKAICharacterBase::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
@@ -152,9 +164,14 @@ void ASKAICharacterBase::SendEventToASC(AActor* LocalInstigator, AActor* LocalTa
 	AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
 
-TArray<UAnimMontage*> ASKAICharacterBase::GetMontages() const
+TMap<FName, TObjectPtr<UAnimMontage>> ASKAICharacterBase::GetMontages() const
 {
 	return Montages;
+}
+
+TObjectPtr<UStateTree> ASKAICharacterBase::GetStateTreeAsset() const
+{
+	return StateTreeAsset;
 }
 
 FVector ASKAICharacterBase::GetStartLocation() const
