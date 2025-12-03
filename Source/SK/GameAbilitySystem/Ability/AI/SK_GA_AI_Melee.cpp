@@ -11,11 +11,13 @@ USK_GA_AI_Melee::USK_GA_AI_Melee()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Melee")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action.Melee")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
 }
 
 void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage)
 {
+	SetFocus();
+	
 	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
@@ -94,5 +96,7 @@ void USK_GA_AI_Melee::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

@@ -54,7 +54,7 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 	PredictedHorizontalVector.Z = 0.0f;
 	
 	float WarpDistance = PredictedHorizontalVector.Length();
-	float MaxDistance = AICharacter->BoxComponent->GetScaledBoxExtent().X;
+	float MaxDistance = FVector::Distance(AILocation, TargetLocation) + 200.0f;
 
 	if (WarpDistance > MaxDistance)
 	{
@@ -103,6 +103,8 @@ void USK_GA_AI_Rush::OnRushCompleted()
 	CorrectRotation.Roll = 0.f;
 	CachedCharacter->SetActorRotation(CorrectRotation);
 	// 필요하다면 커스텀 틱 태스크에서 보간보정 필요
+
+	CommonEventTask->EndTask();
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }

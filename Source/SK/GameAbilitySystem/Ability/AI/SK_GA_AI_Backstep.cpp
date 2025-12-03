@@ -28,9 +28,7 @@ void USK_GA_AI_Backstep::Backstep()
 		{
 			OwnEventTask->EndTask();
 		}
-
-		ClearFocus();
-
+		
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		return;
 	}
@@ -75,9 +73,7 @@ void USK_GA_AI_Backstep::Backstep()
 			{
 				OwnEventTask->EndTask();
 			}
-
-			ClearFocus();
-
+			
 			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 		}
 	}
@@ -87,9 +83,7 @@ void USK_GA_AI_Backstep::Backstep()
 		{
 			OwnEventTask->EndTask();
 		}
-
-		ClearFocus();
-
+		
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 	}
 }
@@ -109,7 +103,7 @@ void USK_GA_AI_Backstep::WaitMoveComplete()
 
 void USK_GA_AI_Backstep::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
 {
-	ClearFocus();
+	CommonEventTask->EndTask();
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
@@ -134,5 +128,7 @@ void USK_GA_AI_Backstep::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

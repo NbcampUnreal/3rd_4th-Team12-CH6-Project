@@ -11,7 +11,7 @@ USK_GA_AI_Ready::USK_GA_AI_Ready()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Ready")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Ready")));
 }
 
 void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
@@ -36,7 +36,7 @@ void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
 
 void USK_GA_AI_Ready::OnReadyCompleted()
 {
-	ClearFocus();
+	CommonEventTask->EndTask();
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
@@ -49,9 +49,7 @@ void USK_GA_AI_Ready::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	CommonEventTask->EndTask();
-
+	
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
@@ -77,5 +75,7 @@ void USK_GA_AI_Ready::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

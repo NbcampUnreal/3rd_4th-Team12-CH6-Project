@@ -49,6 +49,8 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 	if (IsValid(SourceASC))
 	{
 		FGameplayTagContainer AITags;
+		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Ready"));
+		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
 		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Rush"));
 		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Backstep"));
 		
