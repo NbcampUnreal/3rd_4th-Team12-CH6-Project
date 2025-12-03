@@ -3,7 +3,7 @@
 
 #include "Component/SKCombatComponent.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Weapon/StateData/SKWeaponStateData.h"
+#include "Weapon/ActionData/SKWeaponActionData.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Controller/SKPlayerController.h"
 
