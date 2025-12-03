@@ -7,6 +7,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SKGameplayMessageSubsystem.generated.h"
 
+struct FInstancedStruct;
 class USKGameplayMessageSubsystem;
 
 /** 메시지 리스너를 구분하기 위한 핸들 */
@@ -98,6 +99,9 @@ public:
 		const UScriptStruct* StructType = ::TBaseStructure<FMessageStructType>::Get();
 		BroadcastMessageInternal(Channel, StructType, &Message);
 	}
+
+	UFUNCTION(BlueprintCallable, Category="Message")
+	void BroadcastMessage_BP(FGameplayTag Channel, const FInstancedStruct& Message);
 
 	// -------------------------
 	// 리스너 등록 (Lambda)
