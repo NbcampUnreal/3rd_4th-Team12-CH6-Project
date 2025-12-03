@@ -8,6 +8,8 @@
 #include "GameFramework/PlayerState.h"
 #include "Item/Inventory/Data/SKConsumableItemData.h"
 #include "Net/UnrealNetwork.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
 
 // Sets default values for this component's properties
 UQuickSlotComponent::UQuickSlotComponent()
@@ -140,6 +142,37 @@ bool UQuickSlotComponent::ClearQuickSlot(int32 SlotIndex)
 	return true;
 }
 
+void UQuickSlotComponent::TryUseQuickSlot(int32 SlotIndex)
+{
+	if (!GetOwner())
+	{
+		return;
+	}
+	if (GetOwner()->HasAuthority())
+	{
+		if (UseQuickSlot(SlotIndex))
+		{
+			if (CurrentUseItemCooldown <= 0.0f)
+				return;
+			UE_LOG(LogTemp, Warning, TEXT("Server CoolDown Message gg"));
+			
+			if (UWorld* World = GetWorld())
+			{
+				if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+				{
+					FQuickSlotCooldown QuickSlotCooldownMessage(SlotIndex,  CurrentUseItemCooldown);
+				
+					MessageSubsystem->BroadcastMessage(TAG_Message_Channel_UseQuickSlotItem, QuickSlotCooldownMessage);
+				}
+			}
+		}
+	}
+	else
+	{
+		ServerUseQuickSlot(SlotIndex);
+	}
+}
+
 bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority())
@@ -180,12 +213,14 @@ bool UQuickSlotComponent::UseQuickSlot(int32 SlotIndex)
 	bool bActivated = false;
 
 	bActivated = ASC->TryActivateAbility(QuickSlots[SlotIndex].GrantedAbilityHandle);
-
+	
 	if (!bActivated)
 	{
 		return false;
 	}
 
+	CurrentUseItemCooldown = ConsumData->Cooldown;
+	
 	Slot.Count--;
 
 	Inventory->RemoveItemByIDAndCount(Slot.ItemID, 1);
@@ -246,6 +281,21 @@ TArray<FQuickSlot> UQuickSlotComponent::GetQuickSlots()
 }
 
 
+void UQuickSlotComponent::Client_NotifyItemCooldown_Implementation(int32 SlotIndex, float Cooldown)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Client CoolDown Message gg"));
+	
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			FQuickSlotCooldown QuickSlotCooldownMessage(SlotIndex,  Cooldown);
+				
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_UseQuickSlotItem, QuickSlotCooldownMessage);
+		}
+	}
+}
+
 // Called when the game starts
 void UQuickSlotComponent::BeginPlay()
 {
@@ -260,6 +310,7 @@ void UQuickSlotComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UQuickSlotComponent, QuickSlots);
+	DOREPLIFETIME(UQuickSlotComponent, CurrentUseItemCooldown);
 }
 
 void UQuickSlotComponent::OnRep_QuickSlots()
@@ -287,7 +338,13 @@ bool UQuickSlotComponent::ServerClearQuickSlot_Validate(int32 SlotIndex)
 
 void UQuickSlotComponent::ServerUseQuickSlot_Implementation(int32 SlotIndex)
 {
-	UseQuickSlot(SlotIndex);
+	if (UseQuickSlot(SlotIndex))
+	{
+		if (CurrentUseItemCooldown <= 0)
+			return;
+		
+		Client_NotifyItemCooldown(SlotIndex, CurrentUseItemCooldown);
+	}
 }
 bool UQuickSlotComponent::ServerUseQuickSlot_Validate(int32 SlotIndex)
 {
