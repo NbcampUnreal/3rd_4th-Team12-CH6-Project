@@ -35,13 +35,19 @@ public:
 
 	FOnPawnPossessedSignature OnPawnPossessed;
 
-	//던전 입장 (Host 전용)
+	//던전 입장 (클라에서 호출 전용)
 	UFUNCTION(BlueprintCallable)
 	void EnterDungeonByID(int32 DungeonID);
+
+	UFUNCTION(Server, Reliable)
+	void Server_EnterDungeon(int32 DungeonID);
 
 	//마을 복귀 (Host 전용)
 	UFUNCTION(BlueprintCallable)
 	void ReturnToTown();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ReturnToTown();
 
 	//파티 해제 및 로컬 마을 복귀
 	UFUNCTION(BlueprintCallable)
