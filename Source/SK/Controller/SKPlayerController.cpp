@@ -51,31 +51,55 @@ void ASKPlayerController::Tick(float DeltaTime)
 
 void ASKPlayerController::EnterDungeonByID(int32 DungeonID)
 {
-	if (!HasAuthority())
+	bool bIsHost = (IsLocalController() && GetNetMode() == NM_ListenServer);
+	bool bIsSingle = (GetNetMode() == NM_Standalone);
+	
+	if (!bIsHost && !bIsSingle)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[Client] Dungeon entry is host-only."));
+		UE_LOG(LogTemp, Warning, TEXT("[Client] EnterDungeonByID is host-only."));
 		return;
 	}
 
-	auto* GI = GetGameInstance<USKGameInstance>();
-	if (!GI) return;
+	UE_LOG(LogTemp, Log, TEXT("[Host] Request EnterDungeon ID: %d"), DungeonID);
+	Server_EnterDungeon(DungeonID);
+}
 
-	UE_LOG(LogTemp, Log, TEXT("[Host] EnterDungeon → TravelToDungeon(%d)"), DungeonID);
+void ASKPlayerController::Server_EnterDungeon_Implementation(int32 DungeonID)
+{
+	USKGameInstance* GI = GetGameInstance<USKGameInstance>();
+	if (!GI)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[Server] GameInstance not found"));
+		return;
+	}
+
 	GI->TravelToDungeon(DungeonID);
 }
 
 void ASKPlayerController::ReturnToTown()
 {
-	if (!HasAuthority())
+	bool bIsHost = (IsLocalController() && GetNetMode() == NM_ListenServer);
+	bool bIsSingle = (GetNetMode() == NM_Standalone);
+	
+	if (!bIsHost && !bIsSingle)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Client] ReturnToTown is host-only."));
 		return;
 	}
+	
+	UE_LOG(LogTemp, Log, TEXT("[Host] Request ReturnToTown"));
+	Server_ReturnToTown();
+}
 
-	auto* GI = GetGameInstance<USKGameInstance>();;
-	if (!GI) return;
+void ASKPlayerController::Server_ReturnToTown_Implementation()
+{	
+	USKGameInstance* GI = GetGameInstance<USKGameInstance>();
+	if (!GI)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[Server] GameInstance not found"));
+		return;
+	}
 
-	UE_LOG(LogTemp, Log, TEXT("[Host] ReturnToTown → TravelToTown()"));
 	GI->TravelToTown();
 }
 
@@ -85,7 +109,7 @@ void ASKPlayerController::LeaveSessionAndReturnToLocalTown()
 	if (!GI) return;
 
 	// ✅ Host → 세션 종료 후 로컬 복귀
-	if (HasAuthority())
+	if (HasAuthority() && GetNetMode() != NM_Client)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[Host] Ending Session → Return to Local Town."));
 		GI->LeaveSession();
