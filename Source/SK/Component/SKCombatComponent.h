@@ -12,7 +12,7 @@
 
 struct FSKWeaponDataRow;
 struct FWeaponDataRow;
-class USKWeaponStateData;
+class USKWeaponActionData;
 class USKWeaponData;
 
 USTRUCT(BlueprintType)
@@ -116,7 +116,7 @@ public:
 	TObjectPtr<USKWeaponData> CurrentWeaponData;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
-	TObjectPtr<USKWeaponStateData> CurrentWeaponStateData;
+	TObjectPtr<USKWeaponActionData> CurrentWeaponStateData;
 	
 protected:
 	// Called when the game starts
@@ -173,41 +173,6 @@ private:
 	UFUNCTION()
 	void OnRep_ComboState();
 	
-
-#pragma region Dodge
-
-public:
-	FRotator GetDodgeRotator();
-
-	USKWeaponStateData* GetWeaponStateData()
-	{
-
-		FString FullName = ComboState.WeaponTag.GetTagName().ToString();
-		FString LastName;
-		FullName.Split(TEXT("."), nullptr, &LastName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
-		FName RowName(*LastName);
-
-		APawn* Owner = Cast<APawn>(GetOwner());
-		
-		ASKPlayerState* PS = Cast<ASKPlayerState>(Owner);
-
-		UDataTable* WeaponDataTable = nullptr;
-		
-		if (PS)
-		{
-			WeaponDataTable = PS->GetWeaponData().LoadSynchronous();
-		}
-
-		
-		FWeaponDataRow* WeaponDataRow = WeaponDataTable->FindRow<FWeaponDataRow>(RowName, TEXT("Get Weapon State Data"));
-		if (WeaponDataRow)
-		{
-			return WeaponDataRow->WeaponStateData;
-		}
-		return nullptr;
-	};
-
-#pragma endregion
 };
 
 

@@ -592,28 +592,3 @@ void USKCombatComponent::Multicast_RemoveATKTag_Implementation(bool bLeft)
 		ASC->RemoveLooseGameplayTag(returnTag);
 	}
 }
-
-FRotator USKCombatComponent::GetDodgeRotator()
-{
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return FRotator();
-	
-	ASKPlayerController* PC = Cast<ASKPlayerController>(Char->GetController());
-	if (!PC) return FRotator();
-
-	const FRotator ControllerRot = PC->GetControlRotation();
-	const FVector2D InputVector = PC->CurrentInputVector;
-
-	FRotator TempRot = ControllerRot;
-	TempRot.Roll = 0.f;
-	TempRot.Pitch = 0.f;
-
-	const FVector TempForward = FRotationMatrix(TempRot).GetUnitAxis(EAxis::X);
-	const FVector TempRight = FRotationMatrix(TempRot).GetUnitAxis(EAxis::Y);
-
-	const FVector TargetVector = TempForward * InputVector.X + TempRight * InputVector.Y;
-	const FRotator TargetRot = TargetVector.GetSafeNormal().Rotation();
-	
-	return TargetRot;
-}
-
