@@ -18,7 +18,7 @@ void USKAnimNotify_StartAttackTrace::Notify(USkeletalMeshComponent* MeshComp, UA
 	}
 
 	AActor* OwnerActor = MeshComp->GetOwner();
-	if (!IsValid(OwnerActor))
+	if (!IsValid(OwnerActor)|| !OwnerActor->HasAuthority())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to get Owner Actor."));
 		return; 
