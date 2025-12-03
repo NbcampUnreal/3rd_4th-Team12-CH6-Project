@@ -7,7 +7,6 @@
 #include "Abilities/Tasks/AbilityTask_MoveToLocation.h"
 #include "Animation/SKBaseAnimInstance.h"
 #include "Character/SKPlayerCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "Item/SKInteractableBase.h"
 
