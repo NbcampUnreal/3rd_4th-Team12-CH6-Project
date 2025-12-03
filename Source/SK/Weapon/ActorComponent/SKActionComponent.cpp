@@ -1,5 +1,6 @@
 ﻿#include "SKActionComponent.h"
 #include "Character/SKPlayerCharacter.h"
+#include "AbilitySystemComponent.h"
 #include "Controller/SKPlayerController.h"
 
 USKActionComponent::USKActionComponent()
@@ -21,7 +22,7 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
-FRotator USKActionComponent::GetDodgeRotator()
+FRotator USKActionComponent::GetDodgeRotator() const
 {
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Char) return FRotator();
@@ -43,5 +44,36 @@ FRotator USKActionComponent::GetDodgeRotator()
 	const FRotator TargetRot = TargetVector.GetSafeNormal().Rotation();
 	
 	return TargetRot;
+}
+
+bool USKActionComponent::CheckDoubleTab()
+{
+	return false;
+}
+
+void USKActionComponent::Server_ExecuteDodge_Implementation()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (!ASC) return;
+	
+	bool bIsEvade = CheckDoubleTab();
+
+	// 스텝
+	if (!bIsEvade)
+	{
+		FGameplayTagContainer InteractionTag;
+		InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Action.Step")));
+		ASC->TryActivateAbilitiesByTag(InteractionTag);
+	}
+	// 구르기
+	else if (bIsEvade)
+	{
+		FGameplayTagContainer InteractionTag;
+		InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Action.Evade")));
+		ASC->TryActivateAbilitiesByTag(InteractionTag);
+	}
 }
 

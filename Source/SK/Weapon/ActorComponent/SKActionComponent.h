@@ -32,8 +32,15 @@ protected:
 #pragma region Dodge
 
 public:
-	FRotator GetDodgeRotator();
+	FRotator GetDodgeRotator() const;
 
+	UFUNCTION(Server, Reliable)
+	void Server_ExecuteDodge();
 
+protected:
+	
+	UFUNCTION()
+	bool CheckDoubleTab();
+	
 #pragma endregion
 };
