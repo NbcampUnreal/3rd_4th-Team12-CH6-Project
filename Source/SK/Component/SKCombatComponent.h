@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
+#include "Weapon/SKWeaponData.h"
 #include "SKCombatComponent.generated.h"
 
 
+class USKWeaponStateData;
 struct FSKWeaponDataRow;
 struct FWeaponDataRow;
 
@@ -135,4 +137,26 @@ private:
 	FName WeaponEndSocket = "Weapon_Socket_End";
 
 	FString FindWeaponTagName();
+
+#pragma region Dodge
+
+public:
+	FRotator GetDodgeRotator();
+
+	USKWeaponStateData* GetWeaponStateData()
+	{
+
+		FString FullName = ComboState.WeaponTag.GetTagName().ToString();
+		FString LastName;
+		FullName.Split(TEXT("."), nullptr, &LastName, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+		FName RowName(*LastName);
+		FWeaponDataRow* WeaponDataRow = WeaponDataTable->FindRow<FWeaponDataRow>(RowName, TEXT("Get Weapon State Data"));
+		if (WeaponDataRow)
+		{
+			return WeaponDataRow->WeaponStateData;
+		}
+		return nullptr;
+	};
+
+#pragma endregion
 };
