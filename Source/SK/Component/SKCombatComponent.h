@@ -12,7 +12,6 @@
 
 struct FSKWeaponDataRow;
 struct FWeaponDataRow;
-class USKWeaponActionData;
 class USKWeaponData;
 
 USTRUCT(BlueprintType)
@@ -114,9 +113,6 @@ public:
 	void SetWeaponMesh_Init();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
 	TObjectPtr<USKWeaponData> CurrentWeaponData;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
-	TObjectPtr<USKWeaponActionData> CurrentWeaponStateData;
 	
 protected:
 	// Called when the game starts
