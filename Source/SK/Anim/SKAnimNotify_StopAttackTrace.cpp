@@ -16,10 +16,8 @@ void USKAnimNotify_StopAttackTrace::Notify(USkeletalMeshComponent* MeshComp, UAn
 
 	if (!PC->HasAuthority())
 		return;
-
-	// PC->StopAttackTrace();
-	// PC->Server_Notify_StopAttackTrace();
+	
 	USKCombatComponent* CombatComponent =  PC->GetCombatComponent();
-	CombatComponent->StopTrace();
+	CombatComponent->Server_StopTrace();
 	CombatComponent->Server_Notify_StopAttackTrace();
 }
