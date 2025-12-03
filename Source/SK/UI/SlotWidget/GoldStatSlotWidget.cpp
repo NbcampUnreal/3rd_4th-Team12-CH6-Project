@@ -11,33 +11,7 @@ void UGoldStatSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC) return;
- 
-	APlayerState* PS = PC->GetPlayerState<APlayerState>();
-	if (!PS) return;
-
-	ASKPlayerState* CurrentPS = Cast<ASKPlayerState>(PS);
-	if (!CurrentPS) return;
-	
-	UAbilitySystemComponent* ASC = CurrentPS->FindComponentByClass<UAbilitySystemComponent>();
-	if (!ASC) return;
- 
-	// 기존 바인딩 해제
-	if (AttributeSet)
-	{
-		AttributeSet->OnGoldChanged.RemoveAll(this);
-		AttributeSet = nullptr;
-	}
- 
-	AttributeSet = Cast<USKAttributeSet>(ASC->GetAttributeSet(USKAttributeSet::StaticClass()));
-	if (!AttributeSet) return;
- 
-	AttributeSet->OnGoldChanged.AddUObject(this, &UGoldStatSlotWidget::GlodChanged); 
- 
-	// 초기 UI 업데이트
-	GlodChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHealth());
-
+	TryBind();
 }
 
 void UGoldStatSlotWidget::NativeDestruct()
@@ -50,8 +24,58 @@ void UGoldStatSlotWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+void UGoldStatSlotWidget::TryBind()
+{
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+ 
+	APlayerState* PS = PC->GetPlayerState<APlayerState>();
+	if (!PS)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+	
+	ASKPlayerState* CurrentPS = Cast<ASKPlayerState>(PS);
+	if (!CurrentPS) 
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+	
+	UAbilitySystemComponent* ASC = CurrentPS->FindComponentByClass<UAbilitySystemComponent>();
+	if (!ASC)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+ 
+	// 기존 바인딩 해제
+	if (AttributeSet)
+	{
+		AttributeSet->OnGoldChanged.RemoveAll(this);
+		AttributeSet = nullptr;
+	}
+ 
+	AttributeSet = Cast<USKAttributeSet>(ASC->GetAttributeSet(USKAttributeSet::StaticClass()));
+	if (!AttributeSet)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+ 
+	AttributeSet->OnGoldChanged.AddUObject(this, &UGoldStatSlotWidget::GlodChanged); 
+ 
+	// 초기 UI 업데이트
+	GlodChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHealth());
+}
+
 void UGoldStatSlotWidget::GlodChanged(AActor* EffectInstigator, AActor* EffectCauser,
-	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
+                                      const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
 {
 	    const float Delta = EffectMagnitude; // 증가한 골드량
 
