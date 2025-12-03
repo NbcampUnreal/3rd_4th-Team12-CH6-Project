@@ -29,22 +29,7 @@ void USKCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-
-	// 모든 스태틱메쉬 컴포넌트 가져오기
-	TArray<USkeletalMeshComponent*> MeshComponents;
-	OwnerCharacter->GetComponents<USkeletalMeshComponent>(MeshComponents);
-
-	FName TargetTag = FName(*FindWeaponTagName()); // FString → FName 변환
-
-	for (USkeletalMeshComponent* Comp : MeshComponents)
-	{
-		if (Comp && Comp->ComponentHasTag(TargetTag))
-		{
-			SetWeaponMesh(Comp);
-			break;
-		}
-	}
+	SetWeaponMesh_Init();
 }
 
 
@@ -193,31 +178,30 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 		ComboState.bBufferedAttack = true;
 		return;
 	}
+
 	FGameplayTagContainer Container;
 	Container.AddTag(GetLeftATKTag());
 
 	// ASC->TryActivateAbilitiesByTag(Container);
 	bool success = ASC->TryActivateAbilitiesByTag(Container);
 
-	UE_LOG(LogTemp, Error, TEXT("=== ACTIVATE LEFT ATK INPUT ==="));
-	UE_LOG(LogTemp, Error, TEXT("TryActivateAbilitiesByTag success = %s"), success ? TEXT("TRUE") : TEXT("FALSE"));
+
+	UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:} = %s"), success ? TEXT("TRUE") : TEXT("FALSE"));
 
 	// Current owned tags
 	FGameplayTagContainer OwnedTags;
 	ASC->GetOwnedGameplayTags(OwnedTags);
-	UE_LOG(LogTemp, Error, TEXT("OwnedTags: %s"), *OwnedTags.ToStringSimple());
+	UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:OwnedTags: %s"), *OwnedTags.ToStringSimple());
 
 	// Check if ATK tag still exists (this is the key)
 	if (OwnedTags.HasTag(GetLeftATKTag()))
 	{
-		UE_LOG(LogTemp, Error, TEXT("[WARNING] LeftATKTag STILL EXISTS! (GA cannot activate)"));
+		UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]: LeftATKTag STILL EXISTS! (GA cannot activate)"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[OK] LeftATKTag is removed. GA can activate normally."));
+		UE_LOG(LogTemp, Error, TEXT("[[LEFTATKINPUT]:] LeftATKTag is removed. GA can activate normally."));
 	}
-
-	UE_LOG(LogTemp, Error, TEXT("================================"));
 }
 
 void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
@@ -271,8 +255,9 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	if (ComboState.bBufferedAttack && RecComboIndex < MaxCombo)
 	{
 		ComboState.bBufferedAttack = false;
-		// Multicast_ActivateLeftGA();
-		ActivateLeftAttackGA();
+
+		Multicast_ActivateLeftGA();
+		//ActivateLeftAttackGA();
 		return;
 	}
 
@@ -288,8 +273,8 @@ void USKCombatComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
 	if (!ASC) return;
 
-	ASC->RemoveLooseGameplayTag(GetATKMeleeTag());
-	Multicast_RemoveATKTag();
+	// ASC->RemoveLooseGameplayTag(GetATKMeleeTag());
+	// Multicast_RemoveATKTag();
 
 	UE_LOG(LogTemp, Error, TEXT("[ATK_END] Buffered=%d | Combo=%d / %d"),
 	       ComboState.bBufferedAttack,
@@ -380,8 +365,8 @@ void USKCombatComponent::Server_StopTrace_Implementation()
 
 void USKCombatComponent::Multicast_ActivateLeftGA_Implementation()
 {
-	if (GetOwner()->HasAuthority())
-		return;
+	// if (GetOwner()->HasAuthority())
+	// 	return;
 	ActivateLeftAttackGA();
 }
 
@@ -426,14 +411,19 @@ void USKCombatComponent::StopTrace()
 
 void USKCombatComponent::PerformTrace(float DeltaTime)
 {
-	// if (TraceSockets.Num() == 0)
-	// 	return;
-
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (!OwnerCharacter)
 		return;
 	if (!IsValid(WeaponMesh))
+	{
+		SetWeaponMesh_Init();
+		// return;
+	}
+
+	if (!IsValid(WeaponMesh))
+	{
 		return;
+	}
 
 	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	FVector CurrEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
@@ -447,9 +437,6 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 
 	// 캡슐 회전 (Start→End 방향으로 캡슐 축을 회전시킴)
 	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceDir).ToQuat();
-
-	// Sweep는 중심과 회전을 기준으로 하기 때문에
-	// 캡슐 중심 좌표 구하기 (Start와 End 중간지점)
 	FVector CapsuleCenter = (CurrStart + CurrEnd) * 0.5f;
 
 	FHitResult Hit;
@@ -479,6 +466,16 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		0.05f
 	);
 
+	DrawDebugCapsule(
+		GetWorld(),
+		CapsuleCenter,
+		HalfHeight,
+		Radius,
+		CapsuleRot,
+		FColor::Red,
+		false,
+		0.5f 
+	);
 	if (bHit)
 	{
 		AActor* HitActor = Hit.GetActor();
@@ -563,6 +560,25 @@ void USKCombatComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
 	// 초기 Prev 값 설정
 	PrevStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	PrevEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
+}
+
+void USKCombatComponent::SetWeaponMesh_Init()
+{
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+
+	TArray<USkeletalMeshComponent*> MeshComponents;
+	OwnerCharacter->GetComponents<USkeletalMeshComponent>(MeshComponents);
+
+	FName TargetTag = FName(*FindWeaponTagName()); // FString → FName 변환
+
+	for (USkeletalMeshComponent* Comp : MeshComponents)
+	{
+		if (Comp && Comp->ComponentHasTag(TargetTag))
+		{
+			SetWeaponMesh(Comp);
+			break;
+		}
+	}
 }
 
 void USKCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -108,6 +108,7 @@ public:
 
 	UAnimMontage* GetLeftAttackMontage(int32 Index);
 	void SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh);
+	void SetWeaponMesh_Init();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
 	TObjectPtr<USKWeaponData> CurrentWeaponData;
 protected:
