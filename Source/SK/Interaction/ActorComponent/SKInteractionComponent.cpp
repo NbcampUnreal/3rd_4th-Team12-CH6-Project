@@ -58,8 +58,10 @@ void USKInteractionComponent::UpdateTargetActor()
 	const FVector OwnerLocation = GetOwner()->GetActorLocation();
 	const FVector OwnerForwardVector = GetOwner()->GetActorForwardVector();
 
-	for (auto const Actor : CandidateActors)
+	for (auto* Actor : CandidateActors)
 	{
+		if (!Actor->bCanInteract) continue;
+		
 		FVector ActorLocation = Actor->GetActorLocation();
 
 		// 두 벡터 내적이 0보다 큰지
@@ -164,26 +166,36 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	if (!CurrentTargetActor) return;
 	UE_LOG(LogTemp, Warning, TEXT("Role: %d"), CurrentTargetActor->GetLocalRole());
 	UE_LOG(LogTemp, Warning, TEXT("Remote: %d"), CurrentTargetActor->GetRemoteRole());
-	ISKInteractable::Execute_Interact(CurrentTargetActor, GetOwner());
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
+	// Pickup은 바로 발동
+	if (CurrentTargetActor->ObjectType == EObjectType::Pickup)
+	{
+		ISKInteractable::Execute_Interact(CurrentTargetActor, GetOwner());
+	}
 
-	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
-	if (!InteractionComponent) return;
+	// Openable은 어빌리티 발동
+	if (CurrentTargetActor->ObjectType == EObjectType::Openable)
+	{
+		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+		if (!Char) return;
 
-	FSKInteractionData Data;
-	ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, Data);
-	InteractionComponent->SetInteractionData(Data);
+		USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
+		if (!InteractionComponent) return;
 
-	// 서버는 바로 실행 서버에 복제 된 클라는 클라에 도착하면 서버 RPC로 실행
+		FSKInteractionData Data;
+		ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, Data);
+		InteractionComponent->SetInteractionData(Data);
+
+		// 서버는 바로 실행 서버에 복제 된 클라는 클라에 도착하면 서버 RPC로 실행
 	
-	// if (!GetOwner()->HasAuthority()) return;
+		// if (!GetOwner()->HasAuthority()) return;
 
-	if (!Char->IsLocallyControlled()) return;
+		if (!Char->IsLocallyControlled()) return;
 
-	// APlayerController* PC = Cast<APlayerController>(Char->GetController());
-	// if (!PC || !PC->IsLocalController()) return;
+		// APlayerController* PC = Cast<APlayerController>(Char->GetController());
+		// if (!PC || !PC->IsLocalController()) return;
 
-	ActivateInteractionAbility();
+		ActivateInteractionAbility();
+	}
+
 }

@@ -96,6 +96,8 @@ void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 {
 	if (!HasAuthority()) return;
 
+	PreExecuteInteraction();
+	
 	AddToInventory(Interactor, ItemInfo.ItemCount, ItemInfo.ItemCount);
 
 	Multicast_PlayPickupEffects(Interactor);
