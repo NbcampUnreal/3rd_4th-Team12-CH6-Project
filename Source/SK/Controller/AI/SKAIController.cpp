@@ -140,7 +140,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	////// 테스트
+	/*///// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
@@ -160,6 +160,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	
 	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
+	*/
 }
 
 void ASKAIController::BeginPlay()
@@ -176,7 +177,7 @@ void ASKAIController::BeginPlay()
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
-	/*/ 상태 변경 이벤트 수신
+	// 상태 변경 이벤트 수신
 	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
 	// 이미 진행 중일 수도 있음
@@ -184,7 +185,6 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
-	*/
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -227,7 +227,6 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 
 void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 {
-	/*
 	if (NewState == EDungeonMatchState::Dungeon_InProgress)
 	{
 		if (!StateTreeAIComponent)
@@ -235,13 +234,19 @@ void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 			return;
 		}
 
-		if (!OwningStateTree)
+		ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
+		if (!IsValid(AICharacter))
 		{
 			return;
 		}
 
+		UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
+		if (!OwningStateTree)
+		{
+			return;
+		}
+	
 		StateTreeAIComponent->SetStateTree(OwningStateTree);
 		StateTreeAIComponent->StartLogic();
 	}
-	*/
 }
