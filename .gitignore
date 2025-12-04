@@ -25,9 +25,10 @@ Content/GothicGUIKit/
 Content/__ExternalActors__/
 Content/__ExternalObjects__/
 Content/GenericNPCAnimPack/
-Content/OpenAndCloseAnimationsPack/
-
 Content/MedFntSFX/
+Content/OpenAndCloseAnimationsPack/
+Content/DragonVFX/
+
 
 *.sln
 *.suo

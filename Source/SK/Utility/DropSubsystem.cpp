@@ -33,11 +33,11 @@ void UDropSubsystem::ProcessDropTable(int32 DropTableID, const FVector& Origin)
 
 		int32 Count = FMath::RandRange(Item.MinCount, Item.MaxCount);
 
-		SpawnPickup(Item.PickupData, Count, Origin);
+		SpawnPickup(Item.ItemID, Item.PickupData, Count, Origin);
 	}
 }
 
-void UDropSubsystem::SpawnPickup(USKPickupItemData* PickupData, int32 Count, const FVector& Origin)
+void UDropSubsystem::SpawnPickup(int32 ItemID, USKPickupItemData* PickupData, int32 Count, const FVector& Origin)
 {
 	if (!PickupData) return;
 
@@ -77,7 +77,7 @@ void UDropSubsystem::SpawnPickup(USKPickupItemData* PickupData, int32 Count, con
 	if (!DropActor) return;
 
 	// SKPickupItem 구조 적용
-	DropActor->InitializePickup(PickupData, Count);
+	DropActor->InitializePickup(ItemID, PickupData, Count);
 
 	UE_LOG(LogTemp, Log, TEXT("[DropSubsystem] Spawned Pickup: %s (%d개)"),
 		*PickupData->ItemName.ToString(), Count);

@@ -40,6 +40,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
 	bool ClearQuickSlot(int32 SlotIndex);
+
+	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
+	void TryUseQuickSlot(int32 SlotIndex);
 	
 	// 퀵슬롯 사용 (아이템 ID 기준)
 	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
@@ -63,6 +66,9 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerRefreshQuickSlots();
 
+	UFUNCTION(Client, Reliable)
+	void Client_NotifyItemCooldown(int32 SlotIndex, float Cooldown);
+	
 	UPROPERTY(BlueprintAssignable, Category="Inventory|QuickSlot")
 	FOnQuickSlotsUpdated OnQuickSlotsUpdated;
 	
@@ -74,6 +80,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_QuickSlots();
+
+	UPROPERTY(Replicated, EditAnywhere,BlueprintReadWrite)
+	float CurrentUseItemCooldown = 0.0f;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_QuickSlots, VisibleAnywhere, BlueprintReadOnly)
 	TArray<FQuickSlot> QuickSlots = { FQuickSlot(), FQuickSlot(), FQuickSlot() };

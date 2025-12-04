@@ -5,6 +5,7 @@
 #include "GameplayTagContainer.h"
 #include "GameMode/MatchState/DungeonMatchState.h"
 #include "Perception/AIPerceptionTypes.h"
+#include "GenericTeamAgentInterface.h"
 #include "SKAIController.generated.h"
 
 class UStateTreeAIComponent;
@@ -35,6 +36,8 @@ protected:
 	UPROPERTY()
 	TObjectPtr<AActor> TargetActor;
 
+	FGenericTeamId CachedTeamID;
+
 public:
 	ASKAIController();
 	
@@ -46,6 +49,11 @@ public:
 	
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 
+	virtual FGenericTeamId GetGenericTeamId() const override { return CachedTeamID; }
+
+	// 팀 시스템 - Perception 이 팀 적대 관계를 알기 위해 반드시 필요
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+	uint8 GetTeamIDFromActor(const AActor& Other) const;
 	
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
@@ -58,4 +66,6 @@ protected:
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
 	void OnDungeonStateChanged(EDungeonMatchState NewState);
+
+	uint8 ConvertTeamTagToID(const FGameplayTagContainer& InTags) const;
 };

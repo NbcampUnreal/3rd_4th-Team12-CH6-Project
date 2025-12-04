@@ -158,6 +158,18 @@ struct FItemAddMessage
 };
 
 USTRUCT(BlueprintType)
+struct FQuickSlotCooldown
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 SlotIndex;
+
+	UPROPERTY(BlueprintReadWrite)
+	float Cooldown;
+};
+
+USTRUCT(BlueprintType)
 struct FSettingBossHPWidget
 {
 	GENERATED_BODY()
