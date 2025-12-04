@@ -2,7 +2,7 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
-#include "Character/AI/SKAICharacter.h"
+#include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -17,8 +17,8 @@ ASKAIController::ASKAIController()
 	
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 	
-	SightConfig->SightRadius = 1500.0f; // 시야 범위
-	SightConfig->LoseSightRadius = 2000.0f; // 시야 상실 범위
+	SightConfig->SightRadius = 1000.0f; // 시야 범위
+	SightConfig->LoseSightRadius = 1500.0f; // 시야 상실 범위
 	SightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
 	SightConfig->SetMaxAge(5.0f); // 자극 최대 기억 시간
 	// 감지 주기 설정은?
@@ -38,7 +38,7 @@ ASKAIController::ASKAIController()
 	CachedTeamID = FGenericTeamId::NoTeam;
 }
 
-TObjectPtr<AActor> ASKAIController::GetTargetActor() const
+AActor* ASKAIController::GetTargetActor() const
 {
 	return TargetActor;
 }
@@ -140,27 +140,19 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	/*///// 테스트
+	////// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
 	}
 
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(InPawn);
-	if (!IsValid(AICharacter))
+	if (!StateTreeAsset)
 	{
 		return;
 	}
 
-	UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
-	if (!OwningStateTree)
-	{
-		return;
-	}
-	
-	StateTreeAIComponent->SetStateTree(OwningStateTree);
+	StateTreeAIComponent->SetStateTree(StateTreeAsset);
 	//StateTreeAIComponent->StartLogic();
-	*/
 }
 
 void ASKAIController::BeginPlay()
@@ -177,7 +169,7 @@ void ASKAIController::BeginPlay()
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
-	// 상태 변경 이벤트 수신
+	/*/ 상태 변경 이벤트 수신
 	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
 	// 이미 진행 중일 수도 있음
@@ -185,6 +177,7 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
+	*/
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -234,19 +227,12 @@ void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 			return;
 		}
 
-		ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
-		if (!IsValid(AICharacter))
+		if (!StateTreeAsset)
 		{
 			return;
 		}
 
-		UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
-		if (!OwningStateTree)
-		{
-			return;
-		}
-	
-		StateTreeAIComponent->SetStateTree(OwningStateTree);
+		StateTreeAIComponent->SetStateTree(StateTreeAsset);
 		StateTreeAIComponent->StartLogic();
 	}
 }

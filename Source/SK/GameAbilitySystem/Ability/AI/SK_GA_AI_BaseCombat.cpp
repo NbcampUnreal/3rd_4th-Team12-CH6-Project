@@ -60,7 +60,7 @@ void USK_GA_AI_BaseCombat::ApplyDamageToTarget(TWeakObjectPtr<const AActor> Targ
 	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
 }
 
-TObjectPtr<AActor> USK_GA_AI_BaseCombat::GetTargetActor() const
+AActor* USK_GA_AI_BaseCombat::GetTargetActor() const
 {
 	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
 	if (!IsValid(AIController))
@@ -68,7 +68,7 @@ TObjectPtr<AActor> USK_GA_AI_BaseCombat::GetTargetActor() const
 		return nullptr;
 	}
 
-	TObjectPtr<AActor> TargetActor = AIController->GetTargetActor();
+	AActor* TargetActor = AIController->GetTargetActor();
 
 	return TargetActor;
 }
@@ -78,7 +78,7 @@ void USK_GA_AI_BaseCombat::SetFocus() const
 	ASKAIController*  AIController = Cast<ASKAIController>(CachedController);
 	if (IsValid(AIController))
 	{
-		TObjectPtr<AActor> TargetActor = AIController->GetTargetActor();
+		AActor* TargetActor = AIController->GetTargetActor();
 		if (IsValid(TargetActor))
 		{
 			AIController->SetFocus(TargetActor);

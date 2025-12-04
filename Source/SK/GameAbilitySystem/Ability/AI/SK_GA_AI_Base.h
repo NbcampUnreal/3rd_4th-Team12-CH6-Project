@@ -23,9 +23,6 @@ protected:
 	AController* CachedController;
 
 	UPROPERTY()
-	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
-
-	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* OwnEventTask;
 	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* CommonEventTask;
@@ -38,13 +35,10 @@ protected:
 public:
 	USK_GA_AI_Base();
 
-	TObjectPtr<UAnimMontage> GetAnimMontage(FName AbilityName);
-
 	void WaitEndAbility();
 
 	UFUNCTION()
 	void OnWaitEndAbilityCompleted(FGameplayEventData EventData);
-
 	
 protected:
 	virtual void ActivateAbility(

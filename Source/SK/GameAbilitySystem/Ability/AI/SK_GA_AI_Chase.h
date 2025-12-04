@@ -8,20 +8,11 @@ UCLASS()
 class SK_API USK_GA_AI_Chase : public USK_GA_AI_Base
 {
 	GENERATED_BODY()
-	
-private:
-	bool bSpeedUp = false;
-	
+
 public:
 	USK_GA_AI_Chase();
 
 	void Chase();
-
-	void WaitMoveComplete();
-	
-	UFUNCTION()
-	void OnWaitMoveCompleteCompleted(FGameplayEventData EventData);
-
 	
 protected:
 	virtual void ActivateAbility(

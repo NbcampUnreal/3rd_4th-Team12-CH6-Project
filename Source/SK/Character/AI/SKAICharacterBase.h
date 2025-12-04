@@ -10,7 +10,6 @@ class UBoxComponent;
 class UMotionWarpingComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
-class UStateTree;
 
 UCLASS()
 class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -42,11 +41,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MonsterID")
 	int32 DropTableID = -1;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation|Montages")
-	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	TObjectPtr<UStateTree> StateTreeAsset;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Montage")
+	TArray<TObjectPtr<UAnimMontage>> Montages;
 
 private:
 	FVector StartLocation;
@@ -64,9 +60,7 @@ public:
 
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 	
-	TMap<FName, TObjectPtr<UAnimMontage>> GetMontages() const;
-	
-	TObjectPtr<UStateTree> GetStateTreeAsset() const;
+	TArray<UAnimMontage*> GetMontages() const;
 
 	FVector GetStartLocation() const;
 

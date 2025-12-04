@@ -12,7 +12,7 @@ class SK_API USK_GA_AI_Rush : public USK_GA_AI_BaseCombat
 public:
 	USK_GA_AI_Rush();
 
-	void Rush(TObjectPtr<UAnimMontage> AnimMontage);
+	void Rush(UAnimMontage* AnimMontage);
 
 	UFUNCTION()
 	void OnRushCompleted();

@@ -100,5 +100,5 @@ protected:
 
 	void RemoveTag(FGameplayTag Tag) const;
 
-	void CancelAllAbilities() const;
+	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 };

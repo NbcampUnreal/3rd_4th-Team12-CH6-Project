@@ -21,7 +21,7 @@ public:
 
 	void ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor);
 
-	TObjectPtr<AActor> GetTargetActor() const;
+	AActor* GetTargetActor() const;
 
 	void SetFocus() const;
 
