@@ -27,6 +27,12 @@ void USKActionComponent::SetWeaponActionData(USKWeaponActionData* NewWeaponActio
 	CurrentWeaponActionData = NewWeaponActionData;
 }
 
+void USKActionComponent::Server_SetMovementInfo_Implementation(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection)
+{
+	CurrentInputVector = NewInputVector;
+	CurrentMovementDirection = NewMovementDirection;
+}
+
 FRotator USKActionComponent::GetDodgeRotator() const
 {
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
@@ -36,7 +42,7 @@ FRotator USKActionComponent::GetDodgeRotator() const
 	if (!PC) return FRotator();
 
 	const FRotator ControllerRot = PC->GetControlRotation();
-	const FVector2D InputVector = PC->CurrentInputVector;
+	const FVector2D InputVector = CurrentInputVector;
 
 	FRotator TempRot = ControllerRot;
 	TempRot.Roll = 0.f;

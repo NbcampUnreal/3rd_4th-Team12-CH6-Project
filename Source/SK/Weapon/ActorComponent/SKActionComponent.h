@@ -30,6 +30,18 @@ public:
 protected:
 	UPROPERTY()
 	USKWeaponActionData* CurrentWeaponActionData;
+
+#pragma region Server RPC
+
+public:
+	UFUNCTION(Server, Reliable)
+	void Server_SetMovementInfo(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection);
+
+	FVector2D CurrentInputVector;
+	EMoveDirection CurrentMovementDirection;
+
+#pragma endregion
+
 	
 #pragma region Dodge
 
