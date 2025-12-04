@@ -52,9 +52,13 @@ public:
 	void Server_ExecuteDodge();
 
 protected:
+	bool CheckDoubleTap();
+
+	void CloseGate();
 	
-	UFUNCTION()
-	bool CheckDoubleTab();
+private:
+	FTimerHandle GateTimerHandle;
+	bool bIsGateOpen;
 	
 #pragma endregion
 };

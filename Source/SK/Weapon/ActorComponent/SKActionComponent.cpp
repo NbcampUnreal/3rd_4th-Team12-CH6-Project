@@ -57,9 +57,32 @@ FRotator USKActionComponent::GetDodgeRotator() const
 	return TargetRot;
 }
 
-bool USKActionComponent::CheckDoubleTab()
+bool USKActionComponent::CheckDoubleTap()
 {
-	return false;
+	bool bIsDoubleTap = false;
+	constexpr float TabDelay = 0.2f;
+	
+	if (bIsGateOpen)
+	{
+		bIsDoubleTap = true;
+	}
+
+	bIsGateOpen = true;
+	GetWorld()->GetTimerManager().ClearTimer(GateTimerHandle);
+	
+	GetWorld()->GetTimerManager().SetTimer(
+		GateTimerHandle,
+		this,
+		&USKActionComponent::CloseGate,
+		TabDelay,
+		false);
+	
+	return bIsDoubleTap;
+}
+
+void USKActionComponent::CloseGate()
+{
+	bIsGateOpen = false;
 }
 
 void USKActionComponent::Server_ExecuteDodge_Implementation()
