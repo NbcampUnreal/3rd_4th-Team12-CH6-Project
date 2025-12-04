@@ -8,6 +8,7 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "EquipSelectListSlotWidget.generated.h"
 
+class UTextBlock;
 class UEquipSelectItemWidget;
 class UEquipmentComponent;
 class UQuickSlotComponent;
@@ -26,6 +27,9 @@ public:
 protected:
 	void TryCachedComponent();
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* TypeText;
+	
 	UPROPERTY(EditAnywhere, Category="Inventory")
 	TSubclassOf<UEquipSelectItemWidget> ItemWidgetClass;
 	
