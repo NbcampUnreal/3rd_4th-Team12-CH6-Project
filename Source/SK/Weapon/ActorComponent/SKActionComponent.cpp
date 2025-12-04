@@ -2,10 +2,21 @@
 #include "Character/SKPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Controller/SKPlayerController.h"
+#include "GameFramework/PawnMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 USKActionComponent::USKActionComponent()
 	: CurrentWeaponActionData(nullptr)
 {
+	SetIsReplicatedByDefault(true);
+}
+
+void USKActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USKActionComponent, CurrentInputVector);
+	DOREPLIFETIME(USKActionComponent, CurrentMovementDirection);
 }
 
 void USKActionComponent::BeginPlay()
@@ -42,8 +53,7 @@ FRotator USKActionComponent::GetDodgeRotator() const
 	if (!PC) return FRotator();
 
 	const FRotator ControllerRot = PC->GetControlRotation();
-	const FVector2D InputVector = CurrentInputVector;
-
+	FVector2D InputVector = CurrentInputVector;
 	FRotator TempRot = ControllerRot;
 	TempRot.Roll = 0.f;
 	TempRot.Pitch = 0.f;
@@ -53,7 +63,7 @@ FRotator USKActionComponent::GetDodgeRotator() const
 
 	const FVector TargetVector = TempForward * InputVector.X + TempRight * InputVector.Y;
 	const FRotator TargetRot = TargetVector.GetSafeNormal().Rotation();
-	
+	UE_LOG(LogTemp, Warning, TEXT("TargetRotation, %s"), *TargetRot.ToString())
 	return TargetRot;
 }
 

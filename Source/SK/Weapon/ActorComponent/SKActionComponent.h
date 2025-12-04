@@ -14,6 +14,8 @@ class SK_API USKActionComponent : public UActorComponent
 
 public:
 	USKActionComponent();
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,13 +33,16 @@ protected:
 	UPROPERTY()
 	USKWeaponActionData* CurrentWeaponActionData;
 
-#pragma region Server RPC
+#pragma region MovementInfo
 
 public:
 	UFUNCTION(Server, Reliable)
 	void Server_SetMovementInfo(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection);
 
+	UPROPERTY(Replicated)
 	FVector2D CurrentInputVector;
+
+	UPROPERTY(Replicated)
 	EMoveDirection CurrentMovementDirection;
 
 #pragma endregion
