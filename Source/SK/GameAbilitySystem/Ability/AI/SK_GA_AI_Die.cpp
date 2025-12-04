@@ -67,18 +67,11 @@ void USK_GA_AI_Die::ActivateAbility(
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	CommonEventTask->EndTask();
-	
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
-	if (!IsValid(AICharacter))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 
 	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Death");
 	if (!IsValid(AnimMontage))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	

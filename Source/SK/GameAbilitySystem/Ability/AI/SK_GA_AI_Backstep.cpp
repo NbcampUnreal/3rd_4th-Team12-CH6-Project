@@ -29,7 +29,7 @@ void USK_GA_AI_Backstep::Backstep()
 			OwnEventTask->EndTask();
 		}
 		
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 	
@@ -74,7 +74,7 @@ void USK_GA_AI_Backstep::Backstep()
 				OwnEventTask->EndTask();
 			}
 			
-			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		}
 	}
 	else
@@ -84,7 +84,7 @@ void USK_GA_AI_Backstep::Backstep()
 			OwnEventTask->EndTask();
 		}
 		
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 	}
 }
 
@@ -103,8 +103,6 @@ void USK_GA_AI_Backstep::WaitMoveComplete()
 
 void USK_GA_AI_Backstep::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
 {
-	CommonEventTask->EndTask();
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
@@ -116,7 +114,9 @@ void USK_GA_AI_Backstep::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
+
+	CommonEventTask->EndTask();
+
 	Backstep();
 }
 

@@ -23,7 +23,7 @@ void USK_GA_AI_Wander::Wander()
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
@@ -33,7 +33,7 @@ void USK_GA_AI_Wander::Wander()
 
 	if (!IsValid(NavSystem))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 	
@@ -41,7 +41,7 @@ void USK_GA_AI_Wander::Wander()
 	bool bSucceed = NavSystem->GetRandomReachablePointInRadius(StartLocation, WanderRadius, ResultLocation);
 	if (!bSucceed)
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
@@ -50,7 +50,7 @@ void USK_GA_AI_Wander::Wander()
 	AAIController* AIController = Cast<AAIController>(CachedController);
 	if (!IsValid(AIController))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 	

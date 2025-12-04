@@ -1,11 +1,8 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Rush.h"
-#include "MotionWarpingComponent.h"
-#include "SK_GA_AI_Melee.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_JumpRush.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Character/AI/SKAICharacter.h"
 
-USK_GA_AI_Rush::USK_GA_AI_Rush()
+USK_GA_AI_JumpRush::USK_GA_AI_Rush()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
@@ -13,10 +10,10 @@ USK_GA_AI_Rush::USK_GA_AI_Rush()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Rush")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Rush")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.JumpRush")));
 }
 
-void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_JumpRush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
@@ -88,14 +85,14 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 				false,
 				1.0f
 				);
-	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Rush::OnRushCompleted);
+	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_JumpRush::OnRushCompleted);
 	//Task->OnInterrupted.AddDynamic(this, &USK_GA_Melee::OnMontageInterrupted);
 	//Task->OnCancelled.AddDynamic(this, &USK_GA_Melee::OnMontageCancelled);
 	//Task->OnBlendOut.AddDynamic(this, &USK_GA_Melee::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Rush::OnRushCompleted()
+void USK_GA_AI_JumpRush::OnRushCompleted()
 {
 	FRotator CorrectRotation = CachedCharacter->GetActorRotation();
 	CorrectRotation.Pitch = 0.f;
@@ -106,7 +103,7 @@ void USK_GA_AI_Rush::OnRushCompleted()
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
-void USK_GA_AI_Rush::ActivateAbility(
+void USK_GA_AI_JumpRush::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -127,7 +124,7 @@ void USK_GA_AI_Rush::ActivateAbility(
 	Rush(AnimMontage);
 }
 
-void USK_GA_AI_Rush::EndAbility(
+void USK_GA_AI_JumpRush::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,

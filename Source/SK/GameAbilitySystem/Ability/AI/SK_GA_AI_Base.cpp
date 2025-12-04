@@ -45,48 +45,39 @@ void USK_GA_AI_Base::WaitEndAbility()
 
 void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 {
-	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-	if (IsValid(SourceASC))
+	if (OwnEventTask)
 	{
-		FGameplayTagContainer AITags;
-		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Ready"));
-		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
-		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Rush"));
-		AITags.AddTag(FGameplayTag::RequestGameplayTag("AI.Backstep"));
-		
-		if (SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("AI.Death")) || !SourceASC->HasAnyMatchingGameplayTags(AITags))
+		if (OwnEventTask->IsActive())
 		{
-			if (OwnEventTask)
-			{
-				if (OwnEventTask->IsActive())
-				{
-					OwnEventTask->EndTask();
-				}
-			}
-			
-			if (OwnMontageTask)
-			{
-				if (OwnMontageTask->IsActive())
-				{
-					SourceASC->CurrentMontageStop();
-			
-					OwnMontageTask->EndTask();
-				}
-			}
-			
-			if (OwnDelayTask)
-			{
-				if (OwnDelayTask->IsActive())
-				{
-					OwnDelayTask->EndTask();
-				}
-			}
-
-			CachedController->StopMovement();
-
-			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+			OwnEventTask->EndTask();
 		}
 	}
+			
+	if (OwnMontageTask)
+	{
+		if (OwnMontageTask->IsActive())
+		{
+			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+			if (IsValid(SourceASC))
+			{
+				SourceASC->CurrentMontageStop();
+			}
+			
+			OwnMontageTask->EndTask();
+		}
+	}
+			
+	if (OwnDelayTask)
+	{
+		if (OwnDelayTask->IsActive())
+		{
+			OwnDelayTask->EndTask();
+		}
+	}
+
+	CachedController->StopMovement();
+
+	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
 void USK_GA_AI_Base::ActivateAbility(
@@ -147,17 +138,13 @@ void USK_GA_AI_Base::EndAbility(
 	bool bWasCancelled
 	)
 {
-	// 나중에 실제 캔슬될 일이 생기면 그땐 조건 지워야 함.
-	if (!bWasCancelled)
+	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
+	if (!IsValid(ST))
 	{
-		UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
-		if (!IsValid(ST))
-		{
-			return;
-		}
-
-		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+		return;
 	}
+
+	ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

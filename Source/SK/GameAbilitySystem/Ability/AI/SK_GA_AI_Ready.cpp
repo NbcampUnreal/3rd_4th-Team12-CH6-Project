@@ -1,7 +1,6 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Ready.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Character/AI/SKAICharacter.h"
 
 USK_GA_AI_Ready::USK_GA_AI_Ready()
 {
@@ -36,8 +35,6 @@ void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
 
 void USK_GA_AI_Ready::OnReadyCompleted()
 {
-	CommonEventTask->EndTask();
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
@@ -49,13 +46,8 @@ void USK_GA_AI_Ready::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
-	if (!IsValid(AICharacter))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
+
+	CommonEventTask->EndTask();
 
 	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Ready");
 	if (!IsValid(AnimMontage))
