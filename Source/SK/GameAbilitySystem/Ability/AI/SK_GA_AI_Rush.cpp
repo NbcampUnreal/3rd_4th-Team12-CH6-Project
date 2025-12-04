@@ -31,7 +31,7 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 		return;
 	}
 
-	AActor* TargetActor = GetTargetActor();
+	TObjectPtr<AActor> TargetActor = GetTargetActor();
 	if (!IsValid(TargetActor))
 	{
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);

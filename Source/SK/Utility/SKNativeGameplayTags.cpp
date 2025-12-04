@@ -41,6 +41,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Cancel, "Ability.Wander");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Chase, "Ability.Chase");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Ready, "Ability.Ready");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Rush, "Ability.Rush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_JumpRush, "Ability.JumpRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 

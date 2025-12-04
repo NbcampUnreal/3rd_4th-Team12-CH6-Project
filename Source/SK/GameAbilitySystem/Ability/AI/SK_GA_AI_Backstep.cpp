@@ -39,7 +39,7 @@ void USK_GA_AI_Backstep::Backstep()
 	FVector PlayerLocation;
 	FVector TargetLocation;
 	
-	AActor* Player = GetTargetActor();
+	TObjectPtr<AActor> Player = GetTargetActor();
 	if (IsValid(Player))
 	{
 		PlayerLocation = Player->GetActorLocation();

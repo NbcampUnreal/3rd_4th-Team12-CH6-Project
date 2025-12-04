@@ -35,7 +35,7 @@ ASKAIController::ASKAIController()
 	TargetActor = nullptr;
 }
 
-AActor* ASKAIController::GetTargetActor() const
+TObjectPtr<AActor> ASKAIController::GetTargetActor() const
 {
 	return TargetActor;
 }

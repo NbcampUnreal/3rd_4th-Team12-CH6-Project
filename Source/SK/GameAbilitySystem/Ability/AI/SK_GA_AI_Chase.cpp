@@ -28,7 +28,7 @@ void USK_GA_AI_Chase::Chase()
 		return;
 	}
 
-	AActor* TargetActor = AIController->GetTargetActor();
+	TObjectPtr<AActor> TargetActor = AIController->GetTargetActor();
 	if (!IsValid(TargetActor))
 	{
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);

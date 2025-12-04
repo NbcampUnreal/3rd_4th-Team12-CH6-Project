@@ -33,12 +33,12 @@ protected:
 	UAbilitySystemComponent* OwningASC;
 	
 	UPROPERTY()
-	AActor* TargetActor;
+	TObjectPtr<AActor> TargetActor;
 
 public:
 	ASKAIController();
 	
-	AActor* GetTargetActor() const;
+	TObjectPtr<AActor> GetTargetActor() const;
 
 	void AddTag(FGameplayTag Tag) const;
 
