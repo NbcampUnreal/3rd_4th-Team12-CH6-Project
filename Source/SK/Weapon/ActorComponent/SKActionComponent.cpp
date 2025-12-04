@@ -85,29 +85,31 @@ void USKActionComponent::CloseGate()
 	bIsGateOpen = false;
 }
 
-void USKActionComponent::Server_ExecuteDodge_Implementation()
+void USKActionComponent::Server_ExecuteDodge_Implementation(FName DodgeTag)
 {
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Char) return;
 
 	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
 	if (!ASC) return;
-	
-	bool bIsEvade = CheckDoubleTab();
 
-	// 스텝
-	if (!bIsEvade)
-	{
-		FGameplayTagContainer InteractionTag;
-		InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Action.Step")));
-		ASC->TryActivateAbilitiesByTag(InteractionTag);
-	}
-	// 구르기
-	else if (bIsEvade)
-	{
-		FGameplayTagContainer InteractionTag;
-		InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Action.Evade")));
-		ASC->TryActivateAbilitiesByTag(InteractionTag);
-	}
+	FGameplayTagContainer StepTag;
+	StepTag.AddTag(FGameplayTag::RequestGameplayTag(DodgeTag));
+	ASC->TryActivateAbilitiesByTag(StepTag);
 }
 
+void USKActionComponent::TryDodge()
+{
+	bool bIsEvade = CheckDoubleTap();
+	FName DodgeTag;
+	if (!bIsEvade)
+	{
+		DodgeTag = FName("State.Action.Dodge.Step");
+	}
+	else
+	{
+		DodgeTag = FName("State.Action.Dodge.Evade");
+	}
+	
+	Server_ExecuteDodge(DodgeTag);
+}

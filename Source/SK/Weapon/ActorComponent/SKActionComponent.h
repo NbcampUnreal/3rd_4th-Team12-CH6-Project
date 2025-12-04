@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Controller/SKPlayerController.h"
 #include "SKActionComponent.generated.h"
-
 
 class USKWeaponActionData;
 
@@ -48,10 +48,12 @@ public:
 public:
 	FRotator GetDodgeRotator() const;
 
-	UFUNCTION(Server, Reliable)
-	void Server_ExecuteDodge();
+	void TryDodge();
 
 protected:
+	UFUNCTION(Server, Reliable)
+	void Server_ExecuteDodge(FName DodgeType);
+	
 	bool CheckDoubleTap();
 
 	void CloseGate();
