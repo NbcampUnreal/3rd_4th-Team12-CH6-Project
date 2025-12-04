@@ -15,6 +15,9 @@ struct FDropItemData
 {
 	GENERATED_BODY();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 ItemID;
+	
 	// 드랍 확률 (0~1)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float Probability = 1.0f;
