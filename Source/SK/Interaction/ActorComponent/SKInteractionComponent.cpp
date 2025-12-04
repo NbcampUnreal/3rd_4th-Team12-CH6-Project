@@ -179,12 +179,9 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 		if (!Char) return;
 
-		USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
-		if (!InteractionComponent) return;
-
 		FSKInteractionData Data;
 		ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, Data);
-		InteractionComponent->SetInteractionData(Data);
+		SetInteractionData(Data);
 
 		// 서버는 바로 실행 서버에 복제 된 클라는 클라에 도착하면 서버 RPC로 실행
 	

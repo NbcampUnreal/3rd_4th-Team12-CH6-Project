@@ -79,7 +79,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> SprintAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-    TObjectPtr<UInputAction> Interaction;
+	TObjectPtr<UInputAction> Interaction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> DodgeAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> LeftAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
@@ -105,12 +107,14 @@ protected:
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
+	void OnMoveRepleased();
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void StopJumping();
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
+	void Dodge(const FInputActionValue& Value);
 	void LeftAttack(const FInputActionValue& Value);
 	void RightAttack(const FInputActionValue& Value);
 	void Active_MouseWheel(const FInputActionValue& Value);

@@ -19,6 +19,7 @@
 #include "Utility/SKNativeGameplayTags.h"
 #include "GameData/WeaponDataRow.h"
 #include "Weapon/SKWeaponData.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKPlayerCharacter::ASKPlayerCharacter()
 {
@@ -56,6 +57,9 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 
 	// InteractionComponent
 	InteractionComponent = CreateDefaultSubobject<USKInteractionComponent>(TEXT("InteractionComponent"));
+
+	// ActionComponent
+	ActionComponent = CreateDefaultSubobject<USKActionComponent>(TEXT("ActionComponent"));
 }
 
 void ASKPlayerCharacter::BeginPlay()
