@@ -425,7 +425,7 @@ void ASKPlayerController::UpdateCameraManagerTarget()
 	if (Cam)
 	{
 		Cam->LockedTarget = CurrentTarget;
-		Cam->bIsLockedOn = bIsLockedOn;
+		Cam->SetbIsLockedOn(bIsLockedOn);;
 	}
 }
 
