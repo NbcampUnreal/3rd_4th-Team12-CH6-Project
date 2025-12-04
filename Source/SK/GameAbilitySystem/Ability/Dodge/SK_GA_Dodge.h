@@ -4,6 +4,7 @@
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_Dodge.generated.h"
 
+class USKActionComponent;
 class USKCombatComponent;
 
 UCLASS()

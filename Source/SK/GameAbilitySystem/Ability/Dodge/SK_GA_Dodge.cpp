@@ -4,7 +4,6 @@
 #include "Weapon/ActorComponent/SKActionComponent.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "Controller/SKPlayerController.h"
 
 USK_GA_Dodge::USK_GA_Dodge()
 	: DodgeMontage(nullptr)
@@ -26,26 +25,23 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	USKActionComponent* ActionComponent = Char->GetActionComponent();
 	if (!ActionComponent) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 
-	// 캐릭터 회전
-	Char->SetActorRotation(ActionComponent->GetDodgeRotator());
+	// 회피 별 값 세팅
+	PreActivateDodge(ActionComponent);
 
-	// 몽타주 섹션
 	FName SectionName;
-	ASKPlayerController* PC = Cast<ASKPlayerController>(Char->GetController());
-	if (!PC) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
-
-	if (PC->CurrentInputVector.IsNearlyZero())
+	// 입력 없을 시 뒤로
+	if (ActionComponent->CurrentInputVector.IsNearlyZero())
 	{
 		SectionName = "Backward";
 	}
 	else
 	{
+		// 캐릭터 회전
+		Char->SetActorRotation(ActionComponent->GetDodgeRotator());
 		SectionName = "Forward";
 	}
 	
 	// 몽타주 재생
-	SetAnimMontage(ActionComponent);
-	
 	if (DodgeMontage)
 	{
 		UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Dodge"), DodgeMontage, 1.f, SectionName);
@@ -76,6 +72,8 @@ void USK_GA_Dodge::OnCompleted()
 void USK_GA_Dodge::OnCanceled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-}void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
+}
+
+void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
 {
 }
