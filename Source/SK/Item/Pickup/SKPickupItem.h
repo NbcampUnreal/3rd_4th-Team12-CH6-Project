@@ -34,7 +34,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-	void InitializePickup(USKPickupItemData* InPickupData, int32 Count);
+	void InitializePickup(int32 ItemID, USKPickupItemData* InPickupData, int32 Count);
 
 protected:
 	virtual void BeginPlay() override;

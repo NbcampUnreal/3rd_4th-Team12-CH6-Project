@@ -15,6 +15,15 @@ class SK_API ASKCameraManager : public APlayerCameraManager
 	GENERATED_BODY()
 public:
 	ASKCameraManager();
+
+	void SetbIsLockedOn(bool ArgIsLockedOn);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|LockOn")
+	UMaterialInterface* LockOnOverlayMaterial;
+
+	UPROPERTY(BlueprintReadWrite)
+	float fOutLineActiveTime = 5.f;
+
 	
 	UPROPERTY(BlueprintReadWrite)
 	AActor* LockedTarget;

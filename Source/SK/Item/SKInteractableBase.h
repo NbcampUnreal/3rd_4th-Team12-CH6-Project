@@ -46,11 +46,17 @@ public:
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-		
+
+	// 상호작용 실행 하기 전 호출 필수
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void PreExecuteInteraction();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
 	FSKInteractionData InteractionData;
 
 	EObjectType ObjectType;
+
+	bool bCanInteract;
 	
 #pragma endregion
 	
@@ -64,13 +70,19 @@ protected:
 #pragma region UI
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|UI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UWidgetComponent> InteractionWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
+	TObjectPtr<UUserWidget> InteractionUI;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
+	FText InteractableText;
 
 	UFUNCTION()
 	void ToggleWidget(bool bIsVisible);
 	
-	UFUNCTION(BlueprintCallable, Category = "SK|UI")
+	UFUNCTION()
 	void OnShowWidget(bool bIsVisible);
 		
 #pragma endregion 

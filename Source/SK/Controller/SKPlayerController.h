@@ -35,13 +35,19 @@ public:
 
 	FOnPawnPossessedSignature OnPawnPossessed;
 
-	//던전 입장 (Host 전용)
+	//던전 입장 (클라에서 호출 전용)
 	UFUNCTION(BlueprintCallable)
-	void EnterDungeon();
+	void EnterDungeonByID(int32 DungeonID);
+
+	UFUNCTION(Server, Reliable)
+	void Server_EnterDungeon(int32 DungeonID);
 
 	//마을 복귀 (Host 전용)
 	UFUNCTION(BlueprintCallable)
 	void ReturnToTown();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ReturnToTown();
 
 	//파티 해제 및 로컬 마을 복귀
 	UFUNCTION(BlueprintCallable)
@@ -73,7 +79,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> SprintAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-    TObjectPtr<UInputAction> Interaction;
+	TObjectPtr<UInputAction> Interaction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> DodgeAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> LeftAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
@@ -99,12 +107,14 @@ protected:
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
+	void OnMoveRepleased();
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void StopJumping();
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
+	void Dodge(const FInputActionValue& Value);
 	void LeftAttack(const FInputActionValue& Value);
 	void RightAttack(const FInputActionValue& Value);
 	void Active_MouseWheel(const FInputActionValue& Value);

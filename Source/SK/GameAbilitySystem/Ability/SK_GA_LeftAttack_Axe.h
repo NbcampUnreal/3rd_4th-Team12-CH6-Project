@@ -32,11 +32,22 @@ public:
 		bool bWasCancelled
 	) override;
 
+	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
+	override;
 
 	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle,
 	                       const FGameplayAbilityActorInfo* ActorInfo,
 	                       OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const
 	override;
+
+	UFUNCTION()
+	void OnMontageCompleted();
+
+	UFUNCTION()
+	void OnMontageInterrupted();
 	
 
 	void ApplyDamageFromTrace();

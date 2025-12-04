@@ -5,10 +5,28 @@
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Character/AI/SKAICharacterBase.h"
 
 USK_GA_AI_Base::USK_GA_AI_Base()
 {
+
+}
+
+TObjectPtr<UAnimMontage> USK_GA_AI_Base::GetAnimMontage(FName AbilityName)
+{
+	TObjectPtr<UAnimMontage>* MapAnimMontage = Montages.Find(AbilityName);
+	if (!MapAnimMontage)
+	{
+		return nullptr;
+	}
 	
+	TObjectPtr<UAnimMontage> AnimMontage = *MapAnimMontage;
+	if (!IsValid(AnimMontage))
+	{
+		return nullptr;
+	}
+
+	return AnimMontage;
 }
 
 void USK_GA_AI_Base::WaitEndAbility()
@@ -34,21 +52,21 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 			OwnEventTask->EndTask();
 		}
 	}
+			
 	if (OwnMontageTask)
 	{
 		if (OwnMontageTask->IsActive())
 		{
 			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-			if (!IsValid(SourceASC))
+			if (IsValid(SourceASC))
 			{
-				return;
+				SourceASC->CurrentMontageStop();
 			}
-
-			SourceASC->CurrentMontageStop();
 			
 			OwnMontageTask->EndTask();
 		}
 	}
+			
 	if (OwnDelayTask)
 	{
 		if (OwnDelayTask->IsActive())
@@ -78,14 +96,14 @@ void USK_GA_AI_Base::ActivateAbility(
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	if (!AvatarActor)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	
 	ACharacter* AvatarCharacter = Cast<ACharacter>(AvatarActor);
 	if (!IsValid(AvatarCharacter))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
@@ -94,12 +112,21 @@ void USK_GA_AI_Base::ActivateAbility(
 	AController* Controller = AvatarCharacter->GetController();
 	if (!IsValid(Controller))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 	
 	CachedController = Controller;
 
+	ASKAICharacterBase* BaseAI = Cast<ASKAICharacterBase>(CachedCharacter);
+	if (!IsValid(BaseAI))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
+	Montages = BaseAI->GetMontages();
+	
 	WaitEndAbility();
 }
 
@@ -111,16 +138,13 @@ void USK_GA_AI_Base::EndAbility(
 	bool bWasCancelled
 	)
 {
-	if (!bWasCancelled)
+	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
+	if (!IsValid(ST))
 	{
-		UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
-		if (!IsValid(ST))
-		{
-			return;
-		}
-
-		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+		return;
 	}
+
+	ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

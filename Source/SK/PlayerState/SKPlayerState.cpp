@@ -8,6 +8,7 @@
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameData/WeaponDataRow.h"
+#include "Weapon/SKWeaponData.h"
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
@@ -51,7 +52,9 @@ void ASKPlayerState::BeginPlay()
 		OnASCReady.Broadcast();
 	}
 	if (HasAuthority())
+	{
 		OnRep_CurrentWeaponTag();
+	}
 
 	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
 	APlayerController* PC = GetPlayerController();
@@ -85,8 +88,26 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
-	
+	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  // 필수
 	// DOREPLIFETIME(ASKPlayerState, RepComboState); // 이게 없으면 클라에게 절대 안 감
+}
+
+void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
+{
+	if (TeamTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Team.Player")))
+	{
+		PlayerTeamID = FGenericTeamId(0);
+	}
+	else if (TeamTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Team.Monster")))
+	{
+		PlayerTeamID = FGenericTeamId(1);
+	}
+	else
+	{
+		PlayerTeamID = FGenericTeamId::NoTeam; // 255 Neutral
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Player TeamID Set: %d"), PlayerTeamID.GetId());
 }
 
 
@@ -114,23 +135,29 @@ TArray<FName> ASKPlayerState::GetTraceSocket()
 {
 	TArray<FName> EmptyResult;
 
-	if (!IsValid(CurrentWeaponDT))
+	if (WeaponSocketDT.IsNull())
 		return EmptyResult;
 
 	// CurrentWeaponTag == RowName 으로 가정
 	FName RowName = CurrentWeaponTag.GetTagName();
 
-	const FSKWeaponDataRow* Row = CurrentWeaponDT->FindRow<FSKWeaponDataRow>(RowName, TEXT("GetTraceSockets"));
+	const FSKWeaponDataRow* Row = WeaponSocketDT->FindRow<FSKWeaponDataRow>(RowName, TEXT("GetTraceSockets"));
 	if (!Row)
 		return EmptyResult;
 
 	return Row->TraceSockets;
 }
 
-const UDataTable* ASKPlayerState::GetWeaponDT() const
+TSoftObjectPtr<UDataTable> ASKPlayerState::GetWeaponDT() const
 {
-	return CurrentWeaponDT;
+	return WeaponSocketDT;
 }
+
+TSoftObjectPtr<UDataTable> ASKPlayerState::GetWeaponData() const
+{
+	return WeaponDataTable;
+}
+
 
 void ASKPlayerState::SetDAPlayerStat()
 {
@@ -188,6 +215,8 @@ void ASKPlayerState::SetDAPlayerStat()
 		if (CharacterData->TeamTag.IsValid())
 		{
 			AbilitySystemComponent->AddLooseGameplayTag(CharacterData->TeamTag);
+
+			SetTeamFromTag(CharacterData->TeamTag);
 		}
 
 		// 태그 GE 적용
@@ -210,6 +239,48 @@ void ASKPlayerState::SetDAPlayerStat()
 void ASKPlayerState::SetWeaponTag(FGameplayTag WeaponTag)
 {
 	CurrentWeaponTag = WeaponTag;
+}
+
+const FSKWeaponDataRow* ASKPlayerState::GetWeaponSocketDataRow() const
+{
+	UDataTable* DT = WeaponSocketDT.LoadSynchronous();
+	if (!DT)
+		return nullptr;
+
+	FString TagName = CurrentWeaponTag.GetTagName().ToString();
+	return DT->FindRow<FSKWeaponDataRow>(FName(*TagName), TEXT(""));
+}
+
+const FWeaponDataRow* ASKPlayerState::GetWeaponDataRow() const
+{
+	UDataTable* DT = WeaponDataTable.LoadSynchronous();
+	if (!DT)
+		return nullptr;
+
+	FString FullTag = CurrentWeaponTag.GetTagName().ToString();
+	FString RowString;
+
+	// 마지막 . 뒤의 문자열만 추출
+	FullTag.Split(TEXT("."), nullptr, &RowString, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName = FName(*RowString);
+	return DT->FindRow<FWeaponDataRow>(RowName, TEXT("GetWeaponDataRow"));
+}
+
+FWeaponDataRow& ASKPlayerState::GetWeaponData()
+{
+	static FWeaponDataRow DefaultRow; 
+
+	if (!WeaponDT) return DefaultRow;
+
+	FString FullTag = CurrentWeaponTag.GetTagName().ToString();
+	FString RowString;
+
+	// 마지막 . 뒤의 문자열만 추출
+	FullTag.Split(TEXT("."), nullptr, &RowString, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName = FName(*RowString);
+		return *WeaponDT->FindRow<FWeaponDataRow>(RowName,TEXT("GetWeaponDataRow"));
 }
 
 

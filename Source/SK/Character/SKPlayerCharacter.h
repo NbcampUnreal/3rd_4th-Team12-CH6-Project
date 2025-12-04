@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Character/SKCharacterBase.h"
-#include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
+class USKActionComponent;
 class USKInteractionComponent;
 struct FSKRepComboState;
-class USKCombatComponent; 
+class USKCombatComponent;
+
 
 UCLASS()
 class SK_API ASKPlayerCharacter : public ASKCharacterBase
@@ -23,7 +24,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void PostInitializeComponents() override;
+	
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
@@ -38,7 +41,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	USKCombatComponent* GetCombatComponent() const;
-
+	UFUNCTION()
+	void OnAnimInitialized();
 	void SetTraceSocket();
 
 
@@ -59,6 +63,8 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 private:
+	FTimerHandle InitASCTimerHandle;
+	void TryInitASC();
 	void SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable);
 
 
@@ -73,7 +79,7 @@ private:
 #pragma region Interaction
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component|Interaction")
 	TObjectPtr<USKInteractionComponent> InteractionComponent;
 
 public:
@@ -82,6 +88,18 @@ public:
 	
 #pragma endregion
 
+#pragma region Action
+	
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component|Action")
+	TObjectPtr<USKActionComponent> ActionComponent;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE USKActionComponent* GetActionComponent() const { return ActionComponent; }
+	
+#pragma endregion
+	
 	//Camera
 	void LockOnTarget(float DeltaTime);
 };

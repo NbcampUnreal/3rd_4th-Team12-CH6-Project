@@ -32,10 +32,10 @@ void ASKPickupItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ASKPickupItem, ItemInfo);
 }
 
-void ASKPickupItem::InitializePickup(USKPickupItemData* InPickupData, int32 Count)
+void ASKPickupItem::InitializePickup(int32 ItemID, USKPickupItemData* InPickupData, int32 Count)
 {
 	PickupData = InPickupData;
-	SetItemInfo(1, Count);
+	SetItemInfo(ItemID, Count);
 
 	if (PickupData->DropEffect)
 	{
@@ -48,7 +48,7 @@ void ASKPickupItem::OnRep_PickupData()
 {
 	if (PickupData)
 	{
-		InitializePickup(PickupData, ItemInfo.ItemCount);
+		InitializePickup(ItemInfo.ItemID, PickupData, ItemInfo.ItemCount);
 	}
 }
 
@@ -96,7 +96,9 @@ void ASKPickupItem::Interact_Implementation(AActor* Interactor)
 {
 	if (!HasAuthority()) return;
 
-	AddToInventory(Interactor, ItemInfo.ItemCount, ItemInfo.ItemCount);
+	PreExecuteInteraction();
+	
+	AddToInventory(Interactor, ItemInfo.ItemID, ItemInfo.ItemCount);
 
 	Multicast_PlayPickupEffects(Interactor);
 	

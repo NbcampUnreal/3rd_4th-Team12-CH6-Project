@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Character/SKPlayerDataAsset.h"
 #include "GameData/WeaponDataRow.h"
+#include "GenericTeamAgentInterface.h"
 #include "SKPlayerState.generated.h"
 
 class UInventoryComponent;
@@ -15,9 +16,11 @@ class UAbilitySystemComponent;
 class USKAttributeSet;
 
 
+struct FWeaponDataRow;
+struct FSKWeaponDataRow;
 
 UCLASS()
-class SK_API ASKPlayerState : public APlayerState
+class SK_API ASKPlayerState : public APlayerState, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -30,6 +33,13 @@ public:
 	virtual void CopyProperties(APlayerState* NewPlayerState) override;
 	// 네트워크 복제에 필요한 함수 재정의
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	/** TeamID 반환 */
+	virtual FGenericTeamId GetGenericTeamId() const override { return PlayerTeamID; }
+	/** 팀 갱신 함수 */
+	void SetTeamFromTag(const FGameplayTag& TeamTag);
+	FGenericTeamId PlayerTeamID = FGenericTeamId::NoTeam;
+
 #pragma region GAS
 	UFUNCTION()
 	void OnRep_CurrentWeaponTag();
@@ -43,10 +53,20 @@ public:
 	void SetDAPlayerStat();
 	void SetWeaponTag(FGameplayTag WeaponTag);
 
+	const FSKWeaponDataRow* GetWeaponSocketDataRow() const;
+	const FWeaponDataRow* GetWeaponDataRow() const; 
 
+	UFUNCTION(BlueprintCallable)
+	FWeaponDataRow& GetWeaponData();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Data")
+	TObjectPtr<UDataTable> WeaponDT;
+	
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();
-	const UDataTable* GetWeaponDT() const;
+	TSoftObjectPtr<UDataTable> GetWeaponDT() const;
+	TSoftObjectPtr<UDataTable> GetWeaponData() const;
+	
 	FGameplayTag GetWeaponTag() const;
 
 
@@ -61,7 +81,10 @@ protected:
 
 	//Tag별 소켓 정보 DT
 	UPROPERTY(EditAnywhere, Category="SK|Weapon")
-	UDataTable* CurrentWeaponDT;
+	TSoftObjectPtr<UDataTable> WeaponSocketDT;
+
+	UPROPERTY(EditAnywhere, Category="SK|WeaponData")
+	TSoftObjectPtr<UDataTable> WeaponDataTable;
 
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "SK|GAS")
 	TSoftObjectPtr<USKPlayerDataAsset> CharacterData;

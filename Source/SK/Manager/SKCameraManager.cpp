@@ -3,8 +3,20 @@
 
 #include "Manager/SKCameraManager.h"
 
+#include "Character/AI/SKAICharacterBase.h"
+
 ASKCameraManager::ASKCameraManager()
 {
+}
+
+void ASKCameraManager::SetbIsLockedOn(bool ArgIsLockedOn)
+{
+	if (!bIsLockedOn &&bIsLockedOn != ArgIsLockedOn)
+	{
+		Cast<ASKAICharacterBase>(LockedTarget)->SetOverlayMaterial(LockOnOverlayMaterial,fOutLineActiveTime);
+	}
+	bIsLockedOn = ArgIsLockedOn;
+	
 }
 
 void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
@@ -25,7 +37,7 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	// 타겟 가려짐 체크
 	if (IsTargetObstructed(CamLoc, TargetLoc))
 	{
-		bIsLockedOn = false;
+		SetbIsLockedOn(false);;
 		LockedTarget = nullptr;
 		return;
 	}
@@ -34,7 +46,7 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	float Dist = FVector::Dist(Player->GetActorLocation(), LockedTarget->GetActorLocation());
 	if (Dist > MaxLockDistance || Dist < MinLockDistance)
 	{
-		bIsLockedOn = false;
+		SetbIsLockedOn(false);;
 		LockedTarget = nullptr;
 		return;
 	}

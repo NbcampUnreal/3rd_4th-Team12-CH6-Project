@@ -10,6 +10,7 @@ class UBoxComponent;
 class UMotionWarpingComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
+class UStateTree;
 
 UCLASS()
 class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -41,12 +42,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MonsterID")
 	int32 DropTableID = -1;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Montage")
-	TArray<TObjectPtr<UAnimMontage>> Montages;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation|Montages")
+	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	TObjectPtr<UStateTree> StateTreeAsset;
 
 private:
 	FVector StartLocation;
-	
+
+	FTimerHandle OverlayTimerHandle;
+
 public:
 	ASKAICharacterBase();
 	
@@ -58,10 +64,15 @@ public:
 
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 	
-	TArray<UAnimMontage*> GetMontages() const;
+	TMap<FName, TObjectPtr<UAnimMontage>> GetMontages() const;
+	
+	TObjectPtr<UStateTree> GetStateTreeAsset() const;
 
 	FVector GetStartLocation() const;
 
+	//오버레이머티리얼 Set함수-이준식
+	void SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration = 10.f);
+	void ClearOverlayMaterial();
 protected:
 	virtual void PossessedBy(AController* NewController) override;
 	

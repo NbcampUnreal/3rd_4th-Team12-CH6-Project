@@ -50,7 +50,7 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		if (FMath::IsNearlyZero(GetHealth()))
 		{
 			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
-			SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag(TEXT("Event.EndAbility")));
+			CancelAllAbilities();
 
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Death"));
 
@@ -168,7 +168,7 @@ void USKAIAttributeSet::RemoveTag(FGameplayTag Tag) const
 	OwningASC->RemoveLooseGameplayTag(Tag);
 }
 
-void USKAIAttributeSet::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
+void USKAIAttributeSet::CancelAllAbilities() const
 {
 	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
 	if (!OwningASC)
@@ -176,11 +176,5 @@ void USKAIAttributeSet::SendEventToASC(AActor* LocalInstigator, AActor* LocalTar
 		return;
 	}
 
-	FGameplayEventData EventData;
-	EventData.Instigator = LocalInstigator;
-	EventData.Target = LocalTargetActor;
-	EventData.EventTag = EventTag;
-	EventData.OptionalObject = nullptr;
-
-	OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+	OwningASC->CancelAllAbilities();
 }

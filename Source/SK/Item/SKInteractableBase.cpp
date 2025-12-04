@@ -12,6 +12,7 @@
 #include "Utility/SKNativeGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
+#include "Interaction/UI/SKInteractableWidget.h"
 
 ASKInteractableBase::ASKInteractableBase()
 {
@@ -21,7 +22,7 @@ ASKInteractableBase::ASKInteractableBase()
 	InteractionCollision = CreateDefaultSubobject<USphereComponent>("Interaction");
 	InteractionCollision->SetupAttachment(Root);
 
-	InteractionCollision->SetHiddenInGame(false);
+	// InteractionCollision->SetHiddenInGame(false);
 	
 	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapBegin);
 	InteractionCollision->OnComponentEndOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapEnd);
@@ -29,9 +30,11 @@ ASKInteractableBase::ASKInteractableBase()
 	
 	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>("InteractionWidget");
 	InteractionWidget->SetupAttachment(Root);
+	InteractionWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	InteractionWidget->SetVisibility(false);
 	
 	bReplicates = true;
+	bCanInteract = true;
 }
 
 void ASKInteractableBase::BeginPlay()
@@ -39,6 +42,14 @@ void ASKInteractableBase::BeginPlay()
 	Super::BeginPlay();
 	
 	SetReplicateMovement(true);
+
+	if (!InteractionUI) return;
+
+	if (USKInteractableWidget* WidgetClass = Cast<USKInteractableWidget>(InteractionUI))
+	{
+		InteractionWidget->SetWidget(WidgetClass);
+		WidgetClass->SetInitialText(InteractableText);
+	}
 }
 
 void ASKInteractableBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -66,6 +77,11 @@ void ASKInteractableBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AAct
 	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
 	InteractionComponent->CandidateActors.Remove(this);	
 
+}
+
+void ASKInteractableBase::PreExecuteInteraction()
+{
+	bCanInteract = false;
 };
 
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

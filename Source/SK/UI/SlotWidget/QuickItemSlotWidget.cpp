@@ -6,6 +6,7 @@
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
 #include "Components/Image.h"
+#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "PlayerState/SKPlayerState.h"
@@ -33,6 +34,12 @@ void UQuickItemSlotWidget::NativeConstruct()
 		TAG_Message_Channel_SwitchLayout,
 		this,
 		&UQuickItemSlotWidget::OnSwitchLayoutMessageReceived
+	);
+
+	QuickSlotItemUseHandle = MessageSubsystem->RegisterListener<FQuickSlotCooldown>(
+		TAG_Message_Channel_UseQuickSlotItem,
+		this,
+		&UQuickItemSlotWidget::OnQuickSlotItemUseMessageReceived
 	);
 	
 	TryCachedComponent();
@@ -165,6 +172,64 @@ void UQuickItemSlotWidget::SettingWidgetIcons()
 	
 }
 
+void UQuickItemSlotWidget::StartCooldown(int32 SlotIndex, float Duration)
+{
+	CooldownDurations[SlotIndex] = Duration;
+	CooldownElapsed[SlotIndex] = 0.f;
+ 
+	UProgressBar* TargetBar = nullptr;
+	
+	switch (SlotIndex)
+	{
+	case 0: TargetBar = CooldownProgressBar1; break;
+	case 1: TargetBar = CooldownProgressBar2; break;
+	case 2: TargetBar = CooldownProgressBar3; break;
+	default: break;
+	}
+ 
+	if (TargetBar)
+	{
+		TargetBar->SetPercent(1.0f);
+	}
+ 
+	GetWorld()->GetTimerManager().SetTimer(
+		CooldownTimerHandles[SlotIndex],
+		FTimerDelegate::CreateUObject(this, &UQuickItemSlotWidget::UpdateCooldownProgress, SlotIndex),
+		0.02f,
+		true
+	);
+}
+
+void UQuickItemSlotWidget::UpdateCooldownProgress(int32 SlotIndex)
+{
+	CooldownElapsed[SlotIndex] += 0.02f;
+	float Remaining = FMath::Clamp(CooldownDurations[SlotIndex] - CooldownElapsed[SlotIndex], 0.f, CooldownDurations[SlotIndex]);
+	float Percent = Remaining / CooldownDurations[SlotIndex];
+ 
+	UProgressBar* TargetBar = nullptr;
+	switch (SlotIndex)
+	{
+	case 0: TargetBar = CooldownProgressBar1; break;
+	case 1: TargetBar = CooldownProgressBar2; break;
+	case 2: TargetBar = CooldownProgressBar3; break;
+	default: break;
+	}
+ 
+	if (TargetBar)
+	{
+		TargetBar->SetPercent(Percent);
+	}
+ 
+	if (Remaining <= 0.f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandles[SlotIndex]);
+		if (TargetBar)
+		{
+			TargetBar->SetPercent(0.f);
+		}
+	}
+}
+
 void UQuickItemSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message)
 {
 	if (Message.LayoutTag != TAG_UI_Layout_InGame)
@@ -172,4 +237,14 @@ void UQuickItemSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel, c
 		return;
 	}
 	SettingWidgetIcons();
+}
+
+void UQuickItemSlotWidget::OnQuickSlotItemUseMessageReceived(FGameplayTag Channel, const FQuickSlotCooldown& Message)
+{
+	// 로그 출력
+	UE_LOG(LogTemp, Log, TEXT("[QuickSlot] SlotIndex: %d, Cooldown: %.2f"), Message.SlotIndex, Message.Cooldown);
+	if (Message.SlotIndex >= 0 && Message.SlotIndex < 3)
+	{
+		StartCooldown(Message.SlotIndex, Message.Cooldown);
+	}
 }

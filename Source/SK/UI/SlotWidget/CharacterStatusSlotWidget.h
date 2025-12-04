@@ -21,7 +21,8 @@ class SK_API UCharacterStatusSlotWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	
+
+	void TryBind();
 protected:
 	UPROPERTY()
 	const USKAttributeSet* AttributeSet;

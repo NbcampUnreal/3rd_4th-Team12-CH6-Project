@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Weapon/SKWeaponData.h"
 #include "SKCombatComponent.generated.h"
 
 
 struct FSKWeaponDataRow;
 struct FWeaponDataRow;
+class USKWeaponData;
 
 USTRUCT(BlueprintType)
 struct FSKComboState
@@ -19,10 +22,7 @@ struct FSKComboState
 	//  Replicated 영역 (서버 관리)
 	UPROPERTY()
 	FGameplayTag WeaponTag;
-
-	// UPROPERTY()
-	// FGameplayTag AttackTypeTag;
-
+	
 	UPROPERTY()
 	int32 ComboIndex = 0;
 
@@ -46,14 +46,20 @@ public:
 	// Sets default values for this component's properties
 	USKCombatComponent();
 
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	
 	bool GetIsAttacking();
 	void ResetComboState();
 	bool CheckMaxComboIndex(bool bLeft = true);
 	FGameplayTag GetLeftATKTag() const;
+	FGameplayTag GetATKMeleeTag(bool bLeft = true) const;
+	FGameplayTag GetWeaponTag() const;
 	int32 GetComboIndex() const;
+	void StopMontage_Local(float InBlendOut);
 
 	UFUNCTION(Server, Reliable)
 	void Server_LeftAttackInput();
@@ -63,11 +69,30 @@ public:
 	void Server_OnATKEndNotify(bool bLeft);
 	UFUNCTION(Client, Reliable)
 	void Client_PlayMontage(UAnimMontage* Montage, FName StartSection);
+	UFUNCTION(Client, Reliable)
+	void Client_StopMontage(float InBlendOut);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_StopMontage(float InBlendOut);
+	UFUNCTION(Server, Reliable)
+	void Server_TryActivateGA(const FGameplayTag& Tag);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayLeftAttackMontage(UAnimMontage* Montage, FName SectionName);
+	UFUNCTION(Server, Reliable)
+	void Server_StartTrace();
+	UFUNCTION(Server, Reliable)
+	void Server_StopTrace();
 	UFUNCTION(Server, Reliable)
 	void Server_IncreaseComboIndex(bool bLeft = true);
 	UFUNCTION(Server, Reliable)
 	void Server_ResetComboIndex(int32 NewIndex);
-
+	UFUNCTION(Server, Reliable)
+	void Server_SetWeaponTag(FGameplayTag NewWeaponTag);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ActivateLeftGA();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_RemoveATKTag(bool bLeft = true);
+	
+	void SetWeaponTag(const FGameplayTag& NewTag);
 
 	void StartTrace();
 	void StopTrace();
@@ -79,19 +104,24 @@ public:
 	void SetIsTraced(bool ArgIsTracing);
 	const TArray<AActor*>& GetHitActors();
 
-	void InitializeWeaponData(const FSKWeaponDataRow* Row);
-	const FWeaponDataRow* GetWeaponData() const;
+	void InitializeWeaponSocket(const FSKWeaponDataRow* Row);
+	void InitializeWeaponData(const FWeaponDataRow* Row);
 
+
+	UAnimMontage* GetLeftAttackMontage(int32 Index);
 	void SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh);
+	void SetWeaponMesh_Init();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
+	TObjectPtr<USKWeaponData> CurrentWeaponData;
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	void ActivateLeftAttackGA();
 
-	UPROPERTY(EditDefaultsOnly, Category="WeaponData")
-	UDataTable* WeaponDataTable;
-
+	//애니메이션 등등있음
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* WeaponMesh;
 
@@ -105,11 +135,14 @@ public:
 	FORCEINLINE void SetComboStateWeaponTag(FGameplayTag NewWeaponTag) { ComboState.WeaponTag = NewWeaponTag; }
 	
 private:
+	
 	int32 GetMaxComboIndex(bool bLeft);
 	
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=OnRep_ComboState)
 	FSKComboState ComboState;
 
+
+	
 	TArray<FName> TraceSockets;
 	TArray<FVector> PrevSocketLocations;
 
@@ -117,9 +150,6 @@ private:
 	int32 MaxRightComboIndex = 1;
 
 	bool bIsTracing = false;
-
-
-
 	
 	UPROPERTY()
 	TArray<AActor*> HitActors;
@@ -135,4 +165,11 @@ private:
 	FName WeaponEndSocket = "Weapon_Socket_End";
 
 	FString FindWeaponTagName();
+
+	UFUNCTION()
+	void OnRep_ComboState();
+	
 };
+
+
+

@@ -15,42 +15,7 @@ void UCharacterStatusSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
  
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC) return;
- 
-	APlayerState* PS = PC->GetPlayerState<APlayerState>();
-	if (!PS) return;
-
-	ASKPlayerState* CurrentPS = Cast<ASKPlayerState>(PS);
-	if (!CurrentPS) return;
-	
-	UAbilitySystemComponent* ASC = CurrentPS->FindComponentByClass<UAbilitySystemComponent>();
-	if (!ASC) return;
- 
-	// 기존 바인딩 해제
-	if (AttributeSet)
-	{
-		AttributeSet->OnHealthChanged.RemoveAll(this);
-		AttributeSet->OnStaminaChanged.RemoveAll(this);
-		AttributeSet->OnHeatChanged.RemoveAll(this);
-		AttributeSet->OnMaxHeatChanged.RemoveAll(this);
-		AttributeSet = nullptr;
-	}
- 
-	AttributeSet = Cast<USKAttributeSet>(ASC->GetAttributeSet(USKAttributeSet::StaticClass()));
-	if (!AttributeSet) return;
- 
-	AttributeSet->OnHealthChanged.AddUObject(this, &UCharacterStatusSlotWidget::HealthChanged);
-	AttributeSet->OnStaminaChanged.AddUObject(this, &UCharacterStatusSlotWidget::StaminaChanged);
-	AttributeSet->OnHeatChanged.AddUObject(this, &UCharacterStatusSlotWidget::HeatChanged);
-	AttributeSet->OnMaxHeatChanged.AddUObject(this, &UCharacterStatusSlotWidget::MaxHeatChanged);
- 
- 
-	// 초기 UI 업데이트
-	HealthChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHealth());
-	StaminaChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetStamina());
-	MaxHeatChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetMaxHeat());
-	HeatChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHeat());
+	TryBind();
 }
 
 void UCharacterStatusSlotWidget::NativeDestruct()
@@ -63,6 +28,66 @@ void UCharacterStatusSlotWidget::NativeDestruct()
 		AttributeSet->OnMaxHeatChanged.RemoveAll(this);
 	}
 	Super::NativeDestruct();
+}
+
+void UCharacterStatusSlotWidget::TryBind()
+{
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC) 
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+ 
+	APlayerState* PS = PC->GetPlayerState<APlayerState>();
+	if (!PS) 
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+
+	ASKPlayerState* CurrentPS = Cast<ASKPlayerState>(PS);
+	if (!CurrentPS) 
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+	
+	UAbilitySystemComponent* ASC = CurrentPS->FindComponentByClass<UAbilitySystemComponent>();
+	if (!ASC)
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+ 
+	// 기존 바인딩 해제
+	if (AttributeSet)
+	{
+		AttributeSet->OnHealthChanged.RemoveAll(this);
+		AttributeSet->OnStaminaChanged.RemoveAll(this);
+		AttributeSet->OnHeatChanged.RemoveAll(this);
+		AttributeSet->OnMaxHeatChanged.RemoveAll(this);
+		AttributeSet = nullptr;
+	}
+ 
+	AttributeSet = Cast<USKAttributeSet>(ASC->GetAttributeSet(USKAttributeSet::StaticClass()));
+	if (!AttributeSet) 
+	{
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]() { TryBind(); });
+		return;
+	}
+ 
+	AttributeSet->OnHealthChanged.AddUObject(this, &UCharacterStatusSlotWidget::HealthChanged);
+	AttributeSet->OnStaminaChanged.AddUObject(this, &UCharacterStatusSlotWidget::StaminaChanged);
+	AttributeSet->OnHeatChanged.AddUObject(this, &UCharacterStatusSlotWidget::HeatChanged);
+	AttributeSet->OnMaxHeatChanged.AddUObject(this, &UCharacterStatusSlotWidget::MaxHeatChanged);
+ 
+ 
+	// 초기 UI 업데이트
+	HealthChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHealth());
+	StaminaChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetStamina());
+	MaxHeatChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetMaxHeat());
+	HeatChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHeat());
 }
 
 void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
