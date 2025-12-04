@@ -22,7 +22,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE void SetWeaponActionData(USKWeaponActionData* NewWeaponActionData) { CurrentWeaponActionData = NewWeaponActionData; }
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponActionData(USKWeaponActionData* NewWeaponActionData);
+	
 	FORCEINLINE USKWeaponActionData* GetWeaponActionData() const { return CurrentWeaponActionData; }
 	
 protected:

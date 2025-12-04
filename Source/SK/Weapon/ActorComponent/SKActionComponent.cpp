@@ -22,6 +22,11 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
+void USKActionComponent::SetWeaponActionData(USKWeaponActionData* NewWeaponActionData)
+{
+	CurrentWeaponActionData = NewWeaponActionData;
+}
+
 FRotator USKActionComponent::GetDodgeRotator() const
 {
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
