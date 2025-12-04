@@ -5,6 +5,8 @@
 #include "Engine/DataAsset.h"
 #include "SKWeaponActionData.generated.h"
 
+class USKPlayerAnimInstance;
+
 UCLASS()
 class SK_API USKWeaponActionData : public UDataAsset
 {
@@ -13,6 +15,9 @@ class SK_API USKWeaponActionData : public UDataAsset
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon")
 	FName WeaponName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|AnimClass")
+	TSubclassOf<USKPlayerAnimInstance> AnimInstance;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon")
 	FGameplayTag WeaponTag;
