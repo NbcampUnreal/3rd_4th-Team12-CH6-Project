@@ -57,10 +57,14 @@ void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	float Duration = Distance / DesiredSpeed;
 
 	// 이동 전 캐릭터 회전
-	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
-	FRotator TargetRotation = Direction.Rotation();
+	const FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+	const FRotator TargetRotation = Direction.Rotation();
 
-	Char->SetActorRotation(TargetRotation);
+	constexpr float MinRotDist = 20.0f;
+	if (Distance > MinRotDist)
+	{
+		Char->SetActorRotation(TargetRotation);
+	}
 	
 	UAbilityTask_MoveToLocation* MoveTask = UAbilityTask_MoveToLocation::MoveToLocation(this, NAME_None, TargetLocation, Duration, nullptr, nullptr);
 
