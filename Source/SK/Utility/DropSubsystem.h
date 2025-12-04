@@ -24,5 +24,5 @@ public:
 private:
 
 	//실제 아이템을 월드에 Spawn 하는 함수.
-	void SpawnPickup(USKPickupItemData* PickupData, int32 Count, const FVector& Origin);
+	void SpawnPickup(int32 ItemID, USKPickupItemData* PickupData, int32 Count, const FVector& Origin);
 };
