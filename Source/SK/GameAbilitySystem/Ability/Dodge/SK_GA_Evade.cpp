@@ -4,7 +4,10 @@
 
 void USK_GA_Evade::SetAnimMontage(USKActionComponent* ActionComponent)
 {
-	UAnimMontage* EvadeMontage = ActionComponent->GetWeaponActionData()->EvadeMontage;
+	USKWeaponActionData* WeaponActionData = ActionComponent->GetWeaponActionData();
+	if (!WeaponActionData) return;
+	
+	UAnimMontage* EvadeMontage = WeaponActionData->EvadeMontage;
 	if (!EvadeMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Evade montage is null"));
