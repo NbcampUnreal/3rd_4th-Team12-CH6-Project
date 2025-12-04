@@ -46,7 +46,9 @@ protected:
 
 private:
 	FVector StartLocation;
-	
+
+	FTimerHandle OverlayTimerHandle;
+
 public:
 	ASKAICharacterBase();
 	
@@ -62,6 +64,9 @@ public:
 
 	FVector GetStartLocation() const;
 
+	//오버레이머티리얼 Set함수-이준식
+	void SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration = 10.f);
+	void ClearOverlayMaterial();
 protected:
 	virtual void PossessedBy(AController* NewController) override;
 	

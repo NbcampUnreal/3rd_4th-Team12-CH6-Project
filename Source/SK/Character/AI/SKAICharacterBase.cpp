@@ -162,6 +162,35 @@ FVector ASKAICharacterBase::GetStartLocation() const
 	return StartLocation;
 }
 
+void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration)
+{
+	if (!GetMesh() || !OverlayMat)
+		return;
+
+	GetMesh()->SetOverlayMaterial(OverlayMat);
+
+	// Duration 시간이 지나면 제거
+	if (Duration > 0.f)
+	{
+	
+		GetWorld()->GetTimerManager().SetTimer(
+			OverlayTimerHandle,
+			this,
+			&ASKAICharacterBase::ClearOverlayMaterial,
+			Duration,
+			false
+		);
+	}
+}
+
+void ASKAICharacterBase::ClearOverlayMaterial()
+{
+	if (!GetMesh())
+		return;
+
+	GetMesh()->SetOverlayMaterial(nullptr);
+}
+
 void ASKAICharacterBase::ApplyStaticMonsterStats()
 {
 	if (MonsterID < 0)
