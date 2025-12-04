@@ -47,6 +47,12 @@ public:
 
 	const FSKWeaponDataRow* GetWeaponSocketDataRow() const;
 	const FWeaponDataRow* GetWeaponDataRow() const; 
+
+	UFUNCTION(BlueprintCallable)
+	FWeaponDataRow& GetWeaponData();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Data")
+	TObjectPtr<UDataTable> WeaponDT;
 	
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();

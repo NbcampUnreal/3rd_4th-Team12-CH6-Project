@@ -247,6 +247,22 @@ const FWeaponDataRow* ASKPlayerState::GetWeaponDataRow() const
 	return DT->FindRow<FWeaponDataRow>(RowName, TEXT("GetWeaponDataRow"));
 }
 
+FWeaponDataRow& ASKPlayerState::GetWeaponData()
+{
+	static FWeaponDataRow DefaultRow; 
+
+	if (!WeaponDT) return DefaultRow;
+
+	FString FullTag = CurrentWeaponTag.GetTagName().ToString();
+	FString RowString;
+
+	// 마지막 . 뒤의 문자열만 추출
+	FullTag.Split(TEXT("."), nullptr, &RowString, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName = FName(*RowString);
+		return *WeaponDT->FindRow<FWeaponDataRow>(RowName,TEXT("GetWeaponDataRow"));
+}
+
 
 FGameplayTag ASKPlayerState::GetWeaponTag() const
 {
