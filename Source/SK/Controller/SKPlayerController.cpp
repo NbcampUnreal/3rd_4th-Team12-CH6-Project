@@ -17,6 +17,7 @@
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKPlayerController::ASKPlayerController()
 {
@@ -149,6 +150,8 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::Active_MouseWheel);
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Dodge);
 		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_QuickSlotAction_00);
 		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
@@ -470,4 +473,18 @@ void ASKPlayerController::Interact(const FInputActionValue& Value)
 		InteractionComponent->Server_TryInteract();
 	}
 	
+};
+
+void ASKPlayerController::Dodge(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Dodge"));
+
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
+	if (!SKPlayerCharacter) return;
+	
+	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
+	if (ActionComponent)
+	{
+		ActionComponent->TryDodge();
+	}
 };
