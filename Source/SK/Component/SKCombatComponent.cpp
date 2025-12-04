@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Ability/SK_GA_LeftAttack_Axe.h"
 #include "GameFramework/Character.h"
 #include "GameData/WeaponDataRow.h"

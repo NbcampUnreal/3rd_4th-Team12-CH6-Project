@@ -100,6 +100,24 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	// DOREPLIFETIME(ASKPlayerState, RepComboState); // 이게 없으면 클라에게 절대 안 감
 }
 
+void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
+{
+	if (TeamTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Team.Player")))
+	{
+		PlayerTeamID = FGenericTeamId(0);
+	}
+	else if (TeamTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Team.Monster")))
+	{
+		PlayerTeamID = FGenericTeamId(1);
+	}
+	else
+	{
+		PlayerTeamID = FGenericTeamId::NoTeam; // 255 Neutral
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Player TeamID Set: %d"), PlayerTeamID.GetId());
+}
+
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()
 {
@@ -205,6 +223,8 @@ void ASKPlayerState::SetDAPlayerStat()
 		if (CharacterData->TeamTag.IsValid())
 		{
 			AbilitySystemComponent->AddLooseGameplayTag(CharacterData->TeamTag);
+
+			SetTeamFromTag(CharacterData->TeamTag);
 		}
 
 		// 태그 GE 적용
@@ -253,6 +273,22 @@ const FWeaponDataRow* ASKPlayerState::GetWeaponDataRow() const
 
 	FName RowName = FName(*RowString);
 	return DT->FindRow<FWeaponDataRow>(RowName, TEXT("GetWeaponDataRow"));
+}
+
+FWeaponDataRow& ASKPlayerState::GetWeaponData()
+{
+	static FWeaponDataRow DefaultRow; 
+
+	if (!WeaponDT) return DefaultRow;
+
+	FString FullTag = CurrentWeaponTag.GetTagName().ToString();
+	FString RowString;
+
+	// 마지막 . 뒤의 문자열만 추출
+	FullTag.Split(TEXT("."), nullptr, &RowString, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName = FName(*RowString);
+		return *WeaponDT->FindRow<FWeaponDataRow>(RowName,TEXT("GetWeaponDataRow"));
 }
 
 

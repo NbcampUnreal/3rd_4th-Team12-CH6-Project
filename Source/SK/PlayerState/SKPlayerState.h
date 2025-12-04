@@ -7,6 +7,7 @@
 #include "Character/SKPlayerDataAsset.h"
 #include "GameData/WeaponDataRow.h"
 #include "GameplayEffectTypes.h"
+#include "GenericTeamAgentInterface.h"
 #include "SKPlayerState.generated.h"
 
 class UInventoryComponent;
@@ -73,7 +74,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuffRemoved, const FActiveGameplayEffectHandle, EffectHandle, FModifiedAttributeArray, ModifiedAttributes);
 
 UCLASS()
-class SK_API ASKPlayerState : public APlayerState
+class SK_API ASKPlayerState : public APlayerState, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -86,6 +87,13 @@ public:
 	virtual void CopyProperties(APlayerState* NewPlayerState) override;
 	// 네트워크 복제에 필요한 함수 재정의
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	/** TeamID 반환 */
+	virtual FGenericTeamId GetGenericTeamId() const override { return PlayerTeamID; }
+	/** 팀 갱신 함수 */
+	void SetTeamFromTag(const FGameplayTag& TeamTag);
+	FGenericTeamId PlayerTeamID = FGenericTeamId::NoTeam;
+
 #pragma region GAS
 	UFUNCTION()
 	void OnRep_CurrentWeaponTag();
@@ -101,6 +109,12 @@ public:
 
 	const FSKWeaponDataRow* GetWeaponSocketDataRow() const;
 	const FWeaponDataRow* GetWeaponDataRow() const; 
+
+	UFUNCTION(BlueprintCallable)
+	FWeaponDataRow& GetWeaponData();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Data")
+	TObjectPtr<UDataTable> WeaponDT;
 	
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();

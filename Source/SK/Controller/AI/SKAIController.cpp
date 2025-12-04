@@ -2,11 +2,12 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
-#include "GameFramework/Character.h"
+#include "Character/AI/SKAICharacter.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "GameState/DungeonGameState.h"
+#include "PlayerState/SKPlayerState.h"
 
 ASKAIController::ASKAIController()
 {
@@ -16,16 +17,16 @@ ASKAIController::ASKAIController()
 	
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 	
-	SightConfig->SightRadius = 1000.0f; // 시야 범위
-	SightConfig->LoseSightRadius = 1500.0f; // 시야 상실 범위
+	SightConfig->SightRadius = 1500.0f; // 시야 범위
+	SightConfig->LoseSightRadius = 2000.0f; // 시야 상실 범위
 	SightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
 	SightConfig->SetMaxAge(5.0f); // 자극 최대 기억 시간
 	// 감지 주기 설정은?
 	// 아래 감지 팀 설정에 따라 AI 시스템이 감지 대상에 대한 목록을 미리 생성하고 이 목록에 있는 액터만 감지 함. // 내부 세부 로직 궁금하넹.
 	// 후에 팀ID 할당해서 불필요한 감지대상 제거해서 자원 소모 줄이기.
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true; // 적 감지
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = true; // 아군 감지
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = true; // 중립 감지
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = false; // 아군 감지
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = false; // 중립 감지
 
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
 	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
@@ -33,9 +34,11 @@ ASKAIController::ASKAIController()
 	OwningASC = nullptr;
 	
 	TargetActor = nullptr;
+
+	CachedTeamID = FGenericTeamId::NoTeam;
 }
 
-AActor* ASKAIController::GetTargetActor() const
+TObjectPtr<AActor> ASKAIController::GetTargetActor() const
 {
 	return TargetActor;
 }
@@ -76,6 +79,44 @@ void ASKAIController::SendEventToASC(AActor* LocalInstigator, AActor* LocalTarge
 	OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
 
+uint8 ASKAIController::ConvertTeamTagToID(const FGameplayTagContainer& InTags) const
+{
+	if (InTags.HasTagExact(FGameplayTag::RequestGameplayTag("Team.Player")))
+		return 0;
+
+	if (InTags.HasTagExact(FGameplayTag::RequestGameplayTag("Team.Monster")))
+		return 1;
+
+	return FGenericTeamId::NoTeam; // 255
+}
+
+uint8 ASKAIController::GetTeamIDFromActor(const AActor& Other) const
+{
+	const APawn* OtherPawn = Cast<APawn>(&Other);
+	if (!OtherPawn)
+		return FGenericTeamId::NoTeam;
+
+	const ASKPlayerState* PS = OtherPawn->GetPlayerState<ASKPlayerState>();
+	if (!PS)
+		return FGenericTeamId::NoTeam;
+
+	return PS->PlayerTeamID.GetId();
+}
+
+ETeamAttitude::Type ASKAIController::GetTeamAttitudeTowards(const AActor& Other) const
+{
+	const uint8 MyID = CachedTeamID.GetId();
+	const uint8 OtherID = GetTeamIDFromActor(Other);
+
+	if (OtherID == FGenericTeamId::NoTeam)
+		return ETeamAttitude::Neutral;
+
+	if (MyID == OtherID)
+		return ETeamAttitude::Friendly;
+
+	return ETeamAttitude::Hostile;
+}
+
 void ASKAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -88,19 +129,38 @@ void ASKAIController::OnPossess(APawn* InPawn)
 
 	OwningASC = ASCInterface->GetAbilitySystemComponent();
 
-	////// 테스트
+	if (OwningASC)
+	{
+		FGameplayTagContainer InTags;
+		OwningASC->GetOwnedGameplayTags(InTags);
+
+		uint8 TeamValue = ConvertTeamTagToID(InTags);
+		CachedTeamID = FGenericTeamId(TeamValue);
+
+		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
+	}
+
+	/*///// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
 	}
 
-	if (!StateTreeAsset)
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(InPawn);
+	if (!IsValid(AICharacter))
 	{
 		return;
 	}
 
-	StateTreeAIComponent->SetStateTree(StateTreeAsset);
+	UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
+	if (!OwningStateTree)
+	{
+		return;
+	}
+	
+	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
+	*/
 }
 
 void ASKAIController::BeginPlay()
@@ -117,7 +177,7 @@ void ASKAIController::BeginPlay()
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
-	/*/ 상태 변경 이벤트 수신
+	// 상태 변경 이벤트 수신
 	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
 	// 이미 진행 중일 수도 있음
@@ -125,7 +185,6 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
-	*/
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -175,12 +234,19 @@ void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 			return;
 		}
 
-		if (!StateTreeAsset)
+		ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
+		if (!IsValid(AICharacter))
 		{
 			return;
 		}
 
-		StateTreeAIComponent->SetStateTree(StateTreeAsset);
+		UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
+		if (!OwningStateTree)
+		{
+			return;
+		}
+	
+		StateTreeAIComponent->SetStateTree(OwningStateTree);
 		StateTreeAIComponent->StartLogic();
 	}
 }

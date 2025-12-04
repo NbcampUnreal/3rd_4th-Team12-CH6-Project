@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Character/SKCharacterBase.h"
-#include "Interaction/Interface/SKInteractable.h"
 #include "SKPlayerCharacter.generated.h"
 
+class USKActionComponent;
 class USKInteractionComponent;
 struct FSKRepComboState;
-class USKCombatComponent; 
+class USKCombatComponent;
+
 
 UCLASS()
 class SK_API ASKPlayerCharacter : public ASKCharacterBase
@@ -78,7 +79,7 @@ private:
 #pragma region Interaction
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component|Interaction")
 	TObjectPtr<USKInteractionComponent> InteractionComponent;
 
 public:
@@ -87,6 +88,18 @@ public:
 	
 #pragma endregion
 
+#pragma region Action
+	
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component|Action")
+	TObjectPtr<USKActionComponent> ActionComponent;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE USKActionComponent* GetActionComponent() const { return ActionComponent; }
+	
+#pragma endregion
+	
 	//Camera
 	void LockOnTarget(float DeltaTime);
 };
