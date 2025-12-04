@@ -2,7 +2,7 @@
 #include "Weapon/ActionData/SKWeaponActionData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
-void USK_GA_Step::SetAnimMontage(USKActionComponent* ActionComponent)
+void USK_GA_Step::PreActivateDodge(USKActionComponent* ActionComponent)
 {
 	USKWeaponActionData* WeaponActionData = ActionComponent->GetWeaponActionData();
 	if (!WeaponActionData) return;

@@ -68,10 +68,6 @@ void USK_GA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 
 }
 
-void USK_GA_Dodge::SetAnimMontage(USKActionComponent* ActionComponent)
-{
-}
-
 void USK_GA_Dodge::OnCompleted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
@@ -80,4 +76,6 @@ void USK_GA_Dodge::OnCompleted()
 void USK_GA_Dodge::OnCanceled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
+{
 }

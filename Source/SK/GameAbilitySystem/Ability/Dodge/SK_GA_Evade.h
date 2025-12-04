@@ -10,5 +10,5 @@ class SK_API USK_GA_Evade : public USK_GA_Dodge
 	GENERATED_BODY()
 
 protected:
-	virtual void SetAnimMontage(USKActionComponent* ActionComponent) override;
+	virtual void PreActivateDodge(USKActionComponent* ActionComponent) override;
 };
