@@ -107,6 +107,7 @@ protected:
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
+	void OnMoveRepleased();
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void StopJumping();

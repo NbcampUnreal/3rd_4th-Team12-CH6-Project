@@ -132,6 +132,7 @@ void ASKPlayerController::SetupInputComponent()
 	{
 		check(MoveAction);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASKPlayerController::OnMoveRepleased);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
@@ -214,6 +215,19 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 			{
 				ActionComponent->Server_SetMovementInfo(InMoveVector, GetClosestMoveDirection(InMoveVector));
 			}
+		}
+	}
+}
+
+void ASKPlayerController::OnMoveRepleased()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetPawn());
+	if (Char)
+	{
+		USKActionComponent* ActionComponent = Char->GetActionComponent();
+		if (ActionComponent)
+		{
+			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector, GetClosestMoveDirection(FVector2D::ZeroVector));
 		}
 	}
 }
