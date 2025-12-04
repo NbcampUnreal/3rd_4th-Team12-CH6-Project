@@ -23,6 +23,16 @@ ASKPlayerController::ASKPlayerController()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void ASKPlayerController::ClientShowLoadingScreen_Implementation(bool bShow)
+{
+	USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
+	if (SKGI)
+	{
+		SKGI->ShowLoadingScreen(bShow);
+		UE_LOG(LogTemp, Log, TEXT("[PC] ShowLoadingScreen executed. bShow = %s"), bShow ? TEXT("true") : TEXT("false"));
+	}
+}
+
 void ASKPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
