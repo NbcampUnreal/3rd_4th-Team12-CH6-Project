@@ -1,22 +1,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_AI_Base.h"
-#include "SK_GA_AI_Die.generated.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_BaseCombat.h"
+#include "SK_GA_AI_JumpRush.generated.h"
 
 UCLASS()
-class SK_API USK_GA_AI_Die : public USK_GA_AI_Base
+class SK_API USK_GA_AI_JumpRush : public USK_GA_AI_BaseCombat
 {
 	GENERATED_BODY()
-	
+
 public:
-	USK_GA_AI_Die();
-	
-	void Die(TObjectPtr<UAnimMontage> AnimMontage);
+	USK_GA_AI_JumpRush();
+
+	void JumpRush(TObjectPtr<AActor> TargetActor) const;
 
 	UFUNCTION()
-	void OnDieCompleted();
+	void OnJumpRushCompleted();
 
+	
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

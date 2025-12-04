@@ -1,7 +1,6 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Ready.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Character/AI/SKAICharacter.h"
 
 USK_GA_AI_Ready::USK_GA_AI_Ready()
 {
@@ -11,10 +10,10 @@ USK_GA_AI_Ready::USK_GA_AI_Ready()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Ready")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Ready")));
 }
 
-void USK_GA_AI_Ready::Ready(UAnimMontage* AnimMontage)
+void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	SetFocus();
 	
@@ -36,8 +35,6 @@ void USK_GA_AI_Ready::Ready(UAnimMontage* AnimMontage)
 
 void USK_GA_AI_Ready::OnReadyCompleted()
 {
-	ClearFocus();
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
@@ -52,14 +49,7 @@ void USK_GA_AI_Ready::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
-	if (!IsValid(AICharacter))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-
-	UAnimMontage* AnimMontage = AICharacter->GetMontages()[1]; // 임시로 일단 1번 인덱스 고정
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Ready");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -77,5 +67,7 @@ void USK_GA_AI_Ready::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

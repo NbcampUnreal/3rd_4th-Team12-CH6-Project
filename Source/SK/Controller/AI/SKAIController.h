@@ -9,7 +9,6 @@
 #include "SKAIController.generated.h"
 
 class UStateTreeAIComponent;
-class UStateTree;
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 class UAbilitySystemComponent;
@@ -23,9 +22,6 @@ protected:
 	// StateTree
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="StateTree")
 	TObjectPtr<UStateTreeAIComponent> StateTreeAIComponent;
-	
-	UPROPERTY(EditDefaultsOnly, Category="AI")
-	TObjectPtr<UStateTree> StateTreeAsset;
 
 	// Perception
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perception")
@@ -38,14 +34,14 @@ protected:
 	UAbilitySystemComponent* OwningASC;
 	
 	UPROPERTY()
-	AActor* TargetActor;
+	TObjectPtr<AActor> TargetActor;
 
 	FGenericTeamId CachedTeamID;
 
 public:
 	ASKAIController();
 	
-	AActor* GetTargetActor() const;
+	TObjectPtr<AActor> GetTargetActor() const;
 
 	void AddTag(FGameplayTag Tag) const;
 

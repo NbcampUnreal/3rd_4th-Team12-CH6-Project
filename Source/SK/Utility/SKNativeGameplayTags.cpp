@@ -41,7 +41,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Cancel, "Ability.Wander");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Chase, "Ability.Chase");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Ready, "Ability.Ready");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Rush, "Ability.Rush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_JumpRush, "Ability.JumpRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
@@ -171,7 +173,12 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Combat, "AI.Combat");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Ready, "AI.Ready");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Death, "AI.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Melee, "AI.Melee");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Rush, "AI.Rush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_JumpRush, "AI.JumpRush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Backstep, "AI.Backstep");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
