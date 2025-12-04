@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Weapon/SKWeaponData.h"
 #include "SKCombatComponent.generated.h"
 
 
@@ -111,6 +113,7 @@ public:
 	void SetWeaponMesh_Init();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
 	TObjectPtr<USKWeaponData> CurrentWeaponData;
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -17,6 +17,7 @@
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKPlayerController::ASKPlayerController()
 {
@@ -131,6 +132,7 @@ void ASKPlayerController::SetupInputComponent()
 	{
 		check(MoveAction);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASKPlayerController::OnMoveRepleased);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
@@ -149,6 +151,8 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::Active_MouseWheel);
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Dodge);
 		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_QuickSlotAction_00);
 		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
@@ -192,8 +196,6 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector2D InMoveVector = Value.Get<FVector2D>();
-		CurrentInputVector = InMoveVector;
-		CurrentMoveDirection = GetClosestMoveDirection(InMoveVector);
 		const FRotator ControlrRotation = GetControlRotation();
 		const FRotator ControlYawRotation(0.f, ControlrRotation.Yaw, 0.f);
 
@@ -203,6 +205,30 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
+
+		
+		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(ControlledPawn);
+		if (Char)
+		{
+			USKActionComponent* ActionComponent = Char->GetActionComponent();
+			if (ActionComponent)
+			{
+				ActionComponent->Server_SetMovementInfo(InMoveVector, GetClosestMoveDirection(InMoveVector));
+			}
+		}
+	}
+}
+
+void ASKPlayerController::OnMoveRepleased()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetPawn());
+	if (Char)
+	{
+		USKActionComponent* ActionComponent = Char->GetActionComponent();
+		if (ActionComponent)
+		{
+			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector, GetClosestMoveDirection(FVector2D::ZeroVector));
+		}
 	}
 }
 
@@ -461,4 +487,18 @@ void ASKPlayerController::Interact(const FInputActionValue& Value)
 		InteractionComponent->Server_TryInteract();
 	}
 	
+};
+
+void ASKPlayerController::Dodge(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Dodge"));
+
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
+	if (!SKPlayerCharacter) return;
+	
+	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
+	if (ActionComponent)
+	{
+		ActionComponent->TryDodge();
+	}
 };
