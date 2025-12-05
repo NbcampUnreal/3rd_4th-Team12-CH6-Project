@@ -3,6 +3,7 @@
 
 #include "UI/LayoutWidget/EquipmentMainLayoutWidget.h"
 
+#include "Components/Button.h"
 #include "Input/CommonUIInputTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -13,6 +14,12 @@ void UEquipmentMainLayoutWidget::NativeConstruct()
  
 	EquipMainToInGameHandle = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
 	EquipMainToInGameHandle2 = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData2, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
+
+	if (CloseButton)
+	{
+		CloseButton->OnClicked.Clear(); // 혹시 중복 방지
+		CloseButton->OnClicked.AddDynamic(this, &ThisClass::HandleCloseButtonClicked);
+	}
 }
 
 void UEquipmentMainLayoutWidget::HandleEquipMainToInGameAction()
@@ -36,4 +43,9 @@ void UEquipmentMainLayoutWidget::HandleEquipMainToInGameAction()
 			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
 		}
 	}
+}
+
+void UEquipmentMainLayoutWidget::HandleCloseButtonClicked()
+{
+	HandleEquipMainToInGameAction();
 }

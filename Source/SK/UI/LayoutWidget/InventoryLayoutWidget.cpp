@@ -3,6 +3,7 @@
 
 #include "UI/LayoutWidget/InventoryLayoutWidget.h"
 
+#include "Components/Button.h"
 #include "Input/CommonUIInputTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -11,6 +12,12 @@ void UInventoryLayoutWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	InventoryToInGameHandle = RegisterUIActionBinding(FBindUIActionArgs(InventoryToInGameData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInventoryToInGameAction)));
+
+	if (CloseButton)
+	{
+		CloseButton->OnClicked.Clear(); // 혹시 중복 방지
+		CloseButton->OnClicked.AddDynamic(this, &ThisClass::HandleCloseButtonClicked);
+	}
 }
 
 void UInventoryLayoutWidget::HandleInventoryToInGameAction()
@@ -29,3 +36,9 @@ void UInventoryLayoutWidget::HandleInventoryToInGameAction()
 		}
 	}
 }
+
+void UInventoryLayoutWidget::HandleCloseButtonClicked()
+{
+	HandleInventoryToInGameAction();
+}
+

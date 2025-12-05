@@ -6,6 +6,7 @@
 #include "UI/SKLayoutWidgetBase.h"
 #include "EquipmentMainLayoutWidget.generated.h"
 
+class UButton;
 /**
  * 
  */
@@ -32,4 +33,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Sound")
 	USoundBase* ClickSound;
+
+	UFUNCTION()
+	void HandleCloseButtonClicked();
+	
+	UPROPERTY(meta = (BindWidget))
+	UButton* CloseButton;
 };

@@ -6,6 +6,7 @@
 #include "UI/SKLayoutWidgetBase.h"
 #include "InventoryLayoutWidget.generated.h"
 
+class UButton;
 /**
  * 
  */
@@ -23,4 +24,10 @@ protected:
 
 	UFUNCTION()
 	void HandleInventoryToInGameAction();
+
+	UFUNCTION()
+	void HandleCloseButtonClicked();
+	
+	UPROPERTY(meta = (BindWidget))
+	UButton* CloseButton;
 };
