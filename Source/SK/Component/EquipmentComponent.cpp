@@ -83,8 +83,8 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	if (!WeaponDataRow) return false;
 	ActionComponent->SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 	
-	USKCombatComponent* CombatComponent = Char->GetCombatComponent();
-	CombatComponent->CurrentWeaponData = WeaponDataRow->WeaponData;
+	// USKCombatComponent* CombatComponent = Char->GetCombatComponent();
+	// CombatComponent->CurrentWeaponData = WeaponDataRow->WeaponData;
 	
 	return true;
 }

@@ -3,6 +3,7 @@
 
 #include "Object/EquipmentInstance.h"
 
+#include "Component/SKCombatComponent.h"
 #include "GameFramework/Character.h"
 #include "Item/Inventory/Data/SKEquipmentItemData.h"
 #include "Net/UnrealNetwork.h"
@@ -24,11 +25,18 @@ void UEquipmentInstance::SpawnEquipmentActors(APawn* OwningPawn, const TArray<FS
 
 	USceneComponent* AttachTarget = OwningPawn->GetRootComponent();
 
-	if (ACharacter* Char = Cast<ACharacter>(OwningPawn))
+	//이준식-주석
+	ACharacter* Char = Cast<ACharacter>(OwningPawn);
+	if (IsValid(Char))
 	{
 		AttachTarget = Char->GetMesh();
 	}
+	// if (ACharacter* Char = Cast<ACharacter>(OwningPawn))
+	// {
+	// 	AttachTarget = Char->GetMesh();
+	// }
 
+	
 	for (const FSKEquipmentActorToSpawn& SpawnData : ActorsToSpawn)
 	{
 		if (!SpawnData.ActorToSpawn)
@@ -55,6 +63,15 @@ void UEquipmentInstance::SpawnEquipmentActors(APawn* OwningPawn, const TArray<FS
 			NewActor->SetActorRelativeTransform(SpawnData.AttachTransform);
 
 			SpawnedActors.Add(NewActor);
+
+			USKCombatComponent* CombatComp = Char ? Char->FindComponentByClass<USKCombatComponent>() : nullptr;
+			if (CombatComp)
+			{
+				if (USkeletalMeshComponent* Mesh = NewActor->FindComponentByClass<USkeletalMeshComponent>())
+				{
+					CombatComp->SetWeaponMesh(Mesh);
+				}
+			}
 		}
 	}
 }
@@ -70,4 +87,11 @@ void UEquipmentInstance::DestroyEquipmentActors()
 	}
 
 	SpawnedActors.Empty();
+	//컴뱃컴포넌트 초기화
+	ACharacter* Char = Cast<ACharacter>(GetOuter()); 
+	USKCombatComponent* CombatComp = Char ? Char->FindComponentByClass<USKCombatComponent>() : nullptr;
+	if (CombatComp)
+	{
+		CombatComp->SetWeaponMesh(nullptr);   // 이 부분이 중요함
+	}
 }

@@ -58,6 +58,31 @@ FString USKCombatComponent::FindWeaponTagName()
 	{
 		TargetName = "Warrior";
 	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Assassin")))
+	{
+		TargetName = "Assassin";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.GreatSword")))
+	{
+		TargetName = "GreatSword";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Dual")))
+	{
+		TargetName = "Dual";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Dual")))
+	{
+		TargetName = "Dual";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Katana")))
+	{
+		TargetName = "Katana";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Spear")))
+	{
+		TargetName = "Spear";
+	}
+
 
 	return TargetName;
 }
@@ -417,14 +442,14 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		return;
 	if (!IsValid(WeaponMesh))
 	{
-		SetWeaponMesh_Init();
-		// return;
-	}
-
-	if (!IsValid(WeaponMesh))
-	{
+		// SetWeaponMesh_Init();
 		return;
 	}
+	//
+	// if (!IsValid(WeaponMesh))
+	// {
+	// 	return;
+	// }
 
 	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	FVector CurrEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
@@ -541,17 +566,19 @@ UAnimMontage* USKCombatComponent::GetLeftAttackMontage(int32 Index)
 
 void USKCombatComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
 {
-	if (!InWeaponMesh)
+	WeaponMesh = InWeaponMesh;
+
+	if (!WeaponMesh)
 	{
-		UE_LOG(LogTemp, Error, TEXT("SetWeaponMesh: InWeaponMesh is NULL"));
+		// 무기 해제 처리
+		PrevStart = FVector::ZeroVector;
+		PrevEnd = FVector::ZeroVector;
 		return;
 	}
 
-	WeaponMesh = InWeaponMesh;
-
-	// 초기 Prev 값 설정
 	PrevStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	PrevEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
+	
 }
 
 void USKCombatComponent::SetWeaponMesh_Init()
