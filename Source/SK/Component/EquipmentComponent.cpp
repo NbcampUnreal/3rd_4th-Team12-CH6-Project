@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Object/EquipmentInstance.h"
+#include "PlayerState/SKPlayerState.h"
 
 // Sets default values for this component's properties
 UEquipmentComponent::UEquipmentComponent()
@@ -57,6 +58,13 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 
 	Client_UpdateEquipment(Slot, SlotData);
 	
+	//
+	// ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());
+	// if (IsValid(PlayerState))
+	// {
+	// 	PlayerState->SetCurWeaponTag(해당태그);
+	// }
+		
 	return true;
 }
 
