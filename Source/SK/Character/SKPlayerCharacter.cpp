@@ -205,6 +205,20 @@ void ASKPlayerCharacter::SetTraceSocket()
 	CombatComponent->InitializeWeaponData(DataRow);
 }
 
+void ASKPlayerCharacter::SetLockOnState(bool bLock)
+{
+	if (bLock)
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	}
+	else
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
+}
+
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();

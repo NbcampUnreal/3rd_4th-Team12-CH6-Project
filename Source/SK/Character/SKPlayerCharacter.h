@@ -44,7 +44,7 @@ public:
 	void OnAnimInitialized();
 	void SetTraceSocket();
 
-
+	void SetLockOnState(bool bLock);
 protected:
 	virtual void OnRep_PlayerState() override;
 
