@@ -119,6 +119,11 @@ void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
 }
 
 
+void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
+{
+	CurrentWeaponTag = NewTag;
+}
+
 void ASKPlayerState::OnRep_CurrentWeaponTag()
 {
 	ASKPlayerCharacter* PC = GetPawn<ASKPlayerCharacter>();
