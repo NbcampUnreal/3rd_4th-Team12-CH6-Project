@@ -39,7 +39,7 @@ void UEquipmentInstance::SpawnEquipmentActors(APawn* OwningPawn, const TArray<FS
 			FTransform::Identity,
 			OwningPawn
 		);
-
+		NewActor->SetReplicates(true);
 		if (NewActor)
 		{
 			NewActor->FinishSpawning(FTransform::Identity, true);

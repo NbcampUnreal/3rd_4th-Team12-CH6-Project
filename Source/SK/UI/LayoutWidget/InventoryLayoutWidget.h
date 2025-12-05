@@ -19,11 +19,20 @@ public:
 	FDataTableRowHandle InventoryToInGameData;
 	
 	FUIActionBindingHandle InventoryToInGameHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle InventoryToEscapeData;
+	
+	FUIActionBindingHandle InventoryToEscapeHandle;
+	
 protected:
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void HandleInventoryToInGameAction();
+
+	UFUNCTION()
+	void HandleInventoryEscapeAction();
 
 	UFUNCTION()
 	void HandleCloseButtonClicked();

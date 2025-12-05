@@ -26,35 +26,6 @@ UInventoryComponent::UInventoryComponent()
 	// ...
 }
 
-
-void UInventoryComponent::TryAddItem(const int32& ItemID, int32 Count)
-{
-	if (!GetOwner())
-	{
-		return;
-	}
-	if (GetOwner()->HasAuthority())
-	{
-		if (AddItemByIDAndCount(ItemID, Count))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Server Message gg"));
-			if (UWorld* World = GetWorld())
-			{
-				if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
-				{
-					FItemAddMessage ItemAddMessage(ItemID,  Count);
-				
-					MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ItemAddInfo, ItemAddMessage);
-				}
-			}
-		}
-	}
-	else
-	{
-		ServerAddItem(ItemID, Count);
-	}
-}
-
 bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[AddItemByIDAndCount] ItemData  %d"), ItemID);
@@ -100,8 +71,6 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 			InventorySlots.Add(FInventorySlot{ItemID, AddCount, FGuid()});
 			RemainingCount -= AddCount;
 		}
-
-		return true;
 	}
 	else if (ItemData->InventoryType == EInventoryItemType::Equipment)
 	{
@@ -116,8 +85,6 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 		EquipmentInstances.Add(NewEquipInstance);
 			
 		InventorySlots.Add(NewSlot);
-		
-		return true;
 	}
 	else
 	{
@@ -126,8 +93,9 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 			InventorySlots.Add(FInventorySlot{ItemID, 1, FGuid()});
 		}
 	}
+	Client_NotifyItemAdded(ItemID, Count);
 
-	return false;
+	return true;
 }
 
 bool UInventoryComponent::RemoveItemByIDAndCount(const int32& ItemID, int32 Count)
