@@ -123,6 +123,11 @@ void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
 void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
 {
 	CurrentWeaponTag = NewTag;
+	ASKPlayerCharacter* PC = GetPawn<ASKPlayerCharacter>();
+	if (PC)
+	{
+		PC->SetTraceSocket();  
+	}
 }
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()
