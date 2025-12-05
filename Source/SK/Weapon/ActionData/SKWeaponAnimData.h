@@ -3,12 +3,12 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
-#include "SKWeaponActionData.generated.h"
+#include "SKWeaponAnimData.generated.h"
 
 class USKPlayerAnimInstance;
 
 UCLASS()
-class SK_API USKWeaponActionData : public UDataAsset
+class SK_API USKWeaponAnimData : public UDataAsset
 {
 	GENERATED_BODY()
 
