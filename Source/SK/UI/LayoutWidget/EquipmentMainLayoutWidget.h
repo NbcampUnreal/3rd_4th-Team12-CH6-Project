@@ -29,4 +29,7 @@ protected:
 
 	UFUNCTION()
 	void HandleEquipMainToInGameAction();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Sound")
+	USoundBase* ClickSound;
 };

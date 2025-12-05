@@ -4,6 +4,7 @@
 #include "UI/LayoutWidget/EquipmentMainLayoutWidget.h"
 
 #include "Input/CommonUIInputTypes.h"
+#include "Kismet/GameplayStatics.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 void UEquipmentMainLayoutWidget::NativeConstruct()
@@ -16,6 +17,12 @@ void UEquipmentMainLayoutWidget::NativeConstruct()
 
 void UEquipmentMainLayoutWidget::HandleEquipMainToInGameAction()
 {
+
+	if (ClickSound)
+	{
+		UGameplayStatics::PlaySound2D(this, ClickSound);
+	}
+	
 	if (UWorld* World = GetWorld())
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))

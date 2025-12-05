@@ -19,6 +19,12 @@ public:
 	int32 GetItemID() const { return CurrentItemID; }
 	
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
+	USoundBase* HoverSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
+	USoundBase* ClickSound;
+	
 	UPROPERTY(meta=(BindWidget))
 	UImage* ItemIcon;
 	
@@ -37,4 +43,6 @@ protected:
 
 	void SendHoverMessage(bool bHover) const;
 	virtual void OnClicked() {}
+
+	void PlayUISound(USoundBase* InSound);
 };

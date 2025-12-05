@@ -3,6 +3,7 @@
 
 #include "UI/SlotWidget/Equipment/EquipmentItemBaseWidget.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -21,6 +22,7 @@ void UEquipmentItemBaseWidget::NativeOnMouseEnter(const FGeometry& InGeometry, c
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 	SendHoverMessage(true);
+	PlayUISound(HoverSound);
 }
 
 void UEquipmentItemBaseWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -32,6 +34,7 @@ void UEquipmentItemBaseWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEv
 FReply UEquipmentItemBaseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	OnClicked();
+	PlayUISound(ClickSound);
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
@@ -48,4 +51,11 @@ void UEquipmentItemBaseWidget::SendHoverMessage(bool bHover) const
 			MSG->BroadcastMessage(TAG_Message_Channel_ToolTipItem, Msg);
 		}
 	}
+}
+
+void UEquipmentItemBaseWidget::PlayUISound(USoundBase* InSound)
+{
+	if (!InSound) return;
+
+	UGameplayStatics::PlaySound2D(this, InSound);
 }
