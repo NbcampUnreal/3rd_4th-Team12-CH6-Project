@@ -92,6 +92,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	EEquipmentSlotType SlotType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
+	FGameplayTag EquipmentTag;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Equipment")
 	TMap<EEquipmentStat, FEquipData> Stats;
