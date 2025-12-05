@@ -185,3 +185,12 @@ struct FSettingBossHPWidget
 	UImage* WidgetImage
 	*/
 };
+
+USTRUCT(BlueprintType)
+struct FLoadingUIVisible
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bVisible;
+};

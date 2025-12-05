@@ -1,5 +1,9 @@
 #include "GameMode/TownGameMode.h"
 
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
+
 ATownGameMode::ATownGameMode()
 {
 	bUseSeamlessTravel = true;
@@ -55,6 +59,17 @@ void ATownGameMode::HandleMatchHasStarted()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("❌ NetDriver is NULL — no socket listening"));
+	}
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FLoadingUIVisible LoadingUIMessage(false);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
+		}
 	}
 }
 

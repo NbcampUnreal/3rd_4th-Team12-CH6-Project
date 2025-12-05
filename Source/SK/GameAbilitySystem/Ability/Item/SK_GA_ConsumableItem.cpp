@@ -61,6 +61,7 @@ void USK_GA_ConsumableItem::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	UGameplayEffect* EffectInstance = GetCooldownGameplayEffect();
 	if (!EffectInstance)
 	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	TSubclassOf<UGameplayEffect> EffectClass = EffectInstance->GetClass();
@@ -68,7 +69,10 @@ void USK_GA_ConsumableItem::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	if (CooldownSpecHandle.IsValid())
 	{
-		CooldownSpecHandle.Data->SetSetByCallerMagnitude(TAG_Item_Cooldown, ActiveItemData->Cooldown);
+		if (ActiveItemData->Cooldown >= 0.1f)
+		{
+			CooldownSpecHandle.Data->SetSetByCallerMagnitude(TAG_Item_Cooldown, ActiveItemData->Cooldown);
+		}
 	}
 	
 	ASC->ApplyGameplayEffectSpecToSelf(*CooldownSpecHandle.Data);

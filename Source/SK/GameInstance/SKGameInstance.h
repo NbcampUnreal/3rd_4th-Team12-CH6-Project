@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "GameData/SKSoundDataAsset.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
 #include "SKGameInstance.generated.h"
 
+struct FLoadingUIVisible;
 class UPrimaryDataAsset;
 /**
  * 
@@ -17,7 +19,7 @@ class SK_API USKGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	//virtual void Init() override;
+	virtual void Init() override;
 	// virtual void Shutdown() override;
 	//
 	// void HandleLevelChanged(const FName& LevelName);
@@ -71,6 +73,27 @@ public:
 
 #pragma endregion
 
+#pragma region Loading_UI
+
+	// 로딩 위젯 클래스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|UI")
+	TSubclassOf<UUserWidget> LoadingWidgetClass;
+
+	// 생성된 로딩 위젯 인스턴스
+	UPROPERTY()
+	UUserWidget* LoadingWidgetInstance = nullptr;
+	
+	TSharedPtr<SWidget> LoadingSlateWidget;
+	
+	// 로딩 화면 표시/숨김
+	UFUNCTION(BlueprintCallable, Category = "SK|UI")
+	void ShowLoadingScreen(bool bShow);
+	
+	FSKGameplayMessageListenerHandle LoadingUIVisibleHandle;
+
+	void OnLoadingUIVisibleMessageReceived(FGameplayTag Channel, const FLoadingUIVisible& Message);
+#pragma endregion Loading_UI
+	
 	//임시. 추후 데이터 에셋 매니저 나오면 변경
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UPrimaryDataAsset> TestLayoutData;
