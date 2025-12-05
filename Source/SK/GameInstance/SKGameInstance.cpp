@@ -1,9 +1,28 @@
 #include "GameInstance/SKGameInstance.h"
+
+#include "Blueprint/UserWidget.h"
 #include "Utility/SKBGMSubSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Constants/SKGameConstants.h"
+#include "Controller/SKPlayerController.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 
+void USKGameInstance::Init()
+{
+	Super::Init();
+	
+	USKGameplayMessageSubsystem* MessageSubsystem = GetSubsystem<USKGameplayMessageSubsystem>();
+	if (!MessageSubsystem)
+		return;
+
+	LoadingUIVisibleHandle = MessageSubsystem->RegisterListener<FLoadingUIVisible>(
+		TAG_Message_Channel_LoadingUIVisible,
+		this,
+		&USKGameInstance::OnLoadingUIVisibleMessageReceived
+	);
+}
 
 void USKGameInstance::HostTownSession()
 {
@@ -53,10 +72,38 @@ void USKGameInstance::TravelToDungeon(int32 DungeonID)
 		UE_LOG(LogTemp, Error, TEXT("Invalid DungeonID: %d"), DungeonID);
 		return;
 	}
+	
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (APlayerController* PC = It->Get())
+		{
+			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
+			if (SKPC)
+			{
+				SKPC->ClientShowLoadingScreen(true);
+			}
+		}
+	}
 
+	
+	
 	FString TravelCmd = FString::Printf(TEXT("%s?listen"), **LevelPath);
 	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → DungeonMap : %s"), *TravelCmd);
-	World->ServerTravel(TravelCmd, true);
+	
+	FTimerHandle TimerHandle;
+	World->GetTimerManager().SetTimer(
+		TimerHandle,
+		FTimerDelegate::CreateLambda([World, TravelCmd]()
+		{
+			if (World)
+			{
+				UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel executing → TownMap : %s"), *TravelCmd);
+				World->ServerTravel(TravelCmd, true);
+			}
+		}),
+		1.0f,  // 1초 지연
+		false
+	);
 }
 
 void USKGameInstance::TravelToTown()
@@ -69,10 +116,36 @@ void USKGameInstance::TravelToTown()
 		UE_LOG(LogTemp, Warning, TEXT("[GameInstance] TravelToTown() called on Client — Ignored."));
 		return;
 	}
-
+	
 	FString TravelCmd = FString::Printf(TEXT("%s?listen"), SKGameConstants::TownLevel);
 	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → TownMap : %s"), *TravelCmd);
-	World->ServerTravel(TravelCmd, true);
+		
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (APlayerController* PC = It->Get())
+		{
+			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
+			if (SKPC)
+			{
+				SKPC->ClientShowLoadingScreen(true);
+			}
+		}
+	}
+	
+	FTimerHandle TimerHandle;
+	World->GetTimerManager().SetTimer(
+		TimerHandle,
+		FTimerDelegate::CreateLambda([World, TravelCmd]()
+		{
+			if (World)
+			{
+				UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel executing → TownMap : %s"), *TravelCmd);
+				World->ServerTravel(TravelCmd, true);
+			}
+		}),
+		1.0f,  // 1초 지연
+		false
+	);
 }
 
 void USKGameInstance::LeaveSession()
@@ -120,4 +193,67 @@ void USKGameInstance::SetSFXVolume(float InVolume)
 {
 	SFXVolume = FMath::Clamp(InVolume, 0.0f, 1.0f);
 	
+}
+
+void USKGameInstance::ShowLoadingScreen(bool bShow)
+{
+	if (!GEngine || !GEngine->GameViewport)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[SKGameInstance] No GameViewport found!"));
+		return;
+	}
+	
+	APlayerController* PC = GetFirstLocalPlayerController();
+	FString PCName = PC ? PC->GetName() : TEXT("None");
+
+	UE_LOG(LogTemp, Log, TEXT("[SKGameInstance] ShowLoadingScreen called. bShow=%s, PC=%s"),
+		bShow ? TEXT("true") : TEXT("false"), *PCName);
+	if (bShow)
+	{
+		if (!LoadingWidgetInstance && LoadingWidgetClass)
+		{
+			// PlayerController는 입력 목적용, 위젯은 GameInstance 소유
+			LoadingWidgetInstance = CreateWidget<UUserWidget>(this, LoadingWidgetClass);
+			if (LoadingWidgetInstance)
+			{
+				// Slate 위젯으로 변환 후 GameViewport에 직접 추가
+				LoadingSlateWidget = LoadingWidgetInstance->TakeWidget();
+				GEngine->GameViewport->AddViewportWidgetContent(LoadingSlateWidget.ToSharedRef(), 9999);
+			}
+		}
+	}
+	else
+	{
+		if (LoadingSlateWidget.IsValid())
+		{
+			GEngine->GameViewport->RemoveViewportWidgetContent(LoadingSlateWidget.ToSharedRef());
+			LoadingSlateWidget.Reset();
+		}
+
+		if (LoadingWidgetInstance)
+		{
+			LoadingWidgetInstance = nullptr;
+		}
+	}
+}
+
+
+void USKGameInstance::OnLoadingUIVisibleMessageReceived(FGameplayTag Channel, const FLoadingUIVisible& Message)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[USKGameInstance] ShowLoadingScreen %d"), Message.bVisible);
+	
+	UWorld* World = GetWorld();
+	if (!World) return;
+	
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (APlayerController* PC = It->Get())
+		{
+			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
+			if (SKPC)
+			{
+				SKPC->ClientShowLoadingScreen(Message.bVisible);
+			}
+		}
+	}
 }

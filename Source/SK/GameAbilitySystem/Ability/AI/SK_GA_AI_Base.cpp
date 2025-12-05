@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionJumpForce.h"
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -75,6 +76,14 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 		}
 	}
 
+	if (OwnJumpTask)
+	{
+		if (OwnJumpTask->IsActive())
+		{
+			OwnJumpTask->EndTask();
+		}
+	}
+	
 	CachedController->StopMovement();
 
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
