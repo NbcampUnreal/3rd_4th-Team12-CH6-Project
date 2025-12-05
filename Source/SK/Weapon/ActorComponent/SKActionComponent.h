@@ -5,7 +5,7 @@
 #include "Controller/SKPlayerController.h"
 #include "SKActionComponent.generated.h"
 
-class USKWeaponActionData;
+class USKWeaponAnimData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SK_API USKActionComponent : public UActorComponent
@@ -25,13 +25,13 @@ public:
 	FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	void SetWeaponActionData(USKWeaponActionData* NewWeaponActionData);
+	void SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionData);
 	
-	FORCEINLINE USKWeaponActionData* GetWeaponActionData() const { return CurrentWeaponActionData; }
+	FORCEINLINE USKWeaponAnimData* GetWeaponActionData() const { return CurrentWeaponActionData; }
 	
 protected:
 	UPROPERTY()
-	USKWeaponActionData* CurrentWeaponActionData;
+	USKWeaponAnimData* CurrentWeaponActionData;
 
 #pragma region MovementInfo
 

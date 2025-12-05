@@ -1,10 +1,10 @@
 ﻿#include "SK_GA_Evade.h"
-#include "Weapon/ActionData/SKWeaponActionData.h"
+#include "Weapon/ActionData/SKWeaponAnimData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
 void USK_GA_Evade::PreActivateDodge(USKActionComponent* ActionComponent)
 {
-	USKWeaponActionData* WeaponActionData = ActionComponent->GetWeaponActionData();
+	USKWeaponAnimData* WeaponActionData = ActionComponent->GetWeaponActionData();
 	if (!WeaponActionData) return;
 	
 	UAnimMontage* EvadeMontage = WeaponActionData->EvadeMontage;

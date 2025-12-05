@@ -33,7 +33,7 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
-void USKActionComponent::SetWeaponActionData(USKWeaponActionData* NewWeaponActionData)
+void USKActionComponent::SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionData)
 {
 	CurrentWeaponActionData = NewWeaponActionData;
 }

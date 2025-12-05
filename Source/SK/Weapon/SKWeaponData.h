@@ -20,7 +20,7 @@ struct FWeaponDataRow : public FTableRowBase
 	TObjectPtr<USKWeaponData> WeaponData;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<USKWeaponAnimData> WeaponActionData;
+	TObjectPtr<USKWeaponAnimData> WeaponAnimData;
 };
 
 
