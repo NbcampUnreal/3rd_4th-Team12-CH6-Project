@@ -57,6 +57,9 @@ public:
 	AActor* CurrentTarget = nullptr;
 	// 락온 상태
 	bool bIsLockedOn = false;
+
+	UFUNCTION(Client, Reliable)
+	void ClientShowLoadingScreen(bool bShow);
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

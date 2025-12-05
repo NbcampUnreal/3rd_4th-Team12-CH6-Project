@@ -1,5 +1,9 @@
 #include "GameState/DungeonGameState.h"
+
 #include "Net/UnrealNetwork.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 
 ADungeonGameState::ADungeonGameState()
@@ -24,6 +28,21 @@ void ADungeonGameState::SetDungeonState(EDungeonMatchState NewState)
 	OnDungeonMatchStateChanged.Broadcast(NewState);
 	
 	OnRep_DungeonState();
+
+	if(DungeonState == EDungeonMatchState::Dungeon_InProgress)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+			{
+				// 전송할 메시지 생성
+				FLoadingUIVisible LoadingUIMessage(false);
+
+				// 메시지 브로드캐스트 (UI 전환용 채널로)
+				MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
+			}
+		}
+	}
 }
 
 void ADungeonGameState::OnRep_DungeonState()
@@ -40,7 +59,7 @@ void ADungeonGameState::OnRep_DungeonState()
 	else if (DungeonState == EDungeonMatchState::Dungeon_InProgress) //실제 게임 시작 상태
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[DungeonGS] DungeonState: Dungeon_InProgress"));
-
+		
 	}
 	else if (DungeonState == EDungeonMatchState::Dungeon_Cleared) //던전 클리어
 	{

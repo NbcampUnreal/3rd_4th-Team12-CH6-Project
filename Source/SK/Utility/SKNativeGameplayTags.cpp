@@ -107,6 +107,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BossHP, "UI.Slot.BossHP");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterDeath, "UI.Slot.CharacterDeath");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BuffDebuff, "UI.Slot.BuffDebuff");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GoldStat, "UI.Slot.GoldStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ItemAddInfo, "UI.Slot.ItemAddInfo");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InventoryList, "UI.Slot.InventoryList");
@@ -194,6 +195,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemSwitchSelect, "Message.Channel.It
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemAddInfo, "Message.Channel.ItemAddInfo");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UseQuickSlotItem, "Message.Channel.UseQuickSlotItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BossWidgetSetting, "Message.Channel.BossWidgetSetting");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_LoadingUIVisible, "Message.Channel.LoadingUIVisible");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");

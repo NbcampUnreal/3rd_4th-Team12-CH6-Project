@@ -33,34 +33,6 @@ void UCharacterDeathSlotWidget::NativeConstruct()
 		BindToAnimationFinished(DeathAnim, EndEvent);
 
 		UE_LOG(LogTemp, Warning, TEXT("[DeathWidget] DeathAnim 애니메이션 종료 델리게이트 바인딩 완료"));
-
-		if (GetWorld())
-		{
-			FTimerHandle TestHandle;
-			GetWorld()->GetTimerManager().SetTimer(
-				TestHandle,
-				FTimerDelegate::CreateWeakLambda(this, [this]()
-				{
-					UE_LOG(LogTemp, Warning, TEXT("[DeathWidget] 3초 후 DeathAnim 테스트 재생"));
-					if (UWorld* InnerWorld = GetWorld())
-					{
-						if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(InnerWorld))
-						{
-							FSlotVisibilityMessage SlotMessage;
-							SlotMessage.LayoutTag = TAG_UI_Layout_InGame;
-							SlotMessage.SlotTags.AddTag(TAG_UI_Slot_CharacterDeath);
-							SlotMessage.bVisible = true;
-
-							MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, SlotMessage);
-
-						}
-					}
-					PlayDeathSequence();
-				}),
-				3.0f,
-				false
-			);
-		}
 	}
 	else
 	{
@@ -81,7 +53,6 @@ void UCharacterDeathSlotWidget::OnDeathAnimationFinished()
 			SlotMessage.bVisible = false;
 
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, SlotMessage);
-
 		}
 	}
 }
