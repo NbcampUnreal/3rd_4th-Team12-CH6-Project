@@ -15,11 +15,11 @@ struct FSKItemInfo
 	GENERATED_BODY()
 	
 	// 아이템 ID
-	UPROPERTY(VisibleAnywhere, Category = "SK|Pickup")
+	UPROPERTY(EditAnywhere, Category = "SK|Pickup")
 	int32 ItemID;
 	
 	/** 드랍된 아이템 개수 */
-	UPROPERTY(VisibleAnywhere, Category="SK|Pickup")
+	UPROPERTY(EditAnywhere, Category="SK|Pickup")
 	int32 ItemCount = 1;
 };
 
@@ -66,8 +66,8 @@ public:
 	FORCEINLINE void SetItemInfo(const int32 NewItemID, const float NewItemCount) { ItemInfo.ItemID = NewItemID; ItemInfo.ItemCount = NewItemCount; }
 	FORCEINLINE FSKItemInfo GetItemInfo() const { return ItemInfo; }
 	
-private:
+protected:
 	// 아이템 ID
-	UPROPERTY(Replicated, VisibleAnywhere, Category = "SK|Pickup")
+	UPROPERTY(Replicated, EditAnywhere, Category = "SK|Pickup")
 	FSKItemInfo ItemInfo;
 };
