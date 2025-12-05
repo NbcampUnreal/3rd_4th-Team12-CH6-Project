@@ -2,8 +2,10 @@
 #include "Character/SKPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Controller/SKPlayerController.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Weapon/ActionData/SKWeaponAnimData.h"
 
 USKActionComponent::USKActionComponent()
 	: CurrentWeaponActionData(nullptr)
@@ -36,6 +38,11 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void USKActionComponent::SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionData)
 {
 	CurrentWeaponActionData = NewWeaponActionData;
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+	
+	Char->GetMesh()->SetAnimInstanceClass(CurrentWeaponActionData->AnimInstance);
+	
 }
 
 void USKActionComponent::Server_SetMovementInfo_Implementation(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection)
