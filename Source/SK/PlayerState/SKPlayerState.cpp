@@ -12,6 +12,7 @@
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Utility/SKUIManagerSubSystem.h"
 
 ASKPlayerState::ASKPlayerState()
@@ -65,6 +66,13 @@ void ASKPlayerState::BeginPlay()
 	if (!UISubSystem) return;
 
 	UISubSystem->SettingLayout();
+
+	if (AbilitySystemComponent)
+	{
+		// ASC Delegate 바인딩
+		AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &ASKPlayerState::HandleGameplayEffectAdded);
+		AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ASKPlayerState::HandleGameplayEffectRemoved);
+	}
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
@@ -267,8 +275,97 @@ const FWeaponDataRow* ASKPlayerState::GetWeaponDataRow() const
 	return DT->FindRow<FWeaponDataRow>(RowName, TEXT("GetWeaponDataRow"));
 }
 
+FWeaponDataRow& ASKPlayerState::GetWeaponData()
+{
+	static FWeaponDataRow DefaultRow; 
+
+	if (!WeaponDT) return DefaultRow;
+
+	FString FullTag = CurrentWeaponTag.GetTagName().ToString();
+	FString RowString;
+
+	// 마지막 . 뒤의 문자열만 추출
+	FullTag.Split(TEXT("."), nullptr, &RowString, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+
+	FName RowName = FName(*RowString);
+		return *WeaponDT->FindRow<FWeaponDataRow>(RowName,TEXT("GetWeaponDataRow"));
+}
+
 
 FGameplayTag ASKPlayerState::GetWeaponTag() const
 {
 	return CurrentWeaponTag;
+}
+
+void ASKPlayerState::HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec,
+	FActiveGameplayEffectHandle Handle)
+{
+	FGameplayTagContainer BuffTags = Spec.Def->GetGrantedTags();
+
+	float Duration = -1.f;
+	if (const FActiveGameplayEffect* ActiveGE = ASC->GetActiveGameplayEffect(Handle))
+	{
+		Duration = ActiveGE->GetDuration();
+	}
+	
+	TArray<FModifiedAttributeInfo> ModifiedAttributes;
+	int32 TempIndex = 0;
+	for (const FGameplayModifierInfo& Mod : Spec.Def->Modifiers)
+	{
+		FModifiedAttributeInfo Info;
+		Info.Attribute = Mod.Attribute;
+		Info.Op = Mod.ModifierOp;
+		Info.Magnitude = Spec.GetModifierMagnitude(TempIndex++);
+		Info.Duration = Duration;
+		ModifiedAttributes.Add(Info);
+	}
+
+	FModifiedAttributeArray ModifiedArray;
+	ModifiedArray.Items = ModifiedAttributes;
+	ModifiedAttributeMap.Add(Handle, ModifiedArray);
+	
+	OnBuffAdded.Broadcast(Handle, ModifiedArray, BuffTags, Duration);
+	
+	if (FActiveGameplayEffectEvents* Events = ASC->GetActiveEffectEventSet(Handle))
+	{
+		Events->OnStackChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectStackChange);
+		Events->OnTimeChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectTimeChange);
+	}	
+}
+
+void ASKPlayerState::HandleGameplayEffectRemoved(const FActiveGameplayEffect& Effect)
+{
+	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Effect.Handle))
+	{
+		FModifiedAttributeArray RemovedModified = *FoundArray;
+
+		UE_LOG(LogTemp, Log, TEXT("[BuffRemoved] Items count: %d"), RemovedModified.Items.Num());
+		
+		OnBuffRemoved.Broadcast(Effect.Handle, RemovedModified);
+		ModifiedAttributeMap.Remove(Effect.Handle);
+	}
+}
+
+void ASKPlayerState::HandleGameplayEffectStackChange(FActiveGameplayEffectHandle Handle, int32 NewStack, int32 OldStack)
+{
+	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Handle))
+	{
+			UE_LOG(LogTemp, Log, TEXT("[BuffStackChanged] NewStack: %d, OldStack: %d"), NewStack, OldStack);
+		OnBuffStackChanged.Broadcast(Handle, NewStack, OldStack);
+	}
+}
+
+void ASKPlayerState::HandleGameplayEffectTimeChange(FActiveGameplayEffectHandle Handle, float NewStartTime, float NewDuration)
+{
+	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Handle))
+	{
+		float Duration = 0.0f;
+		if (FoundArray->Items.Num() > 0)
+		{
+			Duration = FoundArray->Items[0].Duration;
+			
+		}
+		UE_LOG(LogTemp, Log, TEXT("[BuffTimeChanged] NewStartTime: %.2f, Duration: %.2f"), NewStartTime, Duration);
+		OnBuffTimeChanged.Broadcast(Handle, NewStartTime, Duration);
+	}
 }

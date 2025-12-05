@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Character/SKPlayerDataAsset.h"
 #include "GameData/WeaponDataRow.h"
+#include "GameplayEffectTypes.h"
 #include "GenericTeamAgentInterface.h"
 #include "SKPlayerState.generated.h"
 
@@ -18,6 +19,59 @@ class USKAttributeSet;
 
 struct FWeaponDataRow;
 struct FSKWeaponDataRow;
+
+USTRUCT(BlueprintType)
+struct FModifiedAttributeInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayAttribute Attribute;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EGameplayModOp::Type> Op;
+	
+	UPROPERTY(BlueprintReadOnly)
+	float Magnitude;
+
+	UPROPERTY(BlueprintReadOnly)
+	float Duration;
+};
+
+USTRUCT(BlueprintType)
+struct FModifiedAttributeArray
+{
+	GENERATED_BODY()
+ 
+	UPROPERTY()
+	TArray<FModifiedAttributeInfo> Items;
+};
+
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
+	FOnBuffAdded,
+	FActiveGameplayEffectHandle, EffectHandle,
+	const FModifiedAttributeArray&, ModifiedAttributes,
+	FGameplayTagContainer, BuffTags,
+	float, Duration
+);
+
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnTimeChanged,
+	FActiveGameplayEffectHandle, EffectHandle,
+	float, NewStart,
+	float, NewDuration
+);
+
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnStackChanged,
+	FActiveGameplayEffectHandle, EffectHandle,
+	int32, NewStack,
+	int32, OldStack
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuffRemoved, const FActiveGameplayEffectHandle, EffectHandle, FModifiedAttributeArray, ModifiedAttributes);
 
 UCLASS()
 class SK_API ASKPlayerState : public APlayerState, public IGenericTeamAgentInterface
@@ -55,6 +109,12 @@ public:
 
 	const FSKWeaponDataRow* GetWeaponSocketDataRow() const;
 	const FWeaponDataRow* GetWeaponDataRow() const; 
+
+	UFUNCTION(BlueprintCallable)
+	FWeaponDataRow& GetWeaponData();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Data")
+	TObjectPtr<UDataTable> WeaponDT;
 	
 	UFUNCTION(BlueprintCallable, Category="SK|Weapon")
 	TArray<FName> GetTraceSocket();
@@ -66,6 +126,18 @@ public:
 
 #pragma endregion
 
+	UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+    FOnBuffAdded OnBuffAdded;
+         
+    UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+    FOnBuffRemoved OnBuffRemoved;
+
+	UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+    FOnTimeChanged OnBuffTimeChanged;
+
+	UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+	FOnStackChanged OnBuffStackChanged;
+	
 protected:
 #pragma region GAS
 
@@ -98,4 +170,19 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK|Equipment", Replicated)
 	UEquipmentComponent* EquipmentComponent;
+
+	UFUNCTION()
+	void HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle);
+ 
+	UFUNCTION()
+	void HandleGameplayEffectRemoved(const FActiveGameplayEffect& Effect);
+
+	UFUNCTION()
+	void HandleGameplayEffectStackChange(FActiveGameplayEffectHandle Handle, int32 NewStack, int32 OldStack);
+
+	UFUNCTION()
+	void HandleGameplayEffectTimeChange(FActiveGameplayEffectHandle Handle, float NewStartTime, float NewDuration);
+	
+	UPROPERTY()
+	TMap<FActiveGameplayEffectHandle, FModifiedAttributeArray> ModifiedAttributeMap;
 };

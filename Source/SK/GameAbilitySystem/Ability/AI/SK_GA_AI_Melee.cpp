@@ -1,21 +1,23 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Melee.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "Character/AI/SKAICharacter.h"
 
 USK_GA_AI_Melee::USK_GA_AI_Melee()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	//NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Melee")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action.Melee")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
 }
 
-void USK_GA_AI_Melee::Melee(UAnimMontage* AnimMontage)
+void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage)
 {
+	SetFocus();
+	
 	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
@@ -55,8 +57,6 @@ void USK_GA_AI_Melee::OnHitCompleted(FGameplayEventData EventData)
 
 void USK_GA_AI_Melee::OnMeleeCompleted()
 {
-	CommonEventTask->EndTask();
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
@@ -68,18 +68,13 @@ void USK_GA_AI_Melee::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
-	if (!IsValid(AICharacter))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
 
-	UAnimMontage* AnimMontage = AICharacter->GetMontages()[0]; // 임시로 일단 0번 인덱스 고정
+	CommonEventTask->EndTask();
+
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Melee");
 	if (!IsValid(AnimMontage))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
@@ -94,5 +89,7 @@ void USK_GA_AI_Melee::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

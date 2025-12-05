@@ -7,6 +7,7 @@
 class UAbilityTask_WaitGameplayEvent;
 class UAbilityTask_PlayMontageAndWait;
 class UAbilityTask_WaitDelay;
+class UAbilityTask_ApplyRootMotionJumpForce;
 
 UCLASS()
 class SK_API USK_GA_AI_Base : public UGameplayAbility
@@ -23,6 +24,9 @@ protected:
 	AController* CachedController;
 
 	UPROPERTY()
+	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
+
+	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* OwnEventTask;
 	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* CommonEventTask;
@@ -30,15 +34,20 @@ protected:
 	UAbilityTask_PlayMontageAndWait* OwnMontageTask;
 	UPROPERTY()
 	UAbilityTask_WaitDelay* OwnDelayTask;
+	UPROPERTY()
+	UAbilityTask_ApplyRootMotionJumpForce* OwnJumpTask;
 
 
 public:
 	USK_GA_AI_Base();
 
+	TObjectPtr<UAnimMontage> GetAnimMontage(FName AbilityName);
+
 	void WaitEndAbility();
 
 	UFUNCTION()
 	void OnWaitEndAbilityCompleted(FGameplayEventData EventData);
+
 	
 protected:
 	virtual void ActivateAbility(

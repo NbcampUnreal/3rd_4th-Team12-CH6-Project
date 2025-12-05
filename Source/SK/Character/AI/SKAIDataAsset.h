@@ -6,6 +6,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "SKAIDataAsset.generated.h"
 
+class UStateTree;
+
 UCLASS()
 class SK_API USKAIDataAsset : public UDataAsset
 {
@@ -41,7 +43,8 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tag")
 	FGameplayTag TeamTag;
-	
+
+	/*
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tag")
 	FGameplayTagContainer AbilityTags;
 
@@ -50,13 +53,22 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Material")
 	UMaterialInstance* MaterialInstance;
-
+	*/
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
-
+	
+	/*
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TArray<TSubclassOf<UGameplayEffect>> StartupGE;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tag|Effect")
 	TSubclassOf<UGameplayEffect> GiveTeamTagEffect;
+	*/
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AI")
+	TObjectPtr<UStateTree> StateTreeAsset;
 };

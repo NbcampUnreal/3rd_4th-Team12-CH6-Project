@@ -11,6 +11,7 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/ScrollBox.h"
 #include "Components/ScrollBoxSlot.h"
+#include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Item/Inventory/Data/SKEquipmentItemData.h"
@@ -88,6 +89,52 @@ void UEquipSelectListSlotWidget::OnItemSwitchMessageReceived(FGameplayTag Channe
 	CurrentItemType = Message.ItemType;
 	CurrentQuickSlotNumber = Message.QuickSlotNumber;
 	RefreshInventory();
+	if (TypeText)
+	{
+		FText DisplayText;
+		if (Message.ItemType == EInventoryItemType::Consumable )
+		{
+			//퀵 슬롯 x 번 / 장착
+			DisplayText = FText::FromString(FString::Printf(TEXT("퀵 슬롯 %d번 장착"), Message.QuickSlotNumber));
+		}
+		else
+		{
+			// 장비: 무기 슬롯 장착
+			switch (Message.EquipmentType)
+			{
+			case EEquipmentSlotType::Weapon:
+				DisplayText = FText::FromString(TEXT("무기 슬롯 장착"));
+				break;
+
+			case EEquipmentSlotType::Helmet:
+				DisplayText = FText::FromString(TEXT("투구 슬롯 장착"));
+				break;
+
+			case EEquipmentSlotType::Chest:
+				DisplayText = FText::FromString(TEXT("갑옷 슬롯 장착"));
+				break;
+			case EEquipmentSlotType::Leg:
+				DisplayText = FText::FromString(TEXT("하의 슬롯 장착"));
+				break;
+			case EEquipmentSlotType::Boots:
+				DisplayText = FText::FromString(TEXT("신발 슬롯 장착"));
+				break;
+			case EEquipmentSlotType::Accessory1:
+				DisplayText = FText::FromString(TEXT("장신구1 슬롯 장착"));
+				break;
+			case EEquipmentSlotType::Accessory2:
+				DisplayText = FText::FromString(TEXT("장신구2 슬롯 장착"));
+				break;
+				
+			default:
+				DisplayText = FText::FromString(TEXT("기타 장비 장착"));
+				break;
+			}
+		}
+
+		TypeText->SetText(DisplayText);
+		
+	}
 }
 
 void UEquipSelectListSlotWidget::RefreshInventory()

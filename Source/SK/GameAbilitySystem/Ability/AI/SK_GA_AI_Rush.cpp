@@ -4,7 +4,6 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/AI/SKAICharacter.h"
-#include "Components/BoxComponent.h"
 
 USK_GA_AI_Rush::USK_GA_AI_Rush()
 {
@@ -14,28 +13,28 @@ USK_GA_AI_Rush::USK_GA_AI_Rush()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Rush")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Rush")));
 }
 
-void USK_GA_AI_Rush::Rush(UAnimMontage* AnimMontage)
+void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
 	if (!AICharacter->MotionWarpingComponent)
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
-	AActor* TargetActor = GetTargetActor();
+	TObjectPtr<AActor> TargetActor = GetTargetActor();
 	if (!IsValid(TargetActor))
 	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
@@ -54,7 +53,7 @@ void USK_GA_AI_Rush::Rush(UAnimMontage* AnimMontage)
 	PredictedHorizontalVector.Z = 0.0f;
 	
 	float WarpDistance = PredictedHorizontalVector.Length();
-	float MaxDistance = AICharacter->BoxComponent->GetScaledBoxExtent().X;
+	float MaxDistance = FVector::Distance(AILocation, TargetLocation) + 200.0f;
 
 	if (WarpDistance > MaxDistance)
 	{
@@ -118,17 +117,10 @@ void USK_GA_AI_Rush::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
-	if (!IsValid(AICharacter))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-
-	UAnimMontage* AnimMontage = AICharacter->GetMontages()[0]; // 임시로 일단 0번 인덱스 고정
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Rush");
 	if (!IsValid(AnimMontage))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	

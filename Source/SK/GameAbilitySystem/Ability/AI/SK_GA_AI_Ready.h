@@ -12,7 +12,7 @@ class SK_API USK_GA_AI_Ready : public USK_GA_AI_BaseCombat
 public:
 	USK_GA_AI_Ready();
 
-	void Ready(UAnimMontage* AnimMontage);
+	void Ready(TObjectPtr<UAnimMontage> AnimMontage);
 
 	UFUNCTION()
 	void OnReadyCompleted();

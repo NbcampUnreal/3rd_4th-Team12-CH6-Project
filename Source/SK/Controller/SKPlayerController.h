@@ -10,11 +10,11 @@
 UENUM(BlueprintType)
 enum class EMoveDirection : uint8
 {
-	None UMETA(DisplayName = "None"),
-	Forward UMETA(DisplayName = "Forward"),
-	Backward UMETA(DisplayName = "Backward"),
-	Left UMETA(DisplayName = "Left"),
-	Right UMETA(DisplayName = "Right")
+	None        UMETA(DisplayName = "None"),
+	Forward     UMETA(DisplayName = "Forward"),
+	Backward    UMETA(DisplayName = "Backward"),
+	Left        UMETA(DisplayName = "Left"),
+	Right       UMETA(DisplayName = "Right")
 };
 
 struct FInputActionValue;
@@ -59,6 +59,9 @@ public:
 	bool bIsLockedOn = false;
 
 	FVector2D LookInput;
+
+	UFUNCTION(Client, Reliable)
+	void ClientShowLoadingScreen(bool bShow);
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -84,6 +87,8 @@ protected:
 	TObjectPtr<UInputAction> SprintAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> Interaction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> DodgeAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> LeftAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
@@ -114,12 +119,14 @@ protected:
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
+	void OnMoveRepleased();
 	void Look(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
 	void StopJumping();
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
+	void Dodge(const FInputActionValue& Value);
 	void LeftAttack(const FInputActionValue& Value);
 	void RightAttack(const FInputActionValue& Value);
 	void Active_MouseWheel(const FInputActionValue& Value);

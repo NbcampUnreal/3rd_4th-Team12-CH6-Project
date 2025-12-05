@@ -8,6 +8,7 @@
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Character/AI/SKAICharacterBase.h"
+#include "Component/QuickSlotComponent.h"
 #include "Constants/SKGameConstants.h"
 #include "Engine/OverlapResult.h"
 #include "GameData/SKGameConstant.h"
@@ -17,11 +18,22 @@
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKPlayerController::ASKPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PlayerCameraManagerClass = ASKCameraManager::StaticClass();
+}
+
+void ASKPlayerController::ClientShowLoadingScreen_Implementation(bool bShow)
+{
+	USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
+	if (SKGI)
+	{
+		SKGI->ShowLoadingScreen(bShow);
+		UE_LOG(LogTemp, Log, TEXT("[PC] ShowLoadingScreen executed. bShow = %s"), bShow ? TEXT("true") : TEXT("false"));
+	}
 }
 
 void ASKPlayerController::BeginPlay()
@@ -137,6 +149,7 @@ void ASKPlayerController::SetupInputComponent()
 	{
 		check(MoveAction);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASKPlayerController::OnMoveRepleased);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
@@ -158,6 +171,8 @@ void ASKPlayerController::SetupInputComponent()
 
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this,
+		                                   &ASKPlayerController::Dodge);
 		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_QuickSlotAction_00);
 		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
@@ -263,8 +278,6 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector2D InMoveVector = Value.Get<FVector2D>();
-		CurrentInputVector = InMoveVector;
-		CurrentMoveDirection = GetClosestMoveDirection(InMoveVector);
 		const FRotator ControlrRotation = GetControlRotation();
 		const FRotator ControlYawRotation(0.f, ControlrRotation.Yaw, 0.f);
 
@@ -274,6 +287,30 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
+
+		
+		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(ControlledPawn);
+		if (Char)
+		{
+			USKActionComponent* ActionComponent = Char->GetActionComponent();
+			if (ActionComponent)
+			{
+				ActionComponent->Server_SetMovementInfo(InMoveVector, GetClosestMoveDirection(InMoveVector));
+			}
+		}
+	}
+}
+
+void ASKPlayerController::OnMoveRepleased()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetPawn());
+	if (Char)
+	{
+		USKActionComponent* ActionComponent = Char->GetActionComponent();
+		if (ActionComponent)
+		{
+			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector, GetClosestMoveDirection(FVector2D::ZeroVector));
+		}
 	}
 }
 
@@ -426,16 +463,76 @@ void ASKPlayerController::Active_QuickSlotAction_02(const FInputActionValue& Val
 void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_00"));
+	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
+ 
+	// 2. 커스텀 PlayerState로 캐스팅
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
+	if (!SKPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
+		return;
+	}
+ 
+	// 3. QuickSlotComponent 찾기
+	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
+	if (!QuickSlotComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
+		return;
+	}
+ 
+	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
+	QuickSlotComp->TryUseQuickSlot(0);
 }
 
 void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_01"));
+	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
+ 
+	// 2. 커스텀 PlayerState로 캐스팅
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
+	if (!SKPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
+		return;
+	}
+ 
+	// 3. QuickSlotComponent 찾기
+	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
+	if (!QuickSlotComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
+		return;
+	}
+ 
+	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
+	QuickSlotComp->TryUseQuickSlot(1);
 }
 
 void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_02"));
+	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
+ 
+	// 2. 커스텀 PlayerState로 캐스팅
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
+	if (!SKPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
+		return;
+	}
+ 
+	// 3. QuickSlotComponent 찾기
+	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
+	if (!QuickSlotComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
+		return;
+	}
+ 
+	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
+	QuickSlotComp->TryUseQuickSlot(2);
 }
 
 AActor* ASKPlayerController::FindNearestTarget()
@@ -580,5 +677,19 @@ void ASKPlayerController::Interact(const FInputActionValue& Value)
 	if (InteractionComponent)
 	{
 		InteractionComponent->Server_TryInteract();
+	}
+};
+
+void ASKPlayerController::Dodge(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("Dodge"));
+
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
+	if (!SKPlayerCharacter) return;
+	
+	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
+	if (ActionComponent)
+	{
+		ActionComponent->TryDodge();
 	}
 };

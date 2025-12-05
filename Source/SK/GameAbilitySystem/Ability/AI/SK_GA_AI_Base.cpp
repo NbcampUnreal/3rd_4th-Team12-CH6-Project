@@ -2,13 +2,32 @@
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionJumpForce.h"
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Character/AI/SKAICharacterBase.h"
 
 USK_GA_AI_Base::USK_GA_AI_Base()
 {
+
+}
+
+TObjectPtr<UAnimMontage> USK_GA_AI_Base::GetAnimMontage(FName AbilityName)
+{
+	TObjectPtr<UAnimMontage>* MapAnimMontage = Montages.Find(AbilityName);
+	if (!MapAnimMontage)
+	{
+		return nullptr;
+	}
 	
+	TObjectPtr<UAnimMontage> AnimMontage = *MapAnimMontage;
+	if (!IsValid(AnimMontage))
+	{
+		return nullptr;
+	}
+
+	return AnimMontage;
 }
 
 void USK_GA_AI_Base::WaitEndAbility()
@@ -34,21 +53,21 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 			OwnEventTask->EndTask();
 		}
 	}
+			
 	if (OwnMontageTask)
 	{
 		if (OwnMontageTask->IsActive())
 		{
 			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-			if (!IsValid(SourceASC))
+			if (IsValid(SourceASC))
 			{
-				return;
+				SourceASC->CurrentMontageStop();
 			}
-
-			SourceASC->CurrentMontageStop();
 			
 			OwnMontageTask->EndTask();
 		}
 	}
+			
 	if (OwnDelayTask)
 	{
 		if (OwnDelayTask->IsActive())
@@ -57,6 +76,14 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 		}
 	}
 
+	if (OwnJumpTask)
+	{
+		if (OwnJumpTask->IsActive())
+		{
+			OwnJumpTask->EndTask();
+		}
+	}
+	
 	CachedController->StopMovement();
 
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
@@ -100,6 +127,15 @@ void USK_GA_AI_Base::ActivateAbility(
 	
 	CachedController = Controller;
 
+	ASKAICharacterBase* BaseAI = Cast<ASKAICharacterBase>(CachedCharacter);
+	if (!IsValid(BaseAI))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
+	Montages = BaseAI->GetMontages();
+	
 	WaitEndAbility();
 }
 
@@ -111,17 +147,13 @@ void USK_GA_AI_Base::EndAbility(
 	bool bWasCancelled
 	)
 {
-	// 나중에 실제 캔슬될 일이 생기면 그땐 조건 지워야 함.
-	if (!bWasCancelled)
+	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
+	if (!IsValid(ST))
 	{
-		UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
-		if (!IsValid(ST))
-		{
-			return;
-		}
-
-		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+		return;
 	}
+
+	ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

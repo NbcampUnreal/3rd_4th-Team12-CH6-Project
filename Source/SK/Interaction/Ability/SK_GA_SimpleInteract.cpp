@@ -7,14 +7,13 @@
 #include "Abilities/Tasks/AbilityTask_MoveToLocation.h"
 #include "Animation/SKBaseAnimInstance.h"
 #include "Character/SKPlayerCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "Item/SKInteractableBase.h"
 
 USK_GA_SimpleInteract::USK_GA_SimpleInteract()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
 void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -24,6 +23,7 @@ void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 		
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Char) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 	// if (!Char && Char->HasAuthority()) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 	
 	UE_LOG(LogTemp, Warning, TEXT("Active Simple Interact Ability, %s"), Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
@@ -57,10 +57,14 @@ void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	float Duration = Distance / DesiredSpeed;
 
 	// 이동 전 캐릭터 회전
-	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
-	FRotator TargetRotation = Direction.Rotation();
+	const FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+	const FRotator TargetRotation = Direction.Rotation();
 
-	Char->SetActorRotation(TargetRotation);
+	constexpr float MinRotDist = 20.0f;
+	if (Distance > MinRotDist)
+	{
+		Char->SetActorRotation(TargetRotation);
+	}
 	
 	UAbilityTask_MoveToLocation* MoveTask = UAbilityTask_MoveToLocation::MoveToLocation(this, NAME_None, TargetLocation, Duration, nullptr, nullptr);
 
