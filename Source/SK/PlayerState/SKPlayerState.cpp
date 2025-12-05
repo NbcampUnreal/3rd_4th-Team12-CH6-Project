@@ -96,8 +96,8 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
-	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  // 필수
-	// DOREPLIFETIME(ASKPlayerState, RepComboState); // 이게 없으면 클라에게 절대 안 감
+	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  
+	DOREPLIFETIME(ASKPlayerState, CurrentWeaponTag);
 }
 
 void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
