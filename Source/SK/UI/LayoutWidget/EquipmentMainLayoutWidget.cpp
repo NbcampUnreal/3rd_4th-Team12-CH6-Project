@@ -11,6 +11,7 @@ void UEquipmentMainLayoutWidget::NativeConstruct()
 	Super::NativeConstruct();
  
 	EquipMainToInGameHandle = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
+	EquipMainToInGameHandle2 = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData2, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
 }
 
 void UEquipmentMainLayoutWidget::HandleEquipMainToInGameAction()

@@ -18,6 +18,12 @@ public:
 	FDataTableRowHandle EquipMainToInGameData;
 	
 	FUIActionBindingHandle EquipMainToInGameHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle EquipMainToInGameData2;
+	
+	FUIActionBindingHandle EquipMainToInGameHandle2;
+	
 protected:
 	virtual void NativeConstruct() override;
 
