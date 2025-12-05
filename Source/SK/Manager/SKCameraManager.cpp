@@ -3,6 +3,7 @@
 
 #include "Manager/SKCameraManager.h"
 
+#include "Character/SKPlayerCharacter.h"
 #include "Character/AI/SKAICharacterBase.h"
 
 ASKCameraManager::ASKCameraManager()
@@ -11,12 +12,25 @@ ASKCameraManager::ASKCameraManager()
 
 void ASKCameraManager::SetbIsLockedOn(bool ArgIsLockedOn)
 {
-	if (!bIsLockedOn &&bIsLockedOn != ArgIsLockedOn)
+	if (!bIsLockedOn && bIsLockedOn != ArgIsLockedOn)
 	{
-		Cast<ASKAICharacterBase>(LockedTarget)->SetOverlayMaterial(LockOnOverlayMaterial,fOutLineActiveTime);
+		Cast<ASKAICharacterBase>(LockedTarget)->SetOverlayMaterial(LockOnOverlayMaterial, fOutLineActiveTime);
 	}
 	bIsLockedOn = ArgIsLockedOn;
-	
+}
+
+void ASKCameraManager::OnTargetChanged(AActor* OldTarget, AActor* NewTarget)
+{
+	if (IsValid(OldTarget))
+	{
+		Cast<ASKAICharacterBase>(OldTarget)->ClearOverlayMaterial();
+	}
+
+	// 신규 타겟 Overlay 적용
+	if (IsValid(NewTarget))
+	{
+		Cast<ASKAICharacterBase>(NewTarget)->SetOverlayMaterial(LockOnOverlayMaterial, fOutLineActiveTime);
+	}	
 }
 
 void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
@@ -29,9 +43,9 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	AActor* Player = OutVT.Target;
 
 	FVector CamLoc = GetCameraLocation(); //카메라위치
-	
+
 	FVector TargetLoc = LockedTarget->GetActorLocation(); //타겟위치
-	TargetLoc.Z += LockOnHeight;  // 몬스터 높이 보정
+	TargetLoc.Z += LockOnHeight; // 몬스터 높이 보정
 
 
 	// 타겟 가려짐 체크
@@ -47,6 +61,9 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	if (Dist > MaxLockDistance || Dist < MinLockDistance)
 	{
 		SetbIsLockedOn(false);;
+		ASKPlayerCharacter* SKPlayerCharacter =
+			Cast<ASKPlayerCharacter>(GetOwningPlayerController()->GetPawn());
+		SKPlayerCharacter->SetLockOnState(false);
 		LockedTarget = nullptr;
 		return;
 	}
@@ -55,7 +72,7 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	FRotator TargetRot = (TargetLoc - CamLoc).Rotation();
 	TargetRot.Pitch -= LockOnPitch;
 	FRotator NewRot = FMath::RInterpTo(GetCameraRotation(), TargetRot, DeltaTime, LockOnInterpSpeed);
-
+	
 	GetOwningPlayerController()->SetControlRotation(NewRot);
 }
 
@@ -74,7 +91,8 @@ bool ASKCameraManager::IsTargetObstructed(const FVector& CamLoc, const FVector& 
 		Params
 	);
 
-	if (!bHit) return false;
+	if (!bHit)
+		return false;
 
 	return Hit.GetActor() != LockedTarget;
 }
