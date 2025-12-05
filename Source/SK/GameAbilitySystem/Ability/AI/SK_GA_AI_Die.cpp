@@ -32,14 +32,6 @@ void USK_GA_AI_Die::Die(TObjectPtr<UAnimMontage> AnimMontage)
 	//MontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_Die::OnDieCancelled);
 	//MontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_Die::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
-	
-	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
-	if (!IsValid(ST))
-	{
-		return;
-	}
-	
-	ST->StopLogic(TEXT("AI Death"));
 }
 
 void USK_GA_AI_Die::OnDieCompleted()
