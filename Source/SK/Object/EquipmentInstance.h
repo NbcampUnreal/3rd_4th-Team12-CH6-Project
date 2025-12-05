@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ActiveGameplayEffectHandle.h"
 #include "GameplayAbilitySpecHandle.h"
+#include "GameplayTagContainer.h"
 #include "EquipmentInstance.generated.h"
 
 struct FSKEquipmentActorToSpawn;
@@ -27,6 +28,9 @@ public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
 	FActiveGameplayEffectHandle GrantedEffectHandle;
 
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
+	FGameplayTag EquipTag;
+	
 	// 캐릭터에 장비 액터 스폰
 	UFUNCTION(BlueprintCallable)
 	void SpawnEquipmentActors(APawn* OwningPawn, const TArray<FSKEquipmentActorToSpawn>& ActorsToSpawn);

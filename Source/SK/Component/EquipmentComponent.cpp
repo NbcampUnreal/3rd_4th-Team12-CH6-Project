@@ -56,6 +56,8 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	ApplyEquipmentEffect(ItemData, Instance);
 
 	Client_UpdateEquipment(Slot, SlotData);
+
+	SlotData.EquipmentInstance->EquipTag;
 	
 	return true;
 }
