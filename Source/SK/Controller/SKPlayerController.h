@@ -34,7 +34,7 @@ public:
 	ASKPlayerController();
 
 	FOnPawnPossessedSignature OnPawnPossessed;
-
+	void SetLockOnState(bool bNewState, AActor* NewTarget);
 	//던전 입장 (클라에서 호출 전용)
 	UFUNCTION(BlueprintCallable)
 	void EnterDungeonByID(int32 DungeonID);
@@ -58,6 +58,7 @@ public:
 	// 락온 상태
 	bool bIsLockedOn = false;
 
+	FVector2D LookInput;
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -90,9 +91,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> MouseWheelAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-	TObjectPtr<UInputAction> MouseWheelUpAction;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
-	TObjectPtr<UInputAction> MouseWheelDownAction;
+	TObjectPtr<UInputAction> MouseWheelMoveAction;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> QuickSlotAction_00;
@@ -123,8 +123,8 @@ private:
 	void LeftAttack(const FInputActionValue& Value);
 	void RightAttack(const FInputActionValue& Value);
 	void Active_MouseWheel(const FInputActionValue& Value);
-	void Active_MouseWheelUp(const FInputActionValue& Value);
-	void Active_MouseWheelDown(const FInputActionValue& Value);
+	void Active_MouseWheelMove(const FInputActionValue& Value);
+
 	void Active_QuickSlotAction_00(const FInputActionValue& Value);
 	void Active_QuickSlotAction_01(const FInputActionValue& Value);
 	void Active_QuickSlotAction_02(const FInputActionValue& Value);

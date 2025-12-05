@@ -21,6 +21,7 @@
 ASKPlayerController::ASKPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PlayerCameraManagerClass = ASKCameraManager::StaticClass();
 }
 
 void ASKPlayerController::BeginPlay()
@@ -46,6 +47,12 @@ void ASKPlayerController::Tick(float DeltaTime)
 	UpdateLockOnRotation(DeltaTime); // 회전 처리
 	
 
+}
+
+void ASKPlayerController::SetLockOnState(bool bNewState, AActor* NewTarget)
+{
+	bIsLockedOn = bNewState;
+	CurrentTarget = NewTarget;
 }
 
 void ASKPlayerController::EnterDungeonByID(int32 DungeonID)
@@ -146,10 +153,9 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::RightAttack);
 		EnhancedInputComponent->BindAction(MouseWheelAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_MouseWheel);
-		EnhancedInputComponent->BindAction(MouseWheelUpAction, ETriggerEvent::Started, this,
-									   &ASKPlayerController::Active_MouseWheelUp);
-		EnhancedInputComponent->BindAction(MouseWheelDownAction, ETriggerEvent::Started, this,
-									   &ASKPlayerController::Active_MouseWheelDown);
+		EnhancedInputComponent->BindAction(MouseWheelMoveAction, ETriggerEvent::Started, this,
+									   &ASKPlayerController::Active_MouseWheelMove);
+
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
 		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
@@ -275,9 +281,13 @@ void ASKPlayerController::Look(const FInputActionValue& Value)
 {
 	if (bIsLockedOn && CurrentTarget)
 		return;
+	//
+	//
+	// LookInput = Value.Get<FVector2D>();
 
+	
 	const FVector2D InLookVector = Value.Get<FVector2D>();
-
+	
 	AddYawInput(InLookVector.X);
 	AddPitchInput(InLookVector.Y);
 }
@@ -383,13 +393,20 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	// SKPlayerCharacter->SetLockOnState(bIsLockedOn);
 }
 
-void ASKPlayerController::Active_MouseWheelUp(const FInputActionValue& Value)
+void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Display, TEXT("ACTIVE_MOUSE_WHEELUP"));
+
+	float WheelValue = Value.Get<float>(); // 위로 돌리면 +1, 아래 -1
+
+	ASKCameraManager* CamManager = Cast<ASKCameraManager>(PlayerCameraManager);
+	if (!CamManager)
+		return;
+
+	CamManager->AdjustCameraDistance(WheelValue);
 }
 
-void ASKPlayerController::Active_MouseWheelDown(const FInputActionValue& Value)
-{
-}
+
 
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
 {
