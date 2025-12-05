@@ -71,7 +71,7 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_JumpRush::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
 
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.1f);
+	//UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.1f);
 	// 1. 내비게이션 투영 (아까 질문하신 안전지대 확보)
 	// C++에서는 UNavigationSystemV1을 사용합니다.
 	/*
@@ -140,7 +140,7 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 
 void USK_GA_AI_JumpRush::OnJumpRushCompleted()
 {
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+	//UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
