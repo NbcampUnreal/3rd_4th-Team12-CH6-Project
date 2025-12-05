@@ -14,6 +14,7 @@ void UEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UEquipmentInstance, GrantedAbilityHandle);
 	DOREPLIFETIME(UEquipmentInstance, GrantedEffectHandle);
 	DOREPLIFETIME(UEquipmentInstance, SpawnedActors);
+	DOREPLIFETIME(UEquipmentInstance, EquipTag);
 }
 
 void UEquipmentInstance::SpawnEquipmentActors(APawn* OwningPawn, const TArray<FSKEquipmentActorToSpawn>& ActorsToSpawn)

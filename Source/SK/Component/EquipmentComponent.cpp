@@ -5,10 +5,14 @@
 
 #include "AbilitySystemComponent.h"
 #include "InventoryComponent.h"
+#include "Character/SKPlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Object/EquipmentInstance.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Weapon/SKWeaponData.h"
+#include "Component/SKCombatComponent.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 // Sets default values for this component's properties
 UEquipmentComponent::UEquipmentComponent()
@@ -57,14 +61,31 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	ApplyEquipmentEffect(ItemData, Instance);
 
 	Client_UpdateEquipment(Slot, SlotData);
+
+	FGameplayTag NewWeaponTag = SlotData.EquipmentInstance->EquipTag;
+
+	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());
+	if (IsValid(PlayerState))
+	{
+		PlayerState->SetCurWeaponTag(NewWeaponTag);
+	}
+
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetEquipPawn());
+	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	if (!ActionComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ActionComponent is null"));
+		return false;
+	}
+
 	
-	//
-	// ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());
-	// if (IsValid(PlayerState))
-	// {
-	// 	PlayerState->SetCurWeaponTag(해당태그);
-	// }
-		
+	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+	if (!WeaponDataRow) return false;
+	ActionComponent->SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	
+	USKCombatComponent* CombatComponent = Char->GetCombatComponent();
+	CombatComponent->CurrentWeaponData = WeaponDataRow->WeaponData;
+	
 	return true;
 }
 
