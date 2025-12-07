@@ -12,6 +12,7 @@
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
+#include "Component/SKCombatComponent.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Utility/SKUIManagerSubSystem.h"
 
@@ -122,6 +123,11 @@ void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
 void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
 {
 	CurrentWeaponTag = NewTag;
+	ASKPlayerCharacter* PC = GetPawn<ASKPlayerCharacter>();
+	if (PC)
+	{
+		PC->SetTraceSocket();  
+	}
 }
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()

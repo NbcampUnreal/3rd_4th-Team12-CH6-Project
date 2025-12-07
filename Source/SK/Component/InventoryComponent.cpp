@@ -8,6 +8,7 @@
 #include "Engine/ActorChannel.h"
 #include "GameData/StaticData/ItemDataTable.h"
 #include "Item/Inventory/Data/SKConsumableItemData.h"
+#include "Item/Inventory/Data/SKEquipmentItemData.h"
 #include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "Net/UnrealNetwork.h"
 #include "Object/EquipmentInstance.h"
@@ -109,6 +110,8 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 		NewSlot.UniqueID = FGuid::NewGuid();
 		
 		UEquipmentInstance* EquipInstance = NewObject<UEquipmentInstance>(this);
+		USKEquipmentItemData* EquipData = Cast<USKEquipmentItemData>(ItemData);
+		EquipInstance->EquipTag = EquipData->EquipmentTag;
 		FEquipmentInstanceSlot NewEquipInstance(NewSlot.UniqueID, EquipInstance);
 		EquipmentInstances.Add(NewEquipInstance);
 			
