@@ -48,6 +48,9 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UImage* ItemIcon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
+	USoundBase* HoverSound;
+		
 	FInventoryItemForWidget CurrentItem;
 
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
@@ -59,4 +62,6 @@ protected:
  
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
 	void OnItemUnhovered();
+
+	void PlayUISound(USoundBase* InSound);
 };

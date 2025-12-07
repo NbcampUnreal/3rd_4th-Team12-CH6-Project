@@ -6,6 +6,7 @@
 #include "UI/SKLayoutWidgetBase.h"
 #include "EquipmentSelectLayoutWidget.generated.h"
 
+class UButton;
 /**
  * 
  */
@@ -24,4 +25,10 @@ protected:
 
 	UFUNCTION()
 	void HandleSelectToMainAction();
+
+	UFUNCTION()
+	void HandleCloseButtonClicked();
+	
+	UPROPERTY(meta = (BindWidget))
+	UButton* CloseButton;
 };

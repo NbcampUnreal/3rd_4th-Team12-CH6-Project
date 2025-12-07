@@ -108,6 +108,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BossHP, "UI.Slot.BossHP");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BossClear, "UI.Slot.BossClear");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_DungeonStart, "UI.Slot.DungeonStart");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterDeath, "UI.Slot.CharacterDeath");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BuffDebuff, "UI.Slot.BuffDebuff");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GoldStat, "UI.Slot.GoldStat");

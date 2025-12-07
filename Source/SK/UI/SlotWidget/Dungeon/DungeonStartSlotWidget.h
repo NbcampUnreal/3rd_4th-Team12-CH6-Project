@@ -5,18 +5,20 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
-#include "BossClearSlotWidget.generated.h"
+#include "DungeonStartSlotWidget.generated.h"
 
 class UImage;
 class UTextBlock;
-struct FSlotVisibilityMessage;
+struct FGameplayTag;
+struct FLoadingUIVisible;
 /**
  * 
  */
 UCLASS()
-class SK_API UBossClearSlotWidget : public UUserWidget
+class SK_API UDungeonStartSlotWidget : public UUserWidget
 {
 	GENERATED_BODY()
+	
 public:
 	// 위젯 초기화 시 실행
 	virtual void NativeConstruct() override;
@@ -25,15 +27,15 @@ public:
 	/** 애니메이션 재생 */
 	void PlayAppearAnimation();
 	
-	FSKGameplayMessageListenerHandle BossClearHandle;
+	FSKGameplayMessageListenerHandle DungeonStartHandle;
 
-	void OnBossClearMessageReceived(FGameplayTag Channel, const FSlotVisibilityMessage& Message);
+	void OnDungeonStartMessageReceived(FGameplayTag Channel, const FLoadingUIVisible& Message);
 	
 protected:
 
 	/** 클리어 텍스트 */
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ClearText;
+	UTextBlock* MapText;
 
 	/** 텍스트 뒤 배경 이미지 */
 	UPROPERTY(meta = (BindWidget))
@@ -42,4 +44,9 @@ protected:
 	/** 등장 애니메이션 (UMG에서 Animations > 이름 입력 후 Bind) */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* AppearAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
+	USoundBase* AppearSound;
+
+	void PlayAppearSound();	
 };

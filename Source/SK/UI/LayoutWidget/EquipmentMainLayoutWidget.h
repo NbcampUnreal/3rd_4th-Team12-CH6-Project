@@ -6,6 +6,7 @@
 #include "UI/SKLayoutWidgetBase.h"
 #include "EquipmentMainLayoutWidget.generated.h"
 
+class UButton;
 /**
  * 
  */
@@ -18,9 +19,24 @@ public:
 	FDataTableRowHandle EquipMainToInGameData;
 	
 	FUIActionBindingHandle EquipMainToInGameHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle EquipMainToInGameData2;
+	
+	FUIActionBindingHandle EquipMainToInGameHandle2;
+	
 protected:
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void HandleEquipMainToInGameAction();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Sound")
+	USoundBase* ClickSound;
+
+	UFUNCTION()
+	void HandleCloseButtonClicked();
+	
+	UPROPERTY(meta = (BindWidget))
+	UButton* CloseButton;
 };

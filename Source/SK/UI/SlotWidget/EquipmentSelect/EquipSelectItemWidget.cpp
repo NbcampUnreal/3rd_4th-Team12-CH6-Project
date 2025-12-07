@@ -10,6 +10,7 @@
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
 #include "Item/Inventory/Data/SKInventoryItemData.h"
+#include "Kismet/GameplayStatics.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -77,6 +78,7 @@ void UEquipSelectItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, con
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
 	SendHoverMessage(true);
+	PlayUISound(HoverSound);
 }
 
 void UEquipSelectItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -92,7 +94,7 @@ FReply UEquipSelectItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 	{
 		// BlueprintCallable로 열어둔 함수 호출도 가능
 		OnItemLeftClicked();
-
+		PlayUISound(SelectSound);
 		return FReply::Handled();
 	}
 
@@ -100,7 +102,7 @@ FReply UEquipSelectItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 	{
 		// BlueprintCallable로 열어둔 함수 호출도 가능
 		OnItemRightClicked();
-
+		PlayUISound(UnSelectSound);
 		return FReply::Handled();
 	}
 	
@@ -222,4 +224,11 @@ void UEquipSelectItemWidget::OnItemRightClicked()
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
 		}
 	}
+}
+
+void UEquipSelectItemWidget::PlayUISound(USoundBase* InSound)
+{
+	if (!InSound) return;
+
+	UGameplayStatics::PlaySound2D(this, InSound);
 }

@@ -71,9 +71,6 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_NotifyItemAdded(int32 ItemID, int32 Count);
-
-	UFUNCTION(BlueprintCallable, Category="Inventory")
-	void TryAddItem(const int32& ItemID, int32 Count);
 	
 	// 로컬 함수들 - 서버에서만 호출
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
