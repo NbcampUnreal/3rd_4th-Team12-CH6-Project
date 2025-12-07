@@ -49,6 +49,15 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UImage* ItemIcon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
+	USoundBase* HoverSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
+	USoundBase* SelectSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
+	USoundBase* UnSelectSound;
+	
 	UPROPERTY()
 	UInventoryComponent* CachedInventory;
 
@@ -72,5 +81,7 @@ protected:
 	void OnItemLeftClicked();
 
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
-	void OnItemRightClicked();	
+	void OnItemRightClicked();
+
+	void PlayUISound(USoundBase* InSound);
 };

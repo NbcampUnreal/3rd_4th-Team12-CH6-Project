@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/SlotWidget/BossClearSlotWidget.h"
+#include "UI/SlotWidget/Dungeon/BossClearSlotWidget.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -39,6 +40,15 @@ void UBossClearSlotWidget::PlayAppearAnimation()
 	if (AppearAnim)
 	{
 		PlayAnimation(AppearAnim);
+		
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(
+			TimerHandle,
+			this,
+			&UBossClearSlotWidget::PlayAppearSound,
+			0.5f,
+			false
+		);
 	}
 }
 
@@ -47,5 +57,13 @@ void UBossClearSlotWidget::OnBossClearMessageReceived(FGameplayTag Channel, cons
 	if (Message.SlotTags.HasTag(TAG_UI_Slot_BossHP))
 	{
 		PlayAppearAnimation();
+	}
+}
+
+void UBossClearSlotWidget::PlayAppearSound()
+{
+	if (AppearSound)
+	{
+		UGameplayStatics::PlaySound2D(this, AppearSound);
 	}
 }

@@ -3,6 +3,7 @@
 
 #include "UI/LayoutWidget/EquipmentSelectLayoutWidget.h"
 
+#include "Components/Button.h"
 #include "Input/CommonUIInputTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -11,6 +12,12 @@ void UEquipmentSelectLayoutWidget::NativeConstruct()
 	Super::NativeConstruct();
 	
 	SelectToMainHandle = RegisterUIActionBinding(FBindUIActionArgs(SelectToMainActionData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleSelectToMainAction)));
+
+	if (CloseButton)
+	{
+		CloseButton->OnClicked.Clear(); // 혹시 중복 방지
+		CloseButton->OnClicked.AddDynamic(this, &ThisClass::HandleCloseButtonClicked);
+	}
 }
 
 void UEquipmentSelectLayoutWidget::HandleSelectToMainAction()
@@ -28,4 +35,9 @@ void UEquipmentSelectLayoutWidget::HandleSelectToMainAction()
 			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
 		}
 	}
+}
+
+void UEquipmentSelectLayoutWidget::HandleCloseButtonClicked()
+{
+	HandleSelectToMainAction();
 }
