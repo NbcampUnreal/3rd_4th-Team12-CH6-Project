@@ -115,7 +115,9 @@ void ASKCharacterBase::BaseSetting()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint

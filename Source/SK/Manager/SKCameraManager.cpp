@@ -3,7 +3,9 @@
 
 #include "Manager/SKCameraManager.h"
 
+#include "Character/SKPlayerCharacter.h"
 #include "Character/AI/SKAICharacterBase.h"
+#include "Controller/SKPlayerController.h"
 
 ASKCameraManager::ASKCameraManager()
 {
@@ -11,52 +13,98 @@ ASKCameraManager::ASKCameraManager()
 
 void ASKCameraManager::SetbIsLockedOn(bool ArgIsLockedOn)
 {
-	if (!bIsLockedOn &&bIsLockedOn != ArgIsLockedOn)
+	if (!bIsLockedOn && bIsLockedOn != ArgIsLockedOn)
 	{
-		Cast<ASKAICharacterBase>(LockedTarget)->SetOverlayMaterial(LockOnOverlayMaterial,fOutLineActiveTime);
+		Cast<ASKAICharacterBase>(LockedTarget)->SetOverlayMaterial(LockOnOverlayMaterial, fOutLineActiveTime);
 	}
 	bIsLockedOn = ArgIsLockedOn;
-	
+	if (ASKPlayerController* PC = Cast<ASKPlayerController>(GetOwningPlayerController()))
+	{
+		PC->SetLockOnState(ArgIsLockedOn, LockedTarget);
+	}
+}
+
+bool ASKCameraManager::ValidateLockOn(AActor* Player)
+{
+	if (!LockedTarget)
+		return false;
+
+	FVector CamLoc = GetCameraLocation();
+	FVector PlayerLoc = Player->GetActorLocation();
+	FVector TargetLoc = LockedTarget->GetActorLocation();
+	TargetLoc.Z += LockOnHeight;
+
+	// 타겟 가려짐 체크
+	if (IsTargetObstructed(CamLoc, TargetLoc))
+		return false;
+
+	// 거리 체크
+	float Dist = FVector::Dist(PlayerLoc, LockedTarget->GetActorLocation());
+	if (Dist > MaxLockDistance || Dist < MinLockDistance)
+		return false;
+
+	return true;
+}
+
+void ASKCameraManager::AdjustCameraDistance(float WheelValue)
+{
+	float NewDist = CurrentZoomDistance - WheelValue * 50.f; // 50은 감도
+
+	CurrentZoomDistance = FMath::Clamp(NewDist, MinCameraZoom, MaxCameraZoom);
+}
+
+void ASKCameraManager::OnTargetChanged(AActor* OldTarget, AActor* NewTarget)
+{
+	if (IsValid(OldTarget))
+	{
+		Cast<ASKAICharacterBase>(OldTarget)->ClearOverlayMaterial();
+	}
+
+	// 신규 타겟 Overlay 적용
+	if (IsValid(NewTarget))
+	{
+		Cast<ASKAICharacterBase>(NewTarget)->SetOverlayMaterial(LockOnOverlayMaterial, fOutLineActiveTime);
+	}
 }
 
 void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 {
 	Super::UpdateViewTarget(OutVT, DeltaTime);
 
-	if (!bIsLockedOn || !LockedTarget)
+	if (!OutVT.Target)
 		return;
 
 	AActor* Player = OutVT.Target;
 
-	FVector CamLoc = GetCameraLocation(); //카메라위치
-	
-	FVector TargetLoc = LockedTarget->GetActorLocation(); //타겟위치
-	TargetLoc.Z += LockOnHeight;  // 몬스터 높이 보정
-
-
-	// 타겟 가려짐 체크
-	if (IsTargetObstructed(CamLoc, TargetLoc))
+	if (bIsLockedOn && !ValidateLockOn(Player))
 	{
-		SetbIsLockedOn(false);;
+		bIsLockedOn = false;
 		LockedTarget = nullptr;
 		return;
 	}
 
-	// 거리 초과 체크
-	float Dist = FVector::Dist(Player->GetActorLocation(), LockedTarget->GetActorLocation());
-	if (Dist > MaxLockDistance || Dist < MinLockDistance)
+
+	FVector PlayerLoc = Player->GetActorLocation();
+	FRotator CurrentRot = OutVT.POV.Rotation;
+
+	// Non-LockOn 카메라
+	if (!bIsLockedOn)
 	{
-		SetbIsLockedOn(false);;
-		LockedTarget = nullptr;
+		FVector DesiredLoc = PlayerLoc - CurrentRot.Vector() * CurrentZoomDistance;
+		OutVT.POV.Location = DesiredLoc;
 		return;
 	}
 
-	// 타겟 바라보기
-	FRotator TargetRot = (TargetLoc - CamLoc).Rotation();
-	TargetRot.Pitch -= LockOnPitch;
-	FRotator NewRot = FMath::RInterpTo(GetCameraRotation(), TargetRot, DeltaTime, LockOnInterpSpeed);
+	// --- LockOn 회전 계산 ---
+	FVector TargetLoc = LockedTarget->GetActorLocation();
+	FRotator TargetRot = (TargetLoc - PlayerLoc).Rotation();
 
-	GetOwningPlayerController()->SetControlRotation(NewRot);
+	FRotator SmoothRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, RotateSpeed);
+
+	FVector DesiredLoc = PlayerLoc - SmoothRot.Vector() * CurrentZoomDistance;
+
+	OutVT.POV.Location = DesiredLoc;
+	OutVT.POV.Rotation = SmoothRot;
 }
 
 bool ASKCameraManager::IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc)
@@ -74,7 +122,8 @@ bool ASKCameraManager::IsTargetObstructed(const FVector& CamLoc, const FVector& 
 		Params
 	);
 
-	if (!bHit) return false;
+	if (!bHit)
+		return false;
 
 	return Hit.GetActor() != LockedTarget;
 }
