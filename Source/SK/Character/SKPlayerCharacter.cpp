@@ -113,7 +113,6 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 	// 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	// 	AttributeSet = PS->GetAttributeSet();
 	//
-	// 	// 서버에서 ASC 초기화
 	// 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	// }
 	//InitASCFromPlayerState();

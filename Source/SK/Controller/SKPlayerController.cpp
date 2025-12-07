@@ -427,7 +427,6 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 		SetLockOnTarget(Target);
 		SKPlayerCharacter->SetLockOnState(true);
 	}
-	// SKPlayerCharacter->SetLockOnState(bIsLockedOn);
 }
 
 void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
@@ -586,18 +585,7 @@ void ASKPlayerController::SetLockOnTarget(AActor* NewTarget)
 	CurrentTarget = NewTarget;
 	bIsLockedOn = (NewTarget != nullptr);
 
-	// CameraManager에게 알려준다
 	UpdateCameraManagerTarget(OldTarget, NewTarget);
-
-	// // 4. 카메라 정보 업데이트
-	// UpdateCameraManagerTarget();
-	// //널이랑 같으면 false 널이아니면 true
-	// bIsLockedOn = (NewTarget != nullptr);
-	//
-	// ClearTarGetOverlayMaterial();
-	// CurrentTarget = NewTarget;
-	//
-	// UpdateCameraManagerTarget();
 }
 
 void ASKPlayerController::UpdateCameraManagerTarget(AActor* OldTarget, AActor* NewTarget)
