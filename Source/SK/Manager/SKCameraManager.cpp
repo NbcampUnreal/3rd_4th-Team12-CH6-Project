@@ -75,37 +75,36 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 		return;
 
 	AActor* Player = OutVT.Target;
-	
+
 	if (bIsLockedOn && !ValidateLockOn(Player))
 	{
 		bIsLockedOn = false;
 		LockedTarget = nullptr;
-
-		// 기존 Overlay 제거도 여기서 처리 가능
 		return;
 	}
 
 
 	FVector PlayerLoc = Player->GetActorLocation();
-	FRotator CamRot = OutVT.POV.Rotation;
-	FVector DesiredLoc = PlayerLoc - CamRot.Vector() * CurrentZoomDistance;
+	FRotator CurrentRot = OutVT.POV.Rotation;
 
 	// Non-LockOn 카메라
 	if (!bIsLockedOn)
 	{
+		FVector DesiredLoc = PlayerLoc - CurrentRot.Vector() * CurrentZoomDistance;
 		OutVT.POV.Location = DesiredLoc;
 		return;
 	}
 
-
+	// --- LockOn 회전 계산 ---
 	FVector TargetLoc = LockedTarget->GetActorLocation();
-	FRotator LockRot = (TargetLoc - PlayerLoc).Rotation();
+	FRotator TargetRot = (TargetLoc - PlayerLoc).Rotation();
+
+	FRotator SmoothRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, RotateSpeed);
+
+	FVector DesiredLoc = PlayerLoc - SmoothRot.Vector() * CurrentZoomDistance;
 
 	OutVT.POV.Location = DesiredLoc;
-	OutVT.POV.Rotation = LockRot;
-	
-
-	
+	OutVT.POV.Rotation = SmoothRot;
 }
 
 bool ASKCameraManager::IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc)

@@ -34,7 +34,10 @@ public:
 
 	UPROPERTY()
 	bool bIsLockedOn = false;
-
+	
+	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
+	float RotateSpeed = 5.f;
+	
 	// 회전 속도
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float LockOnInterpSpeed = 7.f;
