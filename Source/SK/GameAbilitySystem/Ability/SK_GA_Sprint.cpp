@@ -26,6 +26,13 @@ void USK_GA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		Combat->ResetComboState();
 	}
 
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) 
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
+
 	UE_LOG(LogTemp, Error, TEXT(">>> SPRINT GA ACTIVATED <<<"));
 	Character->SetSprinting(true);
 	ConsumeStamina();
