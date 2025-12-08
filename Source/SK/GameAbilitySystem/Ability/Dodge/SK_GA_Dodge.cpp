@@ -44,18 +44,7 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	// 회피 별 값 세팅
 	PreActivateDodge(ActionComponent);
 
-	FName SectionName;
-	// 입력 없을 시 뒤로
-	if (ActionComponent->CurrentInputVector.IsNearlyZero())
-	{
-		SectionName = "Backward";
-	}
-	else
-	{
-		// 캐릭터 회전
-		Char->SetActorRotation(ActionComponent->GetDodgeRotator());
-		SectionName = "Forward";
-	}
+	const FName SectionName = SetDodgeDirection(Char, ActionComponent);
 
 	// 몽타주 재생
 	if (DodgeMontage)
@@ -100,4 +89,70 @@ void USK_GA_Dodge::OnCanceled()
 
 void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
 {
+}
+
+FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKActionComponent* ActionComponent)
+{
+	const FRotator DodgeRotation = ActionComponent->GetDodgeRotator();
+	FRotator AdjustedRot = DodgeRotation;
+
+	FName Direction;
+	
+	// 락온 일 때
+	if (PlayerCharacter->bIsLockedOn)
+	{
+		EMoveDirection MoveDirection = ActionComponent->CurrentMoveDirection;
+		switch (MoveDirection)
+		{
+		case (EMoveDirection::None):
+		case (EMoveDirection::Forward):
+			Direction = "Forward";
+			break;
+		case (EMoveDirection::Backward):
+			Direction = "Backward";
+			break;
+		case (EMoveDirection::Left):
+			Direction = "Left";
+			break;
+		case (EMoveDirection::Right):
+			Direction = "Right";
+			break;
+		case (EMoveDirection::ForwardLeft):
+			AdjustedRot.Yaw += 90.0f;
+			PlayerCharacter->SetActorRotation(AdjustedRot);
+			Direction = "Left";
+			break;
+		case (EMoveDirection::ForwardRight):
+			AdjustedRot.Yaw += -90.0f;
+			PlayerCharacter->SetActorRotation(AdjustedRot);
+			Direction = "Right";
+			break;
+		case (EMoveDirection::BackwardLeft):
+			AdjustedRot.Yaw += 90.0f;
+			PlayerCharacter->SetActorRotation(AdjustedRot);
+			Direction = "Left";
+			break;
+		case (EMoveDirection::BackwardRight):
+			AdjustedRot.Yaw += -90.0f;
+			PlayerCharacter->SetActorRotation(AdjustedRot);
+			Direction = "Right";
+			break;
+		}
+	}
+	else
+	{
+		// 입력 없을 시 뒤로
+		if (ActionComponent->CurrentInputVector.IsNearlyZero())
+		{
+			Direction = "Backward";
+		}
+		else
+		{
+			// 캐릭터 회전
+			PlayerCharacter->SetActorRotation(DodgeRotation);
+			Direction = "Forward";
+		}
+	}
+
+	return Direction;
 }
