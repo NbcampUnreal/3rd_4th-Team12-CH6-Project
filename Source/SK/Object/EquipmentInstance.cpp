@@ -95,3 +95,27 @@ void UEquipmentInstance::DestroyEquipmentActors()
 		CombatComp->SetWeaponMesh(nullptr);   // 이 부분이 중요함
 	}
 }
+
+void UEquipmentInstance::SpawnActorVisible(bool bVisible)
+{
+	for (AActor* Actor : SpawnedActors)
+	{
+		if (!Actor)
+			continue;
+
+		// 액터의 모든 프리미티브 컴포넌트(StaticMesh, SkeletalMesh 등) 가져옴
+		TArray<UPrimitiveComponent*> PrimitiveComponents;
+		Actor->GetComponents<UPrimitiveComponent>(PrimitiveComponents);
+
+		for (UPrimitiveComponent* PrimComp : PrimitiveComponents)
+		{
+			PrimComp->SetVisibility(bVisible, true);
+			PrimComp->SetHiddenInGame(!bVisible);
+
+			UE_LOG(LogTemp, Warning,
+				TEXT(" - Component %s -> %s"),
+				*PrimComp->GetName(),
+				bVisible ? TEXT("Visible") : TEXT("Hidden"));
+		}
+	}
+}

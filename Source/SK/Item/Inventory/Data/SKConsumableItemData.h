@@ -52,6 +52,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
 	int32 QuickSlotSize;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Consumable")
+	TObjectPtr<UAnimMontage> UseMontage;
 	
 	/**
 	* 소모품 GameplayAbility
