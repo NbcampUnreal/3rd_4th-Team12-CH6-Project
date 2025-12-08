@@ -1,23 +1,23 @@
 ﻿#include "SKPlayerAnimInstance.h"
 
 #include "Character/SKPlayerCharacter.h"
-#include "Net/UnrealNetwork.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 void USKPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	OwnerCharacter = Cast<ASKPlayerCharacter>(GetOwningActor());
-	if (IsValid(OwnerCharacter) == true)
-	{
-		OwnerCharacterMovementComponent = OwnerCharacter->GetCharacterMovement();
-	}
+	OwnerPlayer = Cast<ASKPlayerCharacter>(GetOwningActor());
+	ActionComponent = OwnerPlayer->GetActionComponent();
 }
 
-void USKPlayerAnimInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void USKPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	DOREPLIFETIME(USKPlayerAnimInstance, CurrentMoveDirection);
-	DOREPLIFETIME(USKPlayerAnimInstance, bIsLockOn);
+	if (!IsValid(OwnerPlayer)) return;
+	// bIsLockedOn = OwnerPlayer->bIsLockedOn;
+	
+	if (!IsValid(ActionComponent)) return;
+	// CurrentMoveDirection = ActionComponent->CurrentMoveDirection;
 }

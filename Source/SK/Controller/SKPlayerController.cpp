@@ -299,11 +299,6 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 			{
 				const EMoveDirection MoveDirection = GetClosestMoveDirection(InMoveVector);
 				ActionComponent->Server_SetMovementInfo(InMoveVector, MoveDirection);
-				USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(Char->GetMesh()->GetAnimInstance());
-				if (PlayerAnimInstance)
-				{
-					PlayerAnimInstance->CurrentMoveDirection = MoveDirection;
-				}
 			}
 		}
 	}
@@ -421,15 +416,12 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	if (!SKPlayerCharacter)
 		return;
 
-	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(SKPlayerCharacter->GetMesh()->GetAnimInstance());
-	if (!PlayerAnimInstance) return;
-
 	//락온상대일때 재입력하면 해제
 	if (bIsLockedOn)
 	{
 		SetLockOnTarget(nullptr);
 		SKPlayerCharacter->SetLockOnState(false);
-		PlayerAnimInstance->bIsLockOn = false;
+		SKPlayerCharacter->ServerSetLockOnState(false);
 		return;
 	}
 
@@ -438,7 +430,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	{
 		SetLockOnTarget(Target);
 		SKPlayerCharacter->SetLockOnState(true);
-		PlayerAnimInstance->bIsLockOn = true;
+		SKPlayerCharacter->ServerSetLockOnState(true);
 	}
 }
 
