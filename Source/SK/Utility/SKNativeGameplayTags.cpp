@@ -147,6 +147,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Posture_Air, "State.Posture.Air");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement, "State.Movement");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Idle, "State.Movement.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Walk, "State.Movement.Walk");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Sprint, "State.Movement.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Dash, "State.Movement.Dash");
 // State-Action (행동)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action, "State.Action");
