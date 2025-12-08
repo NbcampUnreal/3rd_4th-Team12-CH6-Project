@@ -105,6 +105,9 @@ public:
 	TArray<FInventorySlot> GetItemsByType(EInventoryItemType ItemType) const;
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void CopyTo(UInventoryComponent* Target);
 	
 protected:
 	// Called when the game starts

@@ -129,6 +129,29 @@ const FEquipmentSlotData* UEquipmentComponent::GetEquipment(EEquipmentSlotType S
 }
 
 
+void UEquipmentComponent::CopyTo(UEquipmentComponent* Target)
+{
+	if (!Target) return;
+	
+	Target->Inventory = Inventory;
+	
+	Target->Equipments = Equipments;
+}
+
+void UEquipmentComponent::ReSpawnWeapon()
+{
+	if (Equipments.Num() <= 0)
+		return;
+	
+	EquipItem(Equipments.Find(EEquipmentSlotType::Weapon)->UniqueID, Equipments.Find(EEquipmentSlotType::Weapon)->ItemID);
+	EquipItem(Equipments.Find(EEquipmentSlotType::Helmet)->UniqueID, Equipments.Find(EEquipmentSlotType::Helmet)->ItemID);
+	EquipItem(Equipments.Find(EEquipmentSlotType::Chest)->UniqueID, Equipments.Find(EEquipmentSlotType::Chest)->ItemID);
+	EquipItem(Equipments.Find(EEquipmentSlotType::Leg)->UniqueID, Equipments.Find(EEquipmentSlotType::Leg)->ItemID);
+	EquipItem(Equipments.Find(EEquipmentSlotType::Boots)->UniqueID, Equipments.Find(EEquipmentSlotType::Boots)->ItemID);
+	EquipItem(Equipments.Find(EEquipmentSlotType::Accessory1)->UniqueID, Equipments.Find(EEquipmentSlotType::Accessory1)->ItemID);
+	EquipItem(Equipments.Find(EEquipmentSlotType::Accessory2)->UniqueID, Equipments.Find(EEquipmentSlotType::Accessory2)->ItemID);
+}
+
 // Called when the game starts
 void UEquipmentComponent::BeginPlay()
 {
@@ -137,6 +160,9 @@ void UEquipmentComponent::BeginPlay()
 	// ...
 	Inventory = GetOwner()->FindComponentByClass<UInventoryComponent>();
 
+	if (Equipments.Num() > 0)
+		return;
+	
 	UEnum* EnumPtr = StaticEnum<EEquipmentSlotType>();
 	if (!EnumPtr) return;
 

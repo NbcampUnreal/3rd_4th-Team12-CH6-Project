@@ -46,6 +46,7 @@ public:
 	void SetTraceSocket();
 
 	void SetLockOnState(bool bLock);
+	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
 protected:
 	virtual void OnRep_PlayerState() override;
 
@@ -65,7 +66,6 @@ protected:
 private:
 	FTimerHandle InitASCTimerHandle;
 	void TryInitASC();
-	void SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable);
 
 
 #pragma region PlayerAnimState

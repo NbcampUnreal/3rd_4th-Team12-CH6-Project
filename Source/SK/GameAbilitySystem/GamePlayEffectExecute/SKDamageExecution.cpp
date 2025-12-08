@@ -4,6 +4,7 @@
 #include "GameAbilitySystem/GamePlayEffectExecute/SKDamageExecution.h"
 
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
+#include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "GameData/SKGameConstant.h"
 
 
@@ -17,7 +18,7 @@ USKDamageExecution::USKDamageExecution()
   );
 
 	ArmorDef = FGameplayEffectAttributeCaptureDefinition(
-		USKAttributeSet::GetArmorAttribute(),
+		USKAIAttributeSet::GetArmorAttribute(),
 		EGameplayEffectAttributeCaptureSource::Target,
 		true
 	);
@@ -55,7 +56,7 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 
 	if (TargetASC)
 	{
-		if (const USKAttributeSet* TargetSet = TargetASC->GetSet<USKAttributeSet>())
+		if (const USKAIAttributeSet* TargetSet = TargetASC->GetSet<USKAIAttributeSet>())
 		{
 			ArmorPower = TargetSet->GetArmor();
 		}
@@ -66,16 +67,20 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 		AttackPower = NonASCAttackPower;
 	}
 	
-	//기본값 보정
-	AttackPower = FMath::Max(AttackPower,0.f);
-	ArmorPower = FMath::Clamp(ArmorPower,0.f,SKConstant::MaxArmorValue);
-	
-	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
-	const float FinalDamage  = AttackPower* DamageMultiplier;
 
+	// 기본값 보정
+	AttackPower = FMath::Max(AttackPower, 0.f);
+	ArmorPower = FMath::Clamp(ArmorPower, 0.f, SKConstant::MaxArmorValue);
+
+	// 데미지 감소율
+	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
+	
+	const float FinalDamage = AttackPower * DamageMultiplier * GEDamageCoefficient;
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
-		USKAttributeSet::GetHealthAttribute(),
+		USKAIAttributeSet::GetHealthAttribute(),
 		EGameplayModOp::Additive,
 		-FinalDamage));
-
+	
+	UE_LOG(LogTemp, Warning, TEXT("Damage: %f"), FinalDamage);
+	
 }

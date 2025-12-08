@@ -38,8 +38,7 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
 	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
-	// UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	// ASC->RefreshAbilityActorInfo();
+
 	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -73,19 +72,7 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	CombatComponent->Multicast_PlayLeftAttackMontage(Montage, SectionName);
 	
-	// UAbilityTask_PlayMontageAndWait* Task =
-	// 	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-	// 		this,
-	// 		NAME_None,
-	// 		Montage,
-	// 		1.f
-	// 		, SectionName
-	// 		, false
-	// 	);
-	//
-	// Task->OnCompleted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageCompleted);
-	// Task->OnInterrupted.AddDynamic(this, &USK_GA_LeftAttack_Axe::OnMontageInterrupted);
-	// Task->ReadyForActivation();
+	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 }
 
 void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -100,7 +87,7 @@ void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
 
 	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
-
+	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
