@@ -162,12 +162,12 @@ void ASKPlayerCharacter::UpdateMovementTag()
 		SetLooseTag( TAG_State_Movement_Walk, bIsMoving);
 		SetLooseTag( TAG_State_Movement_Idle, !bIsMoving);
 	
-		SetLooseTag(TAG_State_Posture_Grounded, !bIsFalling);
+		// SetLooseTag(TAG_State_Posture_Grounded, !bIsFalling);
 	}
-	else
-	{
-		SetLooseTag( TAG_State_Posture_Air, bIsFalling);
-	}
+	// else
+	// {
+	// 	SetLooseTag( TAG_State_Posture_Air, bIsFalling);
+	// }
 }
 
 void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
@@ -177,7 +177,7 @@ void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
 
 	SetLooseTag( TAG_State_Movement_Walk, false);
 	SetLooseTag( TAG_State_Movement_Idle, false);
-	// SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Walk, false);
+	SetLooseTag(TAG_State_Movement_Sprint, false);
 
 	//인자로받은 태/비활성화
 	SetLooseTag( ATKTag, Enable);
