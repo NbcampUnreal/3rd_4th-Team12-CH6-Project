@@ -18,7 +18,7 @@ void USKActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(USKActionComponent, CurrentInputVector);
-	DOREPLIFETIME(USKActionComponent, CurrentMovementDirection);
+	DOREPLIFETIME(USKActionComponent, CurrentMoveDirection);
 }
 
 void USKActionComponent::BeginPlay()
@@ -35,7 +35,7 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
-void USKActionComponent::SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionData)
+void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponActionData)
 {
 	CurrentWeaponActionData = NewWeaponActionData;
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
@@ -45,11 +45,31 @@ void USKActionComponent::SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionDat
 	
 }
 
-void USKActionComponent::Server_SetMovementInfo_Implementation(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection)
+void USKActionComponent::Server_SetMovementInfo_Implementation(const FVector2D NewInputVector, const EMoveDirection NewMoveDirection)
 {
 	CurrentInputVector = NewInputVector;
-	CurrentMovementDirection = NewMovementDirection;
+	CurrentMoveDirection = NewMoveDirection;
+
+	SetMoveDirection();
 }
+
+void USKActionComponent::OnRep_OnMoveDirectionChange()
+{
+	SetMoveDirection();
+}
+
+void USKActionComponent::SetMoveDirection()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+	
+	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(Char->GetMesh()->GetAnimInstance());
+	if (PlayerAnimInstance)
+	{
+		PlayerAnimInstance->CurrentMoveDirection = CurrentMoveDirection;
+	}
+}
+
 
 FRotator USKActionComponent::GetDodgeRotator() const
 {

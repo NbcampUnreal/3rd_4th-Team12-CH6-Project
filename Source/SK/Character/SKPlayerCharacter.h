@@ -102,4 +102,17 @@ public:
 	
 	//Camera
 	void LockOnTarget(float DeltaTime);
+
+protected:
+	void SetLockOnState();
+	
+public:
+	UPROPERTY(ReplicatedUsing = OnRep_OnLockOnChange)
+	bool bIsLockedOn;
+
+	UFUNCTION()
+	void OnRep_OnLockOnChange();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetLockOnState(bool bLock);
 };
