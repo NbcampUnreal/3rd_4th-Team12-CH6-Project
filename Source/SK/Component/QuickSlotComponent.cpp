@@ -296,6 +296,15 @@ void UQuickSlotComponent::Client_NotifyItemCooldown_Implementation(int32 SlotInd
 	}
 }
 
+void UQuickSlotComponent::CopyTo(UQuickSlotComponent* Target)
+{
+	if (!Target) return;
+	
+	Target->SetQuickSlot(0, QuickSlots[0].ItemID);
+	Target->SetQuickSlot(1, QuickSlots[1].ItemID);
+	Target->SetQuickSlot(2, QuickSlots[2].ItemID);
+}
+
 // Called when the game starts
 void UQuickSlotComponent::BeginPlay()
 {

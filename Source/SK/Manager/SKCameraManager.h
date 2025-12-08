@@ -17,20 +17,27 @@ public:
 	ASKCameraManager();
 
 	void SetbIsLockedOn(bool ArgIsLockedOn);
-
+	bool ValidateLockOn(AActor* Player);
+	void AdjustCameraDistance(float WheelValue);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|LockOn")
 	UMaterialInterface* LockOnOverlayMaterial;
 
-	UPROPERTY(BlueprintReadWrite)
+	void OnTargetChanged(AActor* OldTarget, AActor* NewTarget);
+	
+	UPROPERTY(BlueprintReadWrite, Category = "SK|LockOn")
 	float fOutLineActiveTime = 5.f;
 
 	
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY()
 	AActor* LockedTarget;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY()
 	bool bIsLockedOn = false;
-
+	
+	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
+	float RotateSpeed = 5.f;
+	
 	// 회전 속도
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float LockOnInterpSpeed = 7.f;
@@ -46,15 +53,23 @@ public:
 	//추적최대거리
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float MaxLockDistance = 2000.f;
-
 	//추적최소거리
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float MinLockDistance = 200.f;
+	//카메라 줌 거리 
+	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
+	float MaxCameraZoom = 1000.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "SK|LockOn")
+	float CurrentZoomDistance = 600.f;   // 기본값
+	//카메라 줌 거리
+	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
+	float MinCameraZoom = 200.f;
 	
+	bool IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc);
 protected:
 	virtual void UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime) override;
 
 private:
-	bool IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc);
 	
 };

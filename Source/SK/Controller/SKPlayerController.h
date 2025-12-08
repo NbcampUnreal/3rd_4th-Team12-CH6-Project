@@ -10,11 +10,11 @@
 UENUM(BlueprintType)
 enum class EMoveDirection : uint8
 {
-	None        UMETA(DisplayName = "None"),
-	Forward     UMETA(DisplayName = "Forward"),
-	Backward    UMETA(DisplayName = "Backward"),
-	Left        UMETA(DisplayName = "Left"),
-	Right       UMETA(DisplayName = "Right")
+	None UMETA(DisplayName = "None"),
+	Forward UMETA(DisplayName = "Forward"),
+	Backward UMETA(DisplayName = "Backward"),
+	Left UMETA(DisplayName = "Left"),
+	Right UMETA(DisplayName = "Right")
 };
 
 struct FInputActionValue;
@@ -34,7 +34,7 @@ public:
 	ASKPlayerController();
 
 	FOnPawnPossessedSignature OnPawnPossessed;
-
+	void SetLockOnState(bool bNewState, AActor* NewTarget);
 	//던전 입장 (클라에서 호출 전용)
 	UFUNCTION(BlueprintCallable)
 	void EnterDungeonByID(int32 DungeonID);
@@ -58,14 +58,19 @@ public:
 	// 락온 상태
 	bool bIsLockedOn = false;
 
+	FVector2D LookInput;
+
 	UFUNCTION(Client, Reliable)
 	void ClientShowLoadingScreen(bool bShow);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
-	
+
+	void ValidationLockOn();
+	void UpdateLockOnRotation(float DeltaTime);
 #pragma region IMA_AND_IA
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Input")
@@ -92,6 +97,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> MouseWheelAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> MouseWheelMoveAction;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> QuickSlotAction_00;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> QuickSlotAction_01;
@@ -107,6 +116,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|LockOn")
 	float LockOnRadius = 1500.f;
+
 private:
 	void Dash(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -121,6 +131,8 @@ private:
 	void LeftAttack(const FInputActionValue& Value);
 	void RightAttack(const FInputActionValue& Value);
 	void Active_MouseWheel(const FInputActionValue& Value);
+	void Active_MouseWheelMove(const FInputActionValue& Value);
+
 	void Active_QuickSlotAction_00(const FInputActionValue& Value);
 	void Active_QuickSlotAction_01(const FInputActionValue& Value);
 	void Active_QuickSlotAction_02(const FInputActionValue& Value);
@@ -130,18 +142,24 @@ private:
 
 	AActor* FindNearestTarget();
 	void SetLockOnTarget(AActor* NewTarget);
-	void UpdateCameraManagerTarget();
-private:
+	void UpdateCameraManagerTarget(AActor* OldTarget, AActor* NewTarget);
 
+private:
 #pragma	endregion
-	
+
+	void ClearTarGetOverlayMaterial();
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EMoveDirection CurrentMoveDirection;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D CurrentInputVector;
-	
+
 	UFUNCTION(BlueprintCallable)
 	static EMoveDirection GetClosestMoveDirection(const FVector2D& InputVector);
+
+private:
+	bool bMoveFlag = false;
+	bool bSprintFlag = false;
 };

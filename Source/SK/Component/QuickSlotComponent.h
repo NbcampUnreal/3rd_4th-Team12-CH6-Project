@@ -71,6 +71,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category="Inventory|QuickSlot")
 	FOnQuickSlotsUpdated OnQuickSlotsUpdated;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory|QuickSlot")
+	void CopyTo(UQuickSlotComponent* Target);
 	
 protected:
 	// Called when the game starts

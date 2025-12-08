@@ -95,6 +95,9 @@ public:
 	FGenericTeamId PlayerTeamID = FGenericTeamId::NoTeam;
 
 	void SetCurWeaponTag(FGameplayTag NewTag);
+
+	void EquipmentComponentSetting();
+	
 #pragma region GAS
 	UFUNCTION()
 	void OnRep_CurrentWeaponTag();

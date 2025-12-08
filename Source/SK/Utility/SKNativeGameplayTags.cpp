@@ -110,6 +110,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ConfirmSlot, "UI.Slot.ConfirmSlot");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_ChracterStat, "UI.Slot.CharacterStat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BossHP, "UI.Slot.BossHP");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BossClear, "UI.Slot.BossClear");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_DungeonStart, "UI.Slot.DungeonStart");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterDeath, "UI.Slot.CharacterDeath");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BuffDebuff, "UI.Slot.BuffDebuff");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GoldStat, "UI.Slot.GoldStat");
@@ -148,6 +149,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Posture_Air, "State.Posture.Air");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement, "State.Movement");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Idle, "State.Movement.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Walk, "State.Movement.Walk");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Sprint, "State.Movement.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Dash, "State.Movement.Dash");
 // State-Action (행동)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action, "State.Action");

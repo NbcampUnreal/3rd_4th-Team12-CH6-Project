@@ -5,6 +5,7 @@
 
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -58,6 +59,7 @@ void UInventoryItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 	
 	OnItemHovered();
+	PlayUISound(HoverSound);
 }
 
 void UInventoryItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -105,4 +107,11 @@ void UInventoryItemWidget::OnItemUnhovered()
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ToolTipItem, Message);
 		}
 	}
+}
+
+void UInventoryItemWidget::PlayUISound(USoundBase* InSound)
+{
+	if (!InSound) return;
+
+	UGameplayStatics::PlaySound2D(this, InSound);
 }

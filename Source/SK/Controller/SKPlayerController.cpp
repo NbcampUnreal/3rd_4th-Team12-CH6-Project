@@ -18,11 +18,13 @@
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKPlayerController::ASKPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PlayerCameraManagerClass = ASKCameraManager::StaticClass();
 }
 
 void ASKPlayerController::ClientShowLoadingScreen_Implementation(bool bShow)
@@ -51,21 +53,26 @@ void ASKPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsLockedOn && CurrentTarget)
-	{
-		float Dist = FVector::Dist(GetPawn()->GetActorLocation(), CurrentTarget->GetActorLocation());
-		if (Dist > LockOnRadius * 1.2f)
-		{
-			SetLockOnTarget(nullptr);
-		}
-	}
+	if (!bIsLockedOn || !IsValid(CurrentTarget))
+		return;
+
+	ValidationLockOn();               // 락온 가능 여부 체크
+	UpdateLockOnRotation(DeltaTime); // 회전 처리
+	
+
+}
+
+void ASKPlayerController::SetLockOnState(bool bNewState, AActor* NewTarget)
+{
+	bIsLockedOn = bNewState;
+	CurrentTarget = NewTarget;
 }
 
 void ASKPlayerController::EnterDungeonByID(int32 DungeonID)
 {
 	bool bIsHost = (IsLocalController() && GetNetMode() == NM_ListenServer);
 	bool bIsSingle = (GetNetMode() == NM_Standalone);
-	
+
 	if (!bIsHost && !bIsSingle)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Client] EnterDungeonByID is host-only."));
@@ -92,19 +99,19 @@ void ASKPlayerController::ReturnToTown()
 {
 	bool bIsHost = (IsLocalController() && GetNetMode() == NM_ListenServer);
 	bool bIsSingle = (GetNetMode() == NM_Standalone);
-	
+
 	if (!bIsHost && !bIsSingle)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Client] ReturnToTown is host-only."));
 		return;
 	}
-	
+
 	UE_LOG(LogTemp, Log, TEXT("[Host] Request ReturnToTown"));
 	Server_ReturnToTown();
 }
 
 void ASKPlayerController::Server_ReturnToTown_Implementation()
-{	
+{
 	USKGameInstance* GI = GetGameInstance<USKGameInstance>();
 	if (!GI)
 	{
@@ -149,7 +156,7 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopJumping);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Dash);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this,
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::StartSprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopSprint);
@@ -160,6 +167,9 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::RightAttack);
 		EnhancedInputComponent->BindAction(MouseWheelAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_MouseWheel);
+		EnhancedInputComponent->BindAction(MouseWheelMoveAction, ETriggerEvent::Started, this,
+									   &ASKPlayerController::Active_MouseWheelMove);
+
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this,
@@ -184,6 +194,68 @@ void ASKPlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 	UE_LOG(LogTemp, Warning, TEXT("ASKPlayerController::OnPossess"));
 	OnPawnPossessed.Broadcast(InPawn);;
+}
+
+void ASKPlayerController::ValidationLockOn()
+{
+	if (!CurrentTarget)
+	{
+		bIsLockedOn = false;
+		return;
+	}
+
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+
+	FVector CamLoc = Cam->GetCameraLocation();
+	FVector PlayerLoc = GetPawn()->GetActorLocation();
+	FVector TargetLoc = CurrentTarget->GetActorLocation();
+	TargetLoc.Z += Cam->LockOnHeight;
+
+	// 시야 가림 체크
+	if (Cam->IsTargetObstructed(CamLoc, TargetLoc))
+	{
+		bIsLockedOn = false;
+		CurrentTarget = nullptr;
+		return;
+	}
+
+	// 거리 체크
+	float Dist = FVector::Dist(PlayerLoc, CurrentTarget->GetActorLocation());
+	if (Dist > Cam->MaxLockDistance || Dist < Cam->MinLockDistance)
+	{
+		bIsLockedOn = false;
+		CurrentTarget = nullptr;
+		return;
+	}
+}
+
+void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
+{
+	if (!IsValid(CurrentTarget))
+	{
+		bIsLockedOn = false;
+		CurrentTarget = nullptr;
+		return;
+	}
+
+	APawn* PlayerPawn = GetPawn();
+	if (!IsValid(PlayerPawn))
+	{
+		bIsLockedOn = false;
+		return;
+	}
+	FVector PlayerLoc = GetPawn()->GetActorLocation();
+	FVector TargetLoc = CurrentTarget->GetActorLocation();
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+
+	TargetLoc.Z += Cam->LockOnHeight;
+
+	FRotator TargetRot = (TargetLoc - PlayerLoc).Rotation();
+	TargetRot.Pitch -= Cam->LockOnPitch;
+
+	FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
+
+	SetControlRotation(NewRot);
 }
 
 void ASKPlayerController::Dash(const FInputActionValue& Value)
@@ -247,9 +319,13 @@ void ASKPlayerController::Look(const FInputActionValue& Value)
 {
 	if (bIsLockedOn && CurrentTarget)
 		return;
+	//
+	//
+	// LookInput = Value.Get<FVector2D>();
+
 	
 	const FVector2D InLookVector = Value.Get<FVector2D>();
-
+	
 	AddYawInput(InLookVector.X);
 	AddPitchInput(InLookVector.Y);
 }
@@ -289,6 +365,13 @@ void ASKPlayerController::StartSprint(const FInputActionValue& Value)
 	SprintTagContainer.AddTag(SprintTag);
 
 	ASC->TryActivateAbilitiesByTag(SprintTagContainer);
+
+	if (!bSprintFlag)
+	{
+		bSprintFlag = true;
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, true);
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Idle, false);
+	}
 }
 
 void ASKPlayerController::StopSprint(const FInputActionValue& Value)
@@ -309,6 +392,13 @@ void ASKPlayerController::StopSprint(const FInputActionValue& Value)
 	SprintTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Sprint")));
 
 	ASC->CancelAbilities(&SprintTagContainer);
+
+	if (bSprintFlag)
+	{
+		bSprintFlag = false;
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, false);
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Idle, true);
+	}
 }
 
 void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
@@ -334,9 +424,15 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("ACTIVE_MOUSE_WHEEL"));
 
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
+	if (!SKPlayerCharacter)
+		return;
+
+	//락온상대일때 재입력하면 해제
 	if (bIsLockedOn)
 	{
 		SetLockOnTarget(nullptr);
+		SKPlayerCharacter->SetLockOnState(false);
 		return;
 	}
 
@@ -344,8 +440,24 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	if (Target)
 	{
 		SetLockOnTarget(Target);
+		SKPlayerCharacter->SetLockOnState(true);
 	}
 }
+
+void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("ACTIVE_MOUSE_WHEELUP"));
+
+	float WheelValue = Value.Get<float>(); // 위로 돌리면 +1, 아래 -1
+
+	ASKCameraManager* CamManager = Cast<ASKCameraManager>(PlayerCameraManager);
+	if (!CamManager)
+		return;
+
+	CamManager->AdjustCameraDistance(WheelValue);
+}
+
+
 
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
 {
@@ -442,12 +554,12 @@ AActor* ASKPlayerController::FindNearestTarget()
 	APawn* thisPlayer = GetPawn();
 	if (!thisPlayer)
 		return nullptr;
-	
+
 	FVector Origin = thisPlayer->GetActorLocation();
 	TArray<FOverlapResult> Overlaps;
-	
+
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(LockOnRadius);
-	
+
 	bool bHit = GetWorld()->OverlapMultiByChannel(
 		Overlaps,
 		Origin,
@@ -455,13 +567,13 @@ AActor* ASKPlayerController::FindNearestTarget()
 		ECC_Pawn,
 		Sphere
 	);
-	
+
 	if (!bHit)
 		return nullptr;
-	
+
 	float MinDist = FLT_MAX;
 	AActor* Best = nullptr;
-	
+
 	for (auto& Result : Overlaps)
 	{
 		AActor* A = Result.GetActor();
@@ -470,7 +582,7 @@ AActor* ASKPlayerController::FindNearestTarget()
 		ASKAICharacterBase* AI = Cast<ASKAICharacterBase>(A);
 		if (!AI)
 			continue; //AI만찾기
-		
+
 		float D = FVector::Dist(Origin, A->GetActorLocation());
 		if (D < MinDist)
 		{
@@ -484,13 +596,14 @@ AActor* ASKPlayerController::FindNearestTarget()
 
 void ASKPlayerController::SetLockOnTarget(AActor* NewTarget)
 {
+	AActor* OldTarget = CurrentTarget;
 	CurrentTarget = NewTarget;
 	bIsLockedOn = (NewTarget != nullptr);
 
-	UpdateCameraManagerTarget();
+	UpdateCameraManagerTarget(OldTarget, NewTarget);
 }
 
-void ASKPlayerController::UpdateCameraManagerTarget()
+void ASKPlayerController::UpdateCameraManagerTarget(AActor* OldTarget, AActor* NewTarget)
 {
 	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
 	if (Cam)
@@ -500,31 +613,38 @@ void ASKPlayerController::UpdateCameraManagerTarget()
 	}
 }
 
+void ASKPlayerController::ClearTarGetOverlayMaterial()
+{
+	if (!IsValid(CurrentTarget))
+		return;
+	Cast<ASKAICharacterBase>(CurrentTarget)->ClearOverlayMaterial();
+}
+
 EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& InputVector)
 {
 	if (InputVector.IsNearlyZero())
 	{
 		return EMoveDirection::None;
 	}
- 
-	FVector2D NormalizedInput = InputVector.GetSafeNormal();
- 
-	const FVector2D Forward(1.f, 0.f);   // X+
-	const FVector2D Backward(-1.f, 0.f); // X-
-	const FVector2D Right(0.f, 1.f);     // Y+
-	const FVector2D Left(0.f, -1.f);     // Y-
 
- 
+	FVector2D NormalizedInput = InputVector.GetSafeNormal();
+
+	const FVector2D Forward(1.f, 0.f); // X+
+	const FVector2D Backward(-1.f, 0.f); // X-
+	const FVector2D Right(0.f, 1.f); // Y+
+	const FVector2D Left(0.f, -1.f); // Y-
+
+
 	float Dots[4];
 	Dots[0] = FVector2D::DotProduct(NormalizedInput, Forward);
 	Dots[1] = FVector2D::DotProduct(NormalizedInput, Backward);
 	Dots[2] = FVector2D::DotProduct(NormalizedInput, Left);
 	Dots[3] = FVector2D::DotProduct(NormalizedInput, Right);
- 
+
 	// 최대 Dot 값 가진 방향 찾기
 	float MaxDot = -1.0f;
 	EMoveDirection BestDirection = EMoveDirection::None;
- 
+
 	for (int i = 0; i < 4; ++i)
 	{
 		if (Dots[i] > MaxDot)
@@ -533,14 +653,18 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 
 			switch (i)
 			{
-				case 0: BestDirection = EMoveDirection::Forward; break;
-				case 1: BestDirection = EMoveDirection::Backward; break;
-				case 2: BestDirection = EMoveDirection::Left; break;
-				case 3: BestDirection = EMoveDirection::Right; break;
+			case 0: BestDirection = EMoveDirection::Forward;
+				break;
+			case 1: BestDirection = EMoveDirection::Backward;
+				break;
+			case 2: BestDirection = EMoveDirection::Left;
+				break;
+			case 3: BestDirection = EMoveDirection::Right;
+				break;
 			}
 		}
 	}
- 
+
 	return BestDirection;
 }
 
@@ -551,13 +675,12 @@ void ASKPlayerController::Interact(const FInputActionValue& Value)
 
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
 	if (!SKPlayerCharacter) return;
-	
+
 	USKInteractionComponent* InteractionComponent = SKPlayerCharacter->GetInteractionComponent();
 	if (InteractionComponent)
 	{
 		InteractionComponent->Server_TryInteract();
 	}
-	
 };
 
 void ASKPlayerController::Dodge(const FInputActionValue& Value)

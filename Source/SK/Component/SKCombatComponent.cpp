@@ -58,6 +58,31 @@ FString USKCombatComponent::FindWeaponTagName()
 	{
 		TargetName = "Warrior";
 	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Assassin")))
+	{
+		TargetName = "Assassin";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.GreatSword")))
+	{
+		TargetName = "GreatSword";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Dual")))
+	{
+		TargetName = "Dual";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Dual")))
+	{
+		TargetName = "Dual";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Katana")))
+	{
+		TargetName = "Katana";
+	}
+	else if (WeaponTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("Weapon.Spear")))
+	{
+		TargetName = "Spear";
+	}
+
 
 	return TargetName;
 }
@@ -183,26 +208,15 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 	FGameplayTagContainer Container;
 	Container.AddTag(GetLeftATKTag());
 
-	// ASC->TryActivateAbilitiesByTag(Container);
-	bool success = ASC->TryActivateAbilitiesByTag(Container);
+	ASC->TryActivateAbilitiesByTag(Container);
+	// bool success = ASC->TryActivateAbilitiesByTag(Container);
+
+	// // Current owned tags
+	// FGameplayTagContainer OwnedTags;
+	// ASC->GetOwnedGameplayTags(OwnedTags);
+	// UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:OwnedTags: %s"), *OwnedTags.ToStringSimple());
 
 
-	UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:} = %s"), success ? TEXT("TRUE") : TEXT("FALSE"));
-
-	// Current owned tags
-	FGameplayTagContainer OwnedTags;
-	ASC->GetOwnedGameplayTags(OwnedTags);
-	UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:OwnedTags: %s"), *OwnedTags.ToStringSimple());
-
-	// Check if ATK tag still exists (this is the key)
-	if (OwnedTags.HasTag(GetLeftATKTag()))
-	{
-		UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]: LeftATKTag STILL EXISTS! (GA cannot activate)"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[[LEFTATKINPUT]:] LeftATKTag is removed. GA can activate normally."));
-	}
 }
 
 void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
@@ -366,8 +380,6 @@ void USKCombatComponent::Server_StopTrace_Implementation()
 
 void USKCombatComponent::Multicast_ActivateLeftGA_Implementation()
 {
-	// if (GetOwner()->HasAuthority())
-	// 	return;
 	ActivateLeftAttackGA();
 }
 
@@ -417,14 +429,14 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		return;
 	if (!IsValid(WeaponMesh))
 	{
-		SetWeaponMesh_Init();
-		// return;
-	}
-
-	if (!IsValid(WeaponMesh))
-	{
+		// SetWeaponMesh_Init();
 		return;
 	}
+	//
+	// if (!IsValid(WeaponMesh))
+	// {
+	// 	return;
+	// }
 
 	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	FVector CurrEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
@@ -541,17 +553,19 @@ UAnimMontage* USKCombatComponent::GetLeftAttackMontage(int32 Index)
 
 void USKCombatComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
 {
-	if (!InWeaponMesh)
+	WeaponMesh = InWeaponMesh;
+
+	if (!WeaponMesh)
 	{
-		UE_LOG(LogTemp, Error, TEXT("SetWeaponMesh: InWeaponMesh is NULL"));
+		// 무기 해제 처리
+		PrevStart = FVector::ZeroVector;
+		PrevEnd = FVector::ZeroVector;
 		return;
 	}
 
-	WeaponMesh = InWeaponMesh;
-
-	// 초기 Prev 값 설정
 	PrevStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	PrevEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
+	
 }
 
 void USKCombatComponent::SetWeaponMesh_Init()

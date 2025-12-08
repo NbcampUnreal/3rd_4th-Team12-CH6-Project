@@ -89,7 +89,22 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 	if (!NewPS)
 		return;
 	//데이터 복사 예시
-	//NewPS->A = A; 
+	//NewPS->A = A;
+	
+	if (InventoryComponent && NewPS->InventoryComponent)
+	{
+		InventoryComponent->CopyTo(NewPS->InventoryComponent);
+	}
+	
+	if (EquipmentComponent && NewPS->EquipmentComponent)
+	{
+		EquipmentComponent->CopyTo(NewPS->EquipmentComponent);
+	}
+	
+	if (QuickSlotComponent && NewPS->QuickSlotComponent)
+	{
+		QuickSlotComponent->CopyTo(NewPS->QuickSlotComponent);
+	}
 }
 
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -123,6 +138,16 @@ void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
 void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
 {
 	CurrentWeaponTag = NewTag;
+	ASKPlayerCharacter* PC = GetPawn<ASKPlayerCharacter>();
+	if (PC)
+	{
+		PC->SetTraceSocket();  
+	}
+}
+
+void ASKPlayerState::EquipmentComponentSetting()
+{
+	EquipmentComponent->ReSpawnWeapon();
 }
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()
@@ -313,6 +338,11 @@ void ASKPlayerState::HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, con
 	{
 		Duration = ActiveGE->GetDuration();
 	}
+
+	if (Duration <= -1.f)
+	{
+		return;
+	}
 	
 	TArray<FModifiedAttributeInfo> ModifiedAttributes;
 	int32 TempIndex = 0;
@@ -336,7 +366,8 @@ void ASKPlayerState::HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, con
 	{
 		Events->OnStackChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectStackChange);
 		Events->OnTimeChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectTimeChange);
-	}	
+	}
+	UE_LOG(LogTemp, Log, TEXT("[BuffAdd] Duration: %.2f"),Duration);
 }
 
 void ASKPlayerState::HandleGameplayEffectRemoved(const FActiveGameplayEffect& Effect)
@@ -344,8 +375,6 @@ void ASKPlayerState::HandleGameplayEffectRemoved(const FActiveGameplayEffect& Ef
 	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Effect.Handle))
 	{
 		FModifiedAttributeArray RemovedModified = *FoundArray;
-
-		UE_LOG(LogTemp, Log, TEXT("[BuffRemoved] Items count: %d"), RemovedModified.Items.Num());
 		
 		OnBuffRemoved.Broadcast(Effect.Handle, RemovedModified);
 		ModifiedAttributeMap.Remove(Effect.Handle);
@@ -356,7 +385,6 @@ void ASKPlayerState::HandleGameplayEffectStackChange(FActiveGameplayEffectHandle
 {
 	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Handle))
 	{
-			UE_LOG(LogTemp, Log, TEXT("[BuffStackChanged] NewStack: %d, OldStack: %d"), NewStack, OldStack);
 		OnBuffStackChanged.Broadcast(Handle, NewStack, OldStack);
 	}
 }
@@ -371,7 +399,7 @@ void ASKPlayerState::HandleGameplayEffectTimeChange(FActiveGameplayEffectHandle 
 			Duration = FoundArray->Items[0].Duration;
 			
 		}
-		UE_LOG(LogTemp, Log, TEXT("[BuffTimeChanged] NewStartTime: %.2f, Duration: %.2f"), NewStartTime, Duration);
+
 		OnBuffTimeChanged.Broadcast(Handle, NewStartTime, Duration);
 	}
 }
