@@ -7,6 +7,7 @@
 #include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "Component/SKCombatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameData/SKGameConstant.h"
@@ -18,6 +19,7 @@
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "GameData/WeaponDataRow.h"
+#include "Net/UnrealNetwork.h"
 #include "Weapon/SKWeaponData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
@@ -102,6 +104,8 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
 	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
+
+	DOREPLIFETIME(ASKPlayerCharacter, bIsLockedOn);
 }
 
 void ASKPlayerCharacter::PossessedBy(AController* NewController)
@@ -326,6 +330,28 @@ void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
 		SetActorRotation(NewRot);
 	}
 }
+
+void ASKPlayerCharacter::SetLockOnState()
+{
+	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	if (PlayerAnimInstance)
+	{
+		PlayerAnimInstance->bIsLockedOn = bIsLockedOn;
+	}
+}
+
+void ASKPlayerCharacter::OnRep_OnLockOnChange()
+{
+	SetLockOnState();
+}
+
+void ASKPlayerCharacter::ServerSetLockOnState_Implementation(bool bLock)
+{
+	bIsLockedOn = bLock;
+	SetLockOnState();
+}
+
+
 
 void ASKPlayerCharacter::SetPlayerStateTag()
 {
