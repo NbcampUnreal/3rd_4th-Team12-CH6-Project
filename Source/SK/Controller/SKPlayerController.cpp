@@ -624,17 +624,17 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 	const FVector2D ForwardRight(1.f, 1.f);
 	const FVector2D Backward(-1.f, 0.f);
 	const FVector2D BackwardLeft(-1.f, -1.f);
-	const FVector2D BackwardRight(-1.f, -1.f);
+	const FVector2D BackwardRight(-1.f, 1.f);
 	const FVector2D Right(0.f, 1.f);
 	const FVector2D Left(0.f, -1.f);
 
-	float Dots[4];
+	float Dots[7];
 	Dots[0] = FVector2D::DotProduct(NormalizedInput, Forward);
-	Dots[1] = FVector2D::DotProduct(NormalizedInput, ForwardLeft);
-	Dots[2] = FVector2D::DotProduct(NormalizedInput, ForwardRight);
+	Dots[1] = FVector2D::DotProduct(NormalizedInput, ForwardLeft.GetSafeNormal());
+	Dots[2] = FVector2D::DotProduct(NormalizedInput, ForwardRight.GetSafeNormal());
 	Dots[3] = FVector2D::DotProduct(NormalizedInput, Backward);
-	Dots[4] = FVector2D::DotProduct(NormalizedInput, BackwardLeft);
-	Dots[5] = FVector2D::DotProduct(NormalizedInput, BackwardRight);
+	Dots[4] = FVector2D::DotProduct(NormalizedInput, BackwardLeft.GetSafeNormal());
+	Dots[5] = FVector2D::DotProduct(NormalizedInput, BackwardRight.GetSafeNormal());
 	Dots[6] = FVector2D::DotProduct(NormalizedInput, Left);
 	Dots[7] = FVector2D::DotProduct(NormalizedInput, Right);
 
@@ -642,7 +642,7 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 	float MaxDot = -1.0f;
 	EMoveDirection BestDirection = EMoveDirection::None;
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 8; ++i)
 	{
 		if (Dots[i] > MaxDot)
 		{
