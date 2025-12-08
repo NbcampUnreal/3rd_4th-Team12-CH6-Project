@@ -25,6 +25,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
 	float NonASCAttackPower = 0.f;
 
+	//데미지계수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
+	float GEDamageCoefficient = 1.f;
 
 	//계산용 attribute
 	FGameplayEffectAttributeCaptureDefinition AttackDef;

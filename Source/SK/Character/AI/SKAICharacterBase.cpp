@@ -174,6 +174,37 @@ TObjectPtr<UStateTree> ASKAICharacterBase::GetStateTreeAsset() const
 	return StateTreeAsset;
 }
 
+int32 ASKAICharacterBase::GetCurrentMeleeIndex() const
+{
+	return CurrentMeleeIndex;
+}
+
+int32 ASKAICharacterBase::GetMaxMeleeIndex() const
+{
+	return MaxMeleeIndex;
+}
+
+void ASKAICharacterBase::SetMeleeIndex(int32 NewMeleeIndex)
+{
+	if (NewMeleeIndex == 0)
+	{
+		CurrentMeleeIndex += 1;
+
+		if (CurrentMeleeIndex == MaxMeleeIndex)
+		{
+			CurrentMeleeIndex = 1;
+		}
+	}
+	else if (NewMeleeIndex == -1)
+	{
+		CurrentMeleeIndex = 0;
+	}
+	else
+	{
+		CurrentMeleeIndex = NewMeleeIndex;
+	}
+}
+
 FVector ASKAICharacterBase::GetStartLocation() const
 {
 	return StartLocation;

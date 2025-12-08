@@ -12,6 +12,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_EndAbility, "Event.EndAbility");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Hit, "Event.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_AnimNotify, "Event.AnimNotify");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object_SpikeTrap, "Object.SpikeTrap");
@@ -44,6 +45,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Rush, "Ability.Rush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_JumpRush, "Ability.JumpRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ProjectileAttack, "Ability.ProjectileAttack");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
@@ -147,6 +149,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Posture_Air, "State.Posture.Air");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement, "State.Movement");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Idle, "State.Movement.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Walk, "State.Movement.Walk");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Sprint, "State.Movement.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Dash, "State.Movement.Dash");
 // State-Action (행동)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action, "State.Action");
@@ -183,6 +186,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Melee, "AI.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Rush, "AI.Rush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_JumpRush, "AI.JumpRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Backstep, "AI.Backstep");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Recovery, "AI.Recovery");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_ProjectileAttack, "AI.ProjectileAttack");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
