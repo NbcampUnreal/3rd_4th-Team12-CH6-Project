@@ -22,7 +22,8 @@ ASKBaseProjectile::ASKBaseProjectile()
 	ProjectileMovementComponent->ProjectileGravityScale = 1.0f; // 중력 영향력 (0.0f이면 직선 이동)
 	ProjectileMovementComponent->InitialSpeed = InitialSpeed; 
 	ProjectileMovementComponent->MaxSpeed = InitialSpeed; 
-	
+	ProjectileMovementComponent->SetAutoActivate(false);
+
 	InitialLifeSpan = 3.0f; // 3초 후 자동 소멸 (네트워크 환경에서 유용)
 	SetReplicates(true);
 	SetReplicateMovement(true);
@@ -35,8 +36,7 @@ void ASKBaseProjectile::LaunchProjectile(const FVector& LaunchDirection)
 		return;
 	}
 
-	// 이 함수는 BeginPlay 이후 호출되어야 합니다.
-	ProjectileMovementComponent->SetVelocityInLocalSpace(LaunchDirection * InitialSpeed);
+	ProjectileMovementComponent->Velocity = LaunchDirection * InitialSpeed;
 	ProjectileMovementComponent->Activate();
 }
 

@@ -78,6 +78,19 @@ bool ASKAIController::CheckDistance(float AdditionalCapsuleRadiusSum)
 	return false;
 }
 
+FVector ASKAIController::GetTargetDirection() const
+{
+	if (!IsValid(TargetActor))
+	{
+		return FVector::ZeroVector;
+	}
+
+	FVector ToTargetVector = TargetActor->GetActorLocation() - GetCharacter()->GetActorLocation();
+	FVector TargetDirection = ToTargetVector.GetSafeNormal();
+
+	return TargetDirection;
+}
+
 void ASKAIController::AddTag(FGameplayTag Tag) const
 {
 	if (!IsValid(OwningASC))

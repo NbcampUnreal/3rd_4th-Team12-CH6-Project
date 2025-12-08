@@ -16,22 +16,24 @@ private:
 	TObjectPtr<ASKBaseProjectile> Projectile;
 	
 protected:
-	//데이터에셋이나 데이터테이블에 넣어 몬스터마다 각자 거 쓸 수 있게 수정 필요.
+	//데이터에셋에 넣어 몬스터마다 각자 거 쓸 수 있게 수정 필요.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<ASKBaseProjectile> ProjectileClass;
 
-	//데이터에셋이나 데이터테이블에 넣어 몬스터마다 각자 거 쓸 수 있게 수정 필요.
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	FName ProjectileSpawnSocketName = TEXT("hand_r");
-	
 	
 public:
 	USK_GA_AI_ProjectileAttack();
 
+	void WaitAnimNotify();
+	
 	void SpawnProjectile();
 
-	void LaunchProjectile();
+	void LaunchProjectile(TObjectPtr<UAnimMontage> AnimMontage);
 
+	UFUNCTION()
+	void OnWaitAnimNotifyCompleted(FGameplayEventData EventData);
+	
+	UFUNCTION()
 	void OnLaunchProjectileCompleted();
 	
 protected:
