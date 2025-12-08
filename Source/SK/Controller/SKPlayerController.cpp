@@ -421,7 +421,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	{
 		SetLockOnTarget(nullptr);
 		SKPlayerCharacter->SetLockOnState(false);
-		SKPlayerCharacter->ServerSetLockOnState(false);
+		SKPlayerCharacter->Server_SetLockOnState(false);
 		return;
 	}
 
@@ -430,7 +430,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	{
 		SetLockOnTarget(Target);
 		SKPlayerCharacter->SetLockOnState(true);
-		SKPlayerCharacter->ServerSetLockOnState(true);
+		SKPlayerCharacter->Server_SetLockOnState(true);
 	}
 }
 

@@ -345,7 +345,7 @@ void ASKPlayerCharacter::OnRep_OnLockOnChange()
 	SetLockOnState();
 }
 
-void ASKPlayerCharacter::ServerSetLockOnState_Implementation(bool bLock)
+void ASKPlayerCharacter::Server_SetLockOnState_Implementation(bool bLock)
 {
 	bIsLockedOn = bLock;
 	SetLockOnState();

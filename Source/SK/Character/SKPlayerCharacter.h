@@ -114,5 +114,5 @@ public:
 	void OnRep_OnLockOnChange();
 	
 	UFUNCTION(Server, Reliable)
-	void ServerSetLockOnState(bool bLock);
+	void Server_SetLockOnState(bool bLock);
 };
