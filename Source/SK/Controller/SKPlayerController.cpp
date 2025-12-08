@@ -4,6 +4,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "Manager/SKCameraManager.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
@@ -18,6 +19,7 @@
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKPlayerController::ASKPlayerController()
@@ -295,7 +297,13 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 			USKActionComponent* ActionComponent = Char->GetActionComponent();
 			if (ActionComponent)
 			{
-				ActionComponent->Server_SetMovementInfo(InMoveVector, GetClosestMoveDirection(InMoveVector));
+				const EMoveDirection MoveDirection = GetClosestMoveDirection(InMoveVector);
+				ActionComponent->Server_SetMovementInfo(InMoveVector, MoveDirection);
+				USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(Char->GetMesh()->GetAnimInstance());
+				if (PlayerAnimInstance)
+				{
+					PlayerAnimInstance->CurrentMoveDirection = MoveDirection;
+				}
 			}
 		}
 	}
@@ -413,11 +421,15 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	if (!SKPlayerCharacter)
 		return;
 
+	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(SKPlayerCharacter->GetMesh()->GetAnimInstance());
+	if (!PlayerAnimInstance) return;
+
 	//락온상대일때 재입력하면 해제
 	if (bIsLockedOn)
 	{
 		SetLockOnTarget(nullptr);
 		SKPlayerCharacter->SetLockOnState(false);
+		PlayerAnimInstance->bIsLockOn = false;
 		return;
 	}
 
@@ -426,6 +438,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	{
 		SetLockOnTarget(Target);
 		SKPlayerCharacter->SetLockOnState(true);
+		PlayerAnimInstance->bIsLockOn = true;
 	}
 }
 
@@ -614,17 +627,24 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 
 	FVector2D NormalizedInput = InputVector.GetSafeNormal();
 
-	const FVector2D Forward(1.f, 0.f); // X+
-	const FVector2D Backward(-1.f, 0.f); // X-
-	const FVector2D Right(0.f, 1.f); // Y+
-	const FVector2D Left(0.f, -1.f); // Y-
-
+	const FVector2D Forward(1.f, 0.f);
+	const FVector2D ForwardLeft(1.f, -1.f);
+	const FVector2D ForwardRight(1.f, 1.f);
+	const FVector2D Backward(-1.f, 0.f);
+	const FVector2D BackwardLeft(-1.f, -1.f);
+	const FVector2D BackwardRight(-1.f, -1.f);
+	const FVector2D Right(0.f, 1.f);
+	const FVector2D Left(0.f, -1.f);
 
 	float Dots[4];
 	Dots[0] = FVector2D::DotProduct(NormalizedInput, Forward);
-	Dots[1] = FVector2D::DotProduct(NormalizedInput, Backward);
-	Dots[2] = FVector2D::DotProduct(NormalizedInput, Left);
-	Dots[3] = FVector2D::DotProduct(NormalizedInput, Right);
+	Dots[1] = FVector2D::DotProduct(NormalizedInput, ForwardLeft);
+	Dots[2] = FVector2D::DotProduct(NormalizedInput, ForwardRight);
+	Dots[3] = FVector2D::DotProduct(NormalizedInput, Backward);
+	Dots[4] = FVector2D::DotProduct(NormalizedInput, BackwardLeft);
+	Dots[5] = FVector2D::DotProduct(NormalizedInput, BackwardRight);
+	Dots[6] = FVector2D::DotProduct(NormalizedInput, Left);
+	Dots[7] = FVector2D::DotProduct(NormalizedInput, Right);
 
 	// 최대 Dot 값 가진 방향 찾기
 	float MaxDot = -1.0f;
@@ -640,11 +660,19 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 			{
 			case 0: BestDirection = EMoveDirection::Forward;
 				break;
-			case 1: BestDirection = EMoveDirection::Backward;
+			case 1: BestDirection = EMoveDirection::ForwardLeft;
 				break;
-			case 2: BestDirection = EMoveDirection::Left;
+			case 2: BestDirection = EMoveDirection::ForwardRight;
 				break;
-			case 3: BestDirection = EMoveDirection::Right;
+			case 3: BestDirection = EMoveDirection::Backward;
+				break;
+			case 4: BestDirection = EMoveDirection::BackwardLeft;
+				break;
+			case 5: BestDirection = EMoveDirection::BackwardRight;
+				break;
+			case 6: BestDirection = EMoveDirection::Left;
+				break;
+			case 7: BestDirection = EMoveDirection::Right;
 				break;
 			}
 		}
