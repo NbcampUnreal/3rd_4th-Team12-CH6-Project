@@ -113,7 +113,6 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 	// 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	// 	AttributeSet = PS->GetAttributeSet();
 	//
-	// 	// 서버에서 ASC 초기화
 	// 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	// }
 	//InitASCFromPlayerState();
@@ -212,6 +211,20 @@ void ASKPlayerCharacter::SetTraceSocket()
 	if (!DataRow)
 		return;
 	CombatComponent->InitializeWeaponData(DataRow);
+}
+
+void ASKPlayerCharacter::SetLockOnState(bool bLock)
+{
+	if (bLock)
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	}
+	else
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
 }
 
 void ASKPlayerCharacter::OnRep_PlayerState()
