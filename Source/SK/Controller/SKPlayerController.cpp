@@ -156,7 +156,7 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopJumping);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Dash);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this,
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::StartSprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
 		                                   &ASKPlayerController::StopSprint);
