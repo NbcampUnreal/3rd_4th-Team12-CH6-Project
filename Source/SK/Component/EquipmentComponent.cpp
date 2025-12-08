@@ -81,7 +81,7 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	
 	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
 	if (!WeaponDataRow) return false;
-	ActionComponent->SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 	
 	// USKCombatComponent* CombatComponent = Char->GetCombatComponent();
 	// CombatComponent->CurrentWeaponData = WeaponDataRow->WeaponData;
