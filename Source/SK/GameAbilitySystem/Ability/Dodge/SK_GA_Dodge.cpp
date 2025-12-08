@@ -58,6 +58,8 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Don't Have Dodge Montage!"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
 	}
 	
 }
