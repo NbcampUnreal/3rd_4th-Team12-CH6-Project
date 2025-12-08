@@ -10,11 +10,11 @@
 UENUM(BlueprintType)
 enum class EMoveDirection : uint8
 {
-	None        UMETA(DisplayName = "None"),
-	Forward     UMETA(DisplayName = "Forward"),
-	Backward    UMETA(DisplayName = "Backward"),
-	Left        UMETA(DisplayName = "Left"),
-	Right       UMETA(DisplayName = "Right")
+	None UMETA(DisplayName = "None"),
+	Forward UMETA(DisplayName = "Forward"),
+	Backward UMETA(DisplayName = "Backward"),
+	Left UMETA(DisplayName = "Left"),
+	Right UMETA(DisplayName = "Right")
 };
 
 struct FInputActionValue;
@@ -62,6 +62,7 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void ClientShowLoadingScreen(bool bShow);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -147,6 +148,7 @@ private:
 #pragma	endregion
 
 	void ClearTarGetOverlayMaterial();
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EMoveDirection CurrentMoveDirection;
@@ -156,4 +158,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static EMoveDirection GetClosestMoveDirection(const FVector2D& InputVector);
+
+private:
+	bool bMoveFlag = false;
+	bool bSprintFlag = false;
 };
