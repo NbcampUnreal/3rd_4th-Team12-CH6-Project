@@ -384,6 +384,14 @@ bool UInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch*
 	return bWroteSomething;
 }
 
+void UInventoryComponent::CopyTo(UInventoryComponent* Target)
+{
+	if (!Target) return;
+
+	Target->InventorySlots      = InventorySlots;
+	Target->EquipmentInstances  = EquipmentInstances;
+}
+
 void UInventoryComponent::ServerAddItem_Implementation(const int32& ItemID, int32 Count)
 {
 	if (AddItemByIDAndCount(ItemID, Count))

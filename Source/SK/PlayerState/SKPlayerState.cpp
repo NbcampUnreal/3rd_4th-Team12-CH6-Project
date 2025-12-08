@@ -89,7 +89,22 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 	if (!NewPS)
 		return;
 	//데이터 복사 예시
-	//NewPS->A = A; 
+	//NewPS->A = A;
+	
+	if (InventoryComponent && NewPS->InventoryComponent)
+	{
+		InventoryComponent->CopyTo(NewPS->InventoryComponent);
+	}
+	
+	if (EquipmentComponent && NewPS->EquipmentComponent)
+	{
+		EquipmentComponent->CopyTo(NewPS->EquipmentComponent);
+	}
+	
+	if (QuickSlotComponent && NewPS->QuickSlotComponent)
+	{
+		QuickSlotComponent->CopyTo(NewPS->QuickSlotComponent);
+	}
 }
 
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -128,6 +143,11 @@ void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
 	{
 		PC->SetTraceSocket();  
 	}
+}
+
+void ASKPlayerState::EquipmentComponentSetting()
+{
+	EquipmentComponent->ReSpawnWeapon();
 }
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()
