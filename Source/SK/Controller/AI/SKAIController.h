@@ -32,7 +32,7 @@ protected:
 
 	UPROPERTY()
 	UAbilitySystemComponent* OwningASC;
-	
+
 	UPROPERTY()
 	TObjectPtr<AActor> TargetActor;
 
@@ -40,8 +40,11 @@ protected:
 
 public:
 	ASKAIController();
-	
+
 	TObjectPtr<AActor> GetTargetActor() const;
+
+	UFUNCTION(BlueprintCallable, Category="StateTree")
+	bool CheckDistance(float AdditionalCapsuleRadiusSum);
 
 	void AddTag(FGameplayTag Tag) const;
 

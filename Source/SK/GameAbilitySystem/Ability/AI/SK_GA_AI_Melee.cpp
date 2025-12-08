@@ -1,6 +1,8 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Melee.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Character/AI/SKAICharacter.h"
 
 USK_GA_AI_Melee::USK_GA_AI_Melee()
 {
@@ -14,7 +16,7 @@ USK_GA_AI_Melee::USK_GA_AI_Melee()
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
 }
 
-void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection)
 {
 	SetFocus();
 	
@@ -33,7 +35,7 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage)
 				NAME_None,
 				AnimMontage,
 				1.0f,
-				NAME_None,
+				StartSection,
 				true,
 				1.0f
 				);
@@ -77,8 +79,30 @@ void USK_GA_AI_Melee::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
+	if (!IsValid(AICharacter))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	FName SectionName;
+
+	int32 CurrentMeleeIndex = AICharacter->GetCurrentMeleeIndex();
+	int32 MaxMeleeIndex = AICharacter->GetMaxMeleeIndex();
 	
-	Melee(AnimMontage);
+	if (CurrentMeleeIndex == MaxMeleeIndex)
+	{
+		SectionName = FName(FString::FromInt(CurrentMeleeIndex));
+	}
+	else
+	{
+		AICharacter->SetMeleeIndex(0);
+		SectionName = FName(FString::FromInt(AICharacter->GetCurrentMeleeIndex()));
+	}
+	
+	Melee(AnimMontage, SectionName);
 }
 
 void USK_GA_AI_Melee::EndAbility(

@@ -2,7 +2,9 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
+#include "Character/SKPlayerCharacter.h"
 #include "Character/AI/SKAICharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -41,6 +43,39 @@ ASKAIController::ASKAIController()
 TObjectPtr<AActor> ASKAIController::GetTargetActor() const
 {
 	return TargetActor;
+}
+
+bool ASKAIController::CheckDistance(float AdditionalCapsuleRadiusSum)
+{
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
+	if (!IsValid(AICharacter))
+	{
+		return false;
+	}
+
+	if (!IsValid(TargetActor))
+	{
+		return false;
+	}
+	
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(TargetActor);
+	if (!IsValid(PlayerCharacter))
+	{
+		return false;
+	}
+
+	FVector AILocation = AICharacter->GetActorLocation();
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+	
+	float CapsuleRadiusSum = AICharacter->GetCapsuleComponent()->GetScaledCapsuleRadius() + PlayerCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	float Distance = (PlayerLocation - AILocation).Size2D();
+
+	if (Distance <= CapsuleRadiusSum + AdditionalCapsuleRadiusSum)
+	{
+		return true;
+	}
+	
+	return false;
 }
 
 void ASKAIController::AddTag(FGameplayTag Tag) const
@@ -140,7 +175,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	/*///// 테스트
+	////// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
@@ -160,7 +195,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	
 	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
-	*/
+	
 }
 
 void ASKAIController::BeginPlay()
@@ -178,13 +213,13 @@ void ASKAIController::BeginPlay()
 	if (!GS) return;
 
 	// 상태 변경 이벤트 수신
-	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
+	//GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
 	// 이미 진행 중일 수도 있음
-	if (GS->DungeonState == EDungeonMatchState::Dungeon_InProgress)
-	{
-		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
-	}
+	//if (GS->DungeonState == EDungeonMatchState::Dungeon_InProgress)
+	//{
+	//	OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
+	//}
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)

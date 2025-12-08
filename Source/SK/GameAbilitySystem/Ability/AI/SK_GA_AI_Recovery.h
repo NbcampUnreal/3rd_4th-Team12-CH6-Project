@@ -1,25 +1,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_AI_BaseCombat.h"
-#include "SK_GA_AI_Melee.generated.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Base.h"
+#include "SK_GA_AI_Recovery.generated.h"
 
 UCLASS()
-class SK_API USK_GA_AI_Melee : public USK_GA_AI_BaseCombat
+class SK_API USK_GA_AI_Recovery : public USK_GA_AI_Base
 {
 	GENERATED_BODY()
-	
+
 public:
-	USK_GA_AI_Melee();
-	
-	void Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection);
+	USK_GA_AI_Recovery();
+
+	void Recovery(TObjectPtr<UAnimMontage> AnimMontage);
 
 	UFUNCTION()
-	void OnHitCompleted(FGameplayEventData EventData);
+	void OnRecoveryCompleted();
 	
-	UFUNCTION()
-	void OnMeleeCompleted();
-
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
