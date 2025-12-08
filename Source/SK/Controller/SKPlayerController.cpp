@@ -18,6 +18,7 @@
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKPlayerController::ASKPlayerController()
@@ -364,6 +365,13 @@ void ASKPlayerController::StartSprint(const FInputActionValue& Value)
 	SprintTagContainer.AddTag(SprintTag);
 
 	ASC->TryActivateAbilitiesByTag(SprintTagContainer);
+
+	if (!bSprintFlag)
+	{
+		bSprintFlag = true;
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, true);
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Idle, false);
+	}
 }
 
 void ASKPlayerController::StopSprint(const FInputActionValue& Value)
@@ -384,6 +392,13 @@ void ASKPlayerController::StopSprint(const FInputActionValue& Value)
 	SprintTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Sprint")));
 
 	ASC->CancelAbilities(&SprintTagContainer);
+
+	if (bSprintFlag)
+	{
+		bSprintFlag = false;
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, false);
+		PlayerCharacter->SetLooseTag(TAG_State_Movement_Idle, true);
+	}
 }
 
 void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
