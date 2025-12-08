@@ -63,7 +63,7 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// SetPlayerStateTag();
+	SetPlayerStateTag();
 
 	// InitASCFromPlayerState();
 	if (AController* PC = GetController())
@@ -123,14 +123,7 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 void ASKPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	// if (PS)
-	// {
-	// 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
-	// 	ASC->InitAbilityActorInfo(PS, this);
-	// }
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("[CHECK] Mesh=%s"), *GetMesh()->GetName());
 	UE_LOG(LogTemp, Warning, TEXT("[CHECK] AnimInstance=%s"),
 	       GetMesh()->GetAnimInstance() ? *GetMesh()->GetAnimInstance()->GetName() : TEXT("NULL"));
