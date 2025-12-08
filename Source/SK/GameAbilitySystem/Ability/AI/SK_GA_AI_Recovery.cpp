@@ -1,22 +1,20 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Ready.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Recovery.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
-USK_GA_AI_Ready::USK_GA_AI_Ready()
+USK_GA_AI_Recovery::USK_GA_AI_Recovery() 
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Ready")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Recovery")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Ready")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Recovery")));
 }
 
-void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Recovery::Recovery(TObjectPtr<UAnimMontage> AnimMontage)
 {
-	SetFocus();
-	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
@@ -26,19 +24,19 @@ void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
 				false,
 				1.0f
 				);
-	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Ready::OnReadyCompleted);
+	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Recovery::OnRecoveryCompleted);
 	//Task->OnInterrupted.AddDynamic(this, &USK_GA_Melee::OnMontageInterrupted);
 	//Task->OnCancelled.AddDynamic(this, &USK_GA_Melee::OnMontageCancelled);
 	//Task->OnBlendOut.AddDynamic(this, &USK_GA_Melee::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Ready::OnReadyCompleted()
+void USK_GA_AI_Recovery::OnRecoveryCompleted()
 {
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
-void USK_GA_AI_Ready::ActivateAbility(
+void USK_GA_AI_Recovery::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -48,18 +46,18 @@ void USK_GA_AI_Ready::ActivateAbility(
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	CommonEventTask->EndTask();
-
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Ready");
+	
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Recovery");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
-	Ready(AnimMontage);
+	Recovery(AnimMontage);
 }
 
-void USK_GA_AI_Ready::EndAbility(
+void USK_GA_AI_Recovery::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -67,7 +65,5 @@ void USK_GA_AI_Ready::EndAbility(
 	bool bWasCancelled
 	)
 {
-	ClearFocus();
-
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

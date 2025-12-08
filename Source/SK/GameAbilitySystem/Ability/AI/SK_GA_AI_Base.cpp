@@ -105,14 +105,14 @@ void USK_GA_AI_Base::ActivateAbility(
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	if (!AvatarActor)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
 	ACharacter* AvatarCharacter = Cast<ACharacter>(AvatarActor);
 	if (!IsValid(AvatarCharacter))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
@@ -121,7 +121,7 @@ void USK_GA_AI_Base::ActivateAbility(
 	AController* Controller = AvatarCharacter->GetController();
 	if (!IsValid(Controller))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
@@ -130,7 +130,7 @@ void USK_GA_AI_Base::ActivateAbility(
 	ASKAICharacterBase* BaseAI = Cast<ASKAICharacterBase>(CachedCharacter);
 	if (!IsValid(BaseAI))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
