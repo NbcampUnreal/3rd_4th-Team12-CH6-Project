@@ -1,6 +1,7 @@
 ﻿#include "SKPlayerAnimInstance.h"
 
 #include "Character/SKPlayerCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 void USKPlayerAnimInstance::NativeInitializeAnimation()
 {
@@ -13,6 +14,10 @@ void USKPlayerAnimInstance::NativeInitializeAnimation()
 	}
 }
 
+void USKPlayerAnimInstance::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(USKPlayerAnimInstance, CurrentMoveDirection);
+	DOREPLIFETIME(USKPlayerAnimInstance, bIsLockOn);
 }
