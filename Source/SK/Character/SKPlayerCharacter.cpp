@@ -118,6 +118,11 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 	// }
 	//InitASCFromPlayerState();
 	SetTraceSocket();
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (PS)
+	{
+		PS->EquipmentComponentSetting();
+	}
 }
 
 void ASKPlayerCharacter::PostInitializeComponents()
