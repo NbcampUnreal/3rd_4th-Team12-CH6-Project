@@ -173,6 +173,32 @@ void USKCombatComponent::StopMontage_Local(float InBlendOut)
 	}
 }
 
+void USKCombatComponent::Server_Input_Right_Implementation()
+{
+}
+
+void USKCombatComponent::Server_Input_Skill_01_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+
+	if (!ComboState.bIsAttacking)
+	{
+		ComboState.bIsAttacking = true;
+		ComboState.bBufferedAttack = false;
+	}
+
+	else
+	{
+		ComboState.bBufferedAttack = true;
+		return;
+	}
+
+	FGameplayTagContainer Container;
+	Container.AddTag(TAG_Ability_Skill_01);
+	ASC->TryActivateAbilitiesByTag(Container);
+}
+
 void USKCombatComponent::Multicast_StopMontage_Implementation(float InBlendOut)
 {
 	StopMontage_Local(InBlendOut);
@@ -383,6 +409,18 @@ void USKCombatComponent::Multicast_ActivateLeftGA_Implementation()
 	ActivateLeftAttackGA();
 }
 
+void USKCombatComponent::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, FName SectionName)
+{
+	ACharacter* OwnerChar = Cast<ACharacter>(GetOwner());
+	if (!OwnerChar) return;
+
+	UAnimInstance* Anim = OwnerChar->GetMesh()->GetAnimInstance();
+	if (!Anim) return;
+
+	Anim->Montage_Play(Montage);
+	Anim->Montage_JumpToSection(SectionName, Montage);
+}
+
 void USKCombatComponent::SetWeaponTag(const FGameplayTag& NewTag)
 {
 	if (GetOwnerRole() == ROLE_Authority) // 서버에서만 세팅
@@ -546,6 +584,17 @@ UAnimMontage* USKCombatComponent::GetLeftAttackMontage(int32 Index)
 
 	if (CurrentWeaponData->LeftAttackMontages.IsValidIndex(Index))
 		return CurrentWeaponData->LeftAttackMontages[Index];
+
+	return nullptr;
+}
+
+UAnimMontage* USKCombatComponent::GetSkillMontage(int32 Index)
+{
+	if (!CurrentWeaponData)
+		return nullptr;
+
+	if (CurrentWeaponData->SkillMontages.IsValidIndex(Index))
+		return CurrentWeaponData->SkillMontages[Index];
 
 	return nullptr;
 }
