@@ -208,26 +208,15 @@ void USKCombatComponent::Server_LeftAttackInput_Implementation()
 	FGameplayTagContainer Container;
 	Container.AddTag(GetLeftATKTag());
 
-	// ASC->TryActivateAbilitiesByTag(Container);
-	bool success = ASC->TryActivateAbilitiesByTag(Container);
+	ASC->TryActivateAbilitiesByTag(Container);
+	// bool success = ASC->TryActivateAbilitiesByTag(Container);
+
+	// // Current owned tags
+	// FGameplayTagContainer OwnedTags;
+	// ASC->GetOwnedGameplayTags(OwnedTags);
+	// UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:OwnedTags: %s"), *OwnedTags.ToStringSimple());
 
 
-	UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:} = %s"), success ? TEXT("TRUE") : TEXT("FALSE"));
-
-	// Current owned tags
-	FGameplayTagContainer OwnedTags;
-	ASC->GetOwnedGameplayTags(OwnedTags);
-	UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]:OwnedTags: %s"), *OwnedTags.ToStringSimple());
-
-	// Check if ATK tag still exists (this is the key)
-	if (OwnedTags.HasTag(GetLeftATKTag()))
-	{
-		UE_LOG(LogTemp, Error, TEXT("[LEFTATKINPUT]: LeftATKTag STILL EXISTS! (GA cannot activate)"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[[LEFTATKINPUT]:] LeftATKTag is removed. GA can activate normally."));
-	}
 }
 
 void USKCombatComponent::Server_Notify_StopAttackTrace_Implementation()
@@ -391,8 +380,6 @@ void USKCombatComponent::Server_StopTrace_Implementation()
 
 void USKCombatComponent::Multicast_ActivateLeftGA_Implementation()
 {
-	// if (GetOwner()->HasAuthority())
-	// 	return;
 	ActivateLeftAttackGA();
 }
 
