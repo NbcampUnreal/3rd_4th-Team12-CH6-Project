@@ -10,11 +10,15 @@
 UENUM(BlueprintType)
 enum class EMoveDirection : uint8
 {
-	None UMETA(DisplayName = "None"),
-	Forward UMETA(DisplayName = "Forward"),
-	Backward UMETA(DisplayName = "Backward"),
-	Left UMETA(DisplayName = "Left"),
-	Right UMETA(DisplayName = "Right")
+	None        UMETA(DisplayName = "None"),
+	Forward     UMETA(DisplayName = "Forward"),
+	ForwardLeft     UMETA(DisplayName = "ForwardLeft"),
+	ForwardRight     UMETA(DisplayName = "ForwardRight"),
+	Backward    UMETA(DisplayName = "Backward"),
+	BackwardLeft    UMETA(DisplayName = "BackwardLeft"),
+	BackwardRight    UMETA(DisplayName = "BackwardRight"),
+	Left        UMETA(DisplayName = "Left"),
+	Right       UMETA(DisplayName = "Right")
 };
 
 struct FInputActionValue;

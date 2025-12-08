@@ -24,8 +24,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionData);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionData);
 	
 	FORCEINLINE USKWeaponAnimData* GetWeaponActionData() const { return CurrentWeaponActionData; }
 	
@@ -37,13 +37,20 @@ protected:
 
 public:
 	UFUNCTION(Server, Reliable)
-	void Server_SetMovementInfo(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection);
+	void Server_SetMovementInfo(const FVector2D NewInputVector, const EMoveDirection NewMoveDirection);
 
 	UPROPERTY(Replicated)
 	FVector2D CurrentInputVector;
 
-	UPROPERTY(Replicated)
-	EMoveDirection CurrentMovementDirection;
+	UPROPERTY(ReplicatedUsing = OnRep_OnMoveDirectionChange)
+	EMoveDirection CurrentMoveDirection;
+
+	UFUNCTION()
+	void OnRep_OnMoveDirectionChange();
+
+protected:
+
+	void SetMoveDirection();
 
 #pragma endregion
 
