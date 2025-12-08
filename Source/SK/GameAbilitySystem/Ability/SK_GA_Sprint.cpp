@@ -2,7 +2,7 @@
 
 
 #include "GameAbilitySystem/Ability/SK_GA_Sprint.h"
-
+#include "Component/SKCombatComponent.h"
 #include "Character/SKPlayerCharacter.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 
@@ -20,9 +20,16 @@ void USK_GA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	if (!Character)
 		return;
 
+
+	if (USKCombatComponent* Combat = Character->GetCombatComponent())
+	{
+		Combat->ResetComboState();
+	}
+
+	UE_LOG(LogTemp, Error, TEXT(">>> SPRINT GA ACTIVATED <<<"));
 	Character->SetSprinting(true);
 	ConsumeStamina();
-	
+
 	// 스태미나 소비용 타이머 시작
 	GetWorld()->GetTimerManager().SetTimer(StaminaTimerHandle, this, &USK_GA_Sprint::ConsumeStamina, 0.1f, true);
 }
