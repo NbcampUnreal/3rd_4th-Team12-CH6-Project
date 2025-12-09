@@ -3,16 +3,14 @@
 
 ASKOpenableBase::ASKOpenableBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
-		
 	OverlapCollision = CreateDefaultSubobject<USphereComponent>("OverlapCollision");
 	OverlapCollision->SetupAttachment(Root);	
-	OverlapCollision->SetSphereRadius(500.0f);
-	OverlapCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 500.0f));
-	OverlapCollision->SetCollisionProfileName(TEXT("Interact"));
+	OverlapCollision->SetSphereRadius(1000.0f);
+	// OverlapCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 500.0f));
+	// OverlapCollision->SetCollisionProfileName(TEXT("Interact"));
 
-	InteractionCollision->SetSphereRadius(50.0f);
-	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
+	InteractionCollision->SetSphereRadius(100.0f);
+	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 	
 	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
@@ -26,9 +24,5 @@ void ASKOpenableBase::BeginPlay()
 	
 	InteractionData.InteractionLocation = InteractionPoint->GetComponentLocation();
 	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
-}
-
-{
-	Super::Tick(DeltaTime);
 }
 
