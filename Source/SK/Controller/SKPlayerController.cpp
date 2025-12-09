@@ -476,7 +476,7 @@ void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Val
 		return;
 
 	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
-	CombatComponent->Server_LeftAttackInput();
+	CombatComponent->Server_Input_Skill_01();
 }
 
 void ASKPlayerController::Active_QuickSlotAction_01(const FInputActionValue& Value)
