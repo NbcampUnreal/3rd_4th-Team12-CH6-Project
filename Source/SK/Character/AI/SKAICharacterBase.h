@@ -48,6 +48,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
 
+	int32 CurrentMeleeIndex = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Index")
+	int32 MaxMeleeIndex = 0;
+
 private:
 	FVector StartLocation;
 
@@ -67,6 +72,15 @@ public:
 	TMap<FName, TObjectPtr<UAnimMontage>> GetMontages() const;
 	
 	TObjectPtr<UStateTree> GetStateTreeAsset() const;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentMeleeIndex() const;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetMaxMeleeIndex() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetMeleeIndex(int32 NewMeleeIndex);
 
 	FVector GetStartLocation() const;
 

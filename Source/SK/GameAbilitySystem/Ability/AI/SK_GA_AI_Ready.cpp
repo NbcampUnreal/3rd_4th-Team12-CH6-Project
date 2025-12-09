@@ -52,7 +52,7 @@ void USK_GA_AI_Ready::ActivateAbility(
 	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Ready");
 	if (!IsValid(AnimMontage))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	

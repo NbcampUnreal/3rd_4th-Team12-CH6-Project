@@ -2,7 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "SKBaseAnimInstance.h"
+#include "Controller/SKPlayerController.h"
 #include "SKPlayerAnimInstance.generated.h"
+
+class USKActionComponent;
+class ASKPlayerCharacter;
 
 UCLASS()
 class SK_API USKPlayerAnimInstance : public USKBaseAnimInstance
@@ -12,30 +16,17 @@ class SK_API USKPlayerAnimInstance : public USKBaseAnimInstance
 public:
 	virtual void NativeInitializeAnimation() override;
 
-	void PlayLeftAttackAnim();
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	ASKPlayerCharacter* OwnerPlayer;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	USKActionComponent* ActionComponent;
 	
-	void SetComboIndex(int32 ComboIndex);
-	void SetIsAttacking(bool isAttacking);
-
-	TArray<UAnimMontage*> GetLeftATKMontage();
-	UAnimMontage* GetLeftATKMontageIndex();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage")
-	TArray<UAnimMontage*> LeftAttackMontages;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage")
-	TArray<UAnimMontage*> RightAttackMontages;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage")
-	TArray<UAnimMontage*> HitMontages;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage")
-	TArray<UAnimMontage*> DashMontages;
-
-protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	uint8 bLeftAttacking : 1;
-
+	EMoveDirection CurrentMoveDirection;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	uint8 LeftComboIndex = 0;
+	bool bIsLockedOn;
 };

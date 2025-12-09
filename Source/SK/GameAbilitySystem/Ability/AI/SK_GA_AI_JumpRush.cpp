@@ -52,7 +52,7 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 				0.f,
 				nullptr,
 				nullptr
-	);			
+				);
 	OwnJumpTask->OnLanded.AddDynamic(this, &USK_GA_AI_JumpRush::OnJumpRushCompleted);
 	OwnJumpTask->ReadyForActivation();
 	
@@ -64,7 +64,7 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 				NAME_None,
 				true,
 				1.0f
-	);		
+				);		
 	//OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_JumpRush::OnMeleeCompleted);
 	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_JumpRush::OnMontageInterrupted);
 	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_JumpRush::OnMontageCancelled);
