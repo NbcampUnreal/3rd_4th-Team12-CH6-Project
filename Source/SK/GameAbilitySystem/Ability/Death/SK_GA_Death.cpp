@@ -1,0 +1,77 @@
+﻿#include "SK_GA_Death.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Character/SKPlayerCharacter.h"
+#include "Weapon/ActionData/SKWeaponAnimData.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+USK_GA_Death::USK_GA_Death()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+}
+
+void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+                                   const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Char)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Active %s Ability, %s"), *GetName(),
+		   Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
+
+	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	
+	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
+	if (!WeaponAnimData)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+	
+	UAnimMontage* DeathMontage = WeaponAnimData->DeathMontages;
+	if (!DeathMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Death montage is null"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+	
+	if (DeathMontage)
+	{
+		Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Death"), DeathMontage);
+		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
+		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
+		PlayAnimTask->ReadyForActivation();
+	}
+}
+
+void USK_GA_Death::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	
+	UE_LOG(LogTemp, Warning, TEXT("End %s Ability, %s"), *GetName(),
+		   Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
+	
+	Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+}
+
+void USK_GA_Death::OnCompleted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void USK_GA_Death::OnCanceled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
