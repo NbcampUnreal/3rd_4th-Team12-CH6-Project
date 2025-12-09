@@ -43,7 +43,7 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
 
 	
-	UAnimMontage* Montage = CombatComponent->GetLeftAttackMontage(0);
+	UAnimMontage* Montage = CombatComponent->GetSkillMontage(0);
 	FName SectionName = FName(*FString::Printf(TEXT("Skill_00")));
 	
 	CombatComponent->Multicast_PlayMontage(Montage,SectionName);
