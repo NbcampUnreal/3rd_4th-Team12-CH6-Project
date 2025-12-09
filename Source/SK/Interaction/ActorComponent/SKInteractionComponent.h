@@ -55,7 +55,7 @@ protected:
 public:
 
 	FORCEINLINE void SetInteractionData(const FSKInteractionData& NewInteractionData) { CurrentInteractionData = NewInteractionData; }
-	FORCEINLINE FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
+	FORCEINLINE const FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
 
 	FORCEINLINE void SetCurrentTagetActor(ASKInteractableBase* NewActor) { CurrentTargetActor = NewActor; };  
 	FORCEINLINE ASKInteractableBase* GetCurrentTargetActor() const { return CurrentTargetActor; };  
