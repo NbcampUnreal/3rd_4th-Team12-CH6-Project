@@ -181,19 +181,7 @@ void USKCombatComponent::Server_Input_Skill_01_Implementation()
 {
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
-
-	if (!ComboState.bIsAttacking)
-	{
-		ComboState.bIsAttacking = true;
-		ComboState.bBufferedAttack = false;
-	}
-
-	else
-	{
-		ComboState.bBufferedAttack = true;
-		return;
-	}
-
+	
 	FGameplayTagContainer Container;
 	Container.AddTag(TAG_Ability_Skill_01);
 	ASC->TryActivateAbilitiesByTag(Container);
