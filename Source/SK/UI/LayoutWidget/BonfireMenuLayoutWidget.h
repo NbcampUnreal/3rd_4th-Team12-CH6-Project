@@ -13,5 +13,38 @@ UCLASS()
 class SK_API UBonfireMenuLayoutWidget : public USKLayoutWidgetBase
 {
 	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MenuToInGameData;
 	
+	FUIActionBindingHandle MenuToInGameHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MenuUPData;
+	
+	FUIActionBindingHandle MenuUPHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MenuDownData;
+	
+	FUIActionBindingHandle MenuDownHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MenuSelectData;
+	
+	FUIActionBindingHandle MenuSelectHandle;
+protected:
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void HandleMenuToInGameAction();
+
+	UFUNCTION()
+	void HandleMeneUpAction();
+
+	UFUNCTION()
+	void HandleMenuDownAction();
+
+	UFUNCTION()
+	void HandleMenuSelectAction();
 };
