@@ -58,7 +58,7 @@ public:
 	FORCEINLINE FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
 
 	FORCEINLINE void SetCurrentTagetActor(ASKInteractableBase* NewActor) { CurrentTargetActor = NewActor; };  
-	FORCEINLINE ASKInteractableBase* GetCurrentTagetActor() const { return CurrentTargetActor; };  
+	FORCEINLINE ASKInteractableBase* GetCurrentTargetActor() const { return CurrentTargetActor; };  
 
 	UFUNCTION()
 	void OnRep_CurrentInteractionData();

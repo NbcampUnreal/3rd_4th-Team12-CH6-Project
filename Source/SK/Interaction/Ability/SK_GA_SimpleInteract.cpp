@@ -31,7 +31,7 @@ void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
 	if (!InteractionComponent) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 	
-	ASKInteractableBase* TargetActor = InteractionComponent->GetCurrentTagetActor();
+	ASKInteractableBase* TargetActor = InteractionComponent->GetCurrentTargetActor();
 	CachedTargetActor = TargetActor;
 	
 	FSKInteractionData& Data = InteractionComponent->GetInteractionData();
