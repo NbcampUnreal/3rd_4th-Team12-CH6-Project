@@ -43,13 +43,13 @@ public:
 	
 	// 키 표시용 텍스트 (3개)
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* KeyText1;
+	UImage* KeyImage1;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* KeyText2;
+	UImage* KeyImage2;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* KeyText3;
+	UImage* KeyImage3;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CooldownText1;
@@ -68,6 +68,9 @@ public:
  
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* CooldownProgressBar3;
+
+	UPROPERTY()
+	FSlateBrush DefaultBrush;
 	
 protected:
 	virtual void NativeConstruct() override;
