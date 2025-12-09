@@ -56,6 +56,7 @@ public:
 
 	EObjectType ObjectType;
 
+	UPROPERTY(Replicated)
 	bool bCanInteract;
 	
 #pragma endregion
