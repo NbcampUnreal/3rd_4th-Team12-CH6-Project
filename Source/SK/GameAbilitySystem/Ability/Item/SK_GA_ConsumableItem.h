@@ -33,5 +33,14 @@ public:
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ConsumableItem")
-	int32 ItemID;	
+	int32 ItemID;
+
+	UFUNCTION(BlueprintCallable, Category = "ConsumableItem")
+	void OnCompleted();
+
+	UFUNCTION(BlueprintCallable, Category = "ConsumableItem")
+	void OnCanceled();
+
+	UFUNCTION(BlueprintCallable, Category = "ConsumableItem")
+	void SetWeaponVisible(bool bVisible);
 };
