@@ -56,13 +56,14 @@ void ASKCharacterBase::PossessedBy(AController* NewController)
 
 	PS->SetDAPlayerStat();
 	InitASCFromPlayerState();
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] PossessedBy (Server) 성공"));
 }
 
 void ASKCharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	
 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	if (!PS)
 		return;
@@ -75,13 +76,13 @@ void ASKCharacterBase::OnRep_PlayerState()
 	// UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] OnRep_PlayerState 초기화 성공"));
 
 	UE_LOG(LogTemp, Error, TEXT("[ONREP] Mesh=%s AnimClass=%s"),
-	 *GetNameSafe(GetMesh()),
-	 *GetNameSafe(GetMesh()->AnimClass));
-	
+	       *GetNameSafe(GetMesh()),
+	       *GetNameSafe(GetMesh()->AnimClass));
+
 	UE_LOG(LogTemp, Error, TEXT("[ASC DEBUG] Avatar=%s Owner=%s Anim=%s"),
-	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get()),
-	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get()),
-	*GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AnimInstance.Get()));
+	       *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get()),
+	       *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get()),
+	       *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->AnimInstance.Get()));
 }
 
 void ASKCharacterBase::PostInitializeComponents()
@@ -102,12 +103,12 @@ void ASKCharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Error, TEXT("[DEBUG BeginPlay] Mesh=%s AnimClass=%s"),
-	 *GetNameSafe(GetMesh()),
-	 *GetNameSafe(GetMesh()->AnimClass));
-	
+	       *GetNameSafe(GetMesh()),
+	       *GetNameSafe(GetMesh()->AnimClass));
+
 	//충돌이나 속도,운동관련
 	BaseSetting();
-	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	// PS->SetDAPlayerStat();
 	// InitASCFromPlayerState();
 }
@@ -119,14 +120,15 @@ void ASKCharacterBase::BaseSetting()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	
+
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 500.f; // 캐릭터 점프 높이 수정 필요
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed(); // 최대 걷기 속도 수정필요
+	// GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed();
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
