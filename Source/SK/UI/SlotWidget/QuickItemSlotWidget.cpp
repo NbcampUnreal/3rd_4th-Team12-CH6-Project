@@ -51,6 +51,23 @@ void UQuickItemSlotWidget::NativeDestruct()
 	{
 		CachedQuickSlot->OnQuickSlotsUpdated.RemoveDynamic(this, &UQuickItemSlotWidget::SettingWidgetIcons);
 	}
+
+	if (LayoutSwitchHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
+		}
+	}
+
+	if (QuickSlotItemUseHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(QuickSlotItemUseHandle);
+		}
+	}
+	
 	Super::NativeDestruct();
 }
 

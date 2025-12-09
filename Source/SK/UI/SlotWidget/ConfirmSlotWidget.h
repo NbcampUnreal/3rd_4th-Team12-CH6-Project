@@ -23,6 +23,7 @@ public:
 	
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 	// 블루프린트에서 연결할 수 있는 버튼 2개
 	UPROPERTY(meta = (BindWidget))

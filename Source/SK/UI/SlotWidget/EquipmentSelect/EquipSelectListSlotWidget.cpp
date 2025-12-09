@@ -45,6 +45,18 @@ void UEquipSelectListSlotWidget::NativeConstruct()
 	);
 }
 
+void UEquipSelectListSlotWidget::NativeDestruct()
+{
+	if (ItemSwitchHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(ItemSwitchHandle);
+		}
+	}
+	Super::NativeDestruct();
+}
+
 void UEquipSelectListSlotWidget::TryCachedComponent()
 {
 	APlayerController* PC = GetOwningPlayer();

@@ -23,6 +23,7 @@ class SK_API UEquipSelectListSlotWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 protected:
 	void TryCachedComponent();

@@ -38,6 +38,18 @@ void UEquipMainListSlotWidget::NativeConstruct()
 	TryCachedComponent();
 }
 
+void UEquipMainListSlotWidget::NativeDestruct()
+{
+	if (LayoutSwitchHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
+		}
+	}
+	Super::NativeDestruct();
+}
+
 void UEquipMainListSlotWidget::TryCachedComponent()
 {
 	APlayerController* PC = GetOwningPlayer();

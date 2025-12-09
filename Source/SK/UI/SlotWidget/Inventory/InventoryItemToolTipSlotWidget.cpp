@@ -200,6 +200,18 @@ void UInventoryItemToolTipSlotWidget::NativeConstruct()
 	TryCachedSystem();
 }
 
+void UInventoryItemToolTipSlotWidget::NativeDestruct()
+{
+	if (ToolTipSwitchHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(ToolTipSwitchHandle);
+		}
+	}
+	Super::NativeDestruct();
+}
+
 void UInventoryItemToolTipSlotWidget::TryCachedSystem()
 {
 	UWorld* World = GetWorld();

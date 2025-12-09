@@ -31,6 +31,7 @@ class SK_API UInventoryListSlotWidget : public UUserWidget
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 protected:
 	void TryCachedInventory();

@@ -24,6 +24,7 @@ class SK_API UEquipMainListSlotWidget : public UUserWidget
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 protected:
 	void TryCachedComponent();

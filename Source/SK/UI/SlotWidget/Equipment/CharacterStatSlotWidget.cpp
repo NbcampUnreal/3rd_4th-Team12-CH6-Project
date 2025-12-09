@@ -38,6 +38,13 @@ void UCharacterStatSlotWidget::NativeConstruct()
 
 void UCharacterStatSlotWidget::NativeDestruct()
 {
+	if (LayoutSwitchHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
+		}
+	}
 	Super::NativeDestruct();
 }
 

@@ -32,6 +32,14 @@ void UBossClearSlotWidget::NativeConstruct()
 
 void UBossClearSlotWidget::NativeDestruct()
 {
+	if (BossClearHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(BossClearHandle);
+		}
+	}
+	
 	Super::NativeDestruct();
 }
 
