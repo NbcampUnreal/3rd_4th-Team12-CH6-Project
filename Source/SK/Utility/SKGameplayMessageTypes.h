@@ -194,3 +194,12 @@ struct FLoadingUIVisible
 	UPROPERTY(BlueprintReadWrite)
 	bool bVisible;
 };
+
+USTRUCT(BlueprintType)
+struct FBonfireMenuMoveMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 MoveDirection;
+};
