@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/SKLayoutWidgetBase.h"
-#include "BonefireMenuLayoutWidget.generated.h"
+#include "BonfireMenuLayoutWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SK_API UBonefireMenuLayoutWidget : public USKLayoutWidgetBase
+class SK_API UBonfireMenuLayoutWidget : public USKLayoutWidgetBase
 {
 	GENERATED_BODY()
 	
