@@ -10,6 +10,7 @@ enum class EObjectType : uint8
 {
 	Pickup UMETA(DisplayName = "Pickup"),
 	Openable UMETA(DisplayName = "Openable"),
+	Fireplace UMETA(DisplayName = "Fireplace"),
 };
 
 class UBoxComponent;
