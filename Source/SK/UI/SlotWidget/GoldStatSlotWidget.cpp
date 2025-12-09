@@ -68,13 +68,13 @@ void UGoldStatSlotWidget::TryBind()
 		return;
 	}
  
-	AttributeSet->OnGoldChanged.AddUObject(this, &UGoldStatSlotWidget::GlodChanged); 
+	AttributeSet->OnGoldChanged.AddUObject(this, &UGoldStatSlotWidget::GoldChanged); 
  
 	// 초기 UI 업데이트
-	GlodChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHealth());
+	GoldChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHealth());
 }
 
-void UGoldStatSlotWidget::GlodChanged(AActor* EffectInstigator, AActor* EffectCauser,
+void UGoldStatSlotWidget::GoldChanged(AActor* EffectInstigator, AActor* EffectCauser,
                                       const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
 {
 	    const float Delta = EffectMagnitude; // 증가한 골드량
