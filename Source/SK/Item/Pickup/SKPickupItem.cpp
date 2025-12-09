@@ -87,11 +87,8 @@ int32 ASKPickupItem::GetItemID() const
 	return -1;
 }
 
-{
-	Super::Tick(DeltaTime);
-}
 
-void ASKPickupItem::Interact_Implementation(AActor* Interactor)
+void ASKPickupItem::ExecuteInteraction_Implementation(AActor* Interactor)
 {
 	if (!HasAuthority()) return;
 

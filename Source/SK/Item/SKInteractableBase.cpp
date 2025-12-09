@@ -39,6 +39,10 @@ ASKInteractableBase::ASKInteractableBase()
 	bCanInteract = true;
 }
 
+void ASKInteractableBase::ExecuteInteraction_Implementation(AActor* Interactor)
+{
+}
+
 void ASKInteractableBase::BeginPlay()
 {
 	Super::BeginPlay();

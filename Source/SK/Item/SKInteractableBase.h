@@ -36,6 +36,16 @@ public:
 #pragma region Interaction
 	
 	virtual void GetInteractionData_Implementation(FSKInteractionData& OutData) override;
+	
+	virtual void Interact_Implementation(AActor* Interactor) override
+	{
+		PreExecuteInteraction();
+		ExecuteInteraction(Interactor);
+	}
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Interaction")
+	void ExecuteInteraction(AActor* Interactor);
+	virtual void ExecuteInteraction_Implementation(AActor* Interactor);
 
 	virtual void BeginPlay() override;
 
