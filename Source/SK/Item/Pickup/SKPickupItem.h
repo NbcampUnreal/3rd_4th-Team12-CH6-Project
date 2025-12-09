@@ -59,7 +59,6 @@ protected:
 	void Multicast_PlayPickupEffects(AActor* Interactor);
 	
 public:
-	virtual void Tick(float DeltaTime) override;
 	
 	virtual void Interact_Implementation(AActor* Interactor) override;
 

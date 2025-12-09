@@ -28,7 +28,6 @@ void ASKOpenableBase::BeginPlay()
 	InteractionData.InteractionRotation = InteractionPoint->GetComponentRotation();
 }
 
-void ASKOpenableBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
