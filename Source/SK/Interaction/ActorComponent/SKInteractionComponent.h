@@ -31,7 +31,7 @@ public:
 	void Server_TryInteract();
 
 	UFUNCTION(Server, Reliable)
-	void Server_ActivateInteractionAbility();
+	void Server_ActivateInteractionAbility(TSubclassOf<UGameplayAbility> Ability) ;
 	
 #pragma endregion
 
@@ -47,7 +47,7 @@ protected:
 
 	void SetInteractionUI(const bool bIsVisible);
 
-	void ActivateInteractionAbility() const;
+	void ActivateInteractionAbility(TSubclassOf<UGameplayAbility> Ability) const;
 
 	FTimerHandle UpdateTargetHandle;
 	float UpdateInterval = 0.1f;
