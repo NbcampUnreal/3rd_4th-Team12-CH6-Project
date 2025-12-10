@@ -65,9 +65,8 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetPlayerStateTag();
+	//	SetPlayerStateTag();
 
-	// InitASCFromPlayerState();
 	if (AController* PC = GetController())
 	{
 		ASKPlayerController* MyPC = Cast<ASKPlayerController>(PC);
@@ -85,7 +84,6 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
-
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
@@ -116,7 +114,7 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 	//
 	// 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	// }
-	//InitASCFromPlayerState();
+	SetPlayerStateTag();
 	SetTraceSocket();
 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	if (PS)
@@ -128,7 +126,7 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 void ASKPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("[CHECK] Mesh=%s"), *GetMesh()->GetName());
 	UE_LOG(LogTemp, Warning, TEXT("[CHECK] AnimInstance=%s"),
 	       GetMesh()->GetAnimInstance() ? *GetMesh()->GetAnimInstance()->GetName() : TEXT("NULL"));
@@ -163,10 +161,10 @@ void ASKPlayerCharacter::UpdateMovementTag()
 	if (!bIsFalling)
 	{
 		const bool bIsMoving = (Speed > 10.f);
-	
-		SetLooseTag( TAG_State_Movement_Walk, bIsMoving);
-		SetLooseTag( TAG_State_Movement_Idle, !bIsMoving);
-	
+
+		SetLooseTag(TAG_State_Movement_Walk, bIsMoving);
+		SetLooseTag(TAG_State_Movement_Idle, !bIsMoving);
+
 		// SetLooseTag(TAG_State_Posture_Grounded, !bIsFalling);
 	}
 	// else
@@ -180,12 +178,12 @@ void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
 	if (!IsValid(AbilitySystemComponent))
 		return;
 
-	SetLooseTag( TAG_State_Movement_Walk, false);
-	SetLooseTag( TAG_State_Movement_Idle, false);
+	SetLooseTag(TAG_State_Movement_Walk, false);
+	SetLooseTag(TAG_State_Movement_Idle, false);
 	SetLooseTag(TAG_State_Movement_Sprint, false);
 
 	//인자로받은 태/비활성화
-	SetLooseTag( ATKTag, Enable);
+	SetLooseTag(ATKTag, Enable);
 }
 
 void ASKPlayerCharacter::SetTraceSocket()
@@ -224,8 +222,8 @@ void ASKPlayerCharacter::SetLockOnState(bool bLock)
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	// InitASCFromPlayerState();
 
+	SetPlayerStateTag();
 	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	// if (!PS)
 	// 	return;
@@ -294,6 +292,12 @@ void ASKPlayerCharacter::TryInitASC()
 
 void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 {
+	if (!AbilitySystemComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SetLooseTag] ASC is null, skip: %s"), *Tag.ToString());
+		return;
+	}
+	
 	if (bEnable)
 	{
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(Tag))
@@ -342,7 +346,6 @@ void ASKPlayerCharacter::Server_SetLockOnState_Implementation(bool bLock)
 	bIsLockedOn = bLock;
 	SetLockOnState();
 }
-
 
 
 void ASKPlayerCharacter::SetPlayerStateTag()

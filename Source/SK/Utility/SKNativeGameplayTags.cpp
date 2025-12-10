@@ -101,6 +101,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EquipmentMain, "UI.Layout.EquipmentMain");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EquipmentSelect, "UI.Layout.EquipmentSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_QuickSlotSelect, "UI.Layout.QuickSlotSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_DungeonSelect, "UI.Layout.DungeonSelect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_BonfireMenu, "UI.Layout.BonfireMenu");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterStatus, "UI.Slot.CharacterStatus");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickItem, "UI.Slot.QuickItem");
@@ -126,6 +127,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotList, "UI.Slot.QuickSlotList");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotToolTip, "UI.Slot.QuickSlotToolTip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Interaction, "UI.Slot.Interaction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_DungeonSelect, "UI.Slot.DungeonSelect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BonfireMenu, "UI.Slot.BonfireMenu");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState, "PlayerState");
@@ -204,6 +206,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_ItemAddInfo, "Message.Channel.ItemAdd
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UseQuickSlotItem, "Message.Channel.UseQuickSlotItem");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BossWidgetSetting, "Message.Channel.BossWidgetSetting");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_LoadingUIVisible, "Message.Channel.LoadingUIVisible");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BonfireMenuMove, "Message.Channel.BonfireMenuMove");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
