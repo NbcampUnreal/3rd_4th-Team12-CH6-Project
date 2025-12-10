@@ -153,6 +153,9 @@ private:
 
 	void ClearTarGetOverlayMaterial();
 
+	UFUNCTION(BlueprintCallable)
+	void RequestLevelUp();
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EMoveDirection CurrentMoveDirection;

@@ -10,6 +10,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "SKPlayerState.generated.h"
 
+class ASKBonfire;
 class UInventoryComponent;
 class UQuickSlotComponent;
 class UEquipmentComponent;
@@ -247,4 +248,7 @@ protected:
 	UStaticDataSubsystem* SDS;
 #pragma endregion LevelSystem
 	
+public:
+	UPROPERTY()
+	ASKBonfire* CurrentBonfire;
 };
