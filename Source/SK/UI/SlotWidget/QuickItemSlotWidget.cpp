@@ -42,6 +42,8 @@ void UQuickItemSlotWidget::NativeConstruct()
 		&UQuickItemSlotWidget::OnQuickSlotItemUseMessageReceived
 	);
 	
+	DefaultBrush = ItemImage1->GetBrush();
+	
 	TryCachedComponent();
 }
 
@@ -51,6 +53,23 @@ void UQuickItemSlotWidget::NativeDestruct()
 	{
 		CachedQuickSlot->OnQuickSlotsUpdated.RemoveDynamic(this, &UQuickItemSlotWidget::SettingWidgetIcons);
 	}
+
+	if (LayoutSwitchHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
+		}
+	}
+
+	if (QuickSlotItemUseHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(QuickSlotItemUseHandle);
+		}
+	}
+	
 	Super::NativeDestruct();
 }
 
@@ -99,7 +118,7 @@ void UQuickItemSlotWidget::SettingWidgetIcons()
 	{
 		if (QuickSlots[0].ItemID == -1)
 		{
-			ItemImage1->SetBrush(FSlateBrush());
+			ItemImage1->SetBrush(DefaultBrush);
 		}
 		else
 		{
@@ -124,7 +143,7 @@ void UQuickItemSlotWidget::SettingWidgetIcons()
 	{
 		if (QuickSlots[1].ItemID == -1)
 		{
-			ItemImage2->SetBrush(FSlateBrush());
+			ItemImage2->SetBrush(DefaultBrush);
 		}
 		else
 		{
@@ -149,7 +168,7 @@ void UQuickItemSlotWidget::SettingWidgetIcons()
 	{
 		if (QuickSlots[2].ItemID == -1)
 		{
-			ItemImage3->SetBrush(FSlateBrush());
+			ItemImage3->SetBrush(DefaultBrush);
 		}
 		else
 		{

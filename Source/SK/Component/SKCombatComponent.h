@@ -64,6 +64,10 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_LeftAttackInput();
 	UFUNCTION(Server, Reliable)
+	void Server_Input_Right();
+	UFUNCTION(Server, Reliable)
+	void Server_Input_Skill_01();
+	UFUNCTION(Server, Reliable)
 	void Server_Notify_StopAttackTrace();
 	UFUNCTION(Server, Reliable)
 	void Server_OnATKEndNotify(bool bLeft);
@@ -77,6 +81,8 @@ public:
 	void Server_TryActivateGA(const FGameplayTag& Tag);
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayLeftAttackMontage(UAnimMontage* Montage, FName SectionName);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayMontage(UAnimMontage* Montage, FName SectionName);
 	UFUNCTION(Server, Reliable)
 	void Server_StartTrace();
 	UFUNCTION(Server, Reliable)
@@ -109,6 +115,7 @@ public:
 
 
 	UAnimMontage* GetLeftAttackMontage(int32 Index);
+	UAnimMontage* GetSkillMontage(int32 Index);
 	void SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh);
 	void SetWeaponMesh_Init();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")

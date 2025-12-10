@@ -38,6 +38,9 @@ public:
 	// 장비 액터 제거
 	UFUNCTION(BlueprintCallable)
 	void DestroyEquipmentActors();
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnActorVisible(bool bVisible);
 	
 protected:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)

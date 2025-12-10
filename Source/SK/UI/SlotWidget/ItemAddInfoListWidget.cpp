@@ -44,6 +44,14 @@ void UItemAddInfoListWidget::NativeConstruct()
 
 void UItemAddInfoListWidget::NativeDestruct()
 {
+	
+	if (ItemAddHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(ItemAddHandle);
+		}
+	}
 	Super::NativeDestruct();
 }
 

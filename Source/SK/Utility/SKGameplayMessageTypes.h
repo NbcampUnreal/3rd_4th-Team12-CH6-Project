@@ -194,3 +194,25 @@ struct FLoadingUIVisible
 	UPROPERTY(BlueprintReadWrite)
 	bool bVisible;
 };
+
+UENUM(BlueprintType)
+enum class EUIMessageType : uint8
+{
+	BonfireMove,
+	Inventory,
+	Confirm,
+	Equipmentmain,
+	EquipmentSelect,
+};
+
+USTRUCT(BlueprintType)
+struct FUIInteractionMoveMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	EUIMessageType Type;
+	
+	UPROPERTY(BlueprintReadWrite)
+	int32 MoveDirection;
+};

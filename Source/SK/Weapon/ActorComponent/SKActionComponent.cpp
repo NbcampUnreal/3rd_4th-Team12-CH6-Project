@@ -8,7 +8,7 @@
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 
 USKActionComponent::USKActionComponent()
-	: CurrentWeaponActionData(nullptr)
+	: CurrentWeaponAnimData(nullptr)
 {
 	SetIsReplicatedByDefault(true);
 }
@@ -35,13 +35,13 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
-void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponActionData)
+void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponAnimData)
 {
-	CurrentWeaponActionData = NewWeaponActionData;
+	CurrentWeaponAnimData = NewWeaponAnimData;
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Char) return;
 	
-	Char->GetMesh()->SetAnimInstanceClass(CurrentWeaponActionData->AnimInstance);
+	Char->GetMesh()->SetAnimInstanceClass(CurrentWeaponAnimData->AnimInstance);
 	
 }
 

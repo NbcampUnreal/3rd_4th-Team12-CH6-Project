@@ -46,6 +46,13 @@ void UDungeonStartSlotWidget::PlayAppearSound()
 
 void UDungeonStartSlotWidget::NativeDestruct()
 {
+	if (DungeonStartHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(DungeonStartHandle);
+		}
+	}
 	Super::NativeDestruct();
 }
 

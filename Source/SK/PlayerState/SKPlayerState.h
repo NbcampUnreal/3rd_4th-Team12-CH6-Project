@@ -10,12 +10,13 @@
 #include "GenericTeamAgentInterface.h"
 #include "SKPlayerState.generated.h"
 
+class ASKBonfire;
 class UInventoryComponent;
 class UQuickSlotComponent;
 class UEquipmentComponent;
 class UAbilitySystemComponent;
 class USKAttributeSet;
-
+class UStaticDataSubsystem;
 
 struct FWeaponDataRow;
 struct FSKWeaponDataRow;
@@ -97,6 +98,48 @@ public:
 	void SetCurWeaponTag(FGameplayTag NewTag);
 
 	void EquipmentComponentSetting();
+
+#pragma region LevelSystem
+	
+	/** Gold 지급 */
+	void AddGold(int32 Value);
+
+	/** 서버가 레벨업 요청 처리 */
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Server_RequestLevelUp();
+
+	/** 내부 레벨업 처리 */
+	UFUNCTION()
+	void TryLevelUp();
+
+	/** AbilityPoint 감소 → 스탯 강화 시 사용 */
+	UFUNCTION()
+	void ConsumeAbilityPoint();
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetGold() const { return Gold; }
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetPlayerLevel() const { return Level; }
+	
+	UFUNCTION(BlueprintCallable)
+	int32 GetAbilityPoint() const { return AbilityPoint; }
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetRequiredGoldForNextLevel() const;
+	
+	
+	UPROPERTY(ReplicatedUsing=OnRep_Gold, BlueprintReadOnly)
+	int32 Gold = 0;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_Level, BlueprintReadOnly)
+	int32 Level = 1;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_AbilityPoint, BlueprintReadOnly)
+	int32 AbilityPoint = 0;
+	
+#pragma endregion LevelSystem
+	
 	
 #pragma region GAS
 	UFUNCTION()
@@ -189,4 +232,23 @@ protected:
 	
 	UPROPERTY()
 	TMap<FActiveGameplayEffectHandle, FModifiedAttributeArray> ModifiedAttributeMap;
+
+
+#pragma region LevelSystem
+	UFUNCTION()
+	void OnRep_Gold();
+
+	UFUNCTION()
+	void OnRep_Level();
+
+	UFUNCTION()
+	void OnRep_AbilityPoint();
+
+	// StaticDataSubsystem 캐싱용
+	UStaticDataSubsystem* SDS;
+#pragma endregion LevelSystem
+	
+public:
+	UPROPERTY()
+	ASKBonfire* CurrentBonfire;
 };

@@ -37,7 +37,7 @@ protected:
 	mutable float PendingGold = 0.0f;
 	mutable bool bIsPlayingAnimation = false;
 	
-	void GlodChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
+	void GoldChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
 
 	UFUNCTION()
 	void OnGoldAddAnimationFinished();

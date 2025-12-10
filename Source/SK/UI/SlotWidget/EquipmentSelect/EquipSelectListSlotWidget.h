@@ -23,6 +23,9 @@ class SK_API UEquipSelectListSlotWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	void NotifyIndex(int32 Index);
 	
 protected:
 	void TryCachedComponent();
@@ -59,6 +62,8 @@ protected:
 	
 	FSKGameplayMessageListenerHandle ItemSwitchHandle;
 
+	FSKGameplayMessageListenerHandle InteractionHandle;
+
 	// 한 줄에 몇 칸
 	UPROPERTY(EditAnywhere, Category="Inventory")
 	int32 ItemsPerRow = 5;
@@ -66,8 +71,23 @@ protected:
 	// 최소 슬롯 개수
 	UPROPERTY(EditAnywhere, Category="Inventory")
 	int32 MinSlotCount = 20;
+
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	int32 CurrentIndex = 0;
+
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	int32 VisibleWidgetCount = 0;
 	
 	void OnItemSwitchMessageReceived(FGameplayTag Channel, const FItemSwitchMessage& Message);
+
+	void OnInteractionMessageReceived(FGameplayTag Channel, const FUIInteractionMoveMessage& Message);
 	
 	void RefreshInventory();
+
+	void SetIndexHover(int32 Index);
+	void SetIndexUnHover(int32 Index);
+
+	void MoveIndex(int32 Index);
+
+	void ScrollToIndex(int32 Index);
 };
