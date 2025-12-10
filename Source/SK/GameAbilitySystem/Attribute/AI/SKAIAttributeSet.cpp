@@ -1,6 +1,7 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "Perception/AISense_Damage.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -44,9 +45,30 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	Super::PostGameplayEffectExecute(Data);
 	
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
-	{
+	{	
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+		
+		float Damage = -Data.EvaluatedData.Magnitude;
+		
+		const FGameplayEffectContextHandle Context = Data.EffectSpec.GetContext();
 
+		AActor* VictimActor = GetOwningActor();
+		AActor* InstigatorActor = Context.GetInstigator();
+
+		if (Damage <= 0.f || !IsValid(VictimActor) || !IsValid(InstigatorActor))
+		{
+			return;
+		}
+
+		UAISense_Damage::ReportDamageEvent(
+			VictimActor,
+			VictimActor,        
+			InstigatorActor,   
+			Damage,       
+			VictimActor->GetActorLocation(),            
+			VictimActor->GetActorLocation()
+		);
+		
 		if (FMath::IsNearlyZero(GetHealth()))
 		{
 			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
