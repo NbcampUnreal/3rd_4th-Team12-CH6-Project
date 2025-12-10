@@ -8,6 +8,7 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "CharacterStatSlotWidget.generated.h"
 
+class ASKPlayerState;
 class USKAttributeSet;
 class UTextBlock;
 /**
@@ -59,7 +60,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stat")
 	const USKAttributeSet* CharacterStat;
-
+	
+	UPROPERTY()
+	ASKPlayerState* CurrentPS;
+	
 	UFUNCTION()
 	void ReflashStat();
 
