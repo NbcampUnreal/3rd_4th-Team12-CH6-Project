@@ -48,8 +48,8 @@ void UBonfireMenuSlotWidget::NativeConstruct()
 		return;
 	}
 
-	MenuMoveHandle = MessageSubsystem->RegisterListener<FBonfireMenuMoveMessage>(
-		TAG_Message_Channel_BonfireMenuMove,
+	MenuMoveHandle = MessageSubsystem->RegisterListener<FUIInteractionMoveMessage>(
+		TAG_Message_Channel_UIInteraction,
 		this,
 		&UBonfireMenuSlotWidget::OnMenuMoveMessageReceived
 	);
@@ -70,20 +70,19 @@ void UBonfireMenuSlotWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UBonfireMenuSlotWidget::OnMenuMoveMessageReceived(FGameplayTag Channel, const FBonfireMenuMoveMessage& Message)
+void UBonfireMenuSlotWidget::OnMenuMoveMessageReceived(FGameplayTag Channel, const FUIInteractionMoveMessage& Message)
 {
-	if (Message.MoveDirection == 0)
+	if (Message.Type != EUIMessageType::BonfireMove)
 	{
-		MoveSelectionUp();
+		return;
 	}
-	else if (Message.MoveDirection == 1)
+
+	switch (Message.MoveDirection)
 	{
-		MoveSelectionDown();
-	}
-	else if (Message.MoveDirection == 2)
-	{
-		PressCurrentButton();
-	}
+		case 0: MoveSelectionUp(); break;
+		case 1: MoveSelectionDown(); break;
+		case 4: PressCurrentButton(); break;
+	};
 }
 
 void UBonfireMenuSlotWidget::PressCurrentButton()
