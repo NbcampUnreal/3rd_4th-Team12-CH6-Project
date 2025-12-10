@@ -7,7 +7,7 @@
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "BonfireMenuSlotWidget.generated.h"
 
-struct FBonfireMenuMoveMessage;
+struct FUIInteractionMoveMessage;
 class UButton;
 /**
  * 
@@ -51,7 +51,7 @@ protected:
 	
 	FSKGameplayMessageListenerHandle MenuMoveHandle;
 
-	void OnMenuMoveMessageReceived(FGameplayTag Channel, const FBonfireMenuMoveMessage& Message);
+	void OnMenuMoveMessageReceived(FGameplayTag Channel, const FUIInteractionMoveMessage& Message);
 
 	UFUNCTION()
 	void PressCurrentButton();

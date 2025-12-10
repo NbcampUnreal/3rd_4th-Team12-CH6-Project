@@ -195,11 +195,24 @@ struct FLoadingUIVisible
 	bool bVisible;
 };
 
+UENUM(BlueprintType)
+enum class EUIMessageType : uint8
+{
+	BonfireMove,
+	Inventory,
+	Confirm,
+	Equipmentmain,
+	EquipmentSelect,
+};
+
 USTRUCT(BlueprintType)
-struct FBonfireMenuMoveMessage
+struct FUIInteractionMoveMessage
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	EUIMessageType Type;
+	
 	UPROPERTY(BlueprintReadWrite)
 	int32 MoveDirection;
 };

@@ -3,6 +3,7 @@
 
 #include "UI/SlotWidget/EquipmentSelect/EquipSelectItemWidget.h"
 
+#include "EquipSelectListSlotWidget.h"
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
@@ -79,6 +80,9 @@ void UEquipSelectItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, con
 
 	SendHoverMessage(true);
 	PlayUISound(HoverSound);
+	HoverImageVisible(true);
+
+	ParentWidget->NotifyIndex(WidgetIndex);
 }
 
 void UEquipSelectItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -86,6 +90,7 @@ void UEquipSelectItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEven
 	Super::NativeOnMouseLeave(InMouseEvent);
 
 	SendHoverMessage(false);
+	HoverImageVisible(false);
 }
 
 FReply UEquipSelectItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -222,6 +227,24 @@ void UEquipSelectItemWidget::OnItemRightClicked()
 
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+		}
+	}
+}
+
+void UEquipSelectItemWidget::HoverImageVisible(bool bVisible)
+{
+	if (bVisible)
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	else
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }
