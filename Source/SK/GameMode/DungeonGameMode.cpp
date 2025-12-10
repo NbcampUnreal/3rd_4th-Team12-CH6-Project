@@ -1,4 +1,6 @@
 #include "GameMode/DungeonGameMode.h"
+#include "GameFramework/PlayerController.h"
+#include "PlayerState/SKPlayerState.h"
 
 ADungeonGameMode::ADungeonGameMode()
 {
@@ -121,5 +123,20 @@ void ADungeonGameMode::TryProgressState()
 	{
 		// 바로 전투 시작
 		ChangeDungeonState(EDungeonMatchState::Dungeon_InProgress);
+	}
+}
+
+void ADungeonGameMode::AddGoldToPlayers(int32 GoldValue)
+{
+	for (auto It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		if (!PC) continue;
+
+		ASKPlayerState* PS = PC->GetPlayerState<ASKPlayerState>();
+		if (PS)
+		{
+			PS->AddGold(GoldValue);
+		}
 	}
 }

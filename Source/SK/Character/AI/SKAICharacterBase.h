@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "GameData/StaticData/MonsterDataTable.h"
 #include "SKAICharacterBase.generated.h"
 
 class UBoxComponent;
@@ -11,6 +12,7 @@ class UMotionWarpingComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
+
 
 UCLASS()
 class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -41,6 +43,9 @@ protected:
 	/** 몬스터 정적 ID */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MonsterID")
 	int32 DropTableID = -1;
+
+	/** 몬스터 정적 ID */
+	const FMonsterData* MonsterData;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation|Montages")
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
@@ -83,6 +88,10 @@ public:
 	void SetMeleeIndex(int32 NewMeleeIndex);
 
 	FVector GetStartLocation() const;
+
+	int32 GetDropTableID() const;
+
+	FMonsterData GetMonsterData() const;
 
 	//오버레이머티리얼 Set함수-이준식
 	void SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration = 10.f);

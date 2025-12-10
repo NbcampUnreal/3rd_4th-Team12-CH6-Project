@@ -4,6 +4,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Utility/DropSubsystem.h"
+#include "GameMode/DungeonGameMode.h"
 
 USK_GA_AI_Die::USK_GA_AI_Die()
 {
@@ -41,8 +42,15 @@ void USK_GA_AI_Die::OnDieCompleted()
 	{
 		return;
 	}
+
+	ASKAICharacterBase* AICharacter = Cast<ASKAICharacterBase>(CachedCharacter);
 	
-	DropSubsystem->ProcessDropTable(1, CachedCharacter->GetActorLocation());
+	DropSubsystem->ProcessDropTable(AICharacter->GetDropTableID(), AICharacter->GetActorLocation());
+	
+	int32 GoldToGive = FMath::RandRange(AICharacter->GetMonsterData().RewardMinGold, AICharacter->GetMonsterData().RewardMaxGold);
+	ADungeonGameMode* GM = GetWorld()->GetAuthGameMode<ADungeonGameMode>();
+	if (!GM) return;
+	GM->AddGoldToPlayers(GoldToGive);
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 	
