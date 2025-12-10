@@ -235,7 +235,7 @@ void ASKAICharacterBase::ClearOverlayMaterial()
 {
 	if (!GetMesh())
 		return;
-
+	UE_LOG(LogTemp, Error, TEXT("[Cam] Clear Material"));
 	GetMesh()->SetOverlayMaterial(nullptr);
 }
 
