@@ -46,8 +46,8 @@ void USK_GA_InteractionTemplate::PlayAnimMontage(UAnimMontage* InteractMontage)
 	if (InteractMontage)
 	{
 		UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), InteractMontage);
-		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
-		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
+		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCanceled);
 		PlayAnimTask->ReadyForActivation();
 	}
 }
@@ -55,4 +55,14 @@ void USK_GA_InteractionTemplate::PlayAnimMontage(UAnimMontage* InteractMontage)
 void USK_GA_InteractionTemplate::ExecuteTargetInteraction(UObject* TargetActor, AActor* Interactor)
 {
 	ISKInteractable::Execute_Interact(TargetActor, Interactor);
+}
+
+void USK_GA_InteractionTemplate::OnMontageCompleted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void USK_GA_InteractionTemplate::OnMontageCanceled()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 };

@@ -58,15 +58,6 @@ void USK_GA_InteractionBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	if (!InteractionComponent) return;
 
 	InteractionComponent->SetInteractionData(FSKInteractionData());
+	CachedTargetActor = nullptr;
 	CachedInteractionData = FSKInteractionData();
-}
-
-void USK_GA_InteractionBase::OnCompleted()
-{
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-}
-
-void USK_GA_InteractionBase::OnCanceled()
-{
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

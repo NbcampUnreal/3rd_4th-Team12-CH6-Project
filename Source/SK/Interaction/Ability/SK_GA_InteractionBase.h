@@ -28,11 +28,6 @@ public:
 		bool bWasCancelled) override;
 
 protected:
-	UFUNCTION()
-	void OnCompleted();
-
-	UFUNCTION()
-	void OnCanceled();
 
 	UPROPERTY()
 	TObjectPtr<ASKInteractableBase> CachedTargetActor;

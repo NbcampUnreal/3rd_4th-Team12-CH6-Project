@@ -14,8 +14,8 @@ class SK_API USK_GA_InteractionTemplate : public USK_GA_InteractionBase
 
 protected:
 	UFUNCTION()
-	virtual void OnMoveCompleted() PURE_VIRTUAL(USK_GA_InteractionTemplate::OnMoveCompleted);
-
+	virtual void OnMoveCompleted() PURE_VIRTUAL(USK_GA_InteractionTemplate::OnMoveCompleted,);
+	
 	UFUNCTION()
 	virtual float GetDistance(ASKPlayerCharacter* PlayerCharacter, FVector TargetLocation);
 	UFUNCTION()
@@ -29,5 +29,9 @@ protected:
 	virtual void PlayAnimMontage(UAnimMontage* InteractMontage);
 	UFUNCTION()
 	virtual void ExecuteTargetInteraction(UObject* TargetActor, AActor* Interactor);
+	UFUNCTION()
+	virtual void OnMontageCompleted();
+	UFUNCTION()
+	virtual void OnMontageCanceled();
 
 };
