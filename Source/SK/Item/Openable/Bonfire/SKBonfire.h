@@ -28,7 +28,8 @@ protected:
 public:
 	virtual void ExecuteInteraction_Implementation(AActor* Interactor) override;
 
-protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Bonfire")
+	TObjectPtr<UAnimMontage> EndMontage;
 	
 #pragma endregion
 };

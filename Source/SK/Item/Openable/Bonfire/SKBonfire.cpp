@@ -1,7 +1,12 @@
 ﻿#include "SKBonfire.h"
 
 #include "NiagaraComponent.h"
+#include "Character/SKPlayerCharacter.h"
 #include "Components/SphereComponent.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 
 ASKBonfire::ASKBonfire()
@@ -33,4 +38,24 @@ void ASKBonfire::ExecuteInteraction_Implementation(AActor* Interactor)
 	
 	// HUD 제거  -> 구현 위치?
 	// 화톳불 전용 UI 표시 -> 구현 위치?
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
+	if (!PlayerCharacter) return;
+	
+	ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+	
+	PS->CurrentBonfire = this;
+
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			// 전송할 메시지 생성
+			FSwitchLayoutMessage Message(TAG_UI_Layout_BonfireMenu, true);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+		}
+	}
 }
