@@ -33,12 +33,6 @@ void ASKBonfire::BeginPlay()
 
 void ASKBonfire::ExecuteInteraction_Implementation(AActor* Interactor)
 {
-	// ResetAttribute(); -> 구현 위치?
-	// ResetMonster(); -> 구현 위치?
-	
-	// HUD 제거  -> 구현 위치?
-	// 화톳불 전용 UI 표시 -> 구현 위치?
-
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
 	if (!PlayerCharacter) return;
 	
