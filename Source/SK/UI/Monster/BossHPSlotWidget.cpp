@@ -86,6 +86,15 @@ void UBossHPSlotWidget::NativeDestruct()
 		AttributeSet->OnCurrentHealthChanged.RemoveAll(this);
 		AttributeSet->OnCurrentPoiseChanged.RemoveAll(this);
 	}
+
+	if (SettingBossHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(SettingBossHandle);
+		}
+	}
+	
 	Super::NativeDestruct();
 }
 

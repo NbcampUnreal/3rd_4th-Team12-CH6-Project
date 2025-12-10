@@ -42,6 +42,18 @@ void UConfirmSlotWidget::NativeConstruct()
 	);
 }
 
+void UConfirmSlotWidget::NativeDestruct()
+{
+	if (RequestConfirmHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(RequestConfirmHandle);
+		}
+	}
+	Super::NativeDestruct();
+}
+
 void UConfirmSlotWidget::HandleConfirmClicked()
 {
 	if (UWorld* World = GetWorld())

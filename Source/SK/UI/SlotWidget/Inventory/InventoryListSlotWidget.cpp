@@ -44,6 +44,18 @@ void UInventoryListSlotWidget::NativeConstruct()
 	);
 }
 
+void UInventoryListSlotWidget::NativeDestruct()
+{
+	if (LayoutSwitchHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
+		}
+	}
+	Super::NativeDestruct();
+}
+
 void UInventoryListSlotWidget::TryCachedInventory()
 {
 	APlayerController* PC = GetOwningPlayer();

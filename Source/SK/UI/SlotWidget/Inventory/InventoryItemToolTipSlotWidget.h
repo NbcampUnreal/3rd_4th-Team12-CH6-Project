@@ -54,6 +54,7 @@ protected:
 	void UpdateAdditionalStats(USKInventoryItemData* ItemData);
 
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	UFUNCTION()
 	void TryCachedSystem();

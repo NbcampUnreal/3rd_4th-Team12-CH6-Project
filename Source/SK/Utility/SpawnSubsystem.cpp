@@ -200,3 +200,39 @@ void USpawnSubsystem::SpawnAll()
     }
     UE_LOG(LogTemp, Log, TEXT("[SpawnSubsystem] SpawnAll(): Spawn completed (%d RuleIDs)."), RuleIDSet.Num());
 }
+
+void USpawnSubsystem::RespawnAll()
+{
+    UWorld* World = GetWorldChecked();
+    if (World->GetNetMode() == NM_Client) return;
+    
+    // 1) 기존 몬스터 모두 제거
+    for (FSpawnPointData& P : SpawnPoints)
+    {
+        for (auto& ActorPtr : P.SpawnedActors)
+        {
+            if (AActor* A = ActorPtr.Get())
+            {
+                A->Destroy();
+            }
+        }
+        P.SpawnedActors.Empty();
+    }
+
+    // 2) SpawnPoints에 있는 RuleID 기준으로 다시 전체 스폰
+    TSet<int32> RuleIDSet;
+    for (const FSpawnPointData& P : SpawnPoints)
+    {
+        if (P.SpawnRuleID > 0)
+        {
+            RuleIDSet.Add(P.SpawnRuleID);
+        }
+    }
+
+    for (int32 RuleID : RuleIDSet)
+    {
+        SpawnByRuleID(RuleID);
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("[SpawnSubsystem] RespawnAll(): All monsters respawned."));
+}

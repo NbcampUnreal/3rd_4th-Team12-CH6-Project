@@ -14,9 +14,6 @@ class SK_API USKPlayerAnimInstance : public USKBaseAnimInstance
 	GENERATED_BODY()
 
 public:
-	virtual void NativeInitializeAnimation() override;
-
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	ASKPlayerCharacter* OwnerPlayer;
