@@ -10,6 +10,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "SKPlayerState.generated.h"
 
+class ASKBonfire;
 class UInventoryComponent;
 class UQuickSlotComponent;
 class UEquipmentComponent;
@@ -189,4 +190,8 @@ protected:
 	
 	UPROPERTY()
 	TMap<FActiveGameplayEffectHandle, FModifiedAttributeArray> ModifiedAttributeMap;
+
+public:
+	UPROPERTY()
+	ASKBonfire* CurrentBonfire;
 };
