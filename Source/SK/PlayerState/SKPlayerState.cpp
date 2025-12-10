@@ -109,6 +109,10 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 	{
 		QuickSlotComponent->CopyTo(NewPS->QuickSlotComponent);
 	}
+
+	NewPS->Gold = Gold;
+	NewPS->Level = Level;
+	NewPS->AbilityPoint = AbilityPoint;
 }
 
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -427,7 +431,16 @@ int32 ASKPlayerState::GetRequiredGoldForNextLevel() const
 	return Rule ? Rule->RequiredGold : -1;
 }
 
-void ASKPlayerState::OnRep_Gold() {}
+void ASKPlayerState::OnRep_Gold()
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	if (!PC) return;
+	
+	if (PC->IsLocalController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] OnRep_Gold  누적 Gold : %d"),Gold);
+	}
+}
 void ASKPlayerState::OnRep_Level()
 {
 	APlayerController* PC = Cast<APlayerController>(GetOwner());
