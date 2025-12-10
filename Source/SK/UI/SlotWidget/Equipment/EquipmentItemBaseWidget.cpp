@@ -3,10 +3,17 @@
 
 #include "UI/SlotWidget/Equipment/EquipmentItemBaseWidget.h"
 
+#include "EquipMainListSlotWidget.h"
+#include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
+
+void UEquipmentItemBaseWidget::SetIndex(int32 Index)
+{
+	CurrentIndex = Index;
+}
 
 void UEquipmentItemBaseWidget::NativeConstruct()
 {
@@ -23,12 +30,32 @@ void UEquipmentItemBaseWidget::NativeOnMouseEnter(const FGeometry& InGeometry, c
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 	SendHoverMessage(true);
 	PlayUISound(HoverSound);
+
+	ParentWidget->NotifyIndex(CurrentIndex);
 }
 
 void UEquipmentItemBaseWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseLeave(InMouseEvent);
 	SendHoverMessage(false);
+}
+
+void UEquipmentItemBaseWidget::HoverImageVisible(bool bVisible)
+{
+	if (bVisible)
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	else
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
 }
 
 FReply UEquipmentItemBaseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

@@ -19,4 +19,34 @@ public:
 	FDataTableRowHandle BackInputActionData;
 
 	FUIActionBindingHandle BackHandle;
+
+	UPROPERTY(EditDefaultsOnly)
+	FDataTableRowHandle MoveLeftData;
+
+	FUIActionBindingHandle MoveLeftHandle;
+
+	UPROPERTY(EditDefaultsOnly)
+	FDataTableRowHandle MoveRightData;
+
+	FUIActionBindingHandle MoveRightHandle;
+
+	UPROPERTY(EditDefaultsOnly)
+	FDataTableRowHandle SelectionData;
+
+	FUIActionBindingHandle SelectionHandle;
+
+protected:
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void BackHandleAction();
+
+	UFUNCTION()
+	void MoveLeftHandleAction();
+
+	UFUNCTION()
+	void MoveRightHandleAction();
+
+	UFUNCTION()
+	void SelectionHandleAction();
 };

@@ -148,8 +148,7 @@ void ASKPlayerController::SetupInputComponent()
 	{
 		check(MoveAction);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Move);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this,
-		                                   &ASKPlayerController::OnMoveRepleased);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASKPlayerController::OnMoveRepleased);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
@@ -167,7 +166,7 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MouseWheelAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_MouseWheel);
 		EnhancedInputComponent->BindAction(MouseWheelMoveAction, ETriggerEvent::Started, this,
-		                                   &ASKPlayerController::Active_MouseWheelMove);
+									   &ASKPlayerController::Active_MouseWheelMove);
 
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
@@ -175,7 +174,7 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::Dodge);
 		// Q-R-F
 		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
-		                                   &ASKPlayerController::Active_QuickSlotAction_00);
+		                                   &ASKPlayerController::Active_QuickSlotAction_00); 
 		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_QuickSlotAction_01);
 		EnhancedInputComponent->BindAction(QuickSlotAction_02, ETriggerEvent::Started, this,
@@ -196,30 +195,65 @@ void ASKPlayerController::OnPossess(APawn* InPawn)
 	OnPawnPossessed.Broadcast(InPawn);;
 }
 
+void ASKPlayerController::ValidationLockOn()
+{
+	if (!CurrentTarget)
+	{
+		bIsLockedOn = false;
+		return;
+	}
+
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+
+	FVector CamLoc = Cam->GetCameraLocation();
+	FVector PlayerLoc = GetPawn()->GetActorLocation();
+	FVector TargetLoc = CurrentTarget->GetActorLocation();
+	TargetLoc.Z += Cam->LockOnHeight;
+
+	// 시야 가림 체크
+	if (Cam->IsTargetObstructed(CamLoc, TargetLoc))
+	{
+		bIsLockedOn = false;
+		CurrentTarget = nullptr;
+		return;
+	}
+
+	// 거리 체크
+	float Dist = FVector::Dist(PlayerLoc, CurrentTarget->GetActorLocation());
+	if (Dist > Cam->MaxLockDistance || Dist < Cam->MinLockDistance)
+	{
+		bIsLockedOn = false;
+		CurrentTarget = nullptr;
+		return;
+	}
+}
 
 void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 {
 	if (!IsValid(CurrentTarget))
 	{
+		bIsLockedOn = false;
+		CurrentTarget = nullptr;
 		return;
 	}
 
 	APawn* PlayerPawn = GetPawn();
 	if (!IsValid(PlayerPawn))
 	{
+		bIsLockedOn = false;
 		return;
 	}
-
+	FVector PlayerLoc = GetPawn()->GetActorLocation();
+	FVector TargetLoc = CurrentTarget->GetActorLocation();
 	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
 
-	FVector PlayerLoc = PlayerPawn->GetActorLocation();
-	FVector TargetLoc = CurrentTarget->GetActorLocation();
 	TargetLoc.Z += Cam->LockOnHeight;
 
 	FRotator TargetRot = (TargetLoc - PlayerLoc).Rotation();
 	TargetRot.Pitch -= Cam->LockOnPitch;
 
 	FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
+
 	SetControlRotation(NewRot);
 }
 
@@ -254,7 +288,7 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
 
-
+		
 		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(ControlledPawn);
 		if (Char)
 		{
@@ -276,21 +310,22 @@ void ASKPlayerController::OnMoveRepleased()
 		USKActionComponent* ActionComponent = Char->GetActionComponent();
 		if (ActionComponent)
 		{
-			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector,
-			                                        GetClosestMoveDirection(FVector2D::ZeroVector));
+			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector, GetClosestMoveDirection(FVector2D::ZeroVector));
 		}
 	}
 }
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
-	if (Cam && Cam->GetIsLockedOn())
+	if (bIsLockedOn && CurrentTarget)
 		return;
+	//
+	//
+	// LookInput = Value.Get<FVector2D>();
 
-
+	
 	const FVector2D InLookVector = Value.Get<FVector2D>();
-
+	
 	AddYawInput(InLookVector.X);
 	AddPitchInput(InLookVector.Y);
 }
@@ -393,23 +428,22 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	if (!SKPlayerCharacter)
 		return;
 
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
-
 	//락온상대일때 재입력하면 해제
-	if (Cam->GetIsLockedOn())
+	if (bIsLockedOn)
 	{
-		Cam->SetLockedTarget(nullptr);
-		CurrentTarget = nullptr;
-
+		SetLockOnTarget(nullptr);
 		SKPlayerCharacter->SetLockOnState(false);
-
+		SKPlayerCharacter->Server_SetLockOnState(false);
 		return;
 	}
 
 	AActor* Target = FindNearestTarget();
-	Cam->SetLockedTarget(Target);
-	CurrentTarget = Target;
-	SKPlayerCharacter->SetLockOnState(Cam->GetIsLockedOn());
+	if (Target)
+	{
+		SetLockOnTarget(Target);
+		SKPlayerCharacter->SetLockOnState(true);
+		SKPlayerCharacter->Server_SetLockOnState(true);
+	}
 }
 
 void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
@@ -424,6 +458,7 @@ void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 
 	CamManager->AdjustCameraDistance(WheelValue);
 }
+
 
 
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
@@ -454,8 +489,8 @@ void ASKPlayerController::Active_QuickSlotAction_02(const FInputActionValue& Val
 void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_00"));
-	APlayerState* BasePlayerState = PlayerState; // 또는 GetPlayerState()
-
+	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
+ 
 	// 2. 커스텀 PlayerState로 캐스팅
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
 	if (!SKPlayerState)
@@ -463,7 +498,7 @@ void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
 		return;
 	}
-
+ 
 	// 3. QuickSlotComponent 찾기
 	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
 	if (!QuickSlotComp)
@@ -471,7 +506,7 @@ void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
 		return;
 	}
-
+ 
 	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
 	QuickSlotComp->TryUseQuickSlot(0);
 }
@@ -479,8 +514,8 @@ void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value
 void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_01"));
-	APlayerState* BasePlayerState = PlayerState; // 또는 GetPlayerState()
-
+	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
+ 
 	// 2. 커스텀 PlayerState로 캐스팅
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
 	if (!SKPlayerState)
@@ -488,7 +523,7 @@ void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
 		return;
 	}
-
+ 
 	// 3. QuickSlotComponent 찾기
 	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
 	if (!QuickSlotComp)
@@ -496,7 +531,7 @@ void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
 		return;
 	}
-
+ 
 	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
 	QuickSlotComp->TryUseQuickSlot(1);
 }
@@ -504,8 +539,8 @@ void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value
 void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_02"));
-	APlayerState* BasePlayerState = PlayerState; // 또는 GetPlayerState()
-
+	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
+ 
 	// 2. 커스텀 PlayerState로 캐스팅
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
 	if (!SKPlayerState)
@@ -513,7 +548,7 @@ void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
 		return;
 	}
-
+ 
 	// 3. QuickSlotComponent 찾기
 	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
 	if (!QuickSlotComp)
@@ -521,7 +556,7 @@ void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
 		return;
 	}
-
+ 
 	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
 	QuickSlotComp->TryUseQuickSlot(2);
 }
@@ -571,6 +606,24 @@ AActor* ASKPlayerController::FindNearestTarget()
 	return Best;
 }
 
+void ASKPlayerController::SetLockOnTarget(AActor* NewTarget)
+{
+	AActor* OldTarget = CurrentTarget;
+	CurrentTarget = NewTarget;
+	bIsLockedOn = (NewTarget != nullptr);
+
+	UpdateCameraManagerTarget(OldTarget, NewTarget);
+}
+
+void ASKPlayerController::UpdateCameraManagerTarget(AActor* OldTarget, AActor* NewTarget)
+{
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+	if (Cam)
+	{
+		Cam->LockedTarget = CurrentTarget;
+		Cam->SetbIsLockedOn(bIsLockedOn);;
+	}
+}
 
 void ASKPlayerController::ClearTarGetOverlayMaterial()
 {
@@ -663,7 +716,7 @@ void ASKPlayerController::Dodge(const FInputActionValue& Value)
 
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
 	if (!SKPlayerCharacter) return;
-
+	
 	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
