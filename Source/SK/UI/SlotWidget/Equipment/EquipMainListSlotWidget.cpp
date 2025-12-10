@@ -34,6 +34,57 @@ void UEquipMainListSlotWidget::NativeConstruct()
 		this,
 		&UEquipMainListSlotWidget::OnSwitchLayoutMessageReceived
 	);
+
+	InteractionHandle = MessageSubsystem->RegisterListener<FUIInteractionMoveMessage>(
+		TAG_Message_Channel_UIInteraction,
+		this,
+		&UEquipMainListSlotWidget::OnInteractionMessageReceived
+	);
+
+	SlotList.Empty();
+	SlotPositions.Empty();
+	
+	// Row 0
+	SlotList.Add(WeaponSlot);
+	SlotPositions.Add(FIntPoint(0, 0));
+
+	SlotList.Add(Accessory1Slot);
+	SlotPositions.Add(FIntPoint(0, 1));
+
+	SlotList.Add(Accessory2Slot);
+	SlotPositions.Add(FIntPoint(0, 2));
+
+	// Row 1
+	SlotList.Add(HelmetSlot);
+	SlotPositions.Add(FIntPoint(1, 0));
+
+	SlotList.Add(ChestSlot);
+	SlotPositions.Add(FIntPoint(1, 1));
+
+	SlotList.Add(LegSlot);
+	SlotPositions.Add(FIntPoint(1, 2));
+
+	SlotList.Add(BootsSlot);
+	SlotPositions.Add(FIntPoint(1, 3));
+
+	// Row 2
+	SlotList.Add(QuickSlot1);
+	SlotPositions.Add(FIntPoint(2, 0));
+
+	SlotList.Add(QuickSlot2);
+	SlotPositions.Add(FIntPoint(2, 1));
+
+	SlotList.Add(QuickSlot3);
+	SlotPositions.Add(FIntPoint(2, 2));
+
+	// 각 Slot들에게 인덱스 전달
+	for (int32 i = 0; i < SlotList.Num(); i++)
+	{
+		SlotList[i]->SetIndex(i);
+	}
+
+	CurrentIndex = 0;
+	SetIndexHover(CurrentIndex);
 	
 	TryCachedComponent();
 }
@@ -47,7 +98,25 @@ void UEquipMainListSlotWidget::NativeDestruct()
 			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
 		}
 	}
+
+	if (InteractionHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(InteractionHandle);
+		}
+	}
+	
 	Super::NativeDestruct();
+}
+
+void UEquipMainListSlotWidget::NotifyIndex(int32 Index)
+{
+	if (CurrentIndex != Index)
+	{
+		SlotList[CurrentIndex]->HoverImageVisible(false);
+	}
+	CurrentIndex = Index;
 }
 
 void UEquipMainListSlotWidget::TryCachedComponent()
@@ -196,6 +265,70 @@ void UEquipMainListSlotWidget::CheckQuickSlot()
 	
 }
 
+void UEquipMainListSlotWidget::MoveIndex(int32 Index)
+{
+	if (SlotList.Num() == 0) return;
+
+	int32 PrevIndex = CurrentIndex;
+
+	int32 CurrentRow = SlotPositions[CurrentIndex].X;
+	int32 CurrentCol = SlotPositions[CurrentIndex].Y;
+
+	int32 BestIndex = CurrentIndex;
+	int32 BestDistance = 9999;
+	
+	int32 TargetRow = CurrentRow;
+	int32 TargetCol = CurrentCol;
+
+	switch (Index)
+	{
+		case 0: TargetRow = CurrentRow - 1; break; // Up
+		case 1: TargetRow = CurrentRow + 1; break; // Down
+		case 2: TargetCol = CurrentCol - 1; break; // Left
+		case 3: TargetCol = CurrentCol + 1; break; // Right
+		default: break;
+	}
+
+	// 가장 가까운 슬롯 찾기
+	for (int32 i = 0; i < SlotList.Num(); i++)
+	{
+		FIntPoint Pos = SlotPositions[i];
+
+		// 이동 방향에 맞는 슬롯만 허용
+		if (Index == 0 && Pos.X >= CurrentRow) continue; // Up
+		if (Index == 1 && Pos.X <= CurrentRow) continue; // Down
+		if (Index == 2 && Pos.Y >= CurrentCol) continue; // Left
+		if (Index == 3 && Pos.Y <= CurrentCol) continue; // Right
+
+		int32 Dist = FMath::Abs(Pos.X - TargetRow) * 10 + FMath::Abs(Pos.Y - TargetCol);
+
+		if (Dist < BestDistance)
+		{
+			BestDistance = Dist;
+			BestIndex = i;
+		}
+	}
+
+	// 후보가 없으면 그대로
+	CurrentIndex = BestIndex;
+	
+	SetIndexUnHover(PrevIndex);
+	SetIndexHover(CurrentIndex);
+}
+
+void UEquipMainListSlotWidget::SetIndexHover(int32 Index)
+{
+	FGeometry DummyGeometry;
+	FPointerEvent DummyPointerEvent;
+	SlotList[Index]->NativeOnMouseEnter(DummyGeometry, DummyPointerEvent);
+}
+
+void UEquipMainListSlotWidget::SetIndexUnHover(int32 Index)
+{
+	FPointerEvent DummyPointerEvent;
+	SlotList[Index]->NativeOnMouseLeave(DummyPointerEvent);
+}
+
 void UEquipMainListSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message)
 {
 	if (Message.LayoutTag != TAG_UI_Layout_EquipmentMain)
@@ -203,4 +336,22 @@ void UEquipMainListSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channe
 		return;
 	}
 	RefreshEquipMainSlots();
+}
+
+void UEquipMainListSlotWidget::OnInteractionMessageReceived(FGameplayTag Channel,
+	const FUIInteractionMoveMessage& Message)
+{
+	if (Message.Type != EUIMessageType::Equipmentmain)
+	{
+		return;
+	}
+		
+	if (Message.MoveDirection == 4)
+	{
+		SlotList[CurrentIndex]->OnClicked();
+	}
+	else
+	{
+		MoveIndex(Message.MoveDirection);;
+	}
 }

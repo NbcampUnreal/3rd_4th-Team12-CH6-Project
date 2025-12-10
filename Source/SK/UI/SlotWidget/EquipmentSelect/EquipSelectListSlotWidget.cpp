@@ -393,7 +393,6 @@ void UEquipSelectListSlotWidget::MoveIndex(int32 Index)
 		break;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("MoveIndex: Prev=%d  Current=%d  Visible=%d"), PreviousIndex, CurrentIndex, VisibleWidgetCount);
 	SetIndexUnHover(PreviousIndex);
 	SetIndexHover(CurrentIndex);
 

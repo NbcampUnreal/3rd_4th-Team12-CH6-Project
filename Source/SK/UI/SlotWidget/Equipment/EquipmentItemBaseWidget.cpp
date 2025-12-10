@@ -3,10 +3,16 @@
 
 #include "UI/SlotWidget/Equipment/EquipmentItemBaseWidget.h"
 
+#include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
+
+void UEquipmentItemBaseWidget::SetIndex(int32 Index)
+{
+	CurrentItemID = Index;
+}
 
 void UEquipmentItemBaseWidget::NativeConstruct()
 {
@@ -29,6 +35,24 @@ void UEquipmentItemBaseWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEv
 {
 	Super::NativeOnMouseLeave(InMouseEvent);
 	SendHoverMessage(false);
+}
+
+void UEquipmentItemBaseWidget::HoverImageVisible(bool bVisible)
+{
+	if (bVisible)
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	else
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
 }
 
 FReply UEquipmentItemBaseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
