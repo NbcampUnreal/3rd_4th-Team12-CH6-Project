@@ -4,6 +4,7 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Component/SKCombatComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Manager/SKCameraManager.h"
 
 USK_GA_Dodge::USK_GA_Dodge()
 	: DodgeMontage(nullptr)
@@ -97,9 +98,11 @@ FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKAc
 	FRotator AdjustedRot = DodgeRotation;
 
 	FName Direction;
-	
+
+	APlayerController* PC = Cast<APlayerController>(PlayerCharacter->GetController());
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PC->PlayerCameraManager);
 	// 락온 일 때
-	if (PlayerCharacter->bIsLockedOn)
+	if (Cam->GetIsLockedOn())
 	{
 		EMoveDirection MoveDirection = ActionComponent->CurrentMoveDirection;
 		switch (MoveDirection)
