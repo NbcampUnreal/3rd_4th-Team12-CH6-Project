@@ -3,6 +3,7 @@
 #include "Components/StateTreeAIComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Controller/AI/SKAIController.h"
 #include "Utility/DropSubsystem.h"
 #include "GameMode/DungeonGameMode.h"
 
@@ -43,7 +44,19 @@ void USK_GA_AI_Die::OnDieCompleted()
 		return;
 	}
 
+	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
+	if (!IsValid(AIController))
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(AIController->FindClosestTargetTimerHandle);
+	
 	ASKAICharacterBase* AICharacter = Cast<ASKAICharacterBase>(CachedCharacter);
+	if (!IsValid(AICharacter))
+	{
+		return;
+	}
 	
 	DropSubsystem->ProcessDropTable(AICharacter->GetDropTableID(), AICharacter->GetActorLocation());
 	

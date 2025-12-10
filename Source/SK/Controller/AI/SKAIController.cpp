@@ -9,7 +9,6 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "GameState/DungeonGameState.h"
-#include "LevelInstance/LevelInstanceTypes.h"
 #include "Perception/AISenseConfig_Damage.h"
 #include "PlayerState/SKPlayerState.h"
 
