@@ -35,6 +35,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num04, "Ability.LeftATK.Axe.Num04
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_01, "Ability.Skill.01");
+
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");

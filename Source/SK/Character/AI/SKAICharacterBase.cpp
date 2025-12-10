@@ -210,6 +210,16 @@ FVector ASKAICharacterBase::GetStartLocation() const
 	return StartLocation;
 }
 
+int32 ASKAICharacterBase::GetDropTableID() const
+{
+	return DropTableID;
+}
+
+FMonsterData ASKAICharacterBase::GetMonsterData() const
+{
+	return *MonsterData;
+}
+
 void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration)
 {
 	if (!GetMesh() || !OverlayMat)
@@ -254,28 +264,28 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 		return;
 	}
 
-	const FMonsterData* Data = SDS->GetData<FMonsterData>(MonsterID);
-	if (!Data)
+	MonsterData = SDS->GetData<FMonsterData>(MonsterID);
+	if (!MonsterData)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Monster StaticData Not Found: ID = %d"), MonsterID);
 		return;
 	}
 
 	// ---- 실제 스탯 적용 (AttributeSet or 내부 변수) ----
-	AttributeSet->SetHealth(Data->MaxHealth);
-	AttributeSet->SetMaxHealth(Data->MaxHealth);
-	AttributeSet->SetAttack(Data->Attack);
-	AttributeSet->SetArmor(Data->Armor);
-	AttributeSet->SetPoise(Data->Poise);
-	AttributeSet->SetSpeed(Data->Speed);
+	AttributeSet->SetHealth(MonsterData->MaxHealth);
+	AttributeSet->SetMaxHealth(MonsterData->MaxHealth);
+	AttributeSet->SetAttack(MonsterData->Attack);
+	AttributeSet->SetArmor(MonsterData->Armor);
+	AttributeSet->SetPoise(MonsterData->Poise);
+	AttributeSet->SetSpeed(MonsterData->Speed);
 
 
 	// 예시: 이동 속도 적용
-	GetCharacterMovement()->MaxWalkSpeed = Data->Speed;
+	GetCharacterMovement()->MaxWalkSpeed = MonsterData->Speed;
 
 	// DropTableID 설정 필요 시 저장
-	DropTableID = Data->DropTableID;
+	DropTableID = MonsterData->DropTableID;
 
 	UE_LOG(LogTemp, Log, TEXT("[AI StaticData] %s : (HP=%f, Atk=%f, Def=%f)"),
-		*GetName(), Data->MaxHealth, Data->Attack, Data->Armor);
+		*GetName(), MonsterData->MaxHealth, MonsterData->Attack, MonsterData->Armor);
 }

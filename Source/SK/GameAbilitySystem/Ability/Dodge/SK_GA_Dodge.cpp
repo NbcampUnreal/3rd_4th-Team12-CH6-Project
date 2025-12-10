@@ -63,10 +63,10 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	}
 
 
-	// if (USKCombatComponent* Combat = Char->GetCombatComponent())
-	// {
-	// 	Combat->ResetComboState();
-	// }
+	if (USKCombatComponent* Combat = Char->GetCombatComponent())
+	{
+		Combat->ResetComboState();
+	}
 }
 
 void USK_GA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

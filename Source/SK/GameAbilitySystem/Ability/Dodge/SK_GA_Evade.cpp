@@ -4,10 +4,10 @@
 
 void USK_GA_Evade::PreActivateDodge(USKActionComponent* ActionComponent)
 {
-	USKWeaponAnimData* WeaponActionData = ActionComponent->GetWeaponActionData();
-	if (!WeaponActionData) return;
+	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
+	if (!WeaponAnimData) return;
 	
-	UAnimMontage* EvadeMontage = WeaponActionData->EvadeMontage;
+	UAnimMontage* EvadeMontage = WeaponAnimData->EvadeMontage;
 	if (!EvadeMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Evade montage is null"));

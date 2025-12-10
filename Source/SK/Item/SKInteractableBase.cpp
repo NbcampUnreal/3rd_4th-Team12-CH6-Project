@@ -16,6 +16,8 @@
 
 ASKInteractableBase::ASKInteractableBase()
 {
+	PrimaryActorTick.bCanEverTick = false;
+	
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 	
@@ -35,6 +37,10 @@ ASKInteractableBase::ASKInteractableBase()
 	
 	bReplicates = true;
 	bCanInteract = true;
+}
+
+void ASKInteractableBase::ExecuteInteraction_Implementation(AActor* Interactor)
+{
 }
 
 void ASKInteractableBase::BeginPlay()
@@ -87,6 +93,8 @@ void ASKInteractableBase::PreExecuteInteraction()
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASKInteractableBase, bCanInteract);
 }
 
 void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity)

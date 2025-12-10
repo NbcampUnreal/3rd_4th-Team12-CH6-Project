@@ -3,11 +3,13 @@
 
 #include "UI/SlotWidget/BonfireMenuSlotWidget.h"
 
+#include "Character/SKPlayerCharacter.h"
 #include "Component/QuickSlotComponent.h"
 #include "Components/Button.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Item/Openable/Bonfire/SKBonfire.h"
 
 void UBonfireMenuSlotWidget::NativeConstruct()
 {
@@ -140,6 +142,24 @@ void UBonfireMenuSlotWidget::OnLeaveClicked()
 			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
 		}
 	}
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC) return;
+	
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(PC->GetPawn());
+	if (!PlayerCharacter) return;
+
+	ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+
+	ASKBonfire* Bonfire = PS->CurrentBonfire;
+	
+	if (Bonfire->EndMontage)
+	{
+		PlayerCharacter->PlayAnimMontage(Bonfire->EndMontage);
+	}
+
+	Bonfire->bCanInteract = true;
+	
 }
 
 void UBonfireMenuSlotWidget::OnLeaveHovered()
