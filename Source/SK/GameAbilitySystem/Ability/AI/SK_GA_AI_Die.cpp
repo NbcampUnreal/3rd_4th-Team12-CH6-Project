@@ -1,6 +1,5 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Die.h"
 #include "Character/AI/SKAICharacter.h"
-#include "Components/StateTreeAIComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Controller/AI/SKAIController.h"
