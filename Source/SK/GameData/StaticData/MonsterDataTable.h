@@ -39,13 +39,19 @@ public:
 	/** 기본 속도 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	float Speed = 0.f;
-	
-	/** 드롭 테이블 ID (FDropTableData의 ID 참조) */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
-	int32 DropTableID = -1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	TSoftClassPtr<APawn> MonsterClass;
+
+	/** 드롭 테이블 ID (FDropTableData의 ID 참조) */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Reward")
+	int32 DropTableID = -1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Reward")
+	int32 RewardMinGold = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Reward")
+	int32 RewardMaxGold = 0;
 
 	/** 몬스터 설명 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
