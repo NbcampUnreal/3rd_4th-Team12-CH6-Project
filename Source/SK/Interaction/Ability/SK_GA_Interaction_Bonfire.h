@@ -17,6 +17,8 @@ public:
 protected:
 	virtual void OnMoveCompleted() override;
 
+	virtual void OnMontageCompleted() override;
+
 	FVector GetTargetLocation(const ASKPlayerCharacter* PlayerCharacter) const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")

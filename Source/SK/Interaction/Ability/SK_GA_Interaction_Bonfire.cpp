@@ -38,8 +38,15 @@ void USK_GA_Interaction_Bonfire::OnMoveCompleted()
 	SetForceMove(PlayerCharacter, false);
 	
 	PlayAnimMontage(CachedInteractionData.InteractMontage);
+}
+
+void USK_GA_Interaction_Bonfire::OnMontageCompleted()
+{
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	
 	ExecuteTargetInteraction(Cast<UObject>(CachedTargetActor), PlayerCharacter);
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 FVector USK_GA_Interaction_Bonfire::GetTargetLocation(const ASKPlayerCharacter* PlayerCharacter) const
