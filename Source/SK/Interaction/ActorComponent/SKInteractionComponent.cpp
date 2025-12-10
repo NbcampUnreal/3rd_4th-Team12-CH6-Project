@@ -176,7 +176,7 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	}
 
 	// Openable은 어빌리티 발동
-	if (CurrentTargetActor->ObjectType == EObjectType::Openable)
+	else
 	{
 		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 		if (!Char) return;
