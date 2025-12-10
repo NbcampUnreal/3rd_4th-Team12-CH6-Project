@@ -33,12 +33,17 @@ void UInventoryLayoutWidget::HandleInventoryToInGameAction()
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
 		{
 			// 전송할 메시지 생성
-			FSwitchLayoutMessage Message(TAG_UI_Layout_InGame, true);
+			FSwitchLayoutMessage LayoutMessage(TAG_UI_Layout_InGame, true);
 
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, LayoutMessage);
 
-			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *LayoutMessage.LayoutTag.ToString());
+
+			FToolTipSwitch ToolTipMessage(-1, false);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ToolTipItem, ToolTipMessage);
 		}
 	}
 }
@@ -50,12 +55,17 @@ void UInventoryLayoutWidget::HandleInventoryEscapeAction()
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
 		{
 			// 전송할 메시지 생성
-			FSwitchLayoutMessage Message(TAG_UI_Layout_InGame, true);
+			FSwitchLayoutMessage LayoutMessage(TAG_UI_Layout_InGame, true);
 
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, LayoutMessage);
 
-			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *LayoutMessage.LayoutTag.ToString());
+
+			FToolTipSwitch ToolTipMessage(-1, false);
+
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ToolTipItem, ToolTipMessage);
 		}
 	}
 }
