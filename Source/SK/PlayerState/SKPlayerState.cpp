@@ -428,7 +428,16 @@ int32 ASKPlayerState::GetRequiredGoldForNextLevel() const
 }
 
 void ASKPlayerState::OnRep_Gold() {}
-void ASKPlayerState::OnRep_Level() {}
+void ASKPlayerState::OnRep_Level()
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	if (!PC) return;
+	
+	if (PC->IsLocalController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] OnRep_Level Level : %d"),Level);
+	}
+}
 void ASKPlayerState::OnRep_AbilityPoint() {}
 
 void ASKPlayerState::Server_RequestLevelUp_Implementation()
@@ -447,7 +456,17 @@ void ASKPlayerState::ConsumeAbilityPoint()
 
 void ASKPlayerState::TryLevelUp()
 {
-	if (!HasAuthority() || !SDS) return;
+	//if (!HasAuthority() || !SDS)
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] !HasAuthority()"));
+		return;
+	}
+
+	if (!SDS)
+	{
+		SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+	}
 
 	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
 	if (!Rule)
