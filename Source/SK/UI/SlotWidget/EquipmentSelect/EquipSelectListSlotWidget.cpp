@@ -176,15 +176,11 @@ void UEquipSelectListSlotWidget::OnItemSwitchMessageReceived(FGameplayTag Channe
 void UEquipSelectListSlotWidget::OnInteractionMessageReceived(FGameplayTag Channel,
 	const FUIInteractionMoveMessage& Message)
 {
-	UE_LOG(LogTemp, Warning, TEXT("EquipmentSelect 메시지 받음"))
 	if (Message.Type != EUIMessageType::EquipmentSelect)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EquipmentSelect 아님"))
 		return;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("EquipmentSelect %d"), Message.MoveDirection);
-	
+		
 	if (Message.MoveDirection == 4)
 	{
 		ItemWidgetPool[CurrentIndex]->OnItemLeftClicked();
