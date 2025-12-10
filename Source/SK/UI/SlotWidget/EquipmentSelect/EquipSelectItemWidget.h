@@ -39,6 +39,16 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 CurrentQuickSlotNum;
+
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+
+	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
+	void OnItemLeftClicked();
+
+	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
+	void OnItemRightClicked();
+	
 protected:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* ItemNameText;
@@ -49,6 +59,9 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UImage* ItemIcon;
 
+	UPROPERTY(meta=(BindWidget))
+	UImage* HoverImage;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
 	USoundBase* HoverSound;
 
@@ -69,19 +82,15 @@ protected:
 	
 	UPROPERTY(BlueprintReadWrite)
 	EInventoryItemType CurrentItemType;
-	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+	
+	
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
  
 	// Blueprint에서 바인딩할 수 있는 이벤트 함수도 선언 가능
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
 	void SendHoverMessage(bool bHover);
 	
-	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
-	void OnItemLeftClicked();
-
-	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
-	void OnItemRightClicked();
+	
 
 	void PlayUISound(USoundBase* InSound);
 };

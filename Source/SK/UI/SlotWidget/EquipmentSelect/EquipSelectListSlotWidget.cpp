@@ -43,6 +43,12 @@ void UEquipSelectListSlotWidget::NativeConstruct()
 		this,
 		&UEquipSelectListSlotWidget::OnItemSwitchMessageReceived
 	);
+
+	InteractionHandle = MessageSubsystem->RegisterListener<FUIInteractionMoveMessage>(
+		TAG_Message_Channel_UIInteraction,
+		this,
+		&UEquipSelectListSlotWidget::OnInteractionMessageReceived
+	);
 }
 
 void UEquipSelectListSlotWidget::NativeDestruct()
@@ -54,6 +60,15 @@ void UEquipSelectListSlotWidget::NativeDestruct()
 			MessageSubsystem->UnregisterListener(ItemSwitchHandle);
 		}
 	}
+
+	if (InteractionHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(InteractionHandle);
+		}
+	}
+	
 	Super::NativeDestruct();
 }
 
@@ -146,6 +161,28 @@ void UEquipSelectListSlotWidget::OnItemSwitchMessageReceived(FGameplayTag Channe
 
 		TypeText->SetText(DisplayText);
 		
+	}
+}
+
+void UEquipSelectListSlotWidget::OnInteractionMessageReceived(FGameplayTag Channel,
+	const FUIInteractionMoveMessage& Message)
+{
+	UE_LOG(LogTemp, Warning, TEXT("EquipmentSelect 메시지 받음"))
+	if (Message.Type != EUIMessageType::EquipmentSelect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EquipmentSelect 아님"))
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("EquipmentSelect %d"), Message.MoveDirection);
+	
+	if (Message.MoveDirection == 4)
+	{
+		ItemWidgetPool[CurrentIndex]->OnItemLeftClicked();
+	}
+	else
+	{
+		MoveIndex(Message.MoveDirection);;
 	}
 }
 
@@ -249,6 +286,9 @@ void UEquipSelectListSlotWidget::RefreshInventory()
             Col = 0;
     }
 	
+	VisibleWidgetCount = TotalSlots;
+	CurrentIndex = 0;
+	SetIndexHover(CurrentIndex);
 	for (int32 i = TotalSlots; i < ItemWidgetPool.Num(); ++i)
 	{
 		if (ItemWidgetPool[i])
@@ -256,4 +296,92 @@ void UEquipSelectListSlotWidget::RefreshInventory()
 			ItemWidgetPool[i]->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
+}
+
+void UEquipSelectListSlotWidget::SetIndexHover(int32 Index)
+{
+	FGeometry DummyGeometry;
+	FPointerEvent DummyPointerEvent;
+	ItemWidgetPool[Index]->NativeOnMouseEnter(DummyGeometry, DummyPointerEvent);
+}
+
+void UEquipSelectListSlotWidget::SetIndexUnHover(int32 Index)
+{
+	FPointerEvent DummyPointerEvent;
+	ItemWidgetPool[Index]->NativeOnMouseLeave(DummyPointerEvent);
+}
+
+void UEquipSelectListSlotWidget::MoveIndex(int32 Index)
+{
+	if (VisibleWidgetCount == 0 || ItemWidgetPool.Num() == 0)
+	{
+		return;
+	}
+
+	int32 PreviousIndex = CurrentIndex;
+	
+	switch (Index)
+	{
+	case 0: // Up
+		{
+			CurrentIndex -= ItemsPerRow;
+			if (CurrentIndex < 0)
+			{
+				// 마지막 줄로 이동 (위로 이동해서 벗어난 경우)
+				int32 RowCount = FMath::CeilToInt((float)VisibleWidgetCount / ItemsPerRow);
+				CurrentIndex += RowCount * ItemsPerRow;
+
+				// 이동한 인덱스가 실제 아이템 개수보다 클 수 있으니 조정
+				if (CurrentIndex >= VisibleWidgetCount)
+				{
+					CurrentIndex = VisibleWidgetCount - 1;
+				}
+			}
+			break;
+		}
+
+	case 1: // Down
+		{
+			CurrentIndex += ItemsPerRow;
+
+			// 만약 인덱스를 넘어가면 첫 번째 줄의 동일한 칼럼으로 이동
+			if (CurrentIndex >= VisibleWidgetCount)
+			{
+				CurrentIndex = CurrentIndex % ItemsPerRow;
+
+				// 만약 그 칼럼에 아이템이 없으면 마지막 아이템으로 이동
+				if (CurrentIndex >= VisibleWidgetCount)
+				{
+					CurrentIndex = VisibleWidgetCount - 1;
+				}
+			}
+			break;
+		}
+
+	case 2: // Left
+		{
+			CurrentIndex--;
+
+			if (CurrentIndex < 0)
+			{
+				CurrentIndex = VisibleWidgetCount - 1;
+			}
+			break;
+		}
+
+	case 3: // Right
+		{
+			CurrentIndex++;
+
+			if (CurrentIndex >= VisibleWidgetCount)
+			{
+				CurrentIndex = 0;
+			}
+			break;
+		}
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("MoveIndex: Prev=%d  Current=%d  Visible=%d"), PreviousIndex, CurrentIndex, VisibleWidgetCount);
+	SetIndexUnHover(PreviousIndex);
+	SetIndexHover(CurrentIndex);
 }

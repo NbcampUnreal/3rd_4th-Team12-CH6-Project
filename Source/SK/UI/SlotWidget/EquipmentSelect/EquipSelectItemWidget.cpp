@@ -79,6 +79,10 @@ void UEquipSelectItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, con
 
 	SendHoverMessage(true);
 	PlayUISound(HoverSound);
+	if (HoverImage)
+	{
+		HoverImage->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 void UEquipSelectItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -86,6 +90,10 @@ void UEquipSelectItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEven
 	Super::NativeOnMouseLeave(InMouseEvent);
 
 	SendHoverMessage(false);
+	if (HoverImage)
+	{
+		HoverImage->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 FReply UEquipSelectItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
