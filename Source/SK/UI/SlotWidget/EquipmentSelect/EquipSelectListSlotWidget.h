@@ -24,6 +24,8 @@ class SK_API UEquipSelectListSlotWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+
+	void NotifyIndex(int32 Index);
 	
 protected:
 	void TryCachedComponent();
@@ -86,4 +88,6 @@ protected:
 	void SetIndexUnHover(int32 Index);
 
 	void MoveIndex(int32 Index);
+
+	void ScrollToIndex(int32 Index);
 };

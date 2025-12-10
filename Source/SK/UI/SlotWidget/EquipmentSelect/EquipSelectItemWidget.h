@@ -7,6 +7,7 @@
 #include "Component/InventoryComponent.h"
 #include "EquipSelectItemWidget.generated.h"
 
+class UEquipSelectListSlotWidget;
 class UEquipmentComponent;
 class UQuickSlotComponent;
 class UImage;
@@ -48,6 +49,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
 	void OnItemRightClicked();
+
+	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
+	void HoverImageVisible(bool bVisible);
+	
+	UPROPERTY()
+	UEquipSelectListSlotWidget* ParentWidget = nullptr;
+
+	UPROPERTY()
+	int32 WidgetIndex = -1;
 	
 protected:
 	UPROPERTY(meta=(BindWidget))

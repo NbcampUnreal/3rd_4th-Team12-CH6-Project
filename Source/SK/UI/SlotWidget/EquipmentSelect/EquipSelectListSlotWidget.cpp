@@ -72,6 +72,15 @@ void UEquipSelectListSlotWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+void UEquipSelectListSlotWidget::NotifyIndex(int32 Index)
+{
+	if (CurrentIndex != Index)
+	{
+		ItemWidgetPool[CurrentIndex]->HoverImageVisible(false);
+	}
+	CurrentIndex = Index;
+}
+
 void UEquipSelectListSlotWidget::TryCachedComponent()
 {
 	APlayerController* PC = GetOwningPlayer();
@@ -232,6 +241,7 @@ void UEquipSelectListSlotWidget::RefreshInventory()
         UEquipSelectItemWidget* NewWidget = CreateWidget<UEquipSelectItemWidget>(this, ItemWidgetClass);
         NewWidget->SetVisibility(ESlateVisibility::Visible);
     	NewWidget->SendComponent(CachedQuickSlot, CachedEquipment, CachedInventory);
+    	NewWidget->ParentWidget = this;
         ItemWidgetPool.Add(NewWidget);
     }
  
@@ -255,7 +265,9 @@ void UEquipSelectListSlotWidget::RefreshInventory()
         }
  
         UEquipSelectItemWidget* ItemWidget = ItemWidgetPool[i];
- 
+
+    	ItemWidget->WidgetIndex = i;
+    	ItemWidget->HoverImageVisible(false);
         if (i < ItemCount)
         {
             ItemWidget->SetItem(CachedInventoryArray[i]);
@@ -289,11 +301,13 @@ void UEquipSelectListSlotWidget::RefreshInventory()
 	VisibleWidgetCount = TotalSlots;
 	CurrentIndex = 0;
 	SetIndexHover(CurrentIndex);
+	
 	for (int32 i = TotalSlots; i < ItemWidgetPool.Num(); ++i)
 	{
 		if (ItemWidgetPool[i])
 		{
 			ItemWidgetPool[i]->SetVisibility(ESlateVisibility::Collapsed);
+			ItemWidgetPool[i]->WidgetIndex = -1;
 		}
 	}
 }
@@ -384,4 +398,16 @@ void UEquipSelectListSlotWidget::MoveIndex(int32 Index)
 	UE_LOG(LogTemp, Warning, TEXT("MoveIndex: Prev=%d  Current=%d  Visible=%d"), PreviousIndex, CurrentIndex, VisibleWidgetCount);
 	SetIndexUnHover(PreviousIndex);
 	SetIndexHover(CurrentIndex);
+
+	ScrollToIndex(CurrentIndex);
+}
+
+void UEquipSelectListSlotWidget::ScrollToIndex(int32 Index)
+{
+	if (!InventoryScroll || CurrentIndex >= VisibleWidgetCount) return;
+
+	UWidget* TargetWidget = ItemWidgetPool[Index];
+	if (!TargetWidget) return;
+
+	InventoryScroll->ScrollWidgetIntoView(TargetWidget, true, EDescendantScrollDestination::IntoView);
 }
