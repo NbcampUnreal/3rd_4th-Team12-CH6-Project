@@ -175,8 +175,9 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::Interact);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Dodge);
+		// Q-R-F
 		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
-		                                   &ASKPlayerController::Active_QuickSlotAction_00);
+		                                   &ASKPlayerController::Active_QuickSlotAction_00); 
 		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_QuickSlotAction_01);
 		EnhancedInputComponent->BindAction(QuickSlotAction_02, ETriggerEvent::Started, this,
@@ -466,6 +467,16 @@ void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_00"));
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
+	CombatComponent->Server_Input_Skill_01();
 }
 
 void ASKPlayerController::Active_QuickSlotAction_01(const FInputActionValue& Value)
