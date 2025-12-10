@@ -11,6 +11,7 @@
 class UStateTreeAIComponent;
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
+class UAISenseConfig_Damage;
 class UAbilitySystemComponent;
 
 UCLASS()
@@ -30,6 +31,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perception")
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perception")
+	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
+	
 	UPROPERTY()
 	UAbilitySystemComponent* OwningASC;
 

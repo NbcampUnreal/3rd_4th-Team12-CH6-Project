@@ -9,6 +9,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "GameState/DungeonGameState.h"
+#include "Perception/AISenseConfig_Damage.h"
 #include "PlayerState/SKPlayerState.h"
 
 ASKAIController::ASKAIController()
@@ -18,7 +19,6 @@ ASKAIController::ASKAIController()
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComp"));
 	
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	
 	SightConfig->SightRadius = 1500.0f; // 시야 범위
 	SightConfig->LoseSightRadius = 2000.0f; // 시야 상실 범위
 	SightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
@@ -30,9 +30,14 @@ ASKAIController::ASKAIController()
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = false; // 아군 감지
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = false; // 중립 감지
 
+	DamageConfig = CreateDefaultSubobject<UAISenseConfig_Damage>(TEXT("DamageConfig"));
+	DamageConfig->SetMaxAge(2.0f);
+	
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
 	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
-
+	AIPerceptionComponent->ConfigureSense(*DamageConfig);
+	AIPerceptionComponent->SetDominantSense(DamageConfig->GetSenseImplementation());
+	
 	OwningASC = nullptr;
 	
 	TargetActor = nullptr;
@@ -188,7 +193,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	////// 테스트
+	/*///// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
@@ -208,6 +213,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	
 	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
+	*/
 	
 }
 
@@ -226,13 +232,13 @@ void ASKAIController::BeginPlay()
 	if (!GS) return;
 
 	// 상태 변경 이벤트 수신
-	//GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
+	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
 	// 이미 진행 중일 수도 있음
-	//if (GS->DungeonState == EDungeonMatchState::Dungeon_InProgress)
-	//{
-	//	OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
-	//}
+	if (GS->DungeonState == EDungeonMatchState::Dungeon_InProgress)
+	{
+		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
+	}
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -244,16 +250,21 @@ void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowi
 
 void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("인지성공"));
-	
 	ACharacter* PlayerCharacter = Cast<ACharacter>(Actor);
 	if ( !(PlayerCharacter && PlayerCharacter->IsPlayerControlled()) )
 	{
 		return;
 	}
+
+	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Damage>())
+	{
+		TargetActor = Actor;
+	}
 	
 	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("인지성공"));
+
 		bool bCanSeePlayer = Stimulus.WasSuccessfullySensed(); // 인지 범위에서 벗어났을 때 false
 		if (!bCanSeePlayer)
 		{
@@ -270,7 +281,6 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 	}
 
 	// 최대 기억 시간에 따라 감지된 목록에 있는 액터 활용 가능
-	// 피격에 대한 감각으로 피격 시 행동 추가 가능 // 청각은 굳이 안 쓸 듯.
 }
 
 void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
