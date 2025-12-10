@@ -14,6 +14,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
+#include "Manager/SKCameraManager.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Net/UnrealNetwork.h"
@@ -90,7 +91,7 @@ void ASKPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	LockOnTarget(DeltaTime);
+	// LockOnTarget(DeltaTime);
 }
 
 void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -100,7 +101,7 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
 	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
 
-	DOREPLIFETIME(ASKPlayerCharacter, bIsLockedOn);
+	// DOREPLIFETIME(ASKPlayerCharacter, bIsLockedOn);
 }
 
 void ASKPlayerCharacter::PossessedBy(AController* NewController)
@@ -209,13 +210,13 @@ void ASKPlayerCharacter::SetLockOnState(bool bLock)
 {
 	if (bLock)
 	{
-		GetCharacterMovement()->bOrientRotationToMovement = false;
 		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
 	else
 	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;
 		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
 	}
 }
 
@@ -314,37 +315,47 @@ void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 	}
 }
 
+void ASKPlayerCharacter::PlayAnim_SetLockOnState()
+{
+	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+		return;
+	
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PC->PlayerCameraManager);
+	
+	if (PlayerAnimInstance)
+	{
+		PlayerAnimInstance->bIsLockedOn = Cam->GetIsLockedOn();
+	}
+}
+
 void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
 {
-	ASKPlayerController* PC = Cast<ASKPlayerController>(Controller);
-	if (PC && PC->bIsLockedOn && PC->CurrentTarget)
-	{
-		FVector Dir = (PC->CurrentTarget->GetActorLocation() - GetActorLocation());
-		Dir.Z = 0;
-
-		FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
-		SetActorRotation(NewRot);
-	}
+	// ASKPlayerController* PC = Cast<ASKPlayerController>(Controller);
+	// if (PC && PC->bIsLockedOn && PC->CurrentTarget)
+	// {
+	// 	FVector Dir = (PC->CurrentTarget->GetActorLocation() - GetActorLocation());
+	// 	Dir.Z = 0;
+	//
+	// 	FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
+	// 	SetActorRotation(NewRot);
+	// }
 }
 
 void ASKPlayerCharacter::SetLockOnState()
 {
 	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+		return;
+	
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PC->PlayerCameraManager);
+	
 	if (PlayerAnimInstance)
 	{
-		PlayerAnimInstance->bIsLockedOn = bIsLockedOn;
+		PlayerAnimInstance->bIsLockedOn = Cam->GetIsLockedOn();
 	}
-}
-
-void ASKPlayerCharacter::OnRep_OnLockOnChange()
-{
-	SetLockOnState();
-}
-
-void ASKPlayerCharacter::Server_SetLockOnState_Implementation(bool bLock)
-{
-	bIsLockedOn = bLock;
-	SetLockOnState();
 }
 
 

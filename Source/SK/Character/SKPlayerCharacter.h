@@ -47,6 +47,8 @@ public:
 
 	void SetLockOnState(bool bLock);
 	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
+
+	void PlayAnim_SetLockOnState();
 protected:
 	virtual void OnRep_PlayerState() override;
 
@@ -107,12 +109,5 @@ protected:
 	void SetLockOnState();
 	
 public:
-	UPROPERTY(ReplicatedUsing = OnRep_OnLockOnChange)
-	bool bIsLockedOn;
-
-	UFUNCTION()
-	void OnRep_OnLockOnChange();
 	
-	UFUNCTION(Server, Reliable)
-	void Server_SetLockOnState(bool bLock);
 };
