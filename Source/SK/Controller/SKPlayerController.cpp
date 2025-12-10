@@ -195,55 +195,20 @@ void ASKPlayerController::OnPossess(APawn* InPawn)
 	OnPawnPossessed.Broadcast(InPawn);;
 }
 
-void ASKPlayerController::ValidationLockOn()
-{
-	if (!CurrentTarget)
-	{
-		bIsLockedOn = false;
-		return;
-	}
-
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
-
-	FVector CamLoc = Cam->GetCameraLocation();
-	FVector PlayerLoc = GetPawn()->GetActorLocation();
-	FVector TargetLoc = CurrentTarget->GetActorLocation();
-	TargetLoc.Z += Cam->LockOnHeight;
-
-	// 시야 가림 체크
-	if (Cam->IsTargetObstructed(CamLoc, TargetLoc))
-	{
-		bIsLockedOn = false;
-		CurrentTarget = nullptr;
-		return;
-	}
-
-	// 거리 체크
-	float Dist = FVector::Dist(PlayerLoc, CurrentTarget->GetActorLocation());
-	if (Dist > Cam->MaxLockDistance || Dist < Cam->MinLockDistance)
-	{
-		bIsLockedOn = false;
-		CurrentTarget = nullptr;
-		return;
-	}
-}
 
 void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 {
 	if (!IsValid(CurrentTarget))
 	{
-		bIsLockedOn = false;
-		CurrentTarget = nullptr;
 		return;
 	}
 
 	APawn* PlayerPawn = GetPawn();
 	if (!IsValid(PlayerPawn))
 	{
-		bIsLockedOn = false;
 		return;
 	}
-	FVector PlayerLoc = GetPawn()->GetActorLocation();
+	FVector PlayerLoc = PlayerPawn->GetActorLocation();
 	FVector TargetLoc = CurrentTarget->GetActorLocation();
 	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
 
@@ -253,7 +218,6 @@ void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 	TargetRot.Pitch -= Cam->LockOnPitch;
 
 	FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
-
 	SetControlRotation(NewRot);
 }
 
@@ -317,12 +281,9 @@ void ASKPlayerController::OnMoveRepleased()
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
-	if (bIsLockedOn && CurrentTarget)
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+	if (Cam && Cam->GetIsLockedOn())
 		return;
-	//
-	//
-	// LookInput = Value.Get<FVector2D>();
-
 	
 	const FVector2D InLookVector = Value.Get<FVector2D>();
 	
@@ -428,22 +389,23 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	if (!SKPlayerCharacter)
 		return;
 
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+	
 	//락온상대일때 재입력하면 해제
-	if (bIsLockedOn)
+	if (Cam->GetIsLockedOn())
 	{
-		SetLockOnTarget(nullptr);
+		Cam->SetLockedTarget(nullptr);
+		CurrentTarget = nullptr;
+
 		SKPlayerCharacter->SetLockOnState(false);
-		SKPlayerCharacter->Server_SetLockOnState(false);
+
 		return;
 	}
 
 	AActor* Target = FindNearestTarget();
-	if (Target)
-	{
-		SetLockOnTarget(Target);
-		SKPlayerCharacter->SetLockOnState(true);
-		SKPlayerCharacter->Server_SetLockOnState(true);
-	}
+	Cam->SetLockedTarget(Target);
+	CurrentTarget = Target;
+	SKPlayerCharacter->SetLockOnState(Cam->GetIsLockedOn());
 }
 
 void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
@@ -606,30 +568,16 @@ AActor* ASKPlayerController::FindNearestTarget()
 	return Best;
 }
 
-void ASKPlayerController::SetLockOnTarget(AActor* NewTarget)
-{
-	AActor* OldTarget = CurrentTarget;
-	CurrentTarget = NewTarget;
-	bIsLockedOn = (NewTarget != nullptr);
-
-	UpdateCameraManagerTarget(OldTarget, NewTarget);
-}
-
-void ASKPlayerController::UpdateCameraManagerTarget(AActor* OldTarget, AActor* NewTarget)
-{
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
-	if (Cam)
-	{
-		Cam->LockedTarget = CurrentTarget;
-		Cam->SetbIsLockedOn(bIsLockedOn);;
-	}
-}
 
 void ASKPlayerController::ClearTarGetOverlayMaterial()
 {
 	if (!IsValid(CurrentTarget))
 		return;
 	Cast<ASKAICharacterBase>(CurrentTarget)->ClearOverlayMaterial();
+}
+
+void ASKPlayerController::RequestLevelUp()
+{
 }
 
 EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& InputVector)
