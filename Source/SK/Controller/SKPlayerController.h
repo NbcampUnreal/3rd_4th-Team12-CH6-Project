@@ -38,7 +38,6 @@ public:
 	ASKPlayerController();
 
 	FOnPawnPossessedSignature OnPawnPossessed;
-	void SetLockOnState(bool bNewState, AActor* NewTarget);
 	//던전 입장 (클라에서 호출 전용)
 	UFUNCTION(BlueprintCallable)
 	void EnterDungeonByID(int32 DungeonID);
@@ -59,8 +58,7 @@ public:
 
 	UPROPERTY()
 	AActor* CurrentTarget = nullptr;
-	// 락온 상태
-	bool bIsLockedOn = false;
+
 
 	FVector2D LookInput;
 
@@ -73,7 +71,7 @@ protected:
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
 
-	void ValidationLockOn();
+	//락온중 회전시키는 함수
 	void UpdateLockOnRotation(float DeltaTime);
 #pragma region IMA_AND_IA
 
@@ -145,8 +143,6 @@ private:
 	void Active_QuickSlotItem_02(const FInputActionValue& Value);
 
 	AActor* FindNearestTarget();
-	void SetLockOnTarget(AActor* NewTarget);
-	void UpdateCameraManagerTarget(AActor* OldTarget, AActor* NewTarget);
 
 private:
 #pragma	endregion
