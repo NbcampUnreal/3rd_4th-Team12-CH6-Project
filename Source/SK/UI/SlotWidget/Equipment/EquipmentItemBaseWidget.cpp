@@ -3,6 +3,7 @@
 
 #include "UI/SlotWidget/Equipment/EquipmentItemBaseWidget.h"
 
+#include "EquipMainListSlotWidget.h"
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
@@ -11,7 +12,7 @@
 
 void UEquipmentItemBaseWidget::SetIndex(int32 Index)
 {
-	CurrentItemID = Index;
+	CurrentIndex = Index;
 }
 
 void UEquipmentItemBaseWidget::NativeConstruct()
@@ -29,6 +30,8 @@ void UEquipmentItemBaseWidget::NativeOnMouseEnter(const FGeometry& InGeometry, c
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 	SendHoverMessage(true);
 	PlayUISound(HoverSound);
+
+	ParentWidget->NotifyIndex(CurrentIndex);
 }
 
 void UEquipmentItemBaseWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)

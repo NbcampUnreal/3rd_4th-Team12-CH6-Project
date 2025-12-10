@@ -47,35 +47,45 @@ void UEquipMainListSlotWidget::NativeConstruct()
 	// Row 0
 	SlotList.Add(WeaponSlot);
 	SlotPositions.Add(FIntPoint(0, 0));
+	WeaponSlot->ParentWidget = this;
 
 	SlotList.Add(Accessory1Slot);
 	SlotPositions.Add(FIntPoint(0, 1));
+	Accessory1Slot->ParentWidget = this;
 
 	SlotList.Add(Accessory2Slot);
 	SlotPositions.Add(FIntPoint(0, 2));
+	Accessory2Slot->ParentWidget = this;
 
 	// Row 1
 	SlotList.Add(HelmetSlot);
 	SlotPositions.Add(FIntPoint(1, 0));
+	HelmetSlot->ParentWidget = this;
 
 	SlotList.Add(ChestSlot);
 	SlotPositions.Add(FIntPoint(1, 1));
+	ChestSlot->ParentWidget = this;
 
 	SlotList.Add(LegSlot);
 	SlotPositions.Add(FIntPoint(1, 2));
+	LegSlot->ParentWidget = this;
 
 	SlotList.Add(BootsSlot);
 	SlotPositions.Add(FIntPoint(1, 3));
+	BootsSlot->ParentWidget = this;
 
 	// Row 2
 	SlotList.Add(QuickSlot1);
 	SlotPositions.Add(FIntPoint(2, 0));
+	QuickSlot1->ParentWidget = this;
 
 	SlotList.Add(QuickSlot2);
 	SlotPositions.Add(FIntPoint(2, 1));
+	QuickSlot2->ParentWidget = this;
 
 	SlotList.Add(QuickSlot3);
 	SlotPositions.Add(FIntPoint(2, 2));
+	QuickSlot3->ParentWidget = this;
 
 	// 각 Slot들에게 인덱스 전달
 	for (int32 i = 0; i < SlotList.Num(); i++)
