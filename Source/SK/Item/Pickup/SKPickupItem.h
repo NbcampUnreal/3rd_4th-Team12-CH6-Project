@@ -59,9 +59,8 @@ protected:
 	void Multicast_PlayPickupEffects(AActor* Interactor);
 	
 public:
-	virtual void Tick(float DeltaTime) override;
 	
-	virtual void Interact_Implementation(AActor* Interactor) override;
+	virtual void ExecuteInteraction_Implementation(AActor* Interactor) override;
 
 	FORCEINLINE void SetItemInfo(const int32 NewItemID, const float NewItemCount) { ItemInfo.ItemID = NewItemID; ItemInfo.ItemCount = NewItemCount; }
 	FORCEINLINE FSKItemInfo GetItemInfo() const { return ItemInfo; }

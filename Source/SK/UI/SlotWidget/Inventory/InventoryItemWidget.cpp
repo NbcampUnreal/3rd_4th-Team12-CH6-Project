@@ -3,6 +3,7 @@
 
 #include "InventoryItemWidget.h"
 
+#include "InventoryListSlotWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
@@ -54,12 +55,33 @@ void UInventoryItemWidget::SetItem(const FInventoryItemForWidget& NewItem)
 	}
 }
 
+void UInventoryItemWidget::HoverImageVisible(bool bVisible)
+{
+	if (bVisible)
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	else
+	{
+		if (HoverImage)
+		{
+			HoverImage->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+}
+
 void UInventoryItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 	
 	OnItemHovered();
 	PlayUISound(HoverSound);
+	HoverImageVisible(true);
+	
+	ParentWidget->NotifyIndex(WidgetIndex);
 }
 
 void UInventoryItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -67,6 +89,7 @@ void UInventoryItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 	Super::NativeOnMouseLeave(InMouseEvent);
 
 	OnItemUnhovered();
+	HoverImageVisible(false);
 }
 
 void UInventoryItemWidget::OnItemHovered()

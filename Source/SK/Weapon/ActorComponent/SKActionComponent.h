@@ -25,13 +25,13 @@ public:
 	FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_SetWeaponAnimData(USKWeaponAnimData* NewWeaponActionData);
+	void Multicast_SetWeaponAnimData(USKWeaponAnimData* NewWeaponAnimData);
 	
-	FORCEINLINE USKWeaponAnimData* GetWeaponActionData() const { return CurrentWeaponActionData; }
+	FORCEINLINE USKWeaponAnimData* GetWeaponAnimData() const { return CurrentWeaponAnimData; }
 	
 protected:
 	UPROPERTY()
-	USKWeaponAnimData* CurrentWeaponActionData;
+	USKWeaponAnimData* CurrentWeaponAnimData;
 
 #pragma region MovementInfo
 

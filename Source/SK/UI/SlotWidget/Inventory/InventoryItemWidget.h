@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "InventoryItemWidget.generated.h"
 
+class UInventoryListSlotWidget;
 class UTextBlock;
 class UImage;
 
@@ -38,6 +39,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetItem(const FInventoryItemForWidget& NewItem);
 
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+	
+	UFUNCTION(BlueprintCallable, Category="Inventory|Item")
+	void HoverImageVisible(bool bVisible);
+	
+	UPROPERTY()
+	UInventoryListSlotWidget* ParentWidget = nullptr;
+
+	UPROPERTY()
+	int32 WidgetIndex = -1;
+	
 protected:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* ItemNameText;
@@ -48,13 +61,13 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UImage* ItemIcon;
 
+	UPROPERTY(meta=(BindWidget))
+	UImage* HoverImage;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
 	USoundBase* HoverSound;
 		
 	FInventoryItemForWidget CurrentItem;
-
-	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
  
 	// Blueprint에서 바인딩할 수 있는 이벤트 함수도 선언 가능
 	UFUNCTION(BlueprintCallable, Category="Inventory|Item")

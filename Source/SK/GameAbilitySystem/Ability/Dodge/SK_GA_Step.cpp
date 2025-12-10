@@ -4,10 +4,10 @@
 
 void USK_GA_Step::PreActivateDodge(USKActionComponent* ActionComponent)
 {
-	USKWeaponAnimData* WeaponActionData = ActionComponent->GetWeaponActionData();
-	if (!WeaponActionData) return;
+	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
+	if (!WeaponAnimData) return;
 	
-	UAnimMontage* StepMontage = WeaponActionData->StepMontage;
+	UAnimMontage* StepMontage = WeaponAnimData->StepMontage;
 	if (!StepMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Step montage is null"));

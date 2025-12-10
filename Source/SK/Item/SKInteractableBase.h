@@ -10,6 +10,7 @@ enum class EObjectType : uint8
 {
 	Pickup UMETA(DisplayName = "Pickup"),
 	Openable UMETA(DisplayName = "Openable"),
+	Fireplace UMETA(DisplayName = "Fireplace"),
 };
 
 class UBoxComponent;
@@ -35,6 +36,16 @@ public:
 #pragma region Interaction
 	
 	virtual void GetInteractionData_Implementation(FSKInteractionData& OutData) override;
+	
+	virtual void Interact_Implementation(AActor* Interactor) override
+	{
+		PreExecuteInteraction();
+		ExecuteInteraction(Interactor);
+	}
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Interaction")
+	void ExecuteInteraction(AActor* Interactor);
+	virtual void ExecuteInteraction_Implementation(AActor* Interactor);
 
 	virtual void BeginPlay() override;
 
@@ -56,6 +67,7 @@ public:
 
 	EObjectType ObjectType;
 
+	UPROPERTY(Replicated)
 	bool bCanInteract;
 	
 #pragma endregion

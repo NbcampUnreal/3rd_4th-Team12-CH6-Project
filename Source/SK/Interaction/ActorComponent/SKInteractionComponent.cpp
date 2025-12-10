@@ -70,6 +70,7 @@ void USKInteractionComponent::UpdateTargetActor()
 		switch (Actor->ObjectType)
 		{
 		case EObjectType::Pickup:
+		case EObjectType::Fireplace:
 			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
 		case EObjectType::Openable:
@@ -124,7 +125,7 @@ void USKInteractionComponent::OnRep_CurrentInteractionData()
 
 	if (Char->IsLocallyControlled())
 	{
-		Server_ActivateInteractionAbility();
+		Server_ActivateInteractionAbility(CurrentInteractionData.GrantedAbility);
 	}
 }
 
@@ -134,12 +135,12 @@ void USKInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void USKInteractionComponent::Server_ActivateInteractionAbility_Implementation()
+void USKInteractionComponent::Server_ActivateInteractionAbility_Implementation(TSubclassOf<UGameplayAbility> Ability) 
 {
-	ActivateInteractionAbility();
+	ActivateInteractionAbility(Ability);
 }
 
-void USKInteractionComponent::ActivateInteractionAbility() const
+void USKInteractionComponent::ActivateInteractionAbility(TSubclassOf<UGameplayAbility> Ability) const
 {
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Char) return;
@@ -147,9 +148,10 @@ void USKInteractionComponent::ActivateInteractionAbility() const
 	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
 	if (!ASC) return;
 
-	FGameplayTagContainer InteractionTag;
-	InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.SimpleInteract")));
-	ASC->TryActivateAbilitiesByTag(InteractionTag);
+	// FGameplayTagContainer InteractionTag;
+	// InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.SimpleInteract")));
+	// ASC->TryActivateAbilitiesByTag(InteractionTag);
+	ASC->TryActivateAbilityByClass(Ability);
 }
 
 void USKInteractionComponent::Client_ToggleInteractableWidget_Implementation(ASKInteractableBase* Interactable,
@@ -174,15 +176,13 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	}
 
 	// Openable은 어빌리티 발동
-	if (CurrentTargetActor->ObjectType == EObjectType::Openable)
+	else
 	{
 		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 		if (!Char) return;
 
-		FSKInteractionData Data;
-		ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, Data);
-		SetInteractionData(Data);
-
+		ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, CurrentInteractionData);
+		
 		// 서버는 바로 실행 서버에 복제 된 클라는 클라에 도착하면 서버 RPC로 실행
 	
 		// if (!GetOwner()->HasAuthority()) return;
@@ -192,7 +192,7 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 		// APlayerController* PC = Cast<APlayerController>(Char->GetController());
 		// if (!PC || !PC->IsLocalController()) return;
 
-		ActivateInteractionAbility();
+		ActivateInteractionAbility(CurrentInteractionData.GrantedAbility);
 	}
 
 }
