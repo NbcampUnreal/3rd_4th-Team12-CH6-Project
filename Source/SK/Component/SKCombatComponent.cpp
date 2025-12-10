@@ -180,6 +180,7 @@ void USKCombatComponent::Server_Input_Right_Implementation()
 void USKCombatComponent::Server_Input_Skill_01_Implementation()
 {
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
 	
 	FGameplayTagContainer Container;
