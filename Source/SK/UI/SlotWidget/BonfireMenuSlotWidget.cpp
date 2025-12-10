@@ -3,11 +3,13 @@
 
 #include "UI/SlotWidget/BonfireMenuSlotWidget.h"
 
+#include "Character/SKPlayerCharacter.h"
 #include "Component/QuickSlotComponent.h"
 #include "Components/Button.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Item/Openable/Bonfire/SKBonfire.h"
 
 void UBonfireMenuSlotWidget::NativeConstruct()
 {
@@ -48,8 +50,8 @@ void UBonfireMenuSlotWidget::NativeConstruct()
 		return;
 	}
 
-	MenuMoveHandle = MessageSubsystem->RegisterListener<FBonfireMenuMoveMessage>(
-		TAG_Message_Channel_BonfireMenuMove,
+	MenuMoveHandle = MessageSubsystem->RegisterListener<FUIInteractionMoveMessage>(
+		TAG_Message_Channel_UIInteraction,
 		this,
 		&UBonfireMenuSlotWidget::OnMenuMoveMessageReceived
 	);
@@ -70,20 +72,19 @@ void UBonfireMenuSlotWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UBonfireMenuSlotWidget::OnMenuMoveMessageReceived(FGameplayTag Channel, const FBonfireMenuMoveMessage& Message)
+void UBonfireMenuSlotWidget::OnMenuMoveMessageReceived(FGameplayTag Channel, const FUIInteractionMoveMessage& Message)
 {
-	if (Message.MoveDirection == 0)
+	if (Message.Type != EUIMessageType::BonfireMove)
 	{
-		MoveSelectionUp();
+		return;
 	}
-	else if (Message.MoveDirection == 1)
+
+	switch (Message.MoveDirection)
 	{
-		MoveSelectionDown();
-	}
-	else if (Message.MoveDirection == 2)
-	{
-		PressCurrentButton();
-	}
+		case 0: MoveSelectionUp(); break;
+		case 1: MoveSelectionDown(); break;
+		case 4: PressCurrentButton(); break;
+	};
 }
 
 void UBonfireMenuSlotWidget::PressCurrentButton()
@@ -141,6 +142,24 @@ void UBonfireMenuSlotWidget::OnLeaveClicked()
 			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
 		}
 	}
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC) return;
+	
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(PC->GetPawn());
+	if (!PlayerCharacter) return;
+
+	ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+
+	ASKBonfire* Bonfire = PS->CurrentBonfire;
+	
+	if (Bonfire->EndMontage)
+	{
+		PlayerCharacter->PlayAnimMontage(Bonfire->EndMontage);
+	}
+
+	Bonfire->bCanInteract = true;
+	
 }
 
 void UBonfireMenuSlotWidget::OnLeaveHovered()

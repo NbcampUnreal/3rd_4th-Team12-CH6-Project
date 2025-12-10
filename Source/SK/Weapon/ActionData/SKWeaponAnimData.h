@@ -28,8 +28,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Hit")
 	TObjectPtr<UAnimMontage> KnockBackMontage;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Die")
-	TArray<TObjectPtr<UAnimMontage>> DieMontages;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Death")
+	TObjectPtr<UAnimMontage> DeathMontages;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Dodge|Evade")
 	TObjectPtr<UAnimMontage> EvadeMontage;

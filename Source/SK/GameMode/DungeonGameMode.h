@@ -34,6 +34,9 @@ public:
 	// 현재 던전 상태 반환
 	EDungeonMatchState GetDungeonState() const;
 
+	UFUNCTION()
+	void AddGoldToPlayers(int32 GoldValue);
+
 	// 상태
 	bool bPCGFinished = false;
 	bool bInitialSpawnFinished = false;

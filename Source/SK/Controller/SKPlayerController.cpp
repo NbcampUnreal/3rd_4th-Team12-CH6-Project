@@ -726,3 +726,16 @@ void ASKPlayerController::Dodge(const FInputActionValue& Value)
 		ActionComponent->TryDodge();
 	}
 };
+
+void ASKPlayerController::RequestLevelUp()
+{
+	if (IsLocalController())
+	{
+		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+		if (!PS) return;
+		
+		// 클라 → 서버로 요청
+		PS->Server_RequestLevelUp();
+	}
+
+}

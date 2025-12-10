@@ -31,10 +31,10 @@ void USK_GA_SimpleInteract::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
 	if (!InteractionComponent) { EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true); return; }
 	
-	ASKInteractableBase* TargetActor = InteractionComponent->GetCurrentTagetActor();
+	ASKInteractableBase* TargetActor = InteractionComponent->GetCurrentTargetActor();
 	CachedTargetActor = TargetActor;
 	
-	FSKInteractionData& Data = InteractionComponent->GetInteractionData();
+	const FSKInteractionData& Data = InteractionComponent->GetInteractionData();
 
 	if (Data.InteractionLocation == FVector::Zero())
 	{
@@ -102,7 +102,7 @@ void USK_GA_SimpleInteract::OnMoveCompleted()
 		ISKInteractable::Execute_Interact(CachedTargetActor, Char);
 	}
 	
-	FSKInteractionData& Data = InteractionComponent->GetInteractionData();
+	const FSKInteractionData& Data = InteractionComponent->GetInteractionData();
 		
 	// 회전
 

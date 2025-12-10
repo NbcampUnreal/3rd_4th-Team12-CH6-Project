@@ -15,6 +15,8 @@
 #include "Component/SKCombatComponent.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Utility/SKUIManagerSubSystem.h"
+#include "Utility/StaticDataSubsystem.h"
+#include "GameData/StaticData/LevelUpData.h"
 
 ASKPlayerState::ASKPlayerState()
 {
@@ -74,6 +76,8 @@ void ASKPlayerState::BeginPlay()
 		AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &ASKPlayerState::HandleGameplayEffectAdded);
 		AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ASKPlayerState::HandleGameplayEffectRemoved);
 	}
+
+	SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
@@ -114,6 +118,9 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
 	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  
 	DOREPLIFETIME(ASKPlayerState, CurrentWeaponTag);
+	DOREPLIFETIME(ASKPlayerState, Gold);
+	DOREPLIFETIME(ASKPlayerState, Level);
+	DOREPLIFETIME(ASKPlayerState, AbilityPoint);
 }
 
 void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
@@ -402,4 +409,90 @@ void ASKPlayerState::HandleGameplayEffectTimeChange(FActiveGameplayEffectHandle 
 
 		OnBuffTimeChanged.Broadcast(Handle, NewStartTime, Duration);
 	}
+}
+
+void ASKPlayerState::AddGold(int32 Value)
+{
+	if (!HasAuthority()) return;
+
+	UE_LOG(LogTemp, Error, TEXT("[PlayerState] AddGold %d,   (%d + %d = %d)"), Value, Gold, Value, Gold+Value);
+	Gold += Value;
+	OnRep_Gold();
+}
+
+int32 ASKPlayerState::GetRequiredGoldForNextLevel() const
+{
+	if (!SDS) return -1;
+	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
+	return Rule ? Rule->RequiredGold : -1;
+}
+
+void ASKPlayerState::OnRep_Gold() {}
+void ASKPlayerState::OnRep_Level()
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	if (!PC) return;
+	
+	if (PC->IsLocalController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] OnRep_Level Level : %d"),Level);
+	}
+}
+void ASKPlayerState::OnRep_AbilityPoint() {}
+
+void ASKPlayerState::Server_RequestLevelUp_Implementation()
+{
+	TryLevelUp();
+}
+
+void ASKPlayerState::ConsumeAbilityPoint()
+{
+	if (AbilityPoint > 0)
+	{
+		AbilityPoint--;
+		OnRep_AbilityPoint();
+	}
+}
+
+void ASKPlayerState::TryLevelUp()
+{
+	//if (!HasAuthority() || !SDS)
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] !HasAuthority()"));
+		return;
+	}
+
+	if (!SDS)
+	{
+		SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+	}
+
+	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
+	if (!Rule)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] No level data found for Level %d"), Level);
+		return;
+	}
+
+	// Gold 부족
+	if (Gold < Rule->RequiredGold)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] Gold 부족! 필요:%d, 현재:%d"), Rule->RequiredGold, Gold);
+		return;
+	}
+
+	// 골드 지불
+	Gold -= Rule->RequiredGold;
+	OnRep_Gold();
+
+	// 레벨 증가
+	Level++;
+	OnRep_Level();
+
+	// AbilityPoint 지급
+	AbilityPoint += Rule->AbilityPointReward;
+	OnRep_AbilityPoint();
+
+	UE_LOG(LogTemp, Log, TEXT("[LevelUp] 성공! New Level=%d, AbilityPoint=%d"), Level, AbilityPoint);
 }
