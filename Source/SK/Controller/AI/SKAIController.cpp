@@ -9,6 +9,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "GameState/DungeonGameState.h"
+#include "LevelInstance/LevelInstanceTypes.h"
 #include "Perception/AISenseConfig_Damage.h"
 #include "PlayerState/SKPlayerState.h"
 
@@ -132,6 +133,37 @@ void ASKAIController::SendEventToASC(AActor* LocalInstigator, AActor* LocalTarge
 	OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
 
+void ASKAIController::FindClosestTarget()
+{
+	float MinDistanceSquared = FLT_MAX;
+
+	AActor* ClosestTarget = nullptr;
+
+	ACharacter* AI = GetCharacter();
+	if (!IsValid(AI))
+	{
+		return;
+	}
+	
+	FVector AILocation = AI->GetActorLocation();
+	
+	for (TObjectPtr<AActor> LocalTargetActor : TargetActors)
+	{
+		if (!IsValid(LocalTargetActor))
+		{
+			continue;
+		}
+		
+		if (MinDistanceSquared > FVector::DistSquared(AILocation, LocalTargetActor->GetActorLocation()))
+		{
+			MinDistanceSquared = FVector::DistSquared(AILocation, LocalTargetActor->GetActorLocation());
+			ClosestTarget = LocalTargetActor;
+		}
+	}
+
+	TargetActor = ClosestTarget;
+}
+
 uint8 ASKAIController::ConvertTeamTagToID(const FGameplayTagContainer& InTags) const
 {
 	if (InTags.HasTagExact(FGameplayTag::RequestGameplayTag("Team.Player")))
@@ -239,6 +271,14 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(
+	   FindClosestTargetTimerHandle,
+	   this,
+	   &ASKAIController::FindClosestTarget, 
+	   0.5f,
+	   true
+   );
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -268,13 +308,13 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 		bool bCanSeePlayer = Stimulus.WasSuccessfullySensed(); // 인지 범위에서 벗어났을 때 false
 		if (!bCanSeePlayer)
 		{
-			TargetActor = nullptr;
+			TargetActors.Remove(Actor);
 			RemoveTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
 			SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 			return;
 		}
-		
-		TargetActor = Actor;
+
+		TargetActors.Add(Actor);
 		AddTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
 		SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("감지성공"));

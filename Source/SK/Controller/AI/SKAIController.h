@@ -38,10 +38,17 @@ protected:
 	UAbilitySystemComponent* OwningASC;
 
 	UPROPERTY()
+	TArray<TObjectPtr<AActor>> TargetActors;
+	
+	UPROPERTY()
 	TObjectPtr<AActor> TargetActor;
 
 	FGenericTeamId CachedTeamID;
 
+public:
+	FTimerHandle FindClosestTargetTimerHandle;
+
+	
 public:
 	ASKAIController();
 
@@ -57,6 +64,8 @@ public:
 	void RemoveTag(FGameplayTag Tag) const;
 	
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
+
+	void FindClosestTarget(); 
 
 	virtual FGenericTeamId GetGenericTeamId() const override { return CachedTeamID; }
 
