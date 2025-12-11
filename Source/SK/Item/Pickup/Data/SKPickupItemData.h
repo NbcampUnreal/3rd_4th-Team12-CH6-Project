@@ -44,4 +44,8 @@ public:
 	// 위젯 클래스
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
 	TSubclassOf<USKInteractableWidget> WidgetClass;
+	
+	// 위젯 텍스트
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
+	FText PickupText;
 };

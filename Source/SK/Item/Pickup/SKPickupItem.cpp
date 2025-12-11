@@ -50,7 +50,7 @@ void ASKPickupItem::InitializePickup(int32 ItemID, USKPickupItemData* InPickupDa
 	USKInteractableWidget* WidgetInstance = CreateWidget<USKInteractableWidget>(GetWorld(), PickupData->WidgetClass);
 	if (WidgetInstance)
 	{
-		WidgetInstance->SetInitialText(InteractableText);
+		WidgetInstance->SetInitialText(PickupData->PickupText);
 		InteractionWidget->SetWidget(WidgetInstance);
 	}
 }
