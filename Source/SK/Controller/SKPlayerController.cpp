@@ -4,7 +4,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
-#include "Animation/SKPlayerAnimInstance.h"
 #include "Manager/SKCameraManager.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
@@ -12,9 +11,7 @@
 #include "Component/QuickSlotComponent.h"
 #include "Constants/SKGameConstants.h"
 #include "Engine/OverlapResult.h"
-#include "GameData/SKGameConstant.h"
 #include "GameFramework/Character.h"
-#include "Utility/SKUIManagerSubSystem.h"
 #include "Component/SKCombatComponent.h"
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
@@ -36,6 +33,15 @@ void ASKPlayerController::ClientShowLoadingScreen_Implementation(bool bShow)
 		SKGI->ShowLoadingScreen(bShow);
 		UE_LOG(LogTemp, Log, TEXT("[PC] ShowLoadingScreen executed. bShow = %s"), bShow ? TEXT("true") : TEXT("false"));
 	}
+}
+
+void ASKPlayerController::Server_SetControlRotation_Implementation(const FRotator& NewRotation)
+{
+	if (APawn* PlayerPawn = GetPawn())
+	{
+		PlayerPawn->Controller->SetControlRotation(NewRotation);
+	}
+
 }
 
 void ASKPlayerController::BeginPlay()
@@ -61,7 +67,6 @@ void ASKPlayerController::Tick(float DeltaTime)
 	if (!(Cam->GetIsLockedOn()) || !IsValid(CurrentTarget))
 		return;
 	
-	// ValidationLockOn(); // 락온 가능 여부 체크
 	UpdateLockOnRotation(DeltaTime); // 회전 처리
 }
 
@@ -218,7 +223,8 @@ void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 	TargetRot.Pitch -= Cam->LockOnPitch;
 
 	FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
-	SetControlRotation(NewRot);
+
+	Server_SetControlRotation(NewRot);
 }
 
 void ASKPlayerController::Dash(const FInputActionValue& Value)
@@ -576,9 +582,7 @@ void ASKPlayerController::ClearTarGetOverlayMaterial()
 	Cast<ASKAICharacterBase>(CurrentTarget)->ClearOverlayMaterial();
 }
 
-void ASKPlayerController::RequestLevelUp()
-{
-}
+
 
 EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& InputVector)
 {
@@ -671,3 +675,16 @@ void ASKPlayerController::Dodge(const FInputActionValue& Value)
 		ActionComponent->TryDodge();
 	}
 };
+
+void ASKPlayerController::RequestLevelUp()
+{
+	if (IsLocalController())
+	{
+		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+		if (!PS) return;
+		
+		// 클라 → 서버로 요청
+		PS->Server_RequestLevelUp();
+	}
+
+}

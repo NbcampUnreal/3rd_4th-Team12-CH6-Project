@@ -37,6 +37,11 @@ class SK_API ASKPlayerController : public APlayerController
 public:
 	ASKPlayerController();
 
+	UFUNCTION(Server, Reliable)
+	void Server_SetControlRotation(const FRotator& NewRotation);
+
+
+	
 	FOnPawnPossessedSignature OnPawnPossessed;
 	//던전 입장 (클라에서 호출 전용)
 	UFUNCTION(BlueprintCallable)
