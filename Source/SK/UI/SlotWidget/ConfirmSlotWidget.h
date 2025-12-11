@@ -47,7 +47,13 @@ protected:
 
 	UPROPERTY()
 	FGameplayTag RequestSlotTag;
-	
+
+	UPROPERTY()
+	int32 CurrentSelectButton;
+
+	UPROPERTY()
+	FButtonStyle NormalStyle;
+		
 	// 버튼 클릭 처리 함수
 	UFUNCTION()
 	void HandleConfirmClicked();
@@ -55,7 +61,20 @@ protected:
 	UFUNCTION()
 	void HandleCancelClicked();
 
+	UFUNCTION()
+	void SimulateButtonHover(UButton* Button);
+
+	UFUNCTION()
+	void SimulateButtonUnHover(UButton* Button);
+
+	UFUNCTION()
+	void ButtonMove(int32 Direction);
+	
 	FSKGameplayMessageListenerHandle RequestConfirmHandle;
 
 	void OnRequestConfirmMessageReceived(FGameplayTag Channel, const FConfirmUIMessage& Message);
+
+	FSKGameplayMessageListenerHandle InteractionHandle;
+
+	void OnInteractionMessageReceived(FGameplayTag Channel, const FUIInteractionMoveMessage& Message);
 };

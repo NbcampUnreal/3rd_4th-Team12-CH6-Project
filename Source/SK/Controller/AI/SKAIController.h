@@ -11,6 +11,7 @@
 class UStateTreeAIComponent;
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
+class UAISenseConfig_Damage;
 class UAbilitySystemComponent;
 
 UCLASS()
@@ -30,14 +31,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perception")
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perception")
+	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
+	
 	UPROPERTY()
 	UAbilitySystemComponent* OwningASC;
 
+	UPROPERTY()
+	TArray<TObjectPtr<AActor>> TargetActors;
+	
 	UPROPERTY()
 	TObjectPtr<AActor> TargetActor;
 
 	FGenericTeamId CachedTeamID;
 
+public:
+	FTimerHandle FindClosestTargetTimerHandle;
+
+	
 public:
 	ASKAIController();
 
@@ -53,6 +64,8 @@ public:
 	void RemoveTag(FGameplayTag Tag) const;
 	
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
+
+	void FindClosestTarget(); 
 
 	virtual FGenericTeamId GetGenericTeamId() const override { return CachedTeamID; }
 

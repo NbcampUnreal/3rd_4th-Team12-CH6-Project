@@ -109,6 +109,11 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 	{
 		QuickSlotComponent->CopyTo(NewPS->QuickSlotComponent);
 	}
+
+	NewPS->Gold = Gold;
+	NewPS->OldGold = OldGold;
+	NewPS->Level = Level;
+	NewPS->AbilityPoint = AbilityPoint;
 }
 
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -119,6 +124,7 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  
 	DOREPLIFETIME(ASKPlayerState, CurrentWeaponTag);
 	DOREPLIFETIME(ASKPlayerState, Gold);
+	DOREPLIFETIME(ASKPlayerState, OldGold);
 	DOREPLIFETIME(ASKPlayerState, Level);
 	DOREPLIFETIME(ASKPlayerState, AbilityPoint);
 }
@@ -416,6 +422,7 @@ void ASKPlayerState::AddGold(int32 Value)
 	if (!HasAuthority()) return;
 
 	UE_LOG(LogTemp, Error, TEXT("[PlayerState] AddGold %d,   (%d + %d = %d)"), Value, Gold, Value, Gold+Value);
+	OldGold = Gold;
 	Gold += Value;
 	OnRep_Gold();
 }
@@ -427,7 +434,18 @@ int32 ASKPlayerState::GetRequiredGoldForNextLevel() const
 	return Rule ? Rule->RequiredGold : -1;
 }
 
-void ASKPlayerState::OnRep_Gold() {}
+void ASKPlayerState::OnRep_Gold()
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	if (!PC) return;
+	
+	if (PC->IsLocalController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] OnRep_Gold  누적 Gold : %d"),Gold);
+		GoldChanged.Broadcast(Gold, OldGold);
+	}
+	
+}
 void ASKPlayerState::OnRep_Level()
 {
 	APlayerController* PC = Cast<APlayerController>(GetOwner());

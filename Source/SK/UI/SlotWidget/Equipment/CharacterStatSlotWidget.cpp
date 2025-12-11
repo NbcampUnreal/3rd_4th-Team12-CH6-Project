@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "GameFramework/PlayerState.h"
+#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -45,6 +46,7 @@ void UCharacterStatSlotWidget::NativeDestruct()
 			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
 		}
 	}
+	
 	Super::NativeDestruct();
 }
 
@@ -64,6 +66,13 @@ void UCharacterStatSlotWidget::TryBind()
 		return;
 	}
 
+	CurrentPS = Cast<ASKPlayerState>(PS);
+	if (!CurrentPS)
+	{
+		RetryLater(TEXT("No PlayerState"));
+		return;
+	}
+	
 	UAbilitySystemComponent* ASC = PS->FindComponentByClass<UAbilitySystemComponent>();
 	if (!ASC)
 	{
@@ -129,7 +138,8 @@ void UCharacterStatSlotWidget::ReflashStat()
 	SetStatText(MaxStaminaText, CharacterStat->GetMaxStamina());
 	SetStatText(AttackPowerText, CharacterStat->GetAttack());
 	SetStatText(DefensePowerText, CharacterStat->GetArmor());
-	SetStatText(LevelText, CharacterStat->GetLevel());
+	int32 PlayerLevel = CurrentPS->GetPlayerLevel();
+	SetStatText(LevelText, PlayerLevel);
 }
 
 void UCharacterStatSlotWidget::SetStatText(UTextBlock* Text, float Value)
