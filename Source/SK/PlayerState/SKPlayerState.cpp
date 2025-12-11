@@ -160,7 +160,10 @@ void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
 
 void ASKPlayerState::EquipmentComponentSetting()
 {
-	EquipmentComponent->ReSpawnWeapon();
+	if (HasAuthority())
+	{
+		EquipmentComponent->ReSpawnWeapon();
+	}
 }
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()
