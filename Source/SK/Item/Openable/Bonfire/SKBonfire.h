@@ -4,6 +4,7 @@
 #include "Item/Openable/SKOpenableBase.h"
 #include "SKBonfire.generated.h"
 
+class ASKPlayerCharacter;
 class UNiagaraComponent;
 
 UCLASS()
@@ -35,4 +36,7 @@ public:
 	TSubclassOf<UGameplayEffect> ResetGameplayEffect;
 	
 #pragma endregion
+
+public:
+	void ResetBonfire(ASKPlayerCharacter* PlayerCharacter);
 };

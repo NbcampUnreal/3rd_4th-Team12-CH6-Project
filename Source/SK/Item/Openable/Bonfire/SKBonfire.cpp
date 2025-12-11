@@ -7,7 +7,8 @@
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
-
+#include "AbilitySystemComponent.h"
+#include "Utility/SpawnSubsystem.h" 
 
 ASKBonfire::ASKBonfire()
 {
@@ -34,13 +35,15 @@ void ASKBonfire::BeginPlay()
 void ASKBonfire::ExecuteInteraction_Implementation(AActor* Interactor)
 {
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
-	if (!PlayerCharacter) return;
+
+	ResetBonfire(PlayerCharacter);
 	
 	ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
 	if (!PS) return;
 	
 	PS->CurrentBonfire = this;
 
+	// UI 동작
 	if (UWorld* World = GetWorld())
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
@@ -52,4 +55,22 @@ void ASKBonfire::ExecuteInteraction_Implementation(AActor* Interactor)
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
 		}
 	}
+}
+
+void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
+{
+	// 캐릭터 스텟 초기화
+	if (!PlayerCharacter) return;
+	
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
+	ASC->ApplyGameplayEffectToSelf(ResetGameplayEffect.GetDefaultObject(), 1.0f, Context);
+
+	// 몬스터 재스폰
+	auto* SpawnSubSystem = GetWorld()->GetSubsystem<USpawnSubsystem>();
+	if (!IsValid(SpawnSubSystem)) return;
+
+	SpawnSubSystem->RespawnAll();
 }
