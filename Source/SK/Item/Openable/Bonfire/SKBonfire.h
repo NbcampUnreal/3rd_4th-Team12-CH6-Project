@@ -4,6 +4,7 @@
 #include "Item/Openable/SKOpenableBase.h"
 #include "SKBonfire.generated.h"
 
+class ASKPlayerCharacter;
 class UNiagaraComponent;
 
 UCLASS()
@@ -30,6 +31,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Bonfire")
 	TObjectPtr<UAnimMontage> EndMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Bonfire")
+	TSubclassOf<UGameplayEffect> ResetGameplayEffect;
 	
 #pragma endregion
+
+public:
+	void ResetBonfire(ASKPlayerCharacter* PlayerCharacter);
 };
