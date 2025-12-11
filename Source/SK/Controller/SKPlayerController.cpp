@@ -17,7 +17,9 @@
 #include "Utility/SKUIManagerSubSystem.h"
 #include "Component/SKCombatComponent.h"
 #include "GameInstance/SKGameInstance.h"
+#include "GameMode/SKGameMode.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
+#include "Item/Openable/Bonfire/SKBonfire.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
@@ -696,6 +698,31 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 	}
 
 	return BestDirection;
+}
+
+void ASKPlayerController::RequestRespawn()
+{
+	if (!HasAuthority()) return;
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS || !PS->CurrentBonfire) return;
+
+	ASKBonfire* Bonfire = Cast<ASKBonfire>(PS->CurrentBonfire);
+	FSKInteractionData Data;
+	ISKInteractable::Execute_GetInteractionData(Bonfire, Data);
+
+	FTransform SpawnTransform(Data.InteractionRotation, Data.InteractionLocation);
+
+	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
+	if (APawn* P = GetPawn())
+	{
+		P->Destroy();
+	}
+
+	AGameModeBase* GM = GetWorld()->GetAuthGameMode();
+	if (!GM) return;
+
+	GM->RestartPlayerAtTransform(this, SpawnTransform);
 }
 
 
