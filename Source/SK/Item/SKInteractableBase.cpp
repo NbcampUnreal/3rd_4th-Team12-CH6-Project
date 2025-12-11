@@ -99,7 +99,7 @@ void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 void ASKInteractableBase::AddToInventory(AActor* Interactor, int32 ItemID, int32 ItemQuantity)
 {
-	if (!HasAuthority()) re	turn;
+	if (!HasAuthority()) return;
 	
 	if (!Interactor) return;
 
