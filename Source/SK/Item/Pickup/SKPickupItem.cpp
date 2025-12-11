@@ -3,6 +3,8 @@
 #include "Data/SKPickupItemData.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Interaction/UI/SKInteractableWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 ASKPickupItem::ASKPickupItem()
@@ -14,6 +16,8 @@ ASKPickupItem::ASKPickupItem()
 	InteractionCollision->SetSphereRadius(100.0f);
 	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 
+	InteractionWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 120.0f));
+	
 	ObjectType = EObjectType::Pickup;
 }
 
@@ -41,6 +45,16 @@ void ASKPickupItem::InitializePickup(int32 ItemID, USKPickupItemData* InPickupDa
 	{
 		ItemNiagara->SetAsset(PickupData->DropEffect);
 		ItemNiagara->Activate(true);
+	}
+
+	UUserWidget* WidgetClass = InteractionWidget->GetWidget();
+	if (WidgetClass)
+	{
+		USKInteractableWidget* InteractableWidget = Cast<USKInteractableWidget>(WidgetClass);
+		if (InteractableWidget)
+		{
+			InteractableWidget->SetInitialText(InteractableText);
+		}
 	}
 }
 
