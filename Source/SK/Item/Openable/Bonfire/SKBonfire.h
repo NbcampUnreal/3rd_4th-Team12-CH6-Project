@@ -30,6 +30,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Bonfire")
 	TObjectPtr<UAnimMontage> EndMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Bonfire")
+	TSubclassOf<UGameplayEffect> ResetGameplayEffect;
 	
 #pragma endregion
 };
