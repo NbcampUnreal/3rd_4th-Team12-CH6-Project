@@ -41,7 +41,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnActorVisible(bool bVisible);
-	
+
+	UFUNCTION()
+	void CopyFrom(UEquipmentInstance* Other);
 protected:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> SpawnedActors;
