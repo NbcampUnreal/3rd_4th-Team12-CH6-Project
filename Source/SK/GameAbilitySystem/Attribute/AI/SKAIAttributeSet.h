@@ -62,7 +62,6 @@ public:
 	// delegate
 	mutable FSKAttributeEvent OnCurrentHealthChanged;
 	
-
 	mutable FSKAttributeEvent OnCurrentPoiseChanged;
 
 protected:

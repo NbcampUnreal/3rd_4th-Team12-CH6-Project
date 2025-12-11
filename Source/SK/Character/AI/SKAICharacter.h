@@ -19,7 +19,7 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	
 	virtual void BeginPlay() override;
-
+	
 	// 위젯 컴포넌트 2개
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UWidgetComponent* HealthWidgetComponent;
@@ -31,7 +31,7 @@ protected:
 
 	UFUNCTION()
 	void UIWidgetComponentRotationChange();
-
+	
 private:
 	FTimerHandle WidgetRotationTimerHandle;
 	FTimerHandle WidgetRotationStopTimerHandle;

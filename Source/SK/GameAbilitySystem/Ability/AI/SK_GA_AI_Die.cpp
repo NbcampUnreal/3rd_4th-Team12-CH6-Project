@@ -9,7 +9,7 @@
 USK_GA_AI_Die::USK_GA_AI_Die()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Die")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
@@ -61,7 +61,12 @@ void USK_GA_AI_Die::OnDieCompleted()
 	
 	int32 GoldToGive = FMath::RandRange(AICharacter->GetMonsterData().RewardMinGold, AICharacter->GetMonsterData().RewardMaxGold);
 	ADungeonGameMode* GM = GetWorld()->GetAuthGameMode<ADungeonGameMode>();
-	if (!GM) return;
+	if (!IsValid(GM))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 7.0f, FColor::Red, "GM is nullptr");
+		return;
+	}
+	
 	GM->AddGoldToPlayers(GoldToGive);
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
