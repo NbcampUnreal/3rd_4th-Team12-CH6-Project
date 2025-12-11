@@ -71,10 +71,17 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		
 		if (FMath::IsNearlyZero(GetHealth()))
 		{
-			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
-			CancelAllAbilities();
+			UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
+			if (!OwningASC)
+			{
+				return;
+			}
 
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Death"));
+			if (!OwningASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
+			{
+				AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+				CancelAllAbilities();
+			}
 
 			/* 보스 죽었을 때 처리 로직에 추가
 			if (USKGameplayMessageSubsystem* MessageSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USKGameplayMessageSubsystem>())
@@ -88,9 +95,6 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			}
 			*/
 		}
-		
-		FString DebugMsg = FString::Printf(TEXT("Health: %.2f"), GetHealth());
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMsg);
 	}
 }
 
