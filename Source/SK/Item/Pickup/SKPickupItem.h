@@ -15,11 +15,11 @@ struct FSKItemInfo
 	GENERATED_BODY()
 	
 	// 아이템 ID
-	UPROPERTY(EditAnywhere, Category = "SK|Pickup")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Pickup")
 	int32 ItemID;
 	
 	/** 드랍된 아이템 개수 */
-	UPROPERTY(EditAnywhere, Category="SK|Pickup")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|Pickup")
 	int32 ItemCount = 1;
 };
 
