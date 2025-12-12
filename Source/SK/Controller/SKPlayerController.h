@@ -64,7 +64,7 @@ public:
 
 
 #pragma region Camera
-
+	void ResetLockOn();
 
 	bool GetIsLockedOn();
 	void SetIsLockedOn(bool ArgIsLockedOn);

@@ -171,6 +171,12 @@ void ASKPlayerController::LeaveSessionAndReturnToLocalTown()
 	}
 }
 
+void ASKPlayerController::ResetLockOn()
+{
+	SetLockedTarget(nullptr);
+	SetLockOnState(false);
+}
+
 
 bool ASKPlayerController::GetIsLockedOn()
 {
