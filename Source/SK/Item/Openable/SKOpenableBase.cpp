@@ -1,4 +1,6 @@
 ﻿#include "SKOpenableBase.h"
+
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 
 ASKOpenableBase::ASKOpenableBase()
@@ -12,7 +14,7 @@ ASKOpenableBase::ASKOpenableBase()
 	InteractionCollision->SetSphereRadius(100.0f);
 	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 	
-	InteractionPoint = CreateDefaultSubobject<USceneComponent>("InteractionPoint");
+	InteractionPoint = CreateDefaultSubobject<UCapsuleComponent>("InteractionPoint");
 	InteractionPoint->SetupAttachment(Root);
 	
 	ObjectType = EObjectType::Openable;
