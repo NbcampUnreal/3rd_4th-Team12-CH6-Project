@@ -2,9 +2,11 @@
 #include "Character/AI/SKAICharacter.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Controller/SKPlayerController.h"
 #include "Controller/AI/SKAIController.h"
 #include "Utility/DropSubsystem.h"
 #include "GameMode/DungeonGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 USK_GA_AI_Die::USK_GA_AI_Die()
 {
@@ -85,6 +87,19 @@ void USK_GA_AI_Die::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
+	if (UWorld* World = GetWorld())
+	{
+		APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+		if (ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC))
+		{
+			if (SKPC->IsLocalController())
+			{
+				SKPC->ResetLockOn();
+			}
+		}
+	}
+
+	
 	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Death");
 	if (!IsValid(AnimMontage))
 	{
