@@ -238,7 +238,7 @@ void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, floa
 			Duration,
 			false
 		);
-	}
+	} 
 }
 
 void ASKAICharacterBase::ClearOverlayMaterial()

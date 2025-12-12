@@ -15,7 +15,9 @@
 #include "GameFramework/Character.h"
 #include "Component/SKCombatComponent.h"
 #include "GameInstance/SKGameInstance.h"
+#include "GameMode/SKGameMode.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
+#include "Item/Openable/Bonfire/SKBonfire.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -402,7 +404,7 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
 
-
+		
 		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(ControlledPawn);
 		if (Char)
 		{
@@ -559,6 +561,7 @@ void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 
 	CamManager->AdjustCameraDistance(WheelValue);
 }
+
 
 
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
@@ -776,6 +779,31 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 	}
 
 	return BestDirection;
+}
+
+void ASKPlayerController::RequestRespawn()
+{
+	if (!HasAuthority()) return;
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS || !PS->CurrentBonfire) return;
+
+	ASKBonfire* Bonfire = Cast<ASKBonfire>(PS->CurrentBonfire);
+	FSKInteractionData Data;
+	ISKInteractable::Execute_GetInteractionData(Bonfire, Data);
+
+	FTransform SpawnTransform(Data.InteractionRotation, Data.InteractionLocation);
+
+	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
+	if (APawn* P = GetPawn())
+	{
+		P->Destroy();
+	}
+
+	AGameModeBase* GM = GetWorld()->GetAuthGameMode();
+	if (!GM) return;
+
+	GM->RestartPlayerAtTransform(this, SpawnTransform);
 }
 
 

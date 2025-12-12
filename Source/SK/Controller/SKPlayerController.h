@@ -205,6 +205,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static EMoveDirection GetClosestMoveDirection(const FVector2D& InputVector);
 
+	UFUNCTION(BlueprintCallable)
+	void RequestRespawn();
+	
 private:
 	bool bMoveFlag = false;
 	bool bSprintFlag = false;

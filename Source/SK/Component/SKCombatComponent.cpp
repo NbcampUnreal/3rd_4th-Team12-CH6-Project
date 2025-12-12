@@ -489,16 +489,16 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 	);
 
 
-	DrawDebugCapsule(
-		GetWorld(),
-		CapsuleCenter,
-		HalfHeight,
-		Radius,
-		CapsuleRot, // ★ 핵심: 회전 적용
-		FColor::Green,
-		false,
-		0.05f
-	);
+	// DrawDebugCapsule(
+	// 	GetWorld(),
+	// 	CapsuleCenter,
+	// 	HalfHeight,
+	// 	Radius,
+	// 	CapsuleRot, // ★ 핵심: 회전 적용
+	// 	FColor::Green,
+	// 	false,
+	// 	0.05f
+	// );
 
 
 	if (bHit)

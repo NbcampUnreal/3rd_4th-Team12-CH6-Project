@@ -6,9 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "GoldStatSlotWidget.generated.h"
 
+class ASKPlayerState;
 struct FGameplayEffectSpec;
 class UTextBlock;
-class USKAttributeSet;
 /**
  * 
  */
@@ -23,7 +23,7 @@ public:
 	void TryBind();
 protected:
 	UPROPERTY()
-	const USKAttributeSet* AttributeSet;
+	ASKPlayerState* CurrentPS;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* TotalGoldText;
@@ -34,10 +34,11 @@ protected:
 	UPROPERTY(Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* GoldAddAnimation;
 
-	mutable float PendingGold = 0.0f;
+	mutable int32 PendingGold = 0;
 	mutable bool bIsPlayingAnimation = false;
-	
-	void GoldChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
+
+	UFUNCTION()
+	void GoldChanged(int32 NewGold, int32 OldGold);
 
 	UFUNCTION()
 	void OnGoldAddAnimationFinished();
