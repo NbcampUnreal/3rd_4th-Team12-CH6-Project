@@ -54,7 +54,7 @@ void ASKCharacterBase::PossessedBy(AController* NewController)
 
 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
-	PS->SetDAPlayerStat();
+	// PS->SetDAPlayerStat();
 	InitASCFromPlayerState();
 
 	UE_LOG(LogTemp, Warning, TEXT("[ASC INIT] PossessedBy (Server) 성공"));
