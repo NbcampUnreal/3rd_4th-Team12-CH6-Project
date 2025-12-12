@@ -1,6 +1,8 @@
 #include "Projectile/SKBaseProjectile.h"
+#include "Character/AI/SKAICharacter.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "AbilitySystemComponent.h"
 
 ASKBaseProjectile::ASKBaseProjectile()
 {
@@ -10,7 +12,7 @@ ASKBaseProjectile::ASKBaseProjectile()
 	RootComponent = SphereComponent;
 	SphereComponent->InitSphereRadius(15.0f);
 	SphereComponent->SetCollisionProfileName(TEXT("Projectile")); // 아직 안 만듬
-	SphereComponent->OnComponentHit.AddDynamic(this, &ASKBaseProjectile::OnHit); 
+	SphereComponent->OnComponentHit.AddDynamic(this, &ASKBaseProjectile::OnHit);
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
@@ -51,10 +53,27 @@ void ASKBaseProjectile::OnHit(
 	// 투사체를 발사한 주체가 자기 자신이라면 (혹은 무시할 액터라면) 처리하지 않습니다.
 	if (OtherActor && (OtherActor != this) && GetInstigator() != OtherActor)
 	{
-		// ... (여기에 데미지 처리, 이펙트 재생 등의 로직을 추가) ...
-        
-		// 충돌 후 투사체 소멸
-		Destroy(); 
+		ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetInstigator());
+		if (!IsValid(AICharacter))
+		{
+			Destroy();
+		}
+
+		UAbilitySystemComponent* OwnerASC = AICharacter->GetAbilitySystemComponent();
+		if (!OwnerASC)
+		{
+			Destroy();
+		}
+
+		FGameplayEventData EventData;
+		EventData.Instigator = AICharacter;
+		EventData.Target = OtherActor;
+		EventData.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Hit"));
+		EventData.OptionalObject = nullptr;
+
+		OwnerASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+		
+		Destroy();
 	}
 }
 

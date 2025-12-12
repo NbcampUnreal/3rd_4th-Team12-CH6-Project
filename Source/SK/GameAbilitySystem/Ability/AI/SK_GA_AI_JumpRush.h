@@ -15,6 +15,9 @@ public:
 	void JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAnimMontage> AnimMontage);
 
 	UFUNCTION()
+	void OnHitCompleted(FGameplayEventData EventData);
+	
+	UFUNCTION()
 	void OnJumpRushCompleted();
 
 	

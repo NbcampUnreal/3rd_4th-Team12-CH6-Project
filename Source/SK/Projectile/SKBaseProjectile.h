@@ -6,6 +6,7 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class UGameplayEffect;
 
 UCLASS()
 class SK_API ASKBaseProjectile : public AActor
@@ -25,6 +26,7 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float InitialSpeed = 3000.0f;
+
 	
 public:	
 	ASKBaseProjectile();
@@ -33,12 +35,11 @@ public:
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 	
 protected:
 	virtual void BeginPlay() override;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
-
+	
 };

@@ -60,6 +60,8 @@ protected:
 private:
 	FVector StartLocation;
 
+	float BackstepDistance;
+	
 	FTimerHandle OverlayTimerHandle;
 
 	
@@ -88,6 +90,8 @@ public:
 	void SetMeleeIndex(int32 NewMeleeIndex);
 
 	FVector GetStartLocation() const;
+
+	float GetBackstepDistance() const;
 
 	int32 GetDropTableID() const;
 

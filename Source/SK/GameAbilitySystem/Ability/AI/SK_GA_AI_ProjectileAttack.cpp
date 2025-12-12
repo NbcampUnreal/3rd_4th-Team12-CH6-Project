@@ -19,15 +19,28 @@ USK_GA_AI_ProjectileAttack::USK_GA_AI_ProjectileAttack()
 
 void USK_GA_AI_ProjectileAttack::WaitAnimNotify()
 {
-	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.AnimNotify")),
 				nullptr,
 				true,
 				false
 				);
-	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_ProjectileAttack::OnWaitAnimNotifyCompleted);
-	OwnEventTask->ReadyForActivation();
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_ProjectileAttack::OnWaitAnimNotifyCompleted);
+	OwnEventTask1->ReadyForActivation();
+}
+
+void USK_GA_AI_ProjectileAttack::WaitHit()
+{
+	OwnEventTask2 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
+				nullptr,
+				true,
+				false
+				);
+	OwnEventTask2->EventReceived.AddDynamic(this, &USK_GA_AI_ProjectileAttack::OnWaitHitCompleted);
+	OwnEventTask2->ReadyForActivation();
 }
 
 void USK_GA_AI_ProjectileAttack::SpawnProjectile()
@@ -53,6 +66,8 @@ void USK_GA_AI_ProjectileAttack::SpawnProjectile()
 void USK_GA_AI_ProjectileAttack::LaunchProjectile(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	WaitAnimNotify();
+
+	WaitHit();
 	
 	SpawnProjectile();
 	
@@ -90,6 +105,17 @@ void USK_GA_AI_ProjectileAttack::OnWaitAnimNotifyCompleted(FGameplayEventData Ev
 	const FVector LaunchDirection = AIController->GetTargetDirection();
 		
 	Projectile->LaunchProjectile(LaunchDirection);
+}
+
+void USK_GA_AI_ProjectileAttack::OnWaitHitCompleted(FGameplayEventData EventData)
+{
+	HitActor = EventData.Target.Get();
+	if (!HitActor.IsValid())
+	{
+		return;
+	}
+	
+	ApplyDamageToTarget(HitActor);
 }
 
 void USK_GA_AI_ProjectileAttack::OnLaunchProjectileCompleted()

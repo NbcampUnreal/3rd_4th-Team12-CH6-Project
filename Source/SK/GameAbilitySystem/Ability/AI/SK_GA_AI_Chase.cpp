@@ -40,15 +40,15 @@ void USK_GA_AI_Chase::Chase()
 
 void USK_GA_AI_Chase::WaitMoveComplete()
 {
-	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.MoveComplete")),
 				nullptr,
 				true,
 				false
 				);
-	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Chase::OnWaitMoveCompleteCompleted);
-	OwnEventTask->ReadyForActivation();
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Chase::OnWaitMoveCompleteCompleted);
+	OwnEventTask1->ReadyForActivation();
 }
 
 void USK_GA_AI_Chase::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
