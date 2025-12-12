@@ -2,34 +2,34 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "SK_AnimNotifyState_AI_Melee.generated.h"
+#include "SK_AnimNotifyState_AI_AttackTrace.generated.h"
 
 UCLASS()
-class SK_API USK_AnimNotifyState_AI_Melee : public UAnimNotifyState
+class SK_API USK_AnimNotifyState_AI_AttackTrace : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
 protected:
 	// 이걸 몽타주 안 노티파이스테이트 디테일에서 지정.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
-	TArray<FName> SocketNames { TEXT("left_hand_socket"), TEXT("right_hand_socket") };
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Trace")
+	TArray<FName> SocketNames;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Trace")
 	float CapsuleRadius = 10.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Trace")
 	float CapsuleHalfHeight = 20.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trace")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trace")
 	TArray<AActor*> IgnoreActors;
 	
 	TMap<FName, FVector> PrevSocketLocations;
 
 public:
-	USK_AnimNotifyState_AI_Melee();
+	USK_AnimNotifyState_AI_AttackTrace();
 	
 protected:
 	virtual void NotifyBegin(

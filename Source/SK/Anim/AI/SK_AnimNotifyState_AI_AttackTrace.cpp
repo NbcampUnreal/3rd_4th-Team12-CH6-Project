@@ -1,14 +1,14 @@
-#include "Anim/AI/SK_AnimNotifyState_AI_Melee.h"
+#include "Anim/AI/SK_AnimNotifyState_AI_AttackTrace.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 
-USK_AnimNotifyState_AI_Melee::USK_AnimNotifyState_AI_Melee()
+USK_AnimNotifyState_AI_AttackTrace::USK_AnimNotifyState_AI_AttackTrace()
 {
 	
 }
 
-void USK_AnimNotifyState_AI_Melee::NotifyBegin(
+void USK_AnimNotifyState_AI_AttackTrace::NotifyBegin(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	float TotalDuration,
@@ -36,7 +36,7 @@ void USK_AnimNotifyState_AI_Melee::NotifyBegin(
 	}
 }
 
-void USK_AnimNotifyState_AI_Melee::NotifyEnd(
+void USK_AnimNotifyState_AI_AttackTrace::NotifyEnd(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference
@@ -48,7 +48,7 @@ void USK_AnimNotifyState_AI_Melee::NotifyEnd(
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 }
 
-void USK_AnimNotifyState_AI_Melee::NotifyTick(
+void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	float FrameDeltaTime,
