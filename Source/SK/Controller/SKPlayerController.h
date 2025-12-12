@@ -40,6 +40,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_SetControlRotation(const FRotator& NewRotation);
 
+	void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	
 	FOnPawnPossessedSignature OnPawnPossessed;
@@ -61,12 +62,46 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LeaveSessionAndReturnToLocalTown();
 
-	UPROPERTY()
-	AActor* CurrentTarget = nullptr;
 
+#pragma region Camera
+
+
+	bool GetIsLockedOn();
+	void SetIsLockedOn(bool ArgIsLockedOn);
+		
+	UPROPERTY(ReplicatedUsing = OnRep_LockOnChanged)
+	bool bIsLockedOn = false;
+
+	UPROPERTY(ReplicatedUsing = OnRep_LockedTargetChanged)
+	AActor* LockedTarget = nullptr;
+
+	UPROPERTY()
+	AActor* OldTarget = nullptr;
+
+	
+	void SetLockOnState(bool bNewState);
+
+	void SetLockedTarget(AActor* NewTarget);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetLockedTarget(AActor* NewTarget);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetLockOnState(bool bNewState);
+	
+	UFUNCTION()
+	void OnRep_LockOnChanged();
+
+	UFUNCTION()
+	void OnRep_LockedTargetChanged();
+
+	bool ValidateLockOn();
+
+#pragma endregion
 
 	FVector2D LookInput;
 
+	
 	UFUNCTION(Client, Reliable)
 	void ClientShowLoadingScreen(bool bShow);
 
@@ -78,6 +113,9 @@ protected:
 
 	//락온중 회전시키는 함수
 	void UpdateLockOnRotation(float DeltaTime);
+	UFUNCTION(Server, Reliable)
+	void Server_SetFacingDirection(float NewYaw);
+	
 #pragma region IMA_AND_IA
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Input")

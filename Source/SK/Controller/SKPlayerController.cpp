@@ -4,6 +4,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "Manager/SKCameraManager.h"
 #include "Character/SKCharacterBase.h"
 #include "Character/SKPlayerCharacter.h"
@@ -15,6 +16,7 @@
 #include "Component/SKCombatComponent.h"
 #include "GameInstance/SKGameInstance.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
@@ -23,6 +25,14 @@ ASKPlayerController::ASKPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PlayerCameraManagerClass = ASKCameraManager::StaticClass();
+}
+
+void ASKPlayerController::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASKPlayerController, bIsLockedOn);
+	DOREPLIFETIME(ASKPlayerController, LockedTarget);
 }
 
 void ASKPlayerController::ClientShowLoadingScreen_Implementation(bool bShow)
@@ -41,7 +51,16 @@ void ASKPlayerController::Server_SetControlRotation_Implementation(const FRotato
 	{
 		PlayerPawn->Controller->SetControlRotation(NewRotation);
 	}
+}
 
+void ASKPlayerController::Server_SetLockedTarget_Implementation(AActor* NewTarget)
+{
+	SetLockedTarget(NewTarget);
+}
+
+void ASKPlayerController::Server_SetLockOnState_Implementation(bool bNewState)
+{
+	SetLockOnState(bNewState);
 }
 
 void ASKPlayerController::BeginPlay()
@@ -60,14 +79,21 @@ void ASKPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
-	if (!IsValid(Cam))
-		return;
-	
-	if (!(Cam->GetIsLockedOn()) || !IsValid(CurrentTarget))
-		return;
-	
-	UpdateLockOnRotation(DeltaTime); // 회전 처리
+	if (bIsLockedOn)
+	{
+		if (!ValidateLockOn())
+		{
+			// 예외시 Lock OFF
+			SetLockedTarget(nullptr);
+			SetLockOnState(false);
+			return;
+		}
+
+		if (LockedTarget)
+		{
+			UpdateLockOnRotation(DeltaTime);
+		}
+	}
 }
 
 
@@ -145,6 +171,102 @@ void ASKPlayerController::LeaveSessionAndReturnToLocalTown()
 	}
 }
 
+
+bool ASKPlayerController::GetIsLockedOn()
+{
+	return bIsLockedOn;
+}
+
+void ASKPlayerController::SetIsLockedOn(bool ArgIsLockedOn)
+{
+	bIsLockedOn = ArgIsLockedOn;
+}
+
+void ASKPlayerController::SetLockOnState(bool bNewState)
+{
+	if (HasAuthority())
+	{
+		bIsLockedOn = bNewState;
+		OnRep_LockOnChanged();
+	}
+	else
+	{
+		Server_SetLockOnState(bNewState);
+	}
+}
+
+void ASKPlayerController::SetLockedTarget(AActor* NewTarget)
+{
+	if (HasAuthority())
+	{
+		LockedTarget = NewTarget;
+		OnRep_LockedTargetChanged();
+	}
+	else
+	{
+		Server_SetLockedTarget(NewTarget);
+	}
+}
+
+
+void ASKPlayerController::OnRep_LockOnChanged()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetPawn());
+	if (!Player)
+		return;
+
+	USKPlayerAnimInstance* Anim = Cast<USKPlayerAnimInstance>(SKPlayer->GetMesh()->GetAnimInstance());
+	if (Anim)
+	{
+		Anim->bIsLockedOn = bIsLockedOn;
+	}
+
+	SKPlayer->SetLockOnRotateMode(bIsLockedOn);
+}
+
+void ASKPlayerController::OnRep_LockedTargetChanged()
+{
+	if (OldTarget)
+	{
+		if (ASKAICharacterBase* AI = Cast<ASKAICharacterBase>(OldTarget))
+			AI->ClearOverlayMaterial();
+	}
+
+	if (LockedTarget)
+	{
+		ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+
+		if (IsValid(Cam))
+		{
+			if (ASKAICharacterBase* AI = Cast<ASKAICharacterBase>(LockedTarget))
+				AI->SetOverlayMaterial(Cam->Get_OutLineMat(), Cam->Get_OutLineTime());
+		}
+	}
+
+	OldTarget = LockedTarget;
+}
+
+bool ASKPlayerController::ValidateLockOn()
+{
+	if (!LockedTarget)
+		return false;
+	if (LockedTarget->IsActorBeingDestroyed())
+		return false;
+
+	APawn* PlayerPawn = GetPawn();
+	if (!PlayerPawn)
+		return false;
+
+	float Dist = FVector::Dist(PlayerPawn->GetActorLocation(), LockedTarget->GetActorLocation());
+
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+	if (Dist > Cam->MaxLockDistance || Dist < Cam->MinLockDistance)
+		return false;
+
+
+	return true;
+}
+
 void ASKPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -153,7 +275,8 @@ void ASKPlayerController::SetupInputComponent()
 	{
 		check(MoveAction);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Move);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASKPlayerController::OnMoveRepleased);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this,
+		                                   &ASKPlayerController::OnMoveRepleased);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASKPlayerController::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
@@ -171,7 +294,7 @@ void ASKPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MouseWheelAction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_MouseWheel);
 		EnhancedInputComponent->BindAction(MouseWheelMoveAction, ETriggerEvent::Started, this,
-									   &ASKPlayerController::Active_MouseWheelMove);
+		                                   &ASKPlayerController::Active_MouseWheelMove);
 
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Interact);
@@ -179,7 +302,7 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::Dodge);
 		// Q-R-F
 		EnhancedInputComponent->BindAction(QuickSlotAction_00, ETriggerEvent::Started, this,
-		                                   &ASKPlayerController::Active_QuickSlotAction_00); 
+		                                   &ASKPlayerController::Active_QuickSlotAction_00);
 		EnhancedInputComponent->BindAction(QuickSlotAction_01, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_QuickSlotAction_01);
 		EnhancedInputComponent->BindAction(QuickSlotAction_02, ETriggerEvent::Started, this,
@@ -203,7 +326,7 @@ void ASKPlayerController::OnPossess(APawn* InPawn)
 
 void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 {
-	if (!IsValid(CurrentTarget))
+	if (!IsValid(LockedTarget))
 	{
 		return;
 	}
@@ -214,17 +337,32 @@ void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 		return;
 	}
 	FVector PlayerLoc = PlayerPawn->GetActorLocation();
-	FVector TargetLoc = CurrentTarget->GetActorLocation();
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
+	FVector TargetLoc = LockedTarget->GetActorLocation();
 
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
 	TargetLoc.Z += Cam->LockOnHeight;
 
 	FRotator TargetRot = (TargetLoc - PlayerLoc).Rotation();
 	TargetRot.Pitch -= Cam->LockOnPitch;
 
+	Server_SetFacingDirection(TargetRot.Yaw);
+
 	FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
 
-	Server_SetControlRotation(NewRot);
+	SetControlRotation(NewRot);
+}
+
+void ASKPlayerController::Server_SetFacingDirection_Implementation(float NewYaw)
+{
+	APawn* PlayerPawn = GetPawn();
+	if (!IsValid(PlayerPawn))
+		return;
+
+	FRotator NewRot = PlayerPawn->GetActorRotation();
+
+	NewRot.Yaw = NewYaw;
+
+	PlayerPawn->SetActorRotation(NewRot);
 }
 
 void ASKPlayerController::Dash(const FInputActionValue& Value)
@@ -258,7 +396,7 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
 
-		
+
 		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(ControlledPawn);
 		if (Char)
 		{
@@ -280,19 +418,19 @@ void ASKPlayerController::OnMoveRepleased()
 		USKActionComponent* ActionComponent = Char->GetActionComponent();
 		if (ActionComponent)
 		{
-			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector, GetClosestMoveDirection(FVector2D::ZeroVector));
+			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector,
+			                                        GetClosestMoveDirection(FVector2D::ZeroVector));
 		}
 	}
 }
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
-	if (Cam && Cam->GetIsLockedOn())
+	if (GetIsLockedOn())
 		return;
-	
+
 	const FVector2D InLookVector = Value.Get<FVector2D>();
-	
+
 	AddYawInput(InLookVector.X);
 	AddPitchInput(InLookVector.Y);
 }
@@ -391,27 +529,16 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("ACTIVE_MOUSE_WHEEL"));
 
-	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
-	if (!SKPlayerCharacter)
-		return;
-
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
-	
-	//락온상대일때 재입력하면 해제
-	if (Cam->GetIsLockedOn())
+	if (bIsLockedOn)
 	{
-		Cam->SetLockedTarget(nullptr);
-		CurrentTarget = nullptr;
-
-		SKPlayerCharacter->SetLockOnState(false);
-
+		SetLockedTarget(nullptr);
+		SetLockOnState(false);
 		return;
 	}
 
 	AActor* Target = FindNearestTarget();
-	Cam->SetLockedTarget(Target);
-	CurrentTarget = Target;
-	SKPlayerCharacter->SetLockOnState(Cam->GetIsLockedOn());
+	SetLockedTarget(Target);
+	SetLockOnState(Target != nullptr);
 }
 
 void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
@@ -426,7 +553,6 @@ void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 
 	CamManager->AdjustCameraDistance(WheelValue);
 }
-
 
 
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
@@ -457,8 +583,8 @@ void ASKPlayerController::Active_QuickSlotAction_02(const FInputActionValue& Val
 void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_00"));
-	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
- 
+	APlayerState* BasePlayerState = PlayerState; // 또는 GetPlayerState()
+
 	// 2. 커스텀 PlayerState로 캐스팅
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
 	if (!SKPlayerState)
@@ -466,7 +592,7 @@ void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
 		return;
 	}
- 
+
 	// 3. QuickSlotComponent 찾기
 	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
 	if (!QuickSlotComp)
@@ -474,7 +600,7 @@ void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
 		return;
 	}
- 
+
 	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
 	QuickSlotComp->TryUseQuickSlot(0);
 }
@@ -482,8 +608,8 @@ void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value
 void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_01"));
-	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
- 
+	APlayerState* BasePlayerState = PlayerState; // 또는 GetPlayerState()
+
 	// 2. 커스텀 PlayerState로 캐스팅
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
 	if (!SKPlayerState)
@@ -491,7 +617,7 @@ void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
 		return;
 	}
- 
+
 	// 3. QuickSlotComponent 찾기
 	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
 	if (!QuickSlotComp)
@@ -499,7 +625,7 @@ void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
 		return;
 	}
- 
+
 	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
 	QuickSlotComp->TryUseQuickSlot(1);
 }
@@ -507,8 +633,8 @@ void ASKPlayerController::Active_QuickSlotItem_01(const FInputActionValue& Value
 void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotItem_02"));
-	APlayerState* BasePlayerState = PlayerState;  // 또는 GetPlayerState()
- 
+	APlayerState* BasePlayerState = PlayerState; // 또는 GetPlayerState()
+
 	// 2. 커스텀 PlayerState로 캐스팅
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(BasePlayerState);
 	if (!SKPlayerState)
@@ -516,7 +642,7 @@ void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not of type ASKPlayerState!"));
 		return;
 	}
- 
+
 	// 3. QuickSlotComponent 찾기
 	UQuickSlotComponent* QuickSlotComp = SKPlayerState->FindComponentByClass<UQuickSlotComponent>();
 	if (!QuickSlotComp)
@@ -524,7 +650,7 @@ void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value
 		UE_LOG(LogTemp, Warning, TEXT("QuickSlotComponent not found on PlayerState!"));
 		return;
 	}
- 
+
 	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
 	QuickSlotComp->TryUseQuickSlot(2);
 }
@@ -577,11 +703,10 @@ AActor* ASKPlayerController::FindNearestTarget()
 
 void ASKPlayerController::ClearTarGetOverlayMaterial()
 {
-	if (!IsValid(CurrentTarget))
+	if (!IsValid(LockedTarget))
 		return;
-	Cast<ASKAICharacterBase>(CurrentTarget)->ClearOverlayMaterial();
+	Cast<ASKAICharacterBase>(LockedTarget)->ClearOverlayMaterial();
 }
-
 
 
 EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& InputVector)
@@ -668,7 +793,7 @@ void ASKPlayerController::Dodge(const FInputActionValue& Value)
 
 	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
 	if (!SKPlayerCharacter) return;
-	
+
 	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
@@ -682,9 +807,8 @@ void ASKPlayerController::RequestLevelUp()
 	{
 		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 		if (!PS) return;
-		
+
 		// 클라 → 서버로 요청
 		PS->Server_RequestLevelUp();
 	}
-
 }
