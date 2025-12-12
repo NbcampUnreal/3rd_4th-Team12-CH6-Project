@@ -388,8 +388,27 @@ void UInventoryComponent::CopyTo(UInventoryComponent* Target)
 {
 	if (!Target) return;
 
-	Target->InventorySlots      = InventorySlots;
-	Target->EquipmentInstances  = EquipmentInstances;
+	Target->InventorySlots = InventorySlots;
+	Target->EquipmentInstances.Empty();
+
+	for (const auto& Slot : EquipmentInstances)
+	{
+		FEquipmentInstanceSlot NewSlot;
+		NewSlot.UniqueID = Slot.UniqueID;
+
+		if (Slot.EquipmentInstance)
+		{
+			// 새 인스턴스 생성
+			UEquipmentInstance* NewInst = NewObject<UEquipmentInstance>(Target);
+            
+			// 내부 데이터 복사 (함수 직접 구현해야 함)
+			NewInst->CopyFrom(Slot.EquipmentInstance);
+
+			NewSlot.EquipmentInstance = NewInst;
+		}
+
+		Target->EquipmentInstances.Add(NewSlot);
+	}
 }
 
 void UInventoryComponent::ServerAddItem_Implementation(const int32& ItemID, int32 Count)

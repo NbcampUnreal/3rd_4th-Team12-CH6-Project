@@ -456,14 +456,8 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		return;
 	if (!IsValid(WeaponMesh))
 	{
-		// SetWeaponMesh_Init();
 		return;
 	}
-	//
-	// if (!IsValid(WeaponMesh))
-	// {
-	// 	return;
-	// }
 
 	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	FVector CurrEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
@@ -495,16 +489,16 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 	);
 
 
-	DrawDebugCapsule(
-		GetWorld(),
-		CapsuleCenter,
-		HalfHeight,
-		Radius,
-		CapsuleRot, // ★ 핵심: 회전 적용
-		FColor::Green,
-		false,
-		0.05f
-	);
+	// DrawDebugCapsule(
+	// 	GetWorld(),
+	// 	CapsuleCenter,
+	// 	HalfHeight,
+	// 	Radius,
+	// 	CapsuleRot, // ★ 핵심: 회전 적용
+	// 	FColor::Green,
+	// 	false,
+	// 	0.05f
+	// );
 
 
 	if (bHit)
