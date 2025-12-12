@@ -36,11 +36,12 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	}
 	
 	UAnimMontage* DeathMontage = WeaponAnimData->DeathMontages;
-	if (!DeathMontage)
+	ASKPlayerController* PC = Cast<ASKPlayerController>(Char->GetController());
+	
+	if (Char->HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Death montage is null"));
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		return;
+		FTimerHandle RespawnTimer;
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, [PC](){PC->RequestRespawn();}, 5.0f, false);
 	}
 	
 	if (DeathMontage)
@@ -50,6 +51,12 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
 		PlayAnimTask->ReadyForActivation();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Death montage is null"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
 	}
 }
 
@@ -63,7 +70,7 @@ void USK_GA_Death::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	UE_LOG(LogTemp, Warning, TEXT("End %s Ability, %s"), *GetName(),
 		   Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 	
-	Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	// Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void USK_GA_Death::OnCompleted()

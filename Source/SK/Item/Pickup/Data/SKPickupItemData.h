@@ -5,6 +5,7 @@
 #include "NiagaraSystem.h"
 #include "SKPickupItemData.generated.h"
 
+class USKInteractableWidget;
 class USKInventoryItemData;
 
 UCLASS()
@@ -39,4 +40,8 @@ public:
 	// 드랍 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
 	TObjectPtr<UNiagaraSystem> DropEffect;
+
+	// 위젯 클래스
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
+	TSubclassOf<USKInteractableWidget> WidgetClass;
 };

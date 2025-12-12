@@ -224,7 +224,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	/*///// 테스트
+	////// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
@@ -244,8 +244,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	
 	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
-	*/
-	
+	////// 테스트
 }
 
 void ASKAIController::BeginPlay()
@@ -258,7 +257,7 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
-
+	/*
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
@@ -270,7 +269,7 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
-
+	*/
 	GetWorld()->GetTimerManager().SetTimer(
 	   FindClosestTargetTimerHandle,
 	   this,

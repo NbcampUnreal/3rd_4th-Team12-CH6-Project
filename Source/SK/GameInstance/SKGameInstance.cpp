@@ -197,6 +197,7 @@ void USKGameInstance::SetSFXVolume(float InVolume)
 
 void USKGameInstance::ShowLoadingScreen(bool bShow)
 {
+	/*
 	if (!GEngine || !GEngine->GameViewport)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[SKGameInstance] No GameViewport found!"));
@@ -235,6 +236,7 @@ void USKGameInstance::ShowLoadingScreen(bool bShow)
 			LoadingWidgetInstance = nullptr;
 		}
 	}
+	*/
 }
 
 

@@ -238,7 +238,7 @@ void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, floa
 			Duration,
 			false
 		);
-	}
+	} 
 }
 
 void ASKAICharacterBase::ClearOverlayMaterial()
@@ -246,7 +246,7 @@ void ASKAICharacterBase::ClearOverlayMaterial()
 	if (!GetMesh())
 		return;
 
-	GetMesh()->SetOverlayMaterial(nullptr);
+	GetMesh()->SetOverlayMaterial(nullptr); 
 }
 
 void ASKAICharacterBase::ApplyStaticMonsterStats()
