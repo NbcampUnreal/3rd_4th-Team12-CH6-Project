@@ -158,6 +158,20 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 			NewValue
 		);
 	}
+
+	// 죽음 처리
+	if (GetHealth() <= 0.0f)
+	{
+		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+		if (ASC)
+		{
+			FGameplayTagContainer DeathTag;
+			DeathTag.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Condition.Death")));
+
+			ASC->TryActivateAbilitiesByTag(DeathTag);
+		}
+		
+	}
 }
 
 void USKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
