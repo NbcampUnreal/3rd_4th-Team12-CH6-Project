@@ -11,6 +11,7 @@
 #include "Utility/SpawnSubsystem.h" 
 
 ASKBonfire::ASKBonfire()
+	: bIsDefaultBonfire(false)
 {
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("MeshComponent");
 	MeshComponent->SetupAttachment(Root);
