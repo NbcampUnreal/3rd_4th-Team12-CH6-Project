@@ -100,9 +100,9 @@ FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKAc
 	FName Direction;
 
 	APlayerController* PC = Cast<APlayerController>(PlayerCharacter->GetController());
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PC->PlayerCameraManager);
+	ASKPlayerController* SK_PC = Cast<ASKPlayerController>(PC);
 	// 락온 일 때
-	if (Cam->GetIsLockedOn())
+	if (SK_PC->GetIsLockedOn())
 	{
 		EMoveDirection MoveDirection = ActionComponent->CurrentMoveDirection;
 		switch (MoveDirection)
