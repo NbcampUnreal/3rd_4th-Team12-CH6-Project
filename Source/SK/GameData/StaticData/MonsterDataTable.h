@@ -40,6 +40,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	float Speed = 0.f;
 
+	/** 백스텝 거리 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
+	float BackstepDistance = 0.f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	TSoftClassPtr<APawn> MonsterClass;
 
