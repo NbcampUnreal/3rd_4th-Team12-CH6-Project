@@ -4,6 +4,9 @@
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USK_GA_Death::USK_GA_Death()
 {
@@ -41,7 +44,10 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	if (Char->HasAuthority())
 	{
 		FTimerHandle RespawnTimer;
-		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, [PC](){PC->RequestRespawn();}, 5.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, [PC](){PC->RequestRespawn();}, RespawnDelay, false);
+		
+		FTimerHandle DeathUITimer;
+		GetWorld()->GetTimerManager().SetTimer(DeathUITimer, this, &USK_GA_Death::ShowDeathUI, DeathUIDelay, false);
 	}
 	
 	if (DeathMontage)
@@ -81,4 +87,20 @@ void USK_GA_Death::OnCompleted()
 void USK_GA_Death::OnCanceled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void USK_GA_Death::ShowDeathUI()
+{
+	if (UWorld* InnerWorld = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(InnerWorld))
+		{
+			FSlotVisibilityMessage SlotMessage;
+			SlotMessage.LayoutTag = TAG_UI_Layout_InGame;
+			SlotMessage.SlotTags.AddTag(TAG_UI_Slot_CharacterDeath);
+			SlotMessage.bVisible = true;
+
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, SlotMessage);
+		}
+	}
 }
