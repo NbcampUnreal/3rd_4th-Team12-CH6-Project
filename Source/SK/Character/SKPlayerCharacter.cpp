@@ -7,17 +7,14 @@
 #include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
-#include "Animation/SKPlayerAnimInstance.h"
 #include "Component/SKCombatComponent.h"
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameState/SKGameState.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
-#include "Manager/SKCameraManager.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
-#include "Net/UnrealNetwork.h"
 #include "Weapon/SKWeaponData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
@@ -91,7 +88,6 @@ void ASKPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// LockOnTarget(DeltaTime);
 }
 
 void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -315,49 +311,28 @@ void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 	}
 }
 
-void ASKPlayerCharacter::PlayAnim_SetLockOnState()
+void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 {
-	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (!PC)
-		return;
-	
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PC->PlayerCameraManager);
-	
-	if (PlayerAnimInstance)
+	if (bLockOn)
 	{
-		PlayerAnimInstance->bIsLockedOn = Cam->GetIsLockedOn();
+		// Lock On: Movement 기반 회전 금지
+		// bUseControllerRotationYaw  = false;
+		// GetCharacterMovement()->bOrientRotationToMovement = false;
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		
+	}
+	else
+	{
+		// Lock Off: 다시 Movement 기반 회전 허용
+		// bUseControllerRotationYaw = true;
+		// GetCharacterMovement()->bOrientRotationToMovement = true;
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	}
 }
-
-void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
-{
-	// ASKPlayerController* PC = Cast<ASKPlayerController>(Controller);
-	// if (PC && PC->bIsLockedOn && PC->CurrentTarget)
-	// {
-	// 	FVector Dir = (PC->CurrentTarget->GetActorLocation() - GetActorLocation());
-	// 	Dir.Z = 0;
-	//
-	// 	FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
-	// 	SetActorRotation(NewRot);
-	// }
-}
-
-void ASKPlayerCharacter::SetLockOnState()
-{
-	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (!PC)
-		return;
-	
-	ASKCameraManager* Cam = Cast<ASKCameraManager>(PC->PlayerCameraManager);
-	
-	if (PlayerAnimInstance)
-	{
-		PlayerAnimInstance->bIsLockedOn = Cam->GetIsLockedOn();
-	}
-}
-
 
 void ASKPlayerCharacter::SetPlayerStateTag()
 {

@@ -48,7 +48,8 @@ public:
 	void SetLockOnState(bool bLock);
 	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
 
-	void PlayAnim_SetLockOnState();
+	UFUNCTION()
+	void SetLockOnRotateMode(bool bLockOn);
 protected:
 	virtual void OnRep_PlayerState() override;
 
@@ -101,12 +102,7 @@ public:
 	FORCEINLINE USKActionComponent* GetActionComponent() const { return ActionComponent; }
 	
 #pragma endregion
-	
-	//Camera
-	void LockOnTarget(float DeltaTime);
 
-protected:
-	void SetLockOnState();
 	
 public:
 	
