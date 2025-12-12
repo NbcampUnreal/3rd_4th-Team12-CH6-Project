@@ -18,37 +18,18 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	void SetIsLockedOn(bool ArgIsLockedOn);
 	bool ValidateLockOn(AActor* Player);
 	void AdjustCameraDistance(float WheelValue);
-	
+
+	UMaterialInterface* Get_OutLineMat();
+	float Get_OutLineTime();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|LockOn")
 	UMaterialInterface* LockOnOverlayMaterial;
-	void SetLockedTarget(AActor* NewTarget);
-	void OnTargetChanged( AActor* NewTarget);
+	// void SetLockedTarget(AActor* NewTarget);
+	// void OnTargetChanged( AActor* NewTarget);
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "SK|LockOn")
 	float fOutLineActiveTime = 5.f;
-
-	
-	UPROPERTY()
-	AActor* LockedTarget;
-
-	bool GetIsLockedOn();
-	UPROPERTY()
-	AActor* OldTarget;
-	
-	UPROPERTY(ReplicatedUsing = OnRep_OnLockOnChange)
-	bool bIsLockedOn = false;
-
-	UFUNCTION()
-	void OnRep_OnLockOnChange();
-
-	UFUNCTION(Server, Reliable)
-	void Server_SetLockOnState(bool bLock);
-
-	void Camera_SetLockOnState();
-
 	
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float RotateSpeed = 5.f;
@@ -81,7 +62,7 @@ public:
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float MinCameraZoom = 200.f;
 	
-	bool IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc);
+	// bool IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc);
 protected:
 	virtual void UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime) override;
 
