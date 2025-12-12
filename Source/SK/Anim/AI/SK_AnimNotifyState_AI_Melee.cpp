@@ -98,7 +98,7 @@ void USK_AnimNotifyState_AI_Melee::NotifyTick(
 			ObjectTypes,
 			false,
 			IgnoreActors,
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::None,
 			Hits,
 			true,
 			FColor::Red,
