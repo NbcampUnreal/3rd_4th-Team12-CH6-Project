@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "SKOpenableBase.h"
+#include "Item/Pickup/SKPickupItem.h"
 #include "SKChest.generated.h"
 
 UCLASS()
@@ -17,4 +18,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> LidMesh;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|ItemInfo")
+	TArray<FSKItemInfo> Items;
 };

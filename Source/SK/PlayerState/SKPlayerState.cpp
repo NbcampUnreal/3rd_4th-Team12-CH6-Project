@@ -111,6 +111,7 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 	}
 
 	NewPS->Gold = Gold;
+	NewPS->OldGold = OldGold;
 	NewPS->Level = Level;
 	NewPS->AbilityPoint = AbilityPoint;
 }
@@ -123,6 +124,7 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  
 	DOREPLIFETIME(ASKPlayerState, CurrentWeaponTag);
 	DOREPLIFETIME(ASKPlayerState, Gold);
+	DOREPLIFETIME(ASKPlayerState, OldGold);
 	DOREPLIFETIME(ASKPlayerState, Level);
 	DOREPLIFETIME(ASKPlayerState, AbilityPoint);
 }
@@ -158,7 +160,10 @@ void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
 
 void ASKPlayerState::EquipmentComponentSetting()
 {
-	EquipmentComponent->ReSpawnWeapon();
+	if (HasAuthority())
+	{
+		EquipmentComponent->ReSpawnWeapon();
+	}
 }
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()
@@ -420,6 +425,7 @@ void ASKPlayerState::AddGold(int32 Value)
 	if (!HasAuthority()) return;
 
 	UE_LOG(LogTemp, Error, TEXT("[PlayerState] AddGold %d,   (%d + %d = %d)"), Value, Gold, Value, Gold+Value);
+	OldGold = Gold;
 	Gold += Value;
 	OnRep_Gold();
 }
@@ -439,7 +445,9 @@ void ASKPlayerState::OnRep_Gold()
 	if (PC->IsLocalController())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] OnRep_Gold  누적 Gold : %d"),Gold);
+		GoldChanged.Broadcast(Gold, OldGold);
 	}
+	
 }
 void ASKPlayerState::OnRep_Level()
 {

@@ -73,6 +73,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
 );
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuffRemoved, const FActiveGameplayEffectHandle, EffectHandle, FModifiedAttributeArray, ModifiedAttributes);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGoldChanged, int32, Gold, int32, Value);
 
 UCLASS()
 class SK_API ASKPlayerState : public APlayerState, public IGenericTeamAgentInterface
@@ -102,6 +103,7 @@ public:
 #pragma region LevelSystem
 	
 	/** Gold 지급 */
+	UFUNCTION(BlueprintCallable)
 	void AddGold(int32 Value);
 
 	/** 서버가 레벨업 요청 처리 */
@@ -129,14 +131,20 @@ public:
 	int32 GetRequiredGoldForNextLevel() const;
 	
 	
-	UPROPERTY(ReplicatedUsing=OnRep_Gold, BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing=OnRep_Gold, BlueprintReadOnly, VisibleAnywhere)
 	int32 Gold = 0;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	int32 OldGold = 0;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_Level, BlueprintReadOnly)
 	int32 Level = 1;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_AbilityPoint, BlueprintReadOnly)
 	int32 AbilityPoint = 0;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGoldChanged GoldChanged;
 	
 #pragma endregion LevelSystem
 	

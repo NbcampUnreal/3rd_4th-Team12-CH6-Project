@@ -13,7 +13,6 @@ class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
 
-
 UCLASS()
 class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterface
 {
