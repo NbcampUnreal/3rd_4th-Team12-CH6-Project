@@ -124,6 +124,10 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TeamTag);
 	}
 
+	if (AIDataAsset->TypeTag.IsValid())
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TypeTag);
+	}
 	/*
 	if (AIDataAsset->GiveTeamTagEffect)
 	{
