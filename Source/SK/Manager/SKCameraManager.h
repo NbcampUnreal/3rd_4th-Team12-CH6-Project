@@ -16,24 +16,20 @@ class SK_API ASKCameraManager : public APlayerCameraManager
 public:
 	ASKCameraManager();
 
-	void SetbIsLockedOn(bool ArgIsLockedOn);
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	bool ValidateLockOn(AActor* Player);
 	void AdjustCameraDistance(float WheelValue);
-	
+
+	UMaterialInterface* Get_OutLineMat();
+	float Get_OutLineTime();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|LockOn")
 	UMaterialInterface* LockOnOverlayMaterial;
-
-	void OnTargetChanged(AActor* OldTarget, AActor* NewTarget);
+	// void SetLockedTarget(AActor* NewTarget);
+	// void OnTargetChanged( AActor* NewTarget);
 	
-	UPROPERTY(BlueprintReadWrite, Category = "SK|LockOn")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "SK|LockOn")
 	float fOutLineActiveTime = 5.f;
-
-	
-	UPROPERTY()
-	AActor* LockedTarget;
-
-	UPROPERTY()
-	bool bIsLockedOn = false;
 	
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float RotateSpeed = 5.f;
@@ -66,10 +62,12 @@ public:
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float MinCameraZoom = 200.f;
 	
-	bool IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc);
+	// bool IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc);
 protected:
 	virtual void UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime) override;
 
 private:
 	
 };
+
+

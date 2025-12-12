@@ -47,6 +47,9 @@ public:
 
 	void SetLockOnState(bool bLock);
 	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
+
+	UFUNCTION()
+	void SetLockOnRotateMode(bool bLockOn);
 protected:
 	virtual void OnRep_PlayerState() override;
 
@@ -99,20 +102,8 @@ public:
 	FORCEINLINE USKActionComponent* GetActionComponent() const { return ActionComponent; }
 	
 #pragma endregion
-	
-	//Camera
-	void LockOnTarget(float DeltaTime);
 
-protected:
-	void SetLockOnState();
 	
 public:
-	UPROPERTY(ReplicatedUsing = OnRep_OnLockOnChange)
-	bool bIsLockedOn;
-
-	UFUNCTION()
-	void OnRep_OnLockOnChange();
 	
-	UFUNCTION(Server, Reliable)
-	void Server_SetLockOnState(bool bLock);
 };

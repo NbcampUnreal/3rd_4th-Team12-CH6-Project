@@ -456,14 +456,8 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		return;
 	if (!IsValid(WeaponMesh))
 	{
-		// SetWeaponMesh_Init();
 		return;
 	}
-	//
-	// if (!IsValid(WeaponMesh))
-	// {
-	// 	return;
-	// }
 
 	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	FVector CurrEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);

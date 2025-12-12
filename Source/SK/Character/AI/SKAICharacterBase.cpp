@@ -245,8 +245,8 @@ void ASKAICharacterBase::ClearOverlayMaterial()
 {
 	if (!GetMesh())
 		return;
-
-	GetMesh()->SetOverlayMaterial(nullptr); 
+	UE_LOG(LogTemp, Error, TEXT("[Cam] Clear Material"));
+	GetMesh()->SetOverlayMaterial(nullptr);
 }
 
 void ASKAICharacterBase::ApplyStaticMonsterStats()
