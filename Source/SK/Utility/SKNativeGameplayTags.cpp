@@ -85,6 +85,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TestMap, "Sound.BGM.TestMap");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_MainTown, "Sound.BGM.MainTown");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_DungeonLevel, "Sound.BGM.DungeonLevel");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TownLevel, "Sound.BGM.TownLevel");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_MVP, "Sound.BGM.MVP");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss_00, "Sound.BGM.Boss.00");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss_01, "Sound.BGM.Boss.01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title, "Sound.BGM.Title");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby, "Sound.BGM.Lobby");
 
