@@ -22,9 +22,18 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyBegin(
 		return;
 	}
 
+	AActor* Owner = MeshComp->GetOwner();
+	if (!IsValid(Owner))
+	{
+		return;
+	}
+
 	PrevSocketLocations.Empty();
 	IgnoreActors.Empty();
-
+	HitActors.Empty();
+	
+	IgnoreActors.Add(Owner);
+	
 	for (const FName& SocketName : SocketNames)
 	{
 		PrevSocketLocations.Add(SocketName, MeshComp->GetSocketLocation(SocketName));
@@ -32,7 +41,7 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyBegin(
 
 	if (ObjectTypes.Num() == 0)
 	{
-		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2));
 	}
 }
 
@@ -44,7 +53,8 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyEnd(
 {
 	PrevSocketLocations.Empty();
 	IgnoreActors.Empty();
-	
+	HitActors.Empty();
+
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 }
 
@@ -72,11 +82,6 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 	if (!IsValid(World))
 	{
 		return;
-	}
-
-	if (IgnoreActors.IsEmpty())
-	{
-		IgnoreActors.Add(Owner);
 	}
 	
 	for (const FName& Socket : SocketNames)
@@ -113,16 +118,22 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 				AActor* HitActor = Hit.GetActor();
 				if (!IsValid(HitActor))
 				{
-					return;
+					continue;
 				}
-				FString Msg = FString::Printf(TEXT("Hit 개수: %d"), Hits.Num());
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Msg);
-				IgnoreActors.Add(HitActor);
+
+				if (HitActors.Contains(HitActor))
+				{
+					continue;
+				}
+				
+				//FString Msg = FString::Printf(TEXT("Hit 개수: %d"), Hits.Num());
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Msg);
+				HitActors.Add(HitActor);
 				
 				UAbilitySystemComponent* OwnerASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Owner);
 				if (!OwnerASC)
 				{
-					return;
+					continue;
 				}
 
 				FGameplayEventData EventData;

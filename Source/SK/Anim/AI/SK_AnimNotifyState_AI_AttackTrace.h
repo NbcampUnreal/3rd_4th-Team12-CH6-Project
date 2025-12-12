@@ -24,9 +24,13 @@ protected:
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trace")
-	TArray<AActor*> IgnoreActors;
+	TArray<TObjectPtr<AActor>> IgnoreActors;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trace")
+	TSet<TObjectPtr<AActor>> HitActors;
+
 	TMap<FName, FVector> PrevSocketLocations;
+
 
 public:
 	USK_AnimNotifyState_AI_AttackTrace();

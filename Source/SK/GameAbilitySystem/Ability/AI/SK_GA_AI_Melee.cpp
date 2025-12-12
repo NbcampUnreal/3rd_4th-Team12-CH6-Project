@@ -20,15 +20,15 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSec
 {
 	SetFocus();
 	
-	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
 				nullptr,
 				true,
 				false
 				);
-	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Melee::OnHitCompleted);
-	OwnEventTask->ReadyForActivation();
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Melee::OnHitCompleted);
+	OwnEventTask1->ReadyForActivation();
 	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
