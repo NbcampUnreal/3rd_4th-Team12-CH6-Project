@@ -794,7 +794,6 @@ void ASKPlayerController::RequestRespawn()
 
 	FTransform SpawnTransform(Data.InteractionRotation, Data.InteractionLocation);
 
-	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
 	if (APawn* P = GetPawn())
 	{
 		P->Destroy();
@@ -804,6 +803,8 @@ void ASKPlayerController::RequestRespawn()
 	if (!GM) return;
 
 	GM->RestartPlayerAtTransform(this, SpawnTransform);
+	
+	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
 }
 
 

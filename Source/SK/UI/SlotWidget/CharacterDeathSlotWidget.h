@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
 #include "CharacterDeathSlotWidget.generated.h"
 
+struct FSlotVisibilityMessage;
 /**
  * 
  */
@@ -20,8 +22,13 @@ public:
 	void PlayDeathSequence();
 	
 protected:
+	
+	FSKGameplayMessageListenerHandle PlayerDieHandle;
 
+	void OnPlayerDieHandleMessageReceived(FGameplayTag Channel, const FSlotVisibilityMessage& Message);
+	
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* DeathAnim;

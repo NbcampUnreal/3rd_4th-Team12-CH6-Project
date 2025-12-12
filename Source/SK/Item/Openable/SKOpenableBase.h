@@ -4,6 +4,8 @@
 #include "Item/SKInteractableBase.h"
 #include "SKOpenableBase.generated.h"
 
+class UCapsuleComponent;
+
 UCLASS()
 class SK_API ASKOpenableBase : public ASKInteractableBase
 {
@@ -16,7 +18,7 @@ public:
 	TObjectPtr<USphereComponent> OverlapCollision;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	TObjectPtr<USceneComponent> InteractionPoint;
+	TObjectPtr<UCapsuleComponent> InteractionPoint;
 
 protected:
 	virtual void BeginPlay() override;
