@@ -20,6 +20,15 @@ void UCharacterDeathSlotWidget::PlayDeathSequence()
 	PlayAnimation(DeathAnim);
 }
 
+void UCharacterDeathSlotWidget::OnPlayerDieHandleMessageReceived(FGameplayTag Channel,
+	const FSlotVisibilityMessage& Message)
+{
+	if (Message.SlotTags.HasTag(TAG_UI_Slot_CharacterDeath) && Message.bVisible)
+	{
+		PlayDeathSequence();
+	}
+}
+
 void UCharacterDeathSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -31,13 +40,44 @@ void UCharacterDeathSlotWidget::NativeConstruct()
 		EndEvent.BindDynamic(this, &UCharacterDeathSlotWidget::OnDeathAnimationFinished);
 
 		BindToAnimationFinished(DeathAnim, EndEvent);
-
-		UE_LOG(LogTemp, Warning, TEXT("[DeathWidget] DeathAnim 애니메이션 종료 델리게이트 바인딩 완료"));
 	}
-	else
+	
+	UWorld* World = GetWorld();
+	if (!World)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[DeathWidget] DeathAnim 없음!!"));
+		return;
 	}
+
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if (!GameInstance)
+	{
+		return;
+	}
+
+	USKGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+	if (!MessageSubsystem)
+	{
+		return;
+	}
+
+	PlayerDieHandle = MessageSubsystem->RegisterListener<FSlotVisibilityMessage>(
+		TAG_Message_Channel_SlotVisible,
+		this,
+		&UCharacterDeathSlotWidget::OnPlayerDieHandleMessageReceived
+	);
+}
+
+void UCharacterDeathSlotWidget::NativeDestruct()
+{
+	if (PlayerDieHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(PlayerDieHandle);
+		}
+	}
+	
+	Super::NativeDestruct();
 }
 
 void UCharacterDeathSlotWidget::OnDeathAnimationFinished()
