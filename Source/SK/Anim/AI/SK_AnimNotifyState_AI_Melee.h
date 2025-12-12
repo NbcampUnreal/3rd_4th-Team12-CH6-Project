@@ -10,6 +10,7 @@ class SK_API USK_AnimNotifyState_AI_Melee : public UAnimNotifyState
 	GENERATED_BODY()
 
 protected:
+	// 이걸 몽타주 안 노티파이스테이트 디테일에서 지정.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Trace")
 	TArray<FName> SocketNames { TEXT("left_hand_socket"), TEXT("right_hand_socket") };
 

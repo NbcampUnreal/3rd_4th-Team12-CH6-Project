@@ -2,9 +2,6 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "Perception/AISense_Damage.h"
-#include "Utility/SKGameplayMessageSubsystem.h"
-#include "Utility/SKGameplayMessageTypes.h"
-#include "Utility/SKNativeGameplayTags.h"
 
 USKAIAttributeSet::USKAIAttributeSet()
 {
@@ -82,18 +79,6 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
 				CancelAllAbilities();
 			}
-
-			/* 보스 죽었을 때 처리 로직에 추가
-			if (USKGameplayMessageSubsystem* MessageSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USKGameplayMessageSubsystem>())
-			{
-				FSlotVisibilityMessage Message;
-
-				Message.LayoutTag = TAG_UI_Layout_InGame;
-				Message.SlotTags.AddTag(TAG_UI_Slot_BossHP);
-				Message.bVisible = false;
-				MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, Message);
-			}
-			*/
 		}
 	}
 }
