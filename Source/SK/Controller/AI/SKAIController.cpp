@@ -224,7 +224,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	/*///// 테스트
+	////// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
@@ -244,8 +244,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	
 	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
-	*/
-	
+	////// 테스트
 }
 
 void ASKAIController::BeginPlay()
@@ -258,7 +257,7 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
-
+	/*
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
@@ -270,7 +269,7 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
-
+	*/
 	GetWorld()->GetTimerManager().SetTimer(
 	   FindClosestTargetTimerHandle,
 	   this,
@@ -302,8 +301,6 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 	
 	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("인지성공"));
-
 		bool bCanSeePlayer = Stimulus.WasSuccessfullySensed(); // 인지 범위에서 벗어났을 때 false
 		if (!bCanSeePlayer)
 		{
@@ -316,7 +313,6 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 		TargetActors.Add(Actor);
 		AddTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
 		SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("감지성공"));
 	}
 
 	// 최대 기억 시간에 따라 감지된 목록에 있는 액터 활용 가능

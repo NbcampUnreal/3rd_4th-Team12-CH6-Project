@@ -119,3 +119,12 @@ void UEquipmentInstance::SpawnActorVisible(bool bVisible)
 		}
 	}
 }
+
+void UEquipmentInstance::CopyFrom(UEquipmentInstance* Other)
+{
+	if (!Other) return;
+	
+	EquipTag = Other->EquipTag;
+	
+	SpawnedActors.Empty();
+}

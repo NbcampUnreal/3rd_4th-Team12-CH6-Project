@@ -1,15 +1,21 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Die.h"
+#include "AbilitySystemComponent.h"
 #include "Character/AI/SKAICharacter.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Controller/SKPlayerController.h"
 #include "Controller/AI/SKAIController.h"
 #include "Utility/DropSubsystem.h"
 #include "GameMode/DungeonGameMode.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
+#include "Kismet/GameplayStatics.h"
 
 USK_GA_AI_Die::USK_GA_AI_Die()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Die")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
@@ -37,15 +43,10 @@ void USK_GA_AI_Die::Die(TObjectPtr<UAnimMontage> AnimMontage)
 
 void USK_GA_AI_Die::OnDieCompleted()
 {
-	auto* DropSubsystem = GetWorld()->GetSubsystem<UDropSubsystem>();
-	if (!IsValid(DropSubsystem))
-	{
-		return;
-	}
-
 	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
 	if (!IsValid(AIController))
 	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 
@@ -54,6 +55,14 @@ void USK_GA_AI_Die::OnDieCompleted()
 	ASKAICharacterBase* AICharacter = Cast<ASKAICharacterBase>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+
+	auto* DropSubsystem = GetWorld()->GetSubsystem<UDropSubsystem>();
+	if (!IsValid(DropSubsystem))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
 	
@@ -61,8 +70,37 @@ void USK_GA_AI_Die::OnDieCompleted()
 	
 	int32 GoldToGive = FMath::RandRange(AICharacter->GetMonsterData().RewardMinGold, AICharacter->GetMonsterData().RewardMaxGold);
 	ADungeonGameMode* GM = GetWorld()->GetAuthGameMode<ADungeonGameMode>();
-	if (!GM) return;
+	if (!IsValid(GM))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+	
 	GM->AddGoldToPlayers(GoldToGive);
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+
+	if (SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))))
+	{
+		USKGameplayMessageSubsystem* MessageSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USKGameplayMessageSubsystem>();
+		if (!IsValid(MessageSubsystem))
+		{
+			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+			return;
+		}
+	
+		FSlotVisibilityMessage Message;
+		Message.LayoutTag = TAG_UI_Layout_InGame;
+		Message.SlotTags.AddTag(TAG_UI_Slot_BossHP);
+		Message.bVisible = false;
+	
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, Message);
+	}
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 	
@@ -80,6 +118,18 @@ void USK_GA_AI_Die::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
+	if (UWorld* World = GetWorld())
+	{
+		APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+		if (ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC))
+		{
+			if (SKPC->IsLocalController())
+			{
+				SKPC->ResetLockOn();
+			}
+		}
+	}
+	
 	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Death");
 	if (!IsValid(AnimMontage))
 	{

@@ -13,7 +13,6 @@ class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
 
-
 UCLASS()
 class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterface
 {
@@ -63,6 +62,7 @@ private:
 
 	FTimerHandle OverlayTimerHandle;
 
+	
 public:
 	ASKAICharacterBase();
 	
@@ -96,6 +96,7 @@ public:
 	//오버레이머티리얼 Set함수-이준식
 	void SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration = 10.f);
 	void ClearOverlayMaterial();
+	
 protected:
 	virtual void PossessedBy(AController* NewController) override;
 	

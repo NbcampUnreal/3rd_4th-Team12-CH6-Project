@@ -124,6 +124,10 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TeamTag);
 	}
 
+	if (AIDataAsset->TypeTag.IsValid())
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TypeTag);
+	}
 	/*
 	if (AIDataAsset->GiveTeamTagEffect)
 	{
@@ -238,14 +242,14 @@ void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, floa
 			Duration,
 			false
 		);
-	}
+	} 
 }
 
 void ASKAICharacterBase::ClearOverlayMaterial()
 {
 	if (!GetMesh())
 		return;
-
+	UE_LOG(LogTemp, Error, TEXT("[Cam] Clear Material"));
 	GetMesh()->SetOverlayMaterial(nullptr);
 }
 
