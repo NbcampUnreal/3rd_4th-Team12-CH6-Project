@@ -18,7 +18,6 @@ void ASKCameraManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 }
 
 
-
 bool ASKCameraManager::ValidateLockOn(AActor* Player)
 {
 	// if (!LockedTarget)
@@ -51,6 +50,13 @@ void ASKCameraManager::AdjustCameraDistance(float WheelValue)
 	CurrentZoomDistance = FMath::Clamp(NewDist, MinCameraZoom, MaxCameraZoom);
 }
 
+
+
+void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
+{
+	Super::UpdateViewTarget(OutVT, DeltaTime);
+}
+
 UMaterialInterface* ASKCameraManager::Get_OutLineMat()
 {
 	return LockOnOverlayMaterial;
@@ -59,12 +65,4 @@ UMaterialInterface* ASKCameraManager::Get_OutLineMat()
 float ASKCameraManager::Get_OutLineTime()
 {
 	return fOutLineActiveTime;
-}
-
-
-void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
-{
-	Super::UpdateViewTarget(OutVT, DeltaTime);
-
-
 }
