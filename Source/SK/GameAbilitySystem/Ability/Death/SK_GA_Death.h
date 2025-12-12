@@ -32,4 +32,13 @@ protected:
 	UFUNCTION()
 	void OnCanceled();
 
+	UFUNCTION()
+	void ShowDeathUI();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK")
+	float RespawnDelay;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK")
+	float DeathUIDelay;
+	
 };
