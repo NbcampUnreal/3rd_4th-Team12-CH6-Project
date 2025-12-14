@@ -76,14 +76,45 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 		- BackDir * HorizontalDist
 		+ FVector::UpVector * VerticalDist;
 
+	FVector DesiredCameraLoc =
+	PlayerCenter
+	- BackDir * HorizontalDist
+	+ FVector::UpVector * VerticalDist;
 
-	FRotator CamRot = (TargetLookAt - CameraLoc).Rotation();
+
+	//충돌보정
+	FVector FinalCameraLoc = DesiredCameraLoc;
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Player);
+	Params.AddIgnoredActor(LockedTarget);
+
+	const float CameraRadius = 12.f; // 
+
+	bool bHit = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		PlayerCenter,
+		DesiredCameraLoc,
+		FQuat::Identity,
+		ECC_Camera,
+		FCollisionShape::MakeSphere(CameraRadius),
+		Params
+	);
+
+	if (bHit)
+	{
+		// 충돌 지점에서 살짝 앞으로 당김
+		FinalCameraLoc = HitResult.Location + HitResult.ImpactNormal * 8.f;
+	}
+
+	FRotator CamRot = (TargetLookAt - FinalCameraLoc).Rotation();
 
 	// Pitch 제한
 	CamRot.Pitch = FMath::Clamp(CamRot.Pitch, -70.f, -10.f);
 
 
-	OutVT.POV.Location = CameraLoc;
+	OutVT.POV.Location = FinalCameraLoc;
 	OutVT.POV.Rotation = CamRot;
 }
 
