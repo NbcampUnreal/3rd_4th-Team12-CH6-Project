@@ -59,15 +59,15 @@ void USK_GA_AI_Wander::Wander()
 
 void USK_GA_AI_Wander::WaitMoveComplete()
 {
-	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.MoveComplete")),
 				nullptr,
 				true,
 				false
 				);
-	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Wander::OnWaitMoveCompleteCompleted);
-	OwnEventTask->ReadyForActivation();
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Wander::OnWaitMoveCompleteCompleted);
+	OwnEventTask1->ReadyForActivation();
 }
 
 void USK_GA_AI_Wander::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)

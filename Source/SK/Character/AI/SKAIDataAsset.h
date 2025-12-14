@@ -44,6 +44,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tag")
 	FGameplayTag TeamTag;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tag")
+	FGameplayTag TypeTag;
 	/*
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tag")
 	FGameplayTagContainer AbilityTags;

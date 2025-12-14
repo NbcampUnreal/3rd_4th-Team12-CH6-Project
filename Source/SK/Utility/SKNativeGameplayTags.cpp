@@ -196,6 +196,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_JumpRush, "AI.JumpRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Backstep, "AI.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Recovery, "AI.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_ProjectileAttack, "AI.ProjectileAttack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Boss, "AI.Boss");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");

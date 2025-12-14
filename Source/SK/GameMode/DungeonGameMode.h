@@ -69,4 +69,6 @@ private:
 
 	// ★ PlayerReadyCount 증가 처리 함수
 	void HandlePlayerReady(AController* C);
+
+	AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 };
