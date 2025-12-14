@@ -42,8 +42,10 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 		return;
 
 	ASKPlayerController* SKPC = Cast<ASKPlayerController>(PCOwner);
-	if (!SKPC || !SKPC->GetIsLockedOn())
+	if (!SKPC->GetIsLockedOn())
+	{
 		return;
+	}
 
 	AActor* LockedTarget = SKPC->GetLockedTarget();
 	if (!IsValid(LockedTarget))
@@ -63,7 +65,7 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	const float AngleRad = FMath::DegreesToRadians(LockOnAngleDeg);
 
 	const float HorizontalDist = CurrentZoomDistance * FMath::Cos(AngleRad);
-	const float VerticalDist   = CurrentZoomDistance * FMath::Sin(AngleRad);
+	const float VerticalDist = CurrentZoomDistance * FMath::Sin(AngleRad);
 
 	const FRotator PrevRot = OutVT.POV.Rotation;
 	const FRotator YawOnlyRot(0.f, PrevRot.Yaw, 0.f);
@@ -84,7 +86,6 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	OutVT.POV.Location = CameraLoc;
 	OutVT.POV.Rotation = CamRot;
 }
-
 
 
 UMaterialInterface* ASKCameraManager::Get_OutLineMat()
