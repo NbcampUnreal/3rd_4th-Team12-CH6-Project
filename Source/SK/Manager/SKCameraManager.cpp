@@ -18,26 +18,6 @@ void ASKCameraManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 bool ASKCameraManager::ValidateLockOn(AActor* Player)
 {
-	// if (!LockedTarget)
-	// 	return false;
-	//
-	// FVector CamLoc = GetCameraLocation();
-	// FVector PlayerLoc = Player->GetActorLocation();
-	// FVector TargetLoc = LockedTarget->GetActorLocation();
-	// TargetLoc.Z += LockOnHeight;
-	//
-	// // 타겟 가려짐 체크
-	// if (IsTargetObstructed(CamLoc, TargetLoc))
-	// 	return false;
-	//
-	// // 거리 체크
-	// float Dist = FVector::Dist(PlayerLoc, LockedTarget->GetActorLocation());
-	// if (Dist > MaxLockDistance || Dist < MinLockDistance)
-	// {
-	// 	
-	// 	return false;
-	// }
-	//
 	return true;
 }
 
@@ -47,6 +27,7 @@ void ASKCameraManager::AdjustCameraDistance(float WheelValue)
 
 	CurrentZoomDistance = FMath::Clamp(NewDist, MinCameraZoom, MaxCameraZoom);
 }
+
 
 void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 {
@@ -60,11 +41,13 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	if (!Pawn)
 		return;
 
-	const float HalfHeight = Pawn->GetSimpleCollisionHalfHeight();
-
 	ASKPlayerController* SKPC = Cast<ASKPlayerController>(PCOwner);
 	const bool bLockedOn = SKPC && SKPC->GetIsLockedOn();
 
+	if (!bLockedOn)
+		return;
+
+	const float HalfHeight = Pawn->GetSimpleCollisionHalfHeight();
 
 	const float DistanceAlpha = FMath::GetMappedRangeValueClamped(
 		FVector2D(150.f, 600.f),
@@ -76,17 +59,15 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	float TargetDistance = FLT_MAX;
 	AActor* LockedTarget = nullptr;
 
-	if (bLockedOn)
+	LockedTarget = SKPC->GetLockedTarget();
+	if (IsValid(LockedTarget))
 	{
-		LockedTarget = SKPC->GetLockedTarget();
-		if (IsValid(LockedTarget))
-		{
-			TargetDistance = FVector::Dist(
-				Player->GetActorLocation(),
-				LockedTarget->GetActorLocation()
-			);
-		}
+		TargetDistance = FVector::Dist(
+			Player->GetActorLocation(),
+			LockedTarget->GetActorLocation()
+		);
 	}
+
 
 	// Target 거리 Alpha (가까울수록 1)
 	const float TargetAlpha = FMath::GetMappedRangeValueClamped(
@@ -110,47 +91,27 @@ void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 	FVector CameraBaseLoc = Player->GetActorLocation();
 	CameraBaseLoc.Z += BaseZ + ZOffset;
 
-
 	FRotator CamRot = OutVT.POV.Rotation;
 
 	const FRotator YawOnlyRot(0.f, CamRot.Yaw, 0.f);
 	const FVector BackDir = YawOnlyRot.Vector();
 
 	FVector DesiredLoc = CameraBaseLoc - BackDir * CurrentZoomDistance;
+
+
+	FVector LookAtPoint = LockedTarget->GetActorLocation();
+	// LookAtPoint.Z += HalfHeight * 0.5f;
+	LookAtPoint.Z += LockOnLookOffsetZ;   
+
+	CamRot = (LookAtPoint - DesiredLoc).Rotation();
 	
-	if (bLockedOn && IsValid(LockedTarget))
-	{
-
-		FVector LookAtPoint = LockedTarget->GetActorLocation();
-		LookAtPoint.Z += HalfHeight * 0.5f;
-
-		CamRot = (LookAtPoint - DesiredLoc).Rotation();
-
-		const float PitchMin = FMath::Lerp(-40.f, -65.f, TargetAlpha);
-		CamRot.Pitch = FMath::Clamp(CamRot.Pitch, PitchMin, 10.f);
-	}
-	else
-	{
-
-
-		FVector LookAtPoint = CameraBaseLoc;
-
-		CamRot = (LookAtPoint - DesiredLoc).Rotation();
-
-
-		const FRotator ControlRot = PCOwner->GetControlRotation();
-		CamRot.Pitch = FMath::Clamp(
-			CamRot.Pitch + ControlRot.Pitch * 0.0f, // 필요하면 0.2f 같은 가중치
-			-60.f,
-			15.f
-		);
-	}
+	const float PitchMin = FMath::Lerp(-40.f, -65.f, TargetAlpha);
+	CamRot.Pitch = FMath::Clamp(CamRot.Pitch, PitchMin, 10.f);
 
 
 	OutVT.POV.Location = DesiredLoc;
 	OutVT.POV.Rotation = CamRot;
 }
-
 
 
 UMaterialInterface* ASKCameraManager::Get_OutLineMat()
