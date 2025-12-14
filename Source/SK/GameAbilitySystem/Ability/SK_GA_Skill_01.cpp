@@ -11,7 +11,8 @@
 #include "Utility/SKNativeGameplayTags.h"
 
 void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                      const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                      const FGameplayAbilityActorInfo* ActorInfo,
+                                      const FGameplayAbilityActivationInfo ActivationInfo,
                                       const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -21,7 +22,7 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-	
+
 	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
 	if (!IsValid(SKPlayerState))
 		return;
@@ -36,22 +37,25 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-	
 
-	
+
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
 	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
 
-	
+
+	CombatComponent->ResetComboState();
+
+
 	UAnimMontage* Montage = CombatComponent->GetSkillMontage(0);
 	FName SectionName = FName(*FString::Printf(TEXT("Skill_00")));
-	
-	CombatComponent->Multicast_PlayMontage(Montage,SectionName);
+
+	CombatComponent->Multicast_PlayMontage(Montage, SectionName);
 	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 }
 
 void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+                                 const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility,
+                                 bool bWasCancelled)
 {
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
@@ -61,12 +65,12 @@ void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 	// PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
 	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
-	
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 bool USK_GA_Skill_01::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	FGameplayTagContainer* OptionalRelevantTags) const
+                                FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 	if (!result)
@@ -77,11 +81,11 @@ bool USK_GA_Skill_01::CheckCost(const FGameplayAbilitySpecHandle Handle, const F
 
 		ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
 		USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
-		CombatComponent->ResetComboState(); //스킬도이게맞을까?
-		
+		CombatComponent->ResetComboState();
+
 		PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
 	}
-	
+
 	return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 }
 
