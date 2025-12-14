@@ -18,8 +18,7 @@ class SK_API USKBGMSubSystem : public UGameInstanceSubsystem
 
 public:
 	USKBGMSubSystem();
-
-public:
+	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 

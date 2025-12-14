@@ -46,6 +46,12 @@ public:
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float LockOnPitch = 10.f;
 
+	UPROPERTY(EditAnywhere, Category="SK|LockOn")
+	float LockOnLookOffsetZ = 150.f;
+
+	UPROPERTY(EditAnywhere, Category="SK|LockOn")
+	float LockOnAngleDeg = 30.f;
+	
 	//추적최대거리
 	UPROPERTY(EditAnywhere,Category = "SK|LockOn")
 	float MaxLockDistance = 2000.f;
