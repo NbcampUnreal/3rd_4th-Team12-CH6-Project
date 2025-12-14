@@ -3,10 +3,8 @@
 
 #include "Manager/SKCameraManager.h"
 
-#include "Character/SKPlayerCharacter.h"
-#include "Character/AI/SKAICharacterBase.h"
 #include "Controller/SKPlayerController.h"
-#include "Net/UnrealNetwork.h"
+
 
 ASKCameraManager::ASKCameraManager()
 {
@@ -22,7 +20,7 @@ bool ASKCameraManager::ValidateLockOn(AActor* Player)
 {
 	// if (!LockedTarget)
 	// 	return false;
-
+	//
 	// FVector CamLoc = GetCameraLocation();
 	// FVector PlayerLoc = Player->GetActorLocation();
 	// FVector TargetLoc = LockedTarget->GetActorLocation();
@@ -39,7 +37,7 @@ bool ASKCameraManager::ValidateLockOn(AActor* Player)
 	// 	
 	// 	return false;
 	// }
-
+	//
 	return true;
 }
 
@@ -50,12 +48,110 @@ void ASKCameraManager::AdjustCameraDistance(float WheelValue)
 	CurrentZoomDistance = FMath::Clamp(NewDist, MinCameraZoom, MaxCameraZoom);
 }
 
-
-
 void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 {
 	Super::UpdateViewTarget(OutVT, DeltaTime);
+
+	if (!OutVT.Target)
+		return;
+
+	AActor* Player = OutVT.Target;
+	APawn* Pawn = Cast<APawn>(Player);
+	if (!Pawn)
+		return;
+
+	const float HalfHeight = Pawn->GetSimpleCollisionHalfHeight();
+
+	ASKPlayerController* SKPC = Cast<ASKPlayerController>(PCOwner);
+	const bool bLockedOn = SKPC && SKPC->GetIsLockedOn();
+
+
+	const float DistanceAlpha = FMath::GetMappedRangeValueClamped(
+		FVector2D(150.f, 600.f),
+		FVector2D(0.f, 1.f),
+		CurrentZoomDistance
+	);
+
+
+	float TargetDistance = FLT_MAX;
+	AActor* LockedTarget = nullptr;
+
+	if (bLockedOn)
+	{
+		LockedTarget = SKPC->GetLockedTarget();
+		if (IsValid(LockedTarget))
+		{
+			TargetDistance = FVector::Dist(
+				Player->GetActorLocation(),
+				LockedTarget->GetActorLocation()
+			);
+		}
+	}
+
+	// Target 거리 Alpha (가까울수록 1)
+	const float TargetAlpha = FMath::GetMappedRangeValueClamped(
+		FVector2D(150.f, 400.f),
+		FVector2D(1.f, 0.f),
+		TargetDistance
+	);
+
+
+	const float BaseZ = HalfHeight * 0.6f;
+
+	float ZOffset = FMath::Lerp(
+		HalfHeight * 0.05f,
+		HalfHeight * 0.25f,
+		DistanceAlpha
+	);
+
+	// 타겟이 가까울수록 Z 보정 완화
+	ZOffset *= TargetAlpha;
+
+	FVector CameraBaseLoc = Player->GetActorLocation();
+	CameraBaseLoc.Z += BaseZ + ZOffset;
+
+
+	FRotator CamRot = OutVT.POV.Rotation;
+
+	const FRotator YawOnlyRot(0.f, CamRot.Yaw, 0.f);
+	const FVector BackDir = YawOnlyRot.Vector();
+
+	FVector DesiredLoc = CameraBaseLoc - BackDir * CurrentZoomDistance;
+	
+	if (bLockedOn && IsValid(LockedTarget))
+	{
+
+		FVector LookAtPoint = LockedTarget->GetActorLocation();
+		LookAtPoint.Z += HalfHeight * 0.5f;
+
+		CamRot = (LookAtPoint - DesiredLoc).Rotation();
+
+		const float PitchMin = FMath::Lerp(-40.f, -65.f, TargetAlpha);
+		CamRot.Pitch = FMath::Clamp(CamRot.Pitch, PitchMin, 10.f);
+	}
+	else
+	{
+
+
+		FVector LookAtPoint = CameraBaseLoc;
+
+		CamRot = (LookAtPoint - DesiredLoc).Rotation();
+
+
+		const FRotator ControlRot = PCOwner->GetControlRotation();
+		CamRot.Pitch = FMath::Clamp(
+			CamRot.Pitch + ControlRot.Pitch * 0.0f, // 필요하면 0.2f 같은 가중치
+			-60.f,
+			15.f
+		);
+	}
+
+
+	OutVT.POV.Location = DesiredLoc;
+	OutVT.POV.Rotation = CamRot;
 }
+
+
 
 UMaterialInterface* ASKCameraManager::Get_OutLineMat()
 {
