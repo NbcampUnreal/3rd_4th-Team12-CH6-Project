@@ -190,6 +190,11 @@ void ASKPlayerController::SetIsLockedOn(bool ArgIsLockedOn)
 	bIsLockedOn = ArgIsLockedOn;
 }
 
+AActor* ASKPlayerController::GetLockedTarget()
+{
+	return  LockedTarget;
+}
+
 void ASKPlayerController::SetLockOnState(bool bNewState)
 {
 	if (HasAuthority())
@@ -250,7 +255,6 @@ void ASKPlayerController::OnRep_LockedTargetChanged()
 				AI->SetOverlayMaterial(Cam->Get_OutLineMat(), Cam->Get_OutLineTime());
 		}
 	}
-
 	OldTarget = LockedTarget;
 }
 
