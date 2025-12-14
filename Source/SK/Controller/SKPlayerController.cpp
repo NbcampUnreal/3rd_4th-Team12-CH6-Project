@@ -564,6 +564,12 @@ void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 		return;
 
 	CamManager->AdjustCameraDistance(WheelValue);
+
+	if (ASKPlayerCharacter* PlayerChar = Cast<ASKPlayerCharacter>(GetPawn()))
+	{
+		PlayerChar->AdjustSpringArmDistance(WheelValue);
+	}
+	
 }
 
 
