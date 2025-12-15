@@ -12,10 +12,10 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
-void UEquipmentItemQuickWidget::SettingItem(int32 ItemID, int32 ItenQuantitiy)
+void UEquipmentItemQuickWidget::SettingItem(int32 ItemID, int32 ItemQuantity)
 {
 	CurrentItemID = ItemID;
-
+	CurrentItemQuantity = ItemQuantity;
 	if (ItemID == -1 || !CurrentInventoryComponent)
 	{
 		ItemIcon->SetBrush(FSlateBrush());
@@ -33,7 +33,7 @@ void UEquipmentItemQuickWidget::SettingItem(int32 ItemID, int32 ItenQuantitiy)
 
 	if (ItemQuantityText)
 	{
-		ItemQuantityText->SetText(FText::AsNumber(ItenQuantitiy));
+		ItemQuantityText->SetText(FText::AsNumber(ItemQuantity));
 	}
 }
 void UEquipmentItemQuickWidget::SettingSlot(EInventoryItemType ItemType, int32 QuickSlotNumber, UInventoryComponent* InventoryComponent)
@@ -41,6 +41,11 @@ void UEquipmentItemQuickWidget::SettingSlot(EInventoryItemType ItemType, int32 Q
 	CurrentItemType = ItemType;
 	CurrentQuickSlotNumber = QuickSlotNumber;
 	CurrentInventoryComponent = InventoryComponent;
+}
+
+int32 UEquipmentItemQuickWidget::GetItemQuantity()
+{
+	return CurrentItemQuantity;
 }
 
 void UEquipmentItemQuickWidget::OnClicked()

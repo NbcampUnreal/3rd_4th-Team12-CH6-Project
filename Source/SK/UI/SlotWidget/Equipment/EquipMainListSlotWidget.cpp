@@ -258,17 +258,20 @@ void UEquipMainListSlotWidget::CheckQuickSlot()
 
 	TArray<FQuickSlot> CurrentQuickSlots = CachedQuickSlot->GetQuickSlots();
  
-	if (QuickSlot1->GetItemID() != CurrentQuickSlots[0].ItemID || CurrentQuickSlots[0].ItemID == -1)
+	if (QuickSlot1->GetItemID() != CurrentQuickSlots[0].ItemID ||
+		QuickSlot1->GetItemQuantity() != CurrentQuickSlots[0].Count)
 	{
 		QuickSlot1->SettingItem(CurrentQuickSlots[0].ItemID, CurrentQuickSlots[0].Count);
 	}
  
-	if (QuickSlot2->GetItemID() != CurrentQuickSlots[1].ItemID|| CurrentQuickSlots[1].ItemID == -1)
+	if (QuickSlot2->GetItemID() != CurrentQuickSlots[1].ItemID ||
+		QuickSlot2->GetItemQuantity() != CurrentQuickSlots[1].Count)
 	{
 		QuickSlot2->SettingItem(CurrentQuickSlots[1].ItemID, CurrentQuickSlots[1].Count);
 	}
  
-	if (QuickSlot3->GetItemID() != CurrentQuickSlots[2].ItemID || CurrentQuickSlots[2].ItemID == -1)
+	if (QuickSlot3->GetItemID() != CurrentQuickSlots[2].ItemID ||
+		QuickSlot3->GetItemQuantity() != CurrentQuickSlots[2].Count)
 	{
 		QuickSlot3->SettingItem(CurrentQuickSlots[2].ItemID, CurrentQuickSlots[2].Count);
 	}
