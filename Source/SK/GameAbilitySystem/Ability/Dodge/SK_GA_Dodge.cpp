@@ -41,6 +41,12 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	
+	// if (USKCombatComponent* Combat = Char->GetCombatComponent())
+	// {
+	// 	Combat->ResetComboState();
+	// }
+	
 
 	// 회피 별 값 세팅
 	PreActivateDodge(ActionComponent);
@@ -64,10 +70,7 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	}
 
 
-	if (USKCombatComponent* Combat = Char->GetCombatComponent())
-	{
-		Combat->ResetComboState();
-	}
+
 }
 
 void USK_GA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -90,6 +93,12 @@ void USK_GA_Dodge::OnCanceled()
 
 void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
 {
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (USKCombatComponent* Combat = Char->GetCombatComponent())
+	{
+		Combat->ResetComboState();
+	}
+	
 }
 
 FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKActionComponent* ActionComponent)

@@ -52,8 +52,6 @@ void ASKAICharacterBase::OnBoxComponentBeginOverlap(
 	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("전투시작"));
 }
 
 void ASKAICharacterBase::OnBoxComponentEndOverlap(
@@ -66,8 +64,6 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("전투종료"));
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -214,6 +210,11 @@ FVector ASKAICharacterBase::GetStartLocation() const
 	return StartLocation;
 }
 
+float ASKAICharacterBase::GetBackstepDistance() const
+{
+	return BackstepDistance;
+}
+
 int32 ASKAICharacterBase::GetDropTableID() const
 {
 	return DropTableID;
@@ -282,8 +283,8 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	AttributeSet->SetArmor(MonsterData->Armor);
 	AttributeSet->SetPoise(MonsterData->Poise);
 	AttributeSet->SetSpeed(MonsterData->Speed);
-
-
+	BackstepDistance = MonsterData->BackstepDistance;
+	
 	// 예시: 이동 속도 적용
 	GetCharacterMovement()->MaxWalkSpeed = MonsterData->Speed;
 

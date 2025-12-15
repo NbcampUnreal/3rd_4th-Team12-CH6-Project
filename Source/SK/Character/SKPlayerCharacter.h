@@ -48,6 +48,8 @@ public:
 	void SetLockOnState(bool bLock);
 	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
 
+	void AdjustSpringArmDistance(float WheelValue);
+
 	UFUNCTION()
 	void SetLockOnRotateMode(bool bLockOn);
 protected:

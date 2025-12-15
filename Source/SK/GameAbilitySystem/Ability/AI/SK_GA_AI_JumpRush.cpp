@@ -4,7 +4,6 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 
 USK_GA_AI_JumpRush::USK_GA_AI_JumpRush()
 {
@@ -38,6 +37,16 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 	
 	float MontageRate = AnimMontage->GetPlayLength() / Duration;
 
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
+				nullptr,
+				true,
+				false
+				);
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_JumpRush::OnHitCompleted);
+	OwnEventTask1->ReadyForActivation();
+	
 	OwnJumpTask = UAbilityTask_ApplyRootMotionJumpForce::ApplyRootMotionJumpForce(
 				this,
 				"JumpRush",
@@ -138,9 +147,19 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 	*/
 }
 
+void USK_GA_AI_JumpRush::OnHitCompleted(FGameplayEventData EventData)
+{
+	HitActor = EventData.Target.Get();
+	if (!HitActor.IsValid())
+	{
+		return;
+	}
+	
+	ApplyDamageToTarget(HitActor);
+}
+
 void USK_GA_AI_JumpRush::OnJumpRushCompleted()
 {
-	//UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 

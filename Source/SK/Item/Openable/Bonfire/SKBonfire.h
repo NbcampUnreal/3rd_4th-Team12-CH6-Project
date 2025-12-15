@@ -39,4 +39,7 @@ public:
 
 public:
 	void ResetBonfire(ASKPlayerCharacter* PlayerCharacter);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bonfire")
+	bool bIsDefaultBonfire;
 };

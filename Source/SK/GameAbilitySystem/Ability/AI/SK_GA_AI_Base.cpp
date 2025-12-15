@@ -46,14 +46,22 @@ void USK_GA_AI_Base::WaitEndAbility()
 
 void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 {
-	if (OwnEventTask)
+	if (OwnEventTask1)
 	{
-		if (OwnEventTask->IsActive())
+		if (OwnEventTask1->IsActive())
 		{
-			OwnEventTask->EndTask();
+			OwnEventTask1->EndTask();
 		}
 	}
-			
+
+	if (OwnEventTask2)
+	{
+		if (OwnEventTask2->IsActive())
+		{
+			OwnEventTask2->EndTask();
+		}
+	}
+	
 	if (OwnMontageTask)
 	{
 		if (OwnMontageTask->IsActive())
@@ -84,9 +92,7 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 		}
 	}
 	
-	CachedController->StopMovement();
-
-	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 }
 
 void USK_GA_AI_Base::ActivateAbility(
@@ -147,6 +153,11 @@ void USK_GA_AI_Base::EndAbility(
 	bool bWasCancelled
 	)
 {
+	if (bWasCancelled)
+	{
+		CachedController->StopMovement();
+	}
+	
 	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
 	if (!IsValid(ST))
 	{

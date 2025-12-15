@@ -68,7 +68,8 @@ public:
 
 	bool GetIsLockedOn();
 	void SetIsLockedOn(bool ArgIsLockedOn);
-		
+
+	AActor* GetLockedTarget();
 	UPROPERTY(ReplicatedUsing = OnRep_LockOnChanged)
 	bool bIsLockedOn = false;
 

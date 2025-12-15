@@ -47,14 +47,11 @@ void ASKPickupItem::InitializePickup(int32 ItemID, USKPickupItemData* InPickupDa
 		ItemNiagara->Activate(true);
 	}
 
-	UUserWidget* WidgetClass = InteractionWidget->GetWidget();
-	if (WidgetClass)
+	USKInteractableWidget* WidgetInstance = CreateWidget<USKInteractableWidget>(GetWorld(), PickupData->WidgetClass);
+	if (WidgetInstance)
 	{
-		USKInteractableWidget* InteractableWidget = Cast<USKInteractableWidget>(WidgetClass);
-		if (InteractableWidget)
-		{
-			InteractableWidget->SetInitialText(InteractableText);
-		}
+		WidgetInstance->SetInitialText(PickupData->PickupText);
+		InteractionWidget->SetWidget(WidgetInstance);
 	}
 }
 

@@ -311,6 +311,20 @@ void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 	}
 }
 
+void ASKPlayerCharacter::AdjustSpringArmDistance(float WheelValue)
+{
+	if (!CameraBoom)
+		return;
+
+	const float ZoomStep = 50.f;   // 휠 감도
+	const float MinLength = 250.f; // 최소 거리
+	const float MaxLength = 600.f; // 최대 거리
+
+	float NewLength = CameraBoom->TargetArmLength - WheelValue * ZoomStep;
+	CameraBoom->TargetArmLength = FMath::Clamp(NewLength, MinLength, MaxLength);
+
+}
+
 void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 {
 	if (bLockOn)

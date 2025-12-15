@@ -25,6 +25,8 @@ public:
 	USK_GA_AI_ProjectileAttack();
 
 	void WaitAnimNotify();
+
+	void WaitHit();
 	
 	void SpawnProjectile();
 
@@ -32,6 +34,9 @@ public:
 
 	UFUNCTION()
 	void OnWaitAnimNotifyCompleted(FGameplayEventData EventData);
+
+	UFUNCTION()
+	void OnWaitHitCompleted(FGameplayEventData EventData);
 	
 	UFUNCTION()
 	void OnLaunchProjectileCompleted();

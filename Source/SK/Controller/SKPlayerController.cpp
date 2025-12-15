@@ -190,6 +190,11 @@ void ASKPlayerController::SetIsLockedOn(bool ArgIsLockedOn)
 	bIsLockedOn = ArgIsLockedOn;
 }
 
+AActor* ASKPlayerController::GetLockedTarget()
+{
+	return  LockedTarget;
+}
+
 void ASKPlayerController::SetLockOnState(bool bNewState)
 {
 	if (HasAuthority())
@@ -250,7 +255,6 @@ void ASKPlayerController::OnRep_LockedTargetChanged()
 				AI->SetOverlayMaterial(Cam->Get_OutLineMat(), Cam->Get_OutLineTime());
 		}
 	}
-
 	OldTarget = LockedTarget;
 }
 
@@ -560,6 +564,12 @@ void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 		return;
 
 	CamManager->AdjustCameraDistance(WheelValue);
+
+	if (ASKPlayerCharacter* PlayerChar = Cast<ASKPlayerCharacter>(GetPawn()))
+	{
+		PlayerChar->AdjustSpringArmDistance(WheelValue);
+	}
+	
 }
 
 
@@ -794,7 +804,6 @@ void ASKPlayerController::RequestRespawn()
 
 	FTransform SpawnTransform(Data.InteractionRotation, Data.InteractionLocation);
 
-	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
 	if (APawn* P = GetPawn())
 	{
 		P->Destroy();
@@ -804,6 +813,8 @@ void ASKPlayerController::RequestRespawn()
 	if (!GM) return;
 
 	GM->RestartPlayerAtTransform(this, SpawnTransform);
+	
+	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
 }
 
 

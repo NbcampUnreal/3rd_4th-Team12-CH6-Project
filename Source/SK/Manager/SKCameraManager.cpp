@@ -3,10 +3,8 @@
 
 #include "Manager/SKCameraManager.h"
 
-#include "Character/SKPlayerCharacter.h"
-#include "Character/AI/SKAICharacterBase.h"
 #include "Controller/SKPlayerController.h"
-#include "Net/UnrealNetwork.h"
+
 
 ASKCameraManager::ASKCameraManager()
 {
@@ -20,26 +18,6 @@ void ASKCameraManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 bool ASKCameraManager::ValidateLockOn(AActor* Player)
 {
-	// if (!LockedTarget)
-	// 	return false;
-
-	// FVector CamLoc = GetCameraLocation();
-	// FVector PlayerLoc = Player->GetActorLocation();
-	// FVector TargetLoc = LockedTarget->GetActorLocation();
-	// TargetLoc.Z += LockOnHeight;
-	//
-	// // 타겟 가려짐 체크
-	// if (IsTargetObstructed(CamLoc, TargetLoc))
-	// 	return false;
-	//
-	// // 거리 체크
-	// float Dist = FVector::Dist(PlayerLoc, LockedTarget->GetActorLocation());
-	// if (Dist > MaxLockDistance || Dist < MinLockDistance)
-	// {
-	// 	
-	// 	return false;
-	// }
-
 	return true;
 }
 
@@ -51,11 +29,95 @@ void ASKCameraManager::AdjustCameraDistance(float WheelValue)
 }
 
 
-
 void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 {
 	Super::UpdateViewTarget(OutVT, DeltaTime);
+
+	if (!OutVT.Target)
+		return;
+
+	AActor* Player = OutVT.Target;
+	APawn* Pawn = Cast<APawn>(Player);
+	if (!Pawn)
+		return;
+
+	ASKPlayerController* SKPC = Cast<ASKPlayerController>(PCOwner);
+	if (!SKPC->GetIsLockedOn())
+	{
+		return;
+	}
+
+	AActor* LockedTarget = SKPC->GetLockedTarget();
+	if (!IsValid(LockedTarget))
+		return;
+
+	const float HalfHeight = Pawn->GetSimpleCollisionHalfHeight();
+
+
+	FVector PlayerCenter = Player->GetActorLocation();
+	PlayerCenter.Z += HalfHeight * 0.6f;
+
+
+	FVector TargetLookAt = LockedTarget->GetActorLocation();
+	TargetLookAt.Z += HalfHeight * 0.5f;
+
+
+	const float AngleRad = FMath::DegreesToRadians(LockOnAngleDeg);
+
+	const float HorizontalDist = CurrentZoomDistance * FMath::Cos(AngleRad);
+	const float VerticalDist = CurrentZoomDistance * FMath::Sin(AngleRad);
+
+	const FRotator PrevRot = OutVT.POV.Rotation;
+	const FRotator YawOnlyRot(0.f, PrevRot.Yaw, 0.f);
+	const FVector BackDir = YawOnlyRot.Vector();
+
+	FVector CameraLoc =
+		PlayerCenter
+		- BackDir * HorizontalDist
+		+ FVector::UpVector * VerticalDist;
+
+	FVector DesiredCameraLoc =
+	PlayerCenter
+	- BackDir * HorizontalDist
+	+ FVector::UpVector * VerticalDist;
+
+
+	//충돌보정
+	FVector FinalCameraLoc = DesiredCameraLoc;
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Player);
+	Params.AddIgnoredActor(LockedTarget);
+
+	const float CameraRadius = 12.f; // 
+
+	bool bHit = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		PlayerCenter,
+		DesiredCameraLoc,
+		FQuat::Identity,
+		ECC_Camera,
+		FCollisionShape::MakeSphere(CameraRadius),
+		Params
+	);
+
+	if (bHit)
+	{
+		// 충돌 지점에서 살짝 앞으로 당김
+		FinalCameraLoc = HitResult.Location + HitResult.ImpactNormal * 8.f;
+	}
+
+	FRotator CamRot = (TargetLookAt - FinalCameraLoc).Rotation();
+
+	// Pitch 제한
+	CamRot.Pitch = FMath::Clamp(CamRot.Pitch, -70.f, -10.f);
+
+
+	OutVT.POV.Location = FinalCameraLoc;
+	OutVT.POV.Rotation = CamRot;
 }
+
 
 UMaterialInterface* ASKCameraManager::Get_OutLineMat()
 {
