@@ -4,6 +4,7 @@
 #include "Anim/SKAnimNotify_ResetLeftAttack.h"
 #include "Component/SKCombatComponent.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Controller/SKPlayerController.h"
 
 void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                            const FAnimNotifyEventReference& EventReference)
@@ -28,6 +29,17 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 		//UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to cast Owner Actor to ASKPlayerCharacter."));
 		return; 
 	}
+
+	ASKPlayerController* Controller = Cast<ASKPlayerController>(PlayerCharacter->GetController());
+	if (Controller)
+	{
+		Controller->SetCanMaintainCombo(true);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Player Controller Not Found"));
+	}
+	
 	USKCombatComponent* CombatComponent =  PlayerCharacter->GetCombatComponent();
 	CombatComponent->Server_OnATKEndNotify(true);
 }

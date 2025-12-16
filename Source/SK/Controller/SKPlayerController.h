@@ -62,7 +62,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LeaveSessionAndReturnToLocalTown();
 
-
 #pragma region Camera
 	void ResetLockOn();
 
@@ -196,7 +195,12 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void RequestLevelUp();
 
+	bool bCanMaintainCombo = false;
+	
 public:
+	bool GetCanMaintainCombo() const {return bCanMaintainCombo;};
+	void SetCanMaintainCombo(bool NewCanMaintainCombo) {bCanMaintainCombo = NewCanMaintainCombo;}
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EMoveDirection CurrentMoveDirection;
 
