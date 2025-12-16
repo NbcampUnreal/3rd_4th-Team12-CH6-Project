@@ -63,7 +63,10 @@ void UGameExitRequestSlotWidget::NativeDestruct()
 {
 	if (ConfirmResponseHandle.IsValid())
 	{
-		ConfirmResponseHandle.Unregister();
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(ConfirmResponseHandle);
+		}
 	}
 	
 	Super::NativeDestruct();

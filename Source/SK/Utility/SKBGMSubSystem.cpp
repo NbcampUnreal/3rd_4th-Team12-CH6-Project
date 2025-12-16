@@ -13,11 +13,11 @@ USKBGMSubSystem::USKBGMSubSystem()
 void USKBGMSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	if (IsRunningListenServer())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Server BGM is not inited"));
-		return;
-	}
+	// if (IsRunningListenServer())
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("Server BGM is not inited"));
+	// 	return;
+	// }
 
 	if (UWorld* World = GetWorld())
 	{

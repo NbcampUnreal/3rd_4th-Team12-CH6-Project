@@ -1,13 +1,15 @@
 ﻿#include "SK_GA_Evade.h"
-#include "Weapon/ActionData/SKWeaponActionData.h"
+#include "Weapon/ActionData/SKWeaponAnimData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
 void USK_GA_Evade::PreActivateDodge(USKActionComponent* ActionComponent)
 {
-	USKWeaponActionData* WeaponActionData = ActionComponent->GetWeaponActionData();
-	if (!WeaponActionData) return;
+	Super::PreActivateDodge(ActionComponent);
 	
-	UAnimMontage* EvadeMontage = WeaponActionData->EvadeMontage;
+	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
+	if (!WeaponAnimData) return;
+	
+	UAnimMontage* EvadeMontage = WeaponAnimData->EvadeMontage;
 	if (!EvadeMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Evade montage is null"));

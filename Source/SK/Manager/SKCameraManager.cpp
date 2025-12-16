@@ -3,78 +3,128 @@
 
 #include "Manager/SKCameraManager.h"
 
-#include "Character/AI/SKAICharacterBase.h"
+#include "Controller/SKPlayerController.h"
+
 
 ASKCameraManager::ASKCameraManager()
 {
 }
 
-void ASKCameraManager::SetbIsLockedOn(bool ArgIsLockedOn)
+void ASKCameraManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (!bIsLockedOn &&bIsLockedOn != ArgIsLockedOn)
-	{
-		Cast<ASKAICharacterBase>(LockedTarget)->SetOverlayMaterial(LockOnOverlayMaterial,fOutLineActiveTime);
-	}
-	bIsLockedOn = ArgIsLockedOn;
-	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
+
+
+bool ASKCameraManager::ValidateLockOn(AActor* Player)
+{
+	return true;
+}
+
+void ASKCameraManager::AdjustCameraDistance(float WheelValue)
+{
+	float NewDist = CurrentZoomDistance - WheelValue * 50.f; // 50은 감도
+
+	CurrentZoomDistance = FMath::Clamp(NewDist, MinCameraZoom, MaxCameraZoom);
+}
+
 
 void ASKCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime)
 {
 	Super::UpdateViewTarget(OutVT, DeltaTime);
 
-	if (!bIsLockedOn || !LockedTarget)
+	if (!OutVT.Target)
 		return;
 
 	AActor* Player = OutVT.Target;
+	APawn* Pawn = Cast<APawn>(Player);
+	if (!Pawn)
+		return;
 
-	FVector CamLoc = GetCameraLocation(); //카메라위치
-	
-	FVector TargetLoc = LockedTarget->GetActorLocation(); //타겟위치
-	TargetLoc.Z += LockOnHeight;  // 몬스터 높이 보정
-
-
-	// 타겟 가려짐 체크
-	if (IsTargetObstructed(CamLoc, TargetLoc))
+	ASKPlayerController* SKPC = Cast<ASKPlayerController>(PCOwner);
+	if (!SKPC->GetIsLockedOn())
 	{
-		SetbIsLockedOn(false);;
-		LockedTarget = nullptr;
 		return;
 	}
 
-	// 거리 초과 체크
-	float Dist = FVector::Dist(Player->GetActorLocation(), LockedTarget->GetActorLocation());
-	if (Dist > MaxLockDistance || Dist < MinLockDistance)
-	{
-		SetbIsLockedOn(false);;
-		LockedTarget = nullptr;
+	AActor* LockedTarget = SKPC->GetLockedTarget();
+	if (!IsValid(LockedTarget))
 		return;
-	}
 
-	// 타겟 바라보기
-	FRotator TargetRot = (TargetLoc - CamLoc).Rotation();
-	TargetRot.Pitch -= LockOnPitch;
-	FRotator NewRot = FMath::RInterpTo(GetCameraRotation(), TargetRot, DeltaTime, LockOnInterpSpeed);
+	const float HalfHeight = Pawn->GetSimpleCollisionHalfHeight();
 
-	GetOwningPlayerController()->SetControlRotation(NewRot);
-}
 
-bool ASKCameraManager::IsTargetObstructed(const FVector& CamLoc, const FVector& TargetLoc)
-{
-	FHitResult Hit;
+	FVector PlayerCenter = Player->GetActorLocation();
+	PlayerCenter.Z += HalfHeight * 0.6f;
+
+
+	FVector TargetLookAt = LockedTarget->GetActorLocation();
+	TargetLookAt.Z += HalfHeight * 0.5f;
+
+
+	const float AngleRad = FMath::DegreesToRadians(LockOnAngleDeg);
+
+	const float HorizontalDist = CurrentZoomDistance * FMath::Cos(AngleRad);
+	const float VerticalDist = CurrentZoomDistance * FMath::Sin(AngleRad);
+
+	const FRotator PrevRot = OutVT.POV.Rotation;
+	const FRotator YawOnlyRot(0.f, PrevRot.Yaw, 0.f);
+	const FVector BackDir = YawOnlyRot.Vector();
+
+	FVector CameraLoc =
+		PlayerCenter
+		- BackDir * HorizontalDist
+		+ FVector::UpVector * VerticalDist;
+
+	FVector DesiredCameraLoc =
+	PlayerCenter
+	- BackDir * HorizontalDist
+	+ FVector::UpVector * VerticalDist;
+
+
+	//충돌보정
+	FVector FinalCameraLoc = DesiredCameraLoc;
+
+	FHitResult HitResult;
 	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Player);
 	Params.AddIgnoredActor(LockedTarget);
-	Params.AddIgnoredActor(GetOwningPlayerController()->GetPawn());
 
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		Hit,
-		CamLoc,
-		TargetLoc,
-		ECC_Visibility,
+	const float CameraRadius = 12.f; // 
+
+	bool bHit = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		PlayerCenter,
+		DesiredCameraLoc,
+		FQuat::Identity,
+		ECC_Camera,
+		FCollisionShape::MakeSphere(CameraRadius),
 		Params
 	);
 
-	if (!bHit) return false;
+	if (bHit)
+	{
+		// 충돌 지점에서 살짝 앞으로 당김
+		FinalCameraLoc = HitResult.Location + HitResult.ImpactNormal * 8.f;
+	}
 
-	return Hit.GetActor() != LockedTarget;
+	FRotator CamRot = (TargetLookAt - FinalCameraLoc).Rotation();
+
+	// Pitch 제한
+	CamRot.Pitch = FMath::Clamp(CamRot.Pitch, -70.f, -10.f);
+
+
+	OutVT.POV.Location = FinalCameraLoc;
+	OutVT.POV.Rotation = CamRot;
+}
+
+
+UMaterialInterface* ASKCameraManager::Get_OutLineMat()
+{
+	return LockOnOverlayMaterial;
+}
+
+float ASKCameraManager::Get_OutLineTime()
+{
+	return fOutLineActiveTime;
 }

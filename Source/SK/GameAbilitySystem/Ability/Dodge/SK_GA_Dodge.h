@@ -4,6 +4,7 @@
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_Dodge.generated.h"
 
+class ASKPlayerCharacter;
 class USKActionComponent;
 class USKCombatComponent;
 
@@ -36,6 +37,9 @@ protected:
 	UFUNCTION()
 	virtual void PreActivateDodge(USKActionComponent* ActionComponent);
 
+	UFUNCTION()
+	FName SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKActionComponent* ActionComponent);
+	
 	UPROPERTY()
 	UAnimMontage* DodgeMontage;
 };

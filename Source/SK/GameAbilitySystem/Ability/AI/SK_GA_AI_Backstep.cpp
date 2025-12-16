@@ -24,9 +24,9 @@ void USK_GA_AI_Backstep::Backstep()
 	AAIController* AIController = Cast<AAIController>(CachedController);
 	if (!IsValid(AIController))
 	{
-		if (OwnEventTask->IsActive())
+		if (OwnEventTask1->IsActive())
 		{
-			OwnEventTask->EndTask();
+			OwnEventTask1->EndTask();
 		}
 		
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
@@ -69,9 +69,9 @@ void USK_GA_AI_Backstep::Backstep()
 		}
 		else
 		{
-			if (OwnEventTask->IsActive())
+			if (OwnEventTask1->IsActive())
 			{
-				OwnEventTask->EndTask();
+				OwnEventTask1->EndTask();
 			}
 			
 			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
@@ -79,9 +79,9 @@ void USK_GA_AI_Backstep::Backstep()
 	}
 	else
 	{
-		if (OwnEventTask->IsActive())
+		if (OwnEventTask1->IsActive())
 		{
-			OwnEventTask->EndTask();
+			OwnEventTask1->EndTask();
 		}
 		
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
@@ -90,15 +90,15 @@ void USK_GA_AI_Backstep::Backstep()
 
 void USK_GA_AI_Backstep::WaitMoveComplete()
 {
-	OwnEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.MoveComplete")),
 				nullptr,
 				true,
 				false
 				);
-	OwnEventTask->EventReceived.AddDynamic(this, &USK_GA_AI_Backstep::OnWaitMoveCompleteCompleted);
-	OwnEventTask->ReadyForActivation();
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Backstep::OnWaitMoveCompleteCompleted);
+	OwnEventTask1->ReadyForActivation();
 }
 
 void USK_GA_AI_Backstep::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
@@ -129,6 +129,6 @@ void USK_GA_AI_Backstep::EndAbility(
 	)
 {
 	ClearFocus();
-
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

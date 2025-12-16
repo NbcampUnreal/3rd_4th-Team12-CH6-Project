@@ -7,6 +7,7 @@
 namespace SKConstant
 {
 	constexpr float MaxArmorValue = 1000.f;
+	//방어력 데미지 감소율
 	constexpr float ArmorDamageDeclineRate = 100.f;
 	constexpr int DamageSteps = 6;
 	constexpr int LeftMaxCombo_Axe = 4;

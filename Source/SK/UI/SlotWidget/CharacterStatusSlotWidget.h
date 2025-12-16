@@ -37,7 +37,7 @@ protected:
 	UHorizontalBox* HeatContainer;
 
 	UPROPERTY()
-	TArray<UImage*> HeatIcons;
+	TArray<UProgressBar*> HeatBars;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Heat")
 	UTexture2D* FullHeatTexture;

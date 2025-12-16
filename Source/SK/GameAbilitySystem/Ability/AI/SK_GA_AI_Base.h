@@ -7,6 +7,7 @@
 class UAbilityTask_WaitGameplayEvent;
 class UAbilityTask_PlayMontageAndWait;
 class UAbilityTask_WaitDelay;
+class UAbilityTask_ApplyRootMotionJumpForce;
 
 UCLASS()
 class SK_API USK_GA_AI_Base : public UGameplayAbility
@@ -26,13 +27,17 @@ protected:
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
 
 	UPROPERTY()
-	UAbilityTask_WaitGameplayEvent* OwnEventTask;
+	UAbilityTask_WaitGameplayEvent* OwnEventTask1;
+	UPROPERTY()
+	UAbilityTask_WaitGameplayEvent* OwnEventTask2;
 	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* CommonEventTask;
 	UPROPERTY()
 	UAbilityTask_PlayMontageAndWait* OwnMontageTask;
 	UPROPERTY()
 	UAbilityTask_WaitDelay* OwnDelayTask;
+	UPROPERTY()
+	UAbilityTask_ApplyRootMotionJumpForce* OwnJumpTask;
 
 
 public:

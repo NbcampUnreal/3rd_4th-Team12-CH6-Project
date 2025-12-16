@@ -12,8 +12,11 @@ class SK_API USK_GA_AI_JumpRush : public USK_GA_AI_BaseCombat
 public:
 	USK_GA_AI_JumpRush();
 
-	void JumpRush(TObjectPtr<AActor> TargetActor) const;
+	void JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAnimMontage> AnimMontage);
 
+	UFUNCTION()
+	void OnHitCompleted(FGameplayEventData EventData);
+	
 	UFUNCTION()
 	void OnJumpRushCompleted();
 

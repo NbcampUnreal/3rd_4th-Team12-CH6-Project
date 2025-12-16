@@ -1,7 +1,9 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_JumpRush.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionJumpForce.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 
 USK_GA_AI_JumpRush::USK_GA_AI_JumpRush()
 {
@@ -14,11 +16,71 @@ USK_GA_AI_JumpRush::USK_GA_AI_JumpRush()
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.JumpRush")));
 }
 
-void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor) const
+void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAnimMontage> AnimMontage)
 {
+	ACharacter* TargetCharacter = Cast<ACharacter>(TargetActor);
+	if (!IsValid(TargetCharacter))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+	
 	FVector StartLocation = CachedCharacter->GetActorLocation();
-	FVector EndLocation = TargetActor->GetActorLocation();
-    
+	FVector EndLocation = TargetCharacter->GetActorLocation();
+	FVector ToTargetVector = EndLocation - StartLocation;
+	FRotator JumpRotation = ToTargetVector.GetSafeNormal2D().Rotation();
+	
+	float CapsuleRadiusSum = CachedCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius() + TargetCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	float Distance = FVector(ToTargetVector.X, ToTargetVector.Y, 0.f).Length() - CapsuleRadiusSum;
+	float Height = FMath::Clamp(Distance * 0.6f, 200.f, 600.f);
+	float Duration = FMath::Clamp(Distance / 800.f, 0.5f, 1.5f);
+	
+	float MontageRate = AnimMontage->GetPlayLength() / Duration;
+
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
+				nullptr,
+				true,
+				false
+				);
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_JumpRush::OnHitCompleted);
+	OwnEventTask1->ReadyForActivation();
+	
+	OwnJumpTask = UAbilityTask_ApplyRootMotionJumpForce::ApplyRootMotionJumpForce(
+				this,
+				"JumpRush",
+				JumpRotation,
+				Distance,
+				Height,
+				Duration,
+				0.1,
+				true,
+				ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity,
+				FVector::ZeroVector,
+				0.f,
+				nullptr,
+				nullptr
+				);
+	OwnJumpTask->OnLanded.AddDynamic(this, &USK_GA_AI_JumpRush::OnJumpRushCompleted);
+	OwnJumpTask->ReadyForActivation();
+	
+	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this,
+				NAME_None,
+				AnimMontage,
+				MontageRate,
+				NAME_None,
+				true,
+				1.0f
+				);		
+	//OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_JumpRush::OnMeleeCompleted);
+	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_JumpRush::OnMontageInterrupted);
+	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_JumpRush::OnMontageCancelled);
+	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_JumpRush::OnMontageBlendOut);
+	OwnMontageTask->ReadyForActivation();
+
+	//UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.1f);
 	// 1. 내비게이션 투영 (아까 질문하신 안전지대 확보)
 	// C++에서는 UNavigationSystemV1을 사용합니다.
 	/*
@@ -29,30 +91,8 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor) const
 		EndPos = ProjectedLocation.Location; // 안전한 위치로 보정
 	}
 	*/
+	
 
-	// 2. 발사 벡터 계산 (Custom Arc 사용)
-	FVector LaunchVelocity;
-	bool bSuccess = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
-		this,
-		LaunchVelocity,
-		StartLocation,
-		EndLocation,
-		0.0f,  // Gravity (0 = 월드 중력)
-		0.5f   // Arc (0.5 = 적당한 포물선)
-	);
-
-	// 3. 캐릭터 발사
-	if (bSuccess)
-	{
-		// 발사 전 회전 보정 (타겟 바라보기)
-		FVector LookDirection = StartLocation - EndLocation;
-		LookDirection.Z = 0.0f; // 수평 회전만
-		CachedCharacter->SetActorRotation(LookDirection.Rotation());
-
-		// LaunchCharacter 함수 호출 (ACharacter 클래스 멤버 함수)
-		// bXYOverride: true, bZOverride: true
-		CachedCharacter->LaunchCharacter(LaunchVelocity, true, true);
-	}
 	/*
 	FVector AILocation = CachedCharacter->GetActorLocation();
 	FVector TargetLocation = TargetActor->GetActorLocation();
@@ -107,14 +147,19 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor) const
 	*/
 }
 
+void USK_GA_AI_JumpRush::OnHitCompleted(FGameplayEventData EventData)
+{
+	HitActor = EventData.Target.Get();
+	if (!HitActor.IsValid())
+	{
+		return;
+	}
+	
+	ApplyDamageToTarget(HitActor);
+}
+
 void USK_GA_AI_JumpRush::OnJumpRushCompleted()
 {
-	FRotator CorrectRotation = CachedCharacter->GetActorRotation();
-	CorrectRotation.Pitch = 0.f;
-	CorrectRotation.Roll = 0.f;
-	CachedCharacter->SetActorRotation(CorrectRotation);
-	// 필요하다면 커스텀 틱 태스크에서 보간보정 필요
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
@@ -129,22 +174,21 @@ void USK_GA_AI_JumpRush::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
-	/*
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("JumpRush");
-	if (!IsValid(AnimMontage))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}*/
-
 	TObjectPtr<AActor> TargetActor = GetTargetActor();
 	if (!IsValid(TargetActor))
 	{
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "JumpRush Activated");
-	JumpRush(TargetActor);
+
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("JumpRush");
+	if (!IsValid(AnimMontage))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
+	JumpRush(TargetActor, AnimMontage);
 }
 
 void USK_GA_AI_JumpRush::EndAbility(

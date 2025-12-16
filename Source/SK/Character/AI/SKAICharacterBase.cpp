@@ -52,8 +52,6 @@ void ASKAICharacterBase::OnBoxComponentBeginOverlap(
 	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("전투시작"));
 }
 
 void ASKAICharacterBase::OnBoxComponentEndOverlap(
@@ -66,8 +64,6 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("전투종료"));
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -124,6 +120,10 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TeamTag);
 	}
 
+	if (AIDataAsset->TypeTag.IsValid())
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TypeTag);
+	}
 	/*
 	if (AIDataAsset->GiveTeamTagEffect)
 	{
@@ -174,9 +174,55 @@ TObjectPtr<UStateTree> ASKAICharacterBase::GetStateTreeAsset() const
 	return StateTreeAsset;
 }
 
+int32 ASKAICharacterBase::GetCurrentMeleeIndex() const
+{
+	return CurrentMeleeIndex;
+}
+
+int32 ASKAICharacterBase::GetMaxMeleeIndex() const
+{
+	return MaxMeleeIndex;
+}
+
+void ASKAICharacterBase::SetMeleeIndex(int32 NewMeleeIndex)
+{
+	if (NewMeleeIndex == 0)
+	{
+		CurrentMeleeIndex += 1;
+
+		if (CurrentMeleeIndex == MaxMeleeIndex)
+		{
+			CurrentMeleeIndex = 1;
+		}
+	}
+	else if (NewMeleeIndex == -1)
+	{
+		CurrentMeleeIndex = 0;
+	}
+	else
+	{
+		CurrentMeleeIndex = NewMeleeIndex;
+	}
+}
+
 FVector ASKAICharacterBase::GetStartLocation() const
 {
 	return StartLocation;
+}
+
+float ASKAICharacterBase::GetBackstepDistance() const
+{
+	return BackstepDistance;
+}
+
+int32 ASKAICharacterBase::GetDropTableID() const
+{
+	return DropTableID;
+}
+
+FMonsterData ASKAICharacterBase::GetMonsterData() const
+{
+	return *MonsterData;
 }
 
 void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration)
@@ -197,14 +243,14 @@ void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, floa
 			Duration,
 			false
 		);
-	}
+	} 
 }
 
 void ASKAICharacterBase::ClearOverlayMaterial()
 {
 	if (!GetMesh())
 		return;
-
+	UE_LOG(LogTemp, Error, TEXT("[Cam] Clear Material"));
 	GetMesh()->SetOverlayMaterial(nullptr);
 }
 
@@ -223,28 +269,28 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 		return;
 	}
 
-	const FMonsterData* Data = SDS->GetData<FMonsterData>(MonsterID);
-	if (!Data)
+	MonsterData = SDS->GetData<FMonsterData>(MonsterID);
+	if (!MonsterData)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Monster StaticData Not Found: ID = %d"), MonsterID);
 		return;
 	}
 
 	// ---- 실제 스탯 적용 (AttributeSet or 내부 변수) ----
-	AttributeSet->SetHealth(Data->MaxHealth);
-	AttributeSet->SetMaxHealth(Data->MaxHealth);
-	AttributeSet->SetAttack(Data->Attack);
-	AttributeSet->SetArmor(Data->Armor);
-	AttributeSet->SetPoise(Data->Poise);
-	AttributeSet->SetSpeed(Data->Speed);
-
-
+	AttributeSet->SetHealth(MonsterData->MaxHealth);
+	AttributeSet->SetMaxHealth(MonsterData->MaxHealth);
+	AttributeSet->SetAttack(MonsterData->Attack);
+	AttributeSet->SetArmor(MonsterData->Armor);
+	AttributeSet->SetPoise(MonsterData->Poise);
+	AttributeSet->SetSpeed(MonsterData->Speed);
+	BackstepDistance = MonsterData->BackstepDistance;
+	
 	// 예시: 이동 속도 적용
-	GetCharacterMovement()->MaxWalkSpeed = Data->Speed;
+	GetCharacterMovement()->MaxWalkSpeed = MonsterData->Speed;
 
 	// DropTableID 설정 필요 시 저장
-	DropTableID = Data->DropTableID;
+	DropTableID = MonsterData->DropTableID;
 
 	UE_LOG(LogTemp, Log, TEXT("[AI StaticData] %s : (HP=%f, Atk=%f, Def=%f)"),
-		*GetName(), Data->MaxHealth, Data->Attack, Data->Armor);
+		*GetName(), MonsterData->MaxHealth, MonsterData->Attack, MonsterData->Armor);
 }

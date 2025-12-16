@@ -6,18 +6,74 @@
 #include "GameFramework/PlayerState.h"
 #include "Character/SKPlayerDataAsset.h"
 #include "GameData/WeaponDataRow.h"
+#include "GameplayEffectTypes.h"
 #include "GenericTeamAgentInterface.h"
 #include "SKPlayerState.generated.h"
 
+class ASKBonfire;
 class UInventoryComponent;
 class UQuickSlotComponent;
 class UEquipmentComponent;
 class UAbilitySystemComponent;
 class USKAttributeSet;
-
+class UStaticDataSubsystem;
 
 struct FWeaponDataRow;
 struct FSKWeaponDataRow;
+
+USTRUCT(BlueprintType)
+struct FModifiedAttributeInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayAttribute Attribute;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EGameplayModOp::Type> Op;
+	
+	UPROPERTY(BlueprintReadOnly)
+	float Magnitude;
+
+	UPROPERTY(BlueprintReadOnly)
+	float Duration;
+};
+
+USTRUCT(BlueprintType)
+struct FModifiedAttributeArray
+{
+	GENERATED_BODY()
+ 
+	UPROPERTY()
+	TArray<FModifiedAttributeInfo> Items;
+};
+
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
+	FOnBuffAdded,
+	FActiveGameplayEffectHandle, EffectHandle,
+	const FModifiedAttributeArray&, ModifiedAttributes,
+	FGameplayTagContainer, BuffTags,
+	float, Duration
+);
+
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnTimeChanged,
+	FActiveGameplayEffectHandle, EffectHandle,
+	float, NewStart,
+	float, NewDuration
+);
+
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnStackChanged,
+	FActiveGameplayEffectHandle, EffectHandle,
+	int32, NewStack,
+	int32, OldStack
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuffRemoved, const FActiveGameplayEffectHandle, EffectHandle, FModifiedAttributeArray, ModifiedAttributes);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGoldChanged, int32, Gold, int32, Value);
 
 UCLASS()
 class SK_API ASKPlayerState : public APlayerState, public IGenericTeamAgentInterface
@@ -40,6 +96,59 @@ public:
 	void SetTeamFromTag(const FGameplayTag& TeamTag);
 	FGenericTeamId PlayerTeamID = FGenericTeamId::NoTeam;
 
+	void SetCurWeaponTag(FGameplayTag NewTag);
+
+	void EquipmentComponentSetting();
+
+#pragma region LevelSystem
+	
+	/** Gold 지급 */
+	UFUNCTION(BlueprintCallable)
+	void AddGold(int32 Value);
+
+	/** 서버가 레벨업 요청 처리 */
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Server_RequestLevelUp();
+
+	/** 내부 레벨업 처리 */
+	UFUNCTION()
+	void TryLevelUp();
+
+	/** AbilityPoint 감소 → 스탯 강화 시 사용 */
+	UFUNCTION()
+	void ConsumeAbilityPoint();
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetGold() const { return Gold; }
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetPlayerLevel() const { return Level; }
+	
+	UFUNCTION(BlueprintCallable)
+	int32 GetAbilityPoint() const { return AbilityPoint; }
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetRequiredGoldForNextLevel() const;
+	
+	
+	UPROPERTY(ReplicatedUsing=OnRep_Gold, BlueprintReadOnly, VisibleAnywhere)
+	int32 Gold = 0;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	int32 OldGold = 0;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_Level, BlueprintReadOnly)
+	int32 Level = 1;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_AbilityPoint, BlueprintReadOnly)
+	int32 AbilityPoint = 0;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGoldChanged GoldChanged;
+	
+#pragma endregion LevelSystem
+	
+	
 #pragma region GAS
 	UFUNCTION()
 	void OnRep_CurrentWeaponTag();
@@ -72,6 +181,18 @@ public:
 
 #pragma endregion
 
+	UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+    FOnBuffAdded OnBuffAdded;
+         
+    UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+    FOnBuffRemoved OnBuffRemoved;
+
+	UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+    FOnTimeChanged OnBuffTimeChanged;
+
+	UPROPERTY(BlueprintAssignable, Category="SK|Buff")
+	FOnStackChanged OnBuffStackChanged;
+	
 protected:
 #pragma region GAS
 
@@ -104,4 +225,38 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SK|Equipment", Replicated)
 	UEquipmentComponent* EquipmentComponent;
+
+	UFUNCTION()
+	void HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle);
+ 
+	UFUNCTION()
+	void HandleGameplayEffectRemoved(const FActiveGameplayEffect& Effect);
+
+	UFUNCTION()
+	void HandleGameplayEffectStackChange(FActiveGameplayEffectHandle Handle, int32 NewStack, int32 OldStack);
+
+	UFUNCTION()
+	void HandleGameplayEffectTimeChange(FActiveGameplayEffectHandle Handle, float NewStartTime, float NewDuration);
+	
+	UPROPERTY()
+	TMap<FActiveGameplayEffectHandle, FModifiedAttributeArray> ModifiedAttributeMap;
+
+
+#pragma region LevelSystem
+	UFUNCTION()
+	void OnRep_Gold();
+
+	UFUNCTION()
+	void OnRep_Level();
+
+	UFUNCTION()
+	void OnRep_AbilityPoint();
+
+	// StaticDataSubsystem 캐싱용
+	UStaticDataSubsystem* SDS;
+#pragma endregion LevelSystem
+	
+public:
+	UPROPERTY()
+	ASKBonfire* CurrentBonfire;
 };

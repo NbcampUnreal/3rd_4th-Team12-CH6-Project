@@ -2,11 +2,13 @@
 #include "Character/SKPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Controller/SKPlayerController.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Weapon/ActionData/SKWeaponAnimData.h"
 
 USKActionComponent::USKActionComponent()
-	: CurrentWeaponActionData(nullptr)
+	: CurrentWeaponAnimData(nullptr)
 {
 	SetIsReplicatedByDefault(true);
 }
@@ -16,7 +18,7 @@ void USKActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(USKActionComponent, CurrentInputVector);
-	DOREPLIFETIME(USKActionComponent, CurrentMovementDirection);
+	DOREPLIFETIME(USKActionComponent, CurrentMoveDirection);
 }
 
 void USKActionComponent::BeginPlay()
@@ -33,16 +35,41 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
-void USKActionComponent::SetWeaponActionData(USKWeaponActionData* NewWeaponActionData)
+void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponAnimData)
 {
-	CurrentWeaponActionData = NewWeaponActionData;
+	CurrentWeaponAnimData = NewWeaponAnimData;
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+	
+	Char->GetMesh()->SetAnimInstanceClass(CurrentWeaponAnimData->AnimInstance);
+	
 }
 
-void USKActionComponent::Server_SetMovementInfo_Implementation(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection)
+void USKActionComponent::Server_SetMovementInfo_Implementation(const FVector2D NewInputVector, const EMoveDirection NewMoveDirection)
 {
 	CurrentInputVector = NewInputVector;
-	CurrentMovementDirection = NewMovementDirection;
+	CurrentMoveDirection = NewMoveDirection;
+
+	SetMoveDirection();
 }
+
+void USKActionComponent::OnRep_OnMoveDirectionChange()
+{
+	SetMoveDirection();
+}
+
+void USKActionComponent::SetMoveDirection()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+	
+	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(Char->GetMesh()->GetAnimInstance());
+	if (PlayerAnimInstance)
+	{
+		PlayerAnimInstance->CurrentMoveDirection = CurrentMoveDirection;
+	}
+}
+
 
 FRotator USKActionComponent::GetDodgeRotator() const
 {

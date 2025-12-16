@@ -12,7 +12,7 @@
 ASKAICharacter::ASKAICharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
-
+	
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
 	HealthWidgetComponent->SetupAttachment(RootComponent);
 	HealthWidgetComponent->SetWidgetSpace(EWidgetSpace::World); // 화면 고정형

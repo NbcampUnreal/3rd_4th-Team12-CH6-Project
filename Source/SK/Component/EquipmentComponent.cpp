@@ -5,9 +5,14 @@
 
 #include "AbilitySystemComponent.h"
 #include "InventoryComponent.h"
+#include "Character/SKPlayerCharacter.h"
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Object/EquipmentInstance.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Weapon/SKWeaponData.h"
+#include "Component/SKCombatComponent.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 // Sets default values for this component's properties
 UEquipmentComponent::UEquipmentComponent()
@@ -25,19 +30,26 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	{
 		return false;
 	}
-
+	FGuid TempID = UniqueID;
+	
 	if (!Inventory)
+	{
 		return false;
+	}
+		
 
 	UEquipmentInstance* Instance = Inventory->GetEquipmentInstance(UniqueID);
 	if (!Instance)
 	{
 		return false;
 	}
-
+	
 	USKEquipmentItemData* ItemData = Cast<USKEquipmentItemData>(Inventory->GetItemDataByID(ItemID));
 	if (!ItemData)
+	{
 		return false;
+	}
+		
 
 	EEquipmentSlotType Slot = ItemData->SlotType;
 
@@ -48,14 +60,38 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	
 	FEquipmentSlotData& SlotData = Equipments.FindOrAdd(Slot);
 	SlotData.ItemID = ItemID;
-	SlotData.UniqueID = UniqueID;
+	SlotData.UniqueID = TempID;
 	SlotData.EquipmentInstance = Instance;
-		
 	SlotData.EquipmentInstance->SpawnEquipmentActors(GetEquipPawn(), ItemData->ActorsToSpawnData);
 	
 	ApplyEquipmentEffect(ItemData, Instance);
-
+	
 	Client_UpdateEquipment(Slot, SlotData);
+
+	FGameplayTag NewWeaponTag = SlotData.EquipmentInstance->EquipTag;
+
+	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());
+	if (IsValid(PlayerState))
+	{
+		PlayerState->SetCurWeaponTag(NewWeaponTag);
+	}
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetEquipPawn());
+	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	if (!ActionComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ActionComponent is null"));
+		return false;
+	}
+	
+	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+	if (!WeaponDataRow)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EquipmentComponent: EquipItem Not WeaponDataRow"));
+		return false;
+	}
+	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	// USKCombatComponent* CombatComponent = Char->GetCombatComponent();
+	// CombatComponent->CurrentWeaponData = WeaponDataRow->WeaponData;
 	
 	return true;
 }
@@ -100,6 +136,60 @@ const FEquipmentSlotData* UEquipmentComponent::GetEquipment(EEquipmentSlotType S
 }
 
 
+void UEquipmentComponent::CopyTo(UEquipmentComponent* Target)
+{
+	if (!Target) return;
+
+	auto CopySlot = [&](EEquipmentSlotType SlotType)
+	{
+		FEquipmentSlotData* SourceSlotData = Equipments.Find(SlotType);
+		if (!SourceSlotData) return;
+
+		// FindOrAdd 사용: Key 없으면 생성, 참조 반환
+		FEquipmentSlotData& TargetSlotData = Target->Equipments.FindOrAdd(SlotType);
+		TargetSlotData.UniqueID = SourceSlotData->UniqueID;
+		TargetSlotData.ItemID   = SourceSlotData->ItemID;
+		TargetSlotData.EquipmentInstance = SourceSlotData->EquipmentInstance;
+	};
+
+	// 슬롯별로 호출
+	CopySlot(EEquipmentSlotType::Weapon);
+	CopySlot(EEquipmentSlotType::Helmet);
+	CopySlot(EEquipmentSlotType::Chest);
+	CopySlot(EEquipmentSlotType::Leg);
+	CopySlot(EEquipmentSlotType::Boots);
+	CopySlot(EEquipmentSlotType::Accessory1);
+	CopySlot(EEquipmentSlotType::Accessory2);
+}
+
+void UEquipmentComponent::ReSpawnWeapon()
+{
+	if (Equipments.Num() <= 0)
+		return;
+
+	if (!Inventory)
+	{
+		Inventory = GetOwner()->FindComponentByClass<UInventoryComponent>();
+	}
+	
+	auto LogEquipResult = [&](EEquipmentSlotType SlotType)
+	{
+		if (FEquipmentSlotData* Slot = Equipments.Find(SlotType))
+		{
+			const bool bResult = EquipItem(Slot->UniqueID, Slot->ItemID);
+		}
+	};
+
+	// 슬롯별 호출
+	LogEquipResult(EEquipmentSlotType::Weapon);
+	LogEquipResult(EEquipmentSlotType::Helmet);
+	LogEquipResult(EEquipmentSlotType::Chest);
+	LogEquipResult(EEquipmentSlotType::Leg);
+	LogEquipResult(EEquipmentSlotType::Boots);
+	LogEquipResult(EEquipmentSlotType::Accessory1);
+	LogEquipResult(EEquipmentSlotType::Accessory2);
+}
+
 // Called when the game starts
 void UEquipmentComponent::BeginPlay()
 {
@@ -108,6 +198,12 @@ void UEquipmentComponent::BeginPlay()
 	// ...
 	Inventory = GetOwner()->FindComponentByClass<UInventoryComponent>();
 
+	if (Equipments.Num() > 0)
+	{
+		return;
+	}
+		
+	
 	UEnum* EnumPtr = StaticEnum<EEquipmentSlotType>();
 	if (!EnumPtr) return;
 

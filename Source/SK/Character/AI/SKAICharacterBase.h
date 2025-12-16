@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "GameData/StaticData/MonsterDataTable.h"
 #include "SKAICharacterBase.generated.h"
 
 class UBoxComponent;
@@ -41,6 +42,9 @@ protected:
 	/** 몬스터 정적 ID */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MonsterID")
 	int32 DropTableID = -1;
+
+	/** 몬스터 정적 ID */
+	const FMonsterData* MonsterData;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation|Montages")
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
@@ -48,11 +52,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
 
+	int32 CurrentMeleeIndex = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Index")
+	int32 MaxMeleeIndex = 0;
+
 private:
 	FVector StartLocation;
 
+	float BackstepDistance;
+	
 	FTimerHandle OverlayTimerHandle;
 
+	
 public:
 	ASKAICharacterBase();
 	
@@ -68,11 +80,27 @@ public:
 	
 	TObjectPtr<UStateTree> GetStateTreeAsset() const;
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentMeleeIndex() const;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetMaxMeleeIndex() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetMeleeIndex(int32 NewMeleeIndex);
+
 	FVector GetStartLocation() const;
+
+	float GetBackstepDistance() const;
+
+	int32 GetDropTableID() const;
+
+	FMonsterData GetMonsterData() const;
 
 	//오버레이머티리얼 Set함수-이준식
 	void SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration = 10.f);
 	void ClearOverlayMaterial();
+	
 protected:
 	virtual void PossessedBy(AController* NewController) override;
 	

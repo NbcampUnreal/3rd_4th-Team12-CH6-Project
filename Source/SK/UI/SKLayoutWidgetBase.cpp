@@ -44,7 +44,10 @@ void USKLayoutWidgetBase::NativeDestruct()
 {
 	if (SlotVisibleHandle.IsValid())
 	{
-		SlotVisibleHandle.Unregister();
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(SlotVisibleHandle);
+		}
 	}
 	
 	Super::NativeDestruct();

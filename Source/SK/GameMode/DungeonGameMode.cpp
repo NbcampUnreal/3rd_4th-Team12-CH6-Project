@@ -1,4 +1,10 @@
 #include "GameMode/DungeonGameMode.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Item/Openable/Bonfire/SKBonfire.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/PlayerStart.h"
 
 ADungeonGameMode::ADungeonGameMode()
 {
@@ -74,6 +80,38 @@ void ADungeonGameMode::HandlePlayerReady(AController* C)
 	}
 }
 
+AActor* ADungeonGameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+	TArray<AActor*> Bonfires;
+	UGameplayStatics::GetAllActorsOfClass(this, ASKBonfire::StaticClass(), Bonfires);
+
+	for (AActor* Actor : Bonfires)
+	{
+		ASKBonfire* Bonfire = Cast<ASKBonfire>(Actor);
+		if (Bonfire && Bonfire->bIsDefaultBonfire)
+		{
+			ASKPlayerState* PS = Player->GetPlayerState<ASKPlayerState>();
+			if (PS)
+			{
+				PS->CurrentBonfire = Bonfire;
+			}
+
+			FVector SpawnLocation = Bonfire->InteractionPoint->GetComponentLocation();
+			FRotator SpawnRotation = Bonfire->InteractionPoint->GetComponentRotation();
+
+			APlayerStart* TempStart = GetWorld()->SpawnActor<APlayerStart>(
+				APlayerStart::StaticClass(),
+				SpawnLocation,
+				SpawnRotation
+			);
+			
+			return TempStart;
+		}
+	}
+
+	return Super::ChoosePlayerStart_Implementation(Player);
+}
+
 EDungeonMatchState ADungeonGameMode::GetDungeonState() const
 {
 	if (auto* GS = GetGameState<ADungeonGameState>())
@@ -121,5 +159,20 @@ void ADungeonGameMode::TryProgressState()
 	{
 		// 바로 전투 시작
 		ChangeDungeonState(EDungeonMatchState::Dungeon_InProgress);
+	}
+}
+
+void ADungeonGameMode::AddGoldToPlayers(int32 GoldValue)
+{
+	for (auto It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		if (!PC) continue;
+
+		ASKPlayerState* PS = PC->GetPlayerState<ASKPlayerState>();
+		if (PS)
+		{
+			PS->AddGold(GoldValue);
+		}
 	}
 }

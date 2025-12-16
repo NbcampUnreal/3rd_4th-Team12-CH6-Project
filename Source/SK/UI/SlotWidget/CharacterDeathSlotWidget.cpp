@@ -20,6 +20,15 @@ void UCharacterDeathSlotWidget::PlayDeathSequence()
 	PlayAnimation(DeathAnim);
 }
 
+void UCharacterDeathSlotWidget::OnPlayerDieHandleMessageReceived(FGameplayTag Channel,
+	const FSlotVisibilityMessage& Message)
+{
+	if (Message.SlotTags.HasTag(TAG_UI_Slot_CharacterDeath) && Message.bVisible)
+	{
+		PlayDeathSequence();
+	}
+}
+
 void UCharacterDeathSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -31,41 +40,44 @@ void UCharacterDeathSlotWidget::NativeConstruct()
 		EndEvent.BindDynamic(this, &UCharacterDeathSlotWidget::OnDeathAnimationFinished);
 
 		BindToAnimationFinished(DeathAnim, EndEvent);
+	}
+	
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
 
-		UE_LOG(LogTemp, Warning, TEXT("[DeathWidget] DeathAnim 애니메이션 종료 델리게이트 바인딩 완료"));
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if (!GameInstance)
+	{
+		return;
+	}
 
-		if (GetWorld())
+	USKGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+	if (!MessageSubsystem)
+	{
+		return;
+	}
+
+	PlayerDieHandle = MessageSubsystem->RegisterListener<FSlotVisibilityMessage>(
+		TAG_Message_Channel_SlotVisible,
+		this,
+		&UCharacterDeathSlotWidget::OnPlayerDieHandleMessageReceived
+	);
+}
+
+void UCharacterDeathSlotWidget::NativeDestruct()
+{
+	if (PlayerDieHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
 		{
-			FTimerHandle TestHandle;
-			GetWorld()->GetTimerManager().SetTimer(
-				TestHandle,
-				FTimerDelegate::CreateWeakLambda(this, [this]()
-				{
-					UE_LOG(LogTemp, Warning, TEXT("[DeathWidget] 3초 후 DeathAnim 테스트 재생"));
-					if (UWorld* InnerWorld = GetWorld())
-					{
-						if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(InnerWorld))
-						{
-							FSlotVisibilityMessage SlotMessage;
-							SlotMessage.LayoutTag = TAG_UI_Layout_InGame;
-							SlotMessage.SlotTags.AddTag(TAG_UI_Slot_CharacterDeath);
-							SlotMessage.bVisible = true;
-
-							MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, SlotMessage);
-
-						}
-					}
-					PlayDeathSequence();
-				}),
-				3.0f,
-				false
-			);
+			MessageSubsystem->UnregisterListener(PlayerDieHandle);
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[DeathWidget] DeathAnim 없음!!"));
-	}
+	
+	Super::NativeDestruct();
 }
 
 void UCharacterDeathSlotWidget::OnDeathAnimationFinished()
@@ -81,7 +93,6 @@ void UCharacterDeathSlotWidget::OnDeathAnimationFinished()
 			SlotMessage.bVisible = false;
 
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, SlotMessage);
-
 		}
 	}
 }

@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionJumpForce.h"
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -45,14 +46,22 @@ void USK_GA_AI_Base::WaitEndAbility()
 
 void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 {
-	if (OwnEventTask)
+	if (OwnEventTask1)
 	{
-		if (OwnEventTask->IsActive())
+		if (OwnEventTask1->IsActive())
 		{
-			OwnEventTask->EndTask();
+			OwnEventTask1->EndTask();
 		}
 	}
-			
+
+	if (OwnEventTask2)
+	{
+		if (OwnEventTask2->IsActive())
+		{
+			OwnEventTask2->EndTask();
+		}
+	}
+	
 	if (OwnMontageTask)
 	{
 		if (OwnMontageTask->IsActive())
@@ -75,9 +84,15 @@ void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 		}
 	}
 
-	CachedController->StopMovement();
-
-	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
+	if (OwnJumpTask)
+	{
+		if (OwnJumpTask->IsActive())
+		{
+			OwnJumpTask->EndTask();
+		}
+	}
+	
+	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 }
 
 void USK_GA_AI_Base::ActivateAbility(
@@ -96,14 +111,14 @@ void USK_GA_AI_Base::ActivateAbility(
 	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	if (!AvatarActor)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
 	ACharacter* AvatarCharacter = Cast<ACharacter>(AvatarActor);
 	if (!IsValid(AvatarCharacter))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
@@ -112,7 +127,7 @@ void USK_GA_AI_Base::ActivateAbility(
 	AController* Controller = AvatarCharacter->GetController();
 	if (!IsValid(Controller))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
@@ -121,7 +136,7 @@ void USK_GA_AI_Base::ActivateAbility(
 	ASKAICharacterBase* BaseAI = Cast<ASKAICharacterBase>(CachedCharacter);
 	if (!IsValid(BaseAI))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
@@ -138,6 +153,11 @@ void USK_GA_AI_Base::EndAbility(
 	bool bWasCancelled
 	)
 {
+	if (bWasCancelled)
+	{
+		CachedController->StopMovement();
+	}
+	
 	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
 	if (!IsValid(ST))
 	{

@@ -56,6 +56,11 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void ServerUnequipItem(EEquipmentSlotType Slot);
 	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void CopyTo(UEquipmentComponent* Target);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void ReSpawnWeapon();
 	
 protected:
 	// Called when the game starts

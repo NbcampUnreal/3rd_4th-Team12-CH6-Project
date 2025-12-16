@@ -6,6 +6,7 @@
 #include "UI/SKLayoutWidgetBase.h"
 #include "InventoryLayoutWidget.generated.h"
 
+class UButton;
 /**
  * 
  */
@@ -18,9 +19,65 @@ public:
 	FDataTableRowHandle InventoryToInGameData;
 	
 	FUIActionBindingHandle InventoryToInGameHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle InventoryToEscapeData;
+	
+	FUIActionBindingHandle InventoryToEscapeHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MoveUpData;
+	
+	FUIActionBindingHandle MoveUpHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MoveDownData;
+    	
+	FUIActionBindingHandle MoveDownHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MoveLeftData;
+	
+	FUIActionBindingHandle MoveLeftHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle MoveRightData;
+	
+	FUIActionBindingHandle MoveRightHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle SelectionData;
+	
+	FUIActionBindingHandle SelectionHandle;
+	
 protected:
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void HandleInventoryToInGameAction();
+
+	UFUNCTION()
+	void HandleInventoryEscapeAction();
+
+	UFUNCTION()
+	void HandleMoveUpAction();
+
+	UFUNCTION()
+	void HandleMoveDownAction();
+
+	UFUNCTION()
+	void HandleMoveLeftAction();
+
+	UFUNCTION()
+	void HandleMoveRightAction();
+
+	UFUNCTION()
+	void HandleSelectionAction();
+
+
+	UFUNCTION()
+	void HandleCloseButtonClicked();
+	
+	UPROPERTY(meta = (BindWidget))
+	UButton* CloseButton;
 };

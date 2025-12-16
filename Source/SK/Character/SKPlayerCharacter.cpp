@@ -8,8 +8,6 @@
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
 #include "Component/SKCombatComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "GameData/SKGameConstant.h"
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -17,7 +15,6 @@
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
-#include "GameData/WeaponDataRow.h"
 #include "Weapon/SKWeaponData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
@@ -66,9 +63,8 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetPlayerStateTag();
+	//	SetPlayerStateTag();
 
-	// InitASCFromPlayerState();
 	if (AController* PC = GetController())
 	{
 		ASKPlayerController* MyPC = Cast<ASKPlayerController>(PC);
@@ -86,14 +82,12 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
-
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	LockOnTarget(DeltaTime);
 }
 
 void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -102,6 +96,8 @@ void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// DOREPLIFETIME(ASKPlayerCharacter, CurrentWeaponTag);
 	// DOREPLIFETIME(ASKPlayerCharacter, ComboState);
+
+	// DOREPLIFETIME(ASKPlayerCharacter, bIsLockedOn);
 }
 
 void ASKPlayerCharacter::PossessedBy(AController* NewController)
@@ -113,23 +109,20 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 	// 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	// 	AttributeSet = PS->GetAttributeSet();
 	//
-	// 	// 서버에서 ASC 초기화
 	// 	// AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 	// }
-	//InitASCFromPlayerState();
+	SetPlayerStateTag();
 	SetTraceSocket();
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (PS)
+	{
+		PS->EquipmentComponentSetting();
+	}
 }
 
 void ASKPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	// if (PS)
-	// {
-	// 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
-	// 	ASC->InitAbilityActorInfo(PS, this);
-	// }
 
 	UE_LOG(LogTemp, Warning, TEXT("[CHECK] Mesh=%s"), *GetMesh()->GetName());
 	UE_LOG(LogTemp, Warning, TEXT("[CHECK] AnimInstance=%s"),
@@ -158,23 +151,23 @@ void ASKPlayerCharacter::UpdateMovementTag()
 	const float Speed = GetVelocity().Size();
 	const bool bIsFalling = GetCharacterMovement()->IsFalling();
 
-	SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Grounded, !bIsFalling);
-	SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Air, bIsFalling);
+	SetLooseTag(TAG_State_Posture_Grounded, !bIsFalling);
+	SetLooseTag(TAG_State_Posture_Air, bIsFalling);
 
-	// Movement 처리
+	// // Movement 처리
 	if (!bIsFalling)
 	{
 		const bool bIsMoving = (Speed > 10.f);
 
-		SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Walk, bIsMoving);
-		SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Idle, !bIsMoving);
+		SetLooseTag(TAG_State_Movement_Walk, bIsMoving);
+		SetLooseTag(TAG_State_Movement_Idle, !bIsMoving);
 
-		SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Grounded, !bIsFalling);
+		// SetLooseTag(TAG_State_Posture_Grounded, !bIsFalling);
 	}
-	else
-	{
-		SetLooseTag(AbilitySystemComponent, TAG_State_Posture_Air, bIsFalling);
-	}
+	// else
+	// {
+	// 	SetLooseTag( TAG_State_Posture_Air, bIsFalling);
+	// }
 }
 
 void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
@@ -182,12 +175,12 @@ void ASKPlayerCharacter::UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable)
 	if (!IsValid(AbilitySystemComponent))
 		return;
 
-	SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Walk, false);
-	SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Idle, false);
-	// SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Walk, false);
+	SetLooseTag(TAG_State_Movement_Walk, false);
+	SetLooseTag(TAG_State_Movement_Idle, false);
+	SetLooseTag(TAG_State_Movement_Sprint, false);
 
-	//인자로받은 태그 활성화/비활성화
-	SetLooseTag(AbilitySystemComponent, ATKTag, Enable);
+	//인자로받은 태/비활성화
+	SetLooseTag(ATKTag, Enable);
 }
 
 void ASKPlayerCharacter::SetTraceSocket()
@@ -209,11 +202,25 @@ void ASKPlayerCharacter::SetTraceSocket()
 	CombatComponent->InitializeWeaponData(DataRow);
 }
 
+void ASKPlayerCharacter::SetLockOnState(bool bLock)
+{
+	if (bLock)
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+	else
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+	}
+}
+
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	// InitASCFromPlayerState();
 
+	SetPlayerStateTag();
 	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
 	// if (!PS)
 	// 	return;
@@ -259,7 +266,7 @@ void ASKPlayerCharacter::TryInitASC()
 	UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] AnimInstance OK"));
 
 	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	if (!PS) 
+	if (!PS)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[TryInitASC] PlayerState NULL"));
 		return;
@@ -275,42 +282,69 @@ void ASKPlayerCharacter::TryInitASC()
 	ASC->InitAbilityActorInfo(PS, this);
 
 	UE_LOG(LogTemp, Error, TEXT("[ASC INIT] 성공! AnimInstance=%s"),
-		   *GetMesh()->GetAnimInstance()->GetName());
+	       *GetMesh()->GetAnimInstance()->GetName());
 
 	GetWorld()->GetTimerManager().ClearTimer(InitASCTimerHandle);
 }
 
-void ASKPlayerCharacter::SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable)
+void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 {
-	if (!ASC)
+	if (!AbilitySystemComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SetLooseTag] ASC is null, skip: %s"), *Tag.ToString());
 		return;
-
+	}
+	
 	if (bEnable)
 	{
-		if (!ASC->HasMatchingGameplayTag(Tag))
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(Tag))
 		{
-			ASC->AddLooseGameplayTag(Tag);
+			AbilitySystemComponent->AddLooseGameplayTag(Tag);
 		}
 	}
 	else
 	{
-		if (ASC->HasMatchingGameplayTag(Tag))
+		if (AbilitySystemComponent->HasMatchingGameplayTag(Tag))
 		{
-			ASC->RemoveLooseGameplayTag(Tag);
+			AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
 		}
 	}
 }
 
-void ASKPlayerCharacter::LockOnTarget(float DeltaTime)
+void ASKPlayerCharacter::AdjustSpringArmDistance(float WheelValue)
 {
-	ASKPlayerController* PC = Cast<ASKPlayerController>(Controller);
-	if (PC && PC->bIsLockedOn && PC->CurrentTarget)
-	{
-		FVector Dir = (PC->CurrentTarget->GetActorLocation() - GetActorLocation());
-		Dir.Z = 0;
+	if (!CameraBoom)
+		return;
 
-		FRotator NewRot = FMath::RInterpTo(GetActorRotation(), Dir.Rotation(), DeltaTime, 6.f);
-		SetActorRotation(NewRot);
+	const float ZoomStep = 50.f;   // 휠 감도
+	const float MinLength = 250.f; // 최소 거리
+	const float MaxLength = 600.f; // 최대 거리
+
+	float NewLength = CameraBoom->TargetArmLength - WheelValue * ZoomStep;
+	CameraBoom->TargetArmLength = FMath::Clamp(NewLength, MinLength, MaxLength);
+
+}
+
+void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
+{
+	if (bLockOn)
+	{
+		// Lock On: Movement 기반 회전 금지
+		// bUseControllerRotationYaw  = false;
+		// GetCharacterMovement()->bOrientRotationToMovement = false;
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		
+	}
+	else
+	{
+		// Lock Off: 다시 Movement 기반 회전 허용
+		// bUseControllerRotationYaw = true;
+		// GetCharacterMovement()->bOrientRotationToMovement = true;
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	}
 }
 
@@ -319,7 +353,7 @@ void ASKPlayerCharacter::SetPlayerStateTag()
 	// 주기적인 속도 체크를 위한 타이머 (틱 대신 사용)
 	GetWorldTimerManager().SetTimer(MovementCheckTimer, this, &ASKPlayerCharacter::UpdateMovementTag, 0.2f, true);
 	// 처음엔 Idle 상태 태그 추가
-	SetLooseTag(AbilitySystemComponent, TAG_State_Movement_Idle, true);
+	SetLooseTag(TAG_State_Movement_Idle, true);
 }
 
 USKCombatComponent* ASKPlayerCharacter::GetCombatComponent() const

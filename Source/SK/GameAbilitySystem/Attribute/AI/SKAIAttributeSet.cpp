@@ -1,9 +1,7 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
-#include "Utility/SKGameplayMessageSubsystem.h"
-#include "Utility/SKGameplayMessageTypes.h"
-#include "Utility/SKNativeGameplayTags.h"
+#include "Perception/AISense_Damage.h"
 
 USKAIAttributeSet::USKAIAttributeSet()
 {
@@ -44,31 +42,44 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	Super::PostGameplayEffectExecute(Data);
 	
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
-	{
+	{	
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+		
+		float Damage = -Data.EvaluatedData.Magnitude;
+		
+		const FGameplayEffectContextHandle Context = Data.EffectSpec.GetContext();
 
+		AActor* VictimActor = GetOwningActor();
+		AActor* InstigatorActor = Context.GetInstigator();
+
+		if (Damage <= 0.f || !IsValid(VictimActor) || !IsValid(InstigatorActor))
+		{
+			return;
+		}
+
+		UAISense_Damage::ReportDamageEvent(
+			VictimActor,
+			VictimActor,        
+			InstigatorActor,   
+			Damage,       
+			VictimActor->GetActorLocation(),            
+			VictimActor->GetActorLocation()
+		);
+		
 		if (FMath::IsNearlyZero(GetHealth()))
 		{
-			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
-			CancelAllAbilities();
-
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Death"));
-
-			/* 보스 죽었을 때 처리 로직에 추가
-			if (USKGameplayMessageSubsystem* MessageSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USKGameplayMessageSubsystem>())
+			UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
+			if (!OwningASC)
 			{
-				FSlotVisibilityMessage Message;
-
-				Message.LayoutTag = TAG_UI_Layout_InGame;
-				Message.SlotTags.AddTag(TAG_UI_Slot_BossHP);
-				Message.bVisible = false;
-				MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, Message);
+				return;
 			}
-			*/
+
+			if (!OwningASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
+			{
+				AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+				CancelAllAbilities();
+			}
 		}
-		
-		FString DebugMsg = FString::Printf(TEXT("Health: %.2f"), GetHealth());
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMsg);
 	}
 }
 

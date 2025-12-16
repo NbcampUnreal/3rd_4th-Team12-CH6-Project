@@ -17,13 +17,17 @@ class SK_API UEquipmentItemQuickWidget : public UEquipmentItemBaseWidget
 {
 	GENERATED_BODY()
 public:
-	void SettingItem(int32 ItemID, int32 ItenQuantitiy);
+	void SettingItem(int32 ItemID, int32 ItemQuantity);
 
 	void SettingSlot(EInventoryItemType ItemType, int32 QuickSlotNumber, UInventoryComponent* InventoryComponent);
 
+	int32 GetItemQuantity();
 protected:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* ItemQuantityText;
+
+	UPROPERTY(VisibleAnywhere)
+	int32 CurrentItemQuantity;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="EquipmentQuickWidget")
 	EInventoryItemType CurrentItemType;

@@ -45,7 +45,13 @@ public:
 	void OnAnimInitialized();
 	void SetTraceSocket();
 
+	void SetLockOnState(bool bLock);
+	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
 
+	void AdjustSpringArmDistance(float WheelValue);
+
+	UFUNCTION()
+	void SetLockOnRotateMode(bool bLockOn);
 protected:
 	virtual void OnRep_PlayerState() override;
 
@@ -65,7 +71,6 @@ protected:
 private:
 	FTimerHandle InitASCTimerHandle;
 	void TryInitASC();
-	void SetLooseTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, bool bEnable);
 
 
 #pragma region PlayerAnimState
@@ -99,7 +104,8 @@ public:
 	FORCEINLINE USKActionComponent* GetActionComponent() const { return ActionComponent; }
 	
 #pragma endregion
+
 	
-	//Camera
-	void LockOnTarget(float DeltaTime);
+public:
+	
 };

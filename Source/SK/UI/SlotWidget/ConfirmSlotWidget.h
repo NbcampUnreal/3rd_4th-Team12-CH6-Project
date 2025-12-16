@@ -23,6 +23,7 @@ public:
 	
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	
 	// 블루프린트에서 연결할 수 있는 버튼 2개
 	UPROPERTY(meta = (BindWidget))
@@ -46,7 +47,13 @@ protected:
 
 	UPROPERTY()
 	FGameplayTag RequestSlotTag;
-	
+
+	UPROPERTY()
+	int32 CurrentSelectButton;
+
+	UPROPERTY()
+	FButtonStyle NormalStyle;
+		
 	// 버튼 클릭 처리 함수
 	UFUNCTION()
 	void HandleConfirmClicked();
@@ -54,7 +61,20 @@ protected:
 	UFUNCTION()
 	void HandleCancelClicked();
 
+	UFUNCTION()
+	void SimulateButtonHover(UButton* Button);
+
+	UFUNCTION()
+	void SimulateButtonUnHover(UButton* Button);
+
+	UFUNCTION()
+	void ButtonMove(int32 Direction);
+	
 	FSKGameplayMessageListenerHandle RequestConfirmHandle;
 
 	void OnRequestConfirmMessageReceived(FGameplayTag Channel, const FConfirmUIMessage& Message);
+
+	FSKGameplayMessageListenerHandle InteractionHandle;
+
+	void OnInteractionMessageReceived(FGameplayTag Channel, const FUIInteractionMoveMessage& Message);
 };

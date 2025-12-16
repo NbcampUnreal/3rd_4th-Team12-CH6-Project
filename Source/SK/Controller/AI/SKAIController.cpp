@@ -2,11 +2,14 @@
 #include "AbilitySystemInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemComponent.h"
+#include "Character/SKPlayerCharacter.h"
 #include "Character/AI/SKAICharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "GameState/DungeonGameState.h"
+#include "Perception/AISenseConfig_Damage.h"
 #include "PlayerState/SKPlayerState.h"
 
 ASKAIController::ASKAIController()
@@ -16,7 +19,6 @@ ASKAIController::ASKAIController()
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComp"));
 	
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	
 	SightConfig->SightRadius = 1500.0f; // 시야 범위
 	SightConfig->LoseSightRadius = 2000.0f; // 시야 상실 범위
 	SightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
@@ -28,9 +30,14 @@ ASKAIController::ASKAIController()
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = false; // 아군 감지
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = false; // 중립 감지
 
+	DamageConfig = CreateDefaultSubobject<UAISenseConfig_Damage>(TEXT("DamageConfig"));
+	DamageConfig->SetMaxAge(2.0f);
+	
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
 	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
-
+	AIPerceptionComponent->ConfigureSense(*DamageConfig);
+	AIPerceptionComponent->SetDominantSense(DamageConfig->GetSenseImplementation());
+	
 	OwningASC = nullptr;
 	
 	TargetActor = nullptr;
@@ -41,6 +48,52 @@ ASKAIController::ASKAIController()
 TObjectPtr<AActor> ASKAIController::GetTargetActor() const
 {
 	return TargetActor;
+}
+
+bool ASKAIController::CheckDistance(float AdditionalCapsuleRadiusSum)
+{
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
+	if (!IsValid(AICharacter))
+	{
+		return false;
+	}
+
+	if (!IsValid(TargetActor))
+	{
+		return false;
+	}
+	
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(TargetActor);
+	if (!IsValid(PlayerCharacter))
+	{
+		return false;
+	}
+
+	FVector AILocation = AICharacter->GetActorLocation();
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+	
+	float CapsuleRadiusSum = AICharacter->GetCapsuleComponent()->GetScaledCapsuleRadius() + PlayerCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	float Distance = (PlayerLocation - AILocation).Size2D();
+
+	if (Distance <= CapsuleRadiusSum + AdditionalCapsuleRadiusSum)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+FVector ASKAIController::GetTargetDirection() const
+{
+	if (!IsValid(TargetActor))
+	{
+		return FVector::ZeroVector;
+	}
+
+	FVector ToTargetVector = TargetActor->GetActorLocation() - GetCharacter()->GetActorLocation();
+	FVector TargetDirection = ToTargetVector.GetSafeNormal();
+
+	return TargetDirection;
 }
 
 void ASKAIController::AddTag(FGameplayTag Tag) const
@@ -77,6 +130,37 @@ void ASKAIController::SendEventToASC(AActor* LocalInstigator, AActor* LocalTarge
 	EventData.OptionalObject = nullptr;
 
 	OwningASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+}
+
+void ASKAIController::FindClosestTarget()
+{
+	float MinDistanceSquared = FLT_MAX;
+
+	AActor* ClosestTarget = nullptr;
+
+	ACharacter* AI = GetCharacter();
+	if (!IsValid(AI))
+	{
+		return;
+	}
+	
+	FVector AILocation = AI->GetActorLocation();
+	
+	for (TObjectPtr<AActor> LocalTargetActor : TargetActors)
+	{
+		if (!IsValid(LocalTargetActor))
+		{
+			continue;
+		}
+		
+		if (MinDistanceSquared > FVector::DistSquared(AILocation, LocalTargetActor->GetActorLocation()))
+		{
+			MinDistanceSquared = FVector::DistSquared(AILocation, LocalTargetActor->GetActorLocation());
+			ClosestTarget = LocalTargetActor;
+		}
+	}
+
+	TargetActor = ClosestTarget;
 }
 
 uint8 ASKAIController::ConvertTeamTagToID(const FGameplayTagContainer& InTags) const
@@ -140,7 +224,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	/*///// 테스트
+	////// 테스트
 	if (!StateTreeAIComponent)
 	{
 		return;
@@ -160,7 +244,7 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	
 	StateTreeAIComponent->SetStateTree(OwningStateTree);
 	//StateTreeAIComponent->StartLogic();
-	*/
+	////// 테스트
 }
 
 void ASKAIController::BeginPlay()
@@ -173,7 +257,7 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
-
+	/*
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
@@ -185,6 +269,14 @@ void ASKAIController::BeginPlay()
 	{
 		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
 	}
+	*/
+	GetWorld()->GetTimerManager().SetTimer(
+	   FindClosestTargetTimerHandle,
+	   this,
+	   &ASKAIController::FindClosestTarget, 
+	   0.5f,
+	   true
+   );
 }
 
 void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -196,12 +288,15 @@ void ASKAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowi
 
 void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("인지성공"));
-	
 	ACharacter* PlayerCharacter = Cast<ACharacter>(Actor);
 	if ( !(PlayerCharacter && PlayerCharacter->IsPlayerControlled()) )
 	{
 		return;
+	}
+
+	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Damage>())
+	{
+		TargetActor = Actor;
 	}
 	
 	if (Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
@@ -209,20 +304,18 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 		bool bCanSeePlayer = Stimulus.WasSuccessfullySensed(); // 인지 범위에서 벗어났을 때 false
 		if (!bCanSeePlayer)
 		{
-			TargetActor = nullptr;
+			TargetActors.Remove(Actor);
 			RemoveTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
 			SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 			return;
 		}
-		
-		TargetActor = Actor;
+
+		TargetActors.Add(Actor);
 		AddTag(FGameplayTag::RequestGameplayTag("AI.Perception"));
 		SendEventToASC(this, TargetActor, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("감지성공"));
 	}
 
 	// 최대 기억 시간에 따라 감지된 목록에 있는 액터 활용 가능
-	// 피격에 대한 감각으로 피격 시 행동 추가 가능 // 청각은 굳이 안 쓸 듯.
 }
 
 void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)

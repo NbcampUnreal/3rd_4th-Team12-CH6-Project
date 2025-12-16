@@ -132,16 +132,10 @@ void UCharacterStatusSlotWidget::StaminaChanged(AActor* EffectInstigator, AActor
 void UCharacterStatusSlotWidget::HeatChanged(AActor* EffectInstigator, AActor* EffectCauser,
 	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
 {
-	for (int32 i = 0; i < HeatIcons.Num(); ++i)
+	for (int32 i = 0; i < HeatBars.Num(); ++i)
 	{
-		if (i < NewValue)
-		{
-			HeatIcons[i]->SetBrushFromTexture(FullHeatTexture);
-		}
-		else
-		{
-			HeatIcons[i]->SetBrushFromTexture(EmptyHeatTexture);
-		}
+		const float BarFill = FMath::Clamp(NewValue - i, 0.f, 1.f);
+		HeatBars[i]->SetPercent(BarFill);
 	}
 }
 
@@ -151,19 +145,31 @@ void UCharacterStatusSlotWidget::MaxHeatChanged(AActor* EffectInstigator, AActor
 	if (!HeatContainer) return;
 
 	HeatContainer->ClearChildren();
-	HeatIcons.Empty();
+	HeatBars.Empty();
 
 	for (int32 i = 0; i < AttributeSet->GetMaxHeat(); ++i)
 	{
-		UImage* NewHeatIcon = NewObject<UImage>(this, UImage::StaticClass());
-		HeatContainer->AddChild(NewHeatIcon);
+		UProgressBar* NewHeatBar = NewObject<UProgressBar>(this, UProgressBar::StaticClass());
+		HeatContainer->AddChild(NewHeatBar);
 
-		// HorizontalBoxSlot 가져와서 Padding 설정
-		if (UHorizontalBoxSlot* HBoxSlot = Cast<UHorizontalBoxSlot>(NewHeatIcon->Slot))
+		// 기본 설정
+		NewHeatBar->SetPercent(0.f);
+
+		// 아이콘처럼 보이게 스타일 세팅
+		FProgressBarStyle Style;
+		Style.BackgroundImage.SetResourceObject(EmptyHeatTexture);
+		Style.FillImage.SetResourceObject(FullHeatTexture);
+		Style.FillImage.DrawAs = ESlateBrushDrawType::Image;
+		Style.BackgroundImage.DrawAs = ESlateBrushDrawType::Image;
+
+		NewHeatBar->SetWidgetStyle(Style);
+
+		// HorizontalBoxSlot 패딩
+		if (UHorizontalBoxSlot* HBoxSlot = Cast<UHorizontalBoxSlot>(NewHeatBar->Slot))
 		{
-			HBoxSlot->SetPadding(FMargin(10.f, 0.f, 10.f, 0.f)); // Left, Top, Right, Bottom
+			HBoxSlot->SetPadding(FMargin(10.f, 0.f, 10.f, 0.f));
 		}
 
-		HeatIcons.Add(NewHeatIcon);
+		HeatBars.Add(NewHeatBar);
 	}
 }

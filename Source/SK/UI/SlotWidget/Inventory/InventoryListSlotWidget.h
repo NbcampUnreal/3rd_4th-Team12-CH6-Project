@@ -31,6 +31,9 @@ class SK_API UInventoryListSlotWidget : public UUserWidget
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+	void NotifyIndex(int32 Index);
 	
 protected:
 	void TryCachedInventory();
@@ -71,12 +74,29 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Inventory")
 	int32 MinSlotCount = 20;
 
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	int32 CurrentIndex = 0;
+
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	int32 VisibleWidgetCount = 0;
+		
 	FSKGameplayMessageListenerHandle LayoutSwitchHandle;
 
+	FSKGameplayMessageListenerHandle InteractionHandle;
+	
 	void OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message);
+
+	void OnInteractionMessageReceived(FGameplayTag Channel, const FUIInteractionMoveMessage& Message);
 	
 	void RefreshInventory();
 
+	void SetIndexHover(int32 Index);
+	void SetIndexUnHover(int32 Index);
+
+	void MoveIndex(int32 Index);
+
+	void ScrollToIndex(int32 Index);
+	
 	// 버튼 클릭 핸들러
 	UFUNCTION()
 	void OnButtonAllClicked();

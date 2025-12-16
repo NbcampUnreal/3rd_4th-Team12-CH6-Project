@@ -8,6 +8,7 @@
 #include "Engine/ActorChannel.h"
 #include "GameData/StaticData/ItemDataTable.h"
 #include "Item/Inventory/Data/SKConsumableItemData.h"
+#include "Item/Inventory/Data/SKEquipmentItemData.h"
 #include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "Net/UnrealNetwork.h"
 #include "Object/EquipmentInstance.h"
@@ -23,35 +24,6 @@ UInventoryComponent::UInventoryComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
-}
-
-
-void UInventoryComponent::TryAddItem(const int32& ItemID, int32 Count)
-{
-	if (!GetOwner())
-	{
-		return;
-	}
-	if (GetOwner()->HasAuthority())
-	{
-		if (AddItemByIDAndCount(ItemID, Count))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Server Message gg"));
-			if (UWorld* World = GetWorld())
-			{
-				if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
-				{
-					FItemAddMessage ItemAddMessage(ItemID,  Count);
-				
-					MessageSubsystem->BroadcastMessage(TAG_Message_Channel_ItemAddInfo, ItemAddMessage);
-				}
-			}
-		}
-	}
-	else
-	{
-		ServerAddItem(ItemID, Count);
-	}
 }
 
 bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
@@ -99,8 +71,6 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 			InventorySlots.Add(FInventorySlot{ItemID, AddCount, FGuid()});
 			RemainingCount -= AddCount;
 		}
-
-		return true;
 	}
 	else if (ItemData->InventoryType == EInventoryItemType::Equipment)
 	{
@@ -109,12 +79,12 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 		NewSlot.UniqueID = FGuid::NewGuid();
 		
 		UEquipmentInstance* EquipInstance = NewObject<UEquipmentInstance>(this);
+		USKEquipmentItemData* EquipData = Cast<USKEquipmentItemData>(ItemData);
+		EquipInstance->EquipTag = EquipData->EquipmentTag;
 		FEquipmentInstanceSlot NewEquipInstance(NewSlot.UniqueID, EquipInstance);
 		EquipmentInstances.Add(NewEquipInstance);
 			
 		InventorySlots.Add(NewSlot);
-		
-		return true;
 	}
 	else
 	{
@@ -123,8 +93,9 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 			InventorySlots.Add(FInventorySlot{ItemID, 1, FGuid()});
 		}
 	}
+	Client_NotifyItemAdded(ItemID, Count);
 
-	return false;
+	return true;
 }
 
 bool UInventoryComponent::RemoveItemByIDAndCount(const int32& ItemID, int32 Count)
@@ -411,6 +382,33 @@ bool UInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch*
 	}
 	
 	return bWroteSomething;
+}
+
+void UInventoryComponent::CopyTo(UInventoryComponent* Target)
+{
+	if (!Target) return;
+
+	Target->InventorySlots = InventorySlots;
+	Target->EquipmentInstances.Empty();
+
+	for (const auto& Slot : EquipmentInstances)
+	{
+		FEquipmentInstanceSlot NewSlot;
+		NewSlot.UniqueID = Slot.UniqueID;
+
+		if (Slot.EquipmentInstance)
+		{
+			// 새 인스턴스 생성
+			UEquipmentInstance* NewInst = NewObject<UEquipmentInstance>(Target);
+            
+			// 내부 데이터 복사 (함수 직접 구현해야 함)
+			NewInst->CopyFrom(Slot.EquipmentInstance);
+
+			NewSlot.EquipmentInstance = NewInst;
+		}
+
+		Target->EquipmentInstances.Add(NewSlot);
+	}
 }
 
 void UInventoryComponent::ServerAddItem_Implementation(const int32& ItemID, int32 Count)

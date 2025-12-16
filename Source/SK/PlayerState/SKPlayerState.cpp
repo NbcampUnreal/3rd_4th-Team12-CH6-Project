@@ -12,7 +12,11 @@
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
+#include "Component/SKCombatComponent.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Utility/SKUIManagerSubSystem.h"
+#include "Utility/StaticDataSubsystem.h"
+#include "GameData/StaticData/LevelUpData.h"
 
 ASKPlayerState::ASKPlayerState()
 {
@@ -54,6 +58,7 @@ void ASKPlayerState::BeginPlay()
 	if (HasAuthority())
 	{
 		OnRep_CurrentWeaponTag();
+		SetDAPlayerStat();
 	}
 
 	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
@@ -65,6 +70,15 @@ void ASKPlayerState::BeginPlay()
 	if (!UISubSystem) return;
 
 	UISubSystem->SettingLayout();
+
+	if (AbilitySystemComponent)
+	{
+		// ASC Delegate 바인딩
+		AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &ASKPlayerState::HandleGameplayEffectAdded);
+		AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ASKPlayerState::HandleGameplayEffectRemoved);
+	}
+
+	SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
@@ -80,7 +94,27 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 	if (!NewPS)
 		return;
 	//데이터 복사 예시
-	//NewPS->A = A; 
+	//NewPS->A = A;
+	
+	if (InventoryComponent && NewPS->InventoryComponent)
+	{
+		InventoryComponent->CopyTo(NewPS->InventoryComponent);
+	}
+	
+	if (EquipmentComponent && NewPS->EquipmentComponent)
+	{
+		EquipmentComponent->CopyTo(NewPS->EquipmentComponent);
+	}
+	
+	if (QuickSlotComponent && NewPS->QuickSlotComponent)
+	{
+		QuickSlotComponent->CopyTo(NewPS->QuickSlotComponent);
+	}
+
+	NewPS->Gold = Gold;
+	NewPS->OldGold = OldGold;
+	NewPS->Level = Level;
+	NewPS->AbilityPoint = AbilityPoint;
 }
 
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -88,8 +122,12 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ASKPlayerState, CharacterData, COND_InitialOnly);
-	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  // 필수
-	// DOREPLIFETIME(ASKPlayerState, RepComboState); // 이게 없으면 클라에게 절대 안 감
+	DOREPLIFETIME(ASKPlayerState, AbilitySystemComponent);  
+	DOREPLIFETIME(ASKPlayerState, CurrentWeaponTag);
+	DOREPLIFETIME(ASKPlayerState, Gold);
+	DOREPLIFETIME(ASKPlayerState, OldGold);
+	DOREPLIFETIME(ASKPlayerState, Level);
+	DOREPLIFETIME(ASKPlayerState, AbilityPoint);
 }
 
 void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
@@ -110,6 +148,24 @@ void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
 	UE_LOG(LogTemp, Log, TEXT("Player TeamID Set: %d"), PlayerTeamID.GetId());
 }
 
+
+void ASKPlayerState::SetCurWeaponTag(FGameplayTag NewTag)
+{
+	CurrentWeaponTag = NewTag;
+	ASKPlayerCharacter* PC = GetPawn<ASKPlayerCharacter>();
+	if (PC)
+	{
+		PC->SetTraceSocket();  
+	}
+}
+
+void ASKPlayerState::EquipmentComponentSetting()
+{
+	if (HasAuthority())
+	{
+		EquipmentComponent->ReSpawnWeapon();
+	}
+}
 
 void ASKPlayerState::OnRep_CurrentWeaponTag()
 {
@@ -287,4 +343,179 @@ FWeaponDataRow& ASKPlayerState::GetWeaponData()
 FGameplayTag ASKPlayerState::GetWeaponTag() const
 {
 	return CurrentWeaponTag;
+}
+
+void ASKPlayerState::HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec,
+	FActiveGameplayEffectHandle Handle)
+{
+	FGameplayTagContainer BuffTags = Spec.Def->GetGrantedTags();
+
+	float Duration = -1.f;
+	if (const FActiveGameplayEffect* ActiveGE = ASC->GetActiveGameplayEffect(Handle))
+	{
+		Duration = ActiveGE->GetDuration();
+		UE_LOG(LogTemp, Warning, TEXT("Duration %0.2f"), Duration);
+	}
+
+	if (Duration <= 0.f)
+	{
+		return;
+	}
+	
+	TArray<FModifiedAttributeInfo> ModifiedAttributes;
+	int32 TempIndex = 0;
+	for (const FGameplayModifierInfo& Mod : Spec.Def->Modifiers)
+	{
+		FModifiedAttributeInfo Info;
+		Info.Attribute = Mod.Attribute;
+		Info.Op = Mod.ModifierOp;
+		Info.Magnitude = Spec.GetModifierMagnitude(TempIndex++);
+		Info.Duration = Duration;
+		ModifiedAttributes.Add(Info);
+	}
+
+	FModifiedAttributeArray ModifiedArray;
+	ModifiedArray.Items = ModifiedAttributes;
+	ModifiedAttributeMap.Add(Handle, ModifiedArray);
+	
+	OnBuffAdded.Broadcast(Handle, ModifiedArray, BuffTags, Duration);
+	
+	if (FActiveGameplayEffectEvents* Events = ASC->GetActiveEffectEventSet(Handle))
+	{
+		Events->OnStackChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectStackChange);
+		Events->OnTimeChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectTimeChange);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[BuffAdd] Duration: %.2f"),Duration);
+}
+
+void ASKPlayerState::HandleGameplayEffectRemoved(const FActiveGameplayEffect& Effect)
+{
+	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Effect.Handle))
+	{
+		FModifiedAttributeArray RemovedModified = *FoundArray;
+		
+		OnBuffRemoved.Broadcast(Effect.Handle, RemovedModified);
+		ModifiedAttributeMap.Remove(Effect.Handle);
+	}
+}
+
+void ASKPlayerState::HandleGameplayEffectStackChange(FActiveGameplayEffectHandle Handle, int32 NewStack, int32 OldStack)
+{
+	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Handle))
+	{
+		OnBuffStackChanged.Broadcast(Handle, NewStack, OldStack);
+	}
+}
+
+void ASKPlayerState::HandleGameplayEffectTimeChange(FActiveGameplayEffectHandle Handle, float NewStartTime, float NewDuration)
+{
+	if (FModifiedAttributeArray* FoundArray = ModifiedAttributeMap.Find(Handle))
+	{
+		float Duration = 0.0f;
+		if (FoundArray->Items.Num() > 0)
+		{
+			Duration = FoundArray->Items[0].Duration;
+			
+		}
+
+		OnBuffTimeChanged.Broadcast(Handle, NewStartTime, Duration);
+	}
+}
+
+void ASKPlayerState::AddGold(int32 Value)
+{
+	if (!HasAuthority()) return;
+
+	UE_LOG(LogTemp, Error, TEXT("[PlayerState] AddGold %d,   (%d + %d = %d)"), Value, Gold, Value, Gold+Value);
+	OldGold = Gold;
+	Gold += Value;
+	OnRep_Gold();
+}
+
+int32 ASKPlayerState::GetRequiredGoldForNextLevel() const
+{
+	if (!SDS) return -1;
+	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
+	return Rule ? Rule->RequiredGold : -1;
+}
+
+void ASKPlayerState::OnRep_Gold()
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	if (!PC) return;
+	
+	if (PC->IsLocalController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] OnRep_Gold  누적 Gold : %d"),Gold);
+		GoldChanged.Broadcast(Gold, OldGold);
+	}
+	
+}
+void ASKPlayerState::OnRep_Level()
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	if (!PC) return;
+	
+	if (PC->IsLocalController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlayerState] OnRep_Level Level : %d"),Level);
+	}
+}
+void ASKPlayerState::OnRep_AbilityPoint() {}
+
+void ASKPlayerState::Server_RequestLevelUp_Implementation()
+{
+	TryLevelUp();
+}
+
+void ASKPlayerState::ConsumeAbilityPoint()
+{
+	if (AbilityPoint > 0)
+	{
+		AbilityPoint--;
+		OnRep_AbilityPoint();
+	}
+}
+
+void ASKPlayerState::TryLevelUp()
+{
+	//if (!HasAuthority() || !SDS)
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] !HasAuthority()"));
+		return;
+	}
+
+	if (!SDS)
+	{
+		SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+	}
+
+	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
+	if (!Rule)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] No level data found for Level %d"), Level);
+		return;
+	}
+
+	// Gold 부족
+	if (Gold < Rule->RequiredGold)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] Gold 부족! 필요:%d, 현재:%d"), Rule->RequiredGold, Gold);
+		return;
+	}
+
+	// 골드 지불
+	Gold -= Rule->RequiredGold;
+	OnRep_Gold();
+
+	// 레벨 증가
+	Level++;
+	OnRep_Level();
+
+	// AbilityPoint 지급
+	AbilityPoint += Rule->AbilityPointReward;
+	OnRep_AbilityPoint();
+
+	UE_LOG(LogTemp, Log, TEXT("[LevelUp] 성공! New Level=%d, AbilityPoint=%d"), Level, AbilityPoint);
 }

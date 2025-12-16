@@ -5,7 +5,7 @@
 #include "Controller/SKPlayerController.h"
 #include "SKActionComponent.generated.h"
 
-class USKWeaponActionData;
+class USKWeaponAnimData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SK_API USKActionComponent : public UActorComponent
@@ -24,26 +24,33 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponActionData(USKWeaponActionData* NewWeaponActionData);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetWeaponAnimData(USKWeaponAnimData* NewWeaponAnimData);
 	
-	FORCEINLINE USKWeaponActionData* GetWeaponActionData() const { return CurrentWeaponActionData; }
+	FORCEINLINE USKWeaponAnimData* GetWeaponAnimData() const { return CurrentWeaponAnimData; }
 	
 protected:
 	UPROPERTY()
-	USKWeaponActionData* CurrentWeaponActionData;
+	USKWeaponAnimData* CurrentWeaponAnimData;
 
 #pragma region MovementInfo
 
 public:
 	UFUNCTION(Server, Reliable)
-	void Server_SetMovementInfo(const FVector2D NewInputVector, const EMoveDirection NewMovementDirection);
+	void Server_SetMovementInfo(const FVector2D NewInputVector, const EMoveDirection NewMoveDirection);
 
 	UPROPERTY(Replicated)
 	FVector2D CurrentInputVector;
 
-	UPROPERTY(Replicated)
-	EMoveDirection CurrentMovementDirection;
+	UPROPERTY(ReplicatedUsing = OnRep_OnMoveDirectionChange)
+	EMoveDirection CurrentMoveDirection;
+
+	UFUNCTION()
+	void OnRep_OnMoveDirectionChange();
+
+protected:
+
+	void SetMoveDirection();
 
 #pragma endregion
 
