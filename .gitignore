@@ -29,6 +29,8 @@ Content/MedFntSFX/
 Content/OpenAndCloseAnimationsPack/
 Content/DragonVFX/
 
+Plugins/
+
 
 *.sln
 *.suo

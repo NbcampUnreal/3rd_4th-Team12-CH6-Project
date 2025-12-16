@@ -45,6 +45,7 @@ ASKPlayerState::ASKPlayerState()
 	{
 		EquipmentComponent->SetIsReplicated(true);
 	}
+	SetNetUpdateFrequency(100);
 }
 
 void ASKPlayerState::BeginPlay()
