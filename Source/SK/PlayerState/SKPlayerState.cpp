@@ -354,9 +354,10 @@ void ASKPlayerState::HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, con
 	if (const FActiveGameplayEffect* ActiveGE = ASC->GetActiveGameplayEffect(Handle))
 	{
 		Duration = ActiveGE->GetDuration();
+		UE_LOG(LogTemp, Warning, TEXT("Duration %0.2f"), Duration);
 	}
 
-	if (Duration <= -1.f)
+	if (Duration <= 0.f)
 	{
 		return;
 	}
