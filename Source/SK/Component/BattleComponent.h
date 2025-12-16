@@ -19,7 +19,9 @@ struct FSKBattleState
 	//  Replicated 영역 (서버 관리)
 	UPROPERTY()
 	FGameplayTag WeaponTag;
-	
+
+	UPROPERTY(NotReplicated)
+	bool bBufferedAttack = false;
 };
 
 
