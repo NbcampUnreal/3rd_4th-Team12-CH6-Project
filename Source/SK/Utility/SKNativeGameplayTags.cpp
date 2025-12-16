@@ -50,6 +50,12 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ProjectileAttack, "Ability.ProjectileAttack");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left1, "Combo.Left1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left2, "Combo.Left2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left3, "Combo.Left3");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left4, "Combo.Left4");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestLeft, "Input.TestLeft");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
 
