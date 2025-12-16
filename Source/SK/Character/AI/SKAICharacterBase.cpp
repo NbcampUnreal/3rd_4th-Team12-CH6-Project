@@ -1,5 +1,6 @@
 #include "Character/AI/SKAICharacterBase.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayEffectExtension.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
@@ -9,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
 #include "GameData/StaticData/MonsterDataTable.h"
+#include "Perception/AISense_Damage.h"
 
 ASKAICharacterBase::ASKAICharacterBase()
 {
@@ -29,8 +31,63 @@ ASKAICharacterBase::ASKAICharacterBase()
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); // or Full
-
+	
 	AttributeSet = CreateDefaultSubobject<USKAIAttributeSet>(TEXT("AttributeSet"));
+}
+
+void ASKAICharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USKAIAttributeSet::GetHealthAttribute()).AddUObject(this, &ASKAICharacterBase::OnHealthChanged);
+}
+
+void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Damage = Data.OldValue - Data.NewValue;
+
+	AActor* VictimActor = this;
+	AActor* InstigatorActor = nullptr;
+	
+	if (const FGameplayEffectModCallbackData* ModData = Data.GEModData)
+	{
+		const FGameplayEffectContextHandle& EffectContextHandle = ModData->EffectSpec.GetEffectContext();
+		if (const FGameplayEffectContext* EffectContext = EffectContextHandle.Get())
+		{
+			InstigatorActor = EffectContext->GetInstigator();
+		}
+	}
+
+	if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
+	{
+		UAISense_Damage::ReportDamageEvent(
+		VictimActor,
+		VictimActor,        
+		InstigatorActor,   
+		Damage,       
+		VictimActor->GetActorLocation(),            
+		VictimActor->GetActorLocation()
+		);
+	}
+		
+	if (FMath::IsNearlyZero(Data.NewValue))
+	{
+		if (!IsValid(AbilitySystemComponent))
+		{
+			return;
+		}
+
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
+		{
+			AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+			AbilitySystemComponent->CancelAllAbilities();
+		}
+	}
 }
 
 void ASKAICharacterBase::PossessedBy(AController* NewController)

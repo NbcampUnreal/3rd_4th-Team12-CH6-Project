@@ -12,6 +12,7 @@ class UMotionWarpingComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
+struct FOnAttributeChangeData;
 
 UCLASS()
 class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -102,6 +103,10 @@ public:
 	void ClearOverlayMaterial();
 	
 protected:
+	virtual void PostInitializeComponents() override;
+
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	
 	virtual void PossessedBy(AController* NewController) override;
 	
 	UFUNCTION()
