@@ -339,16 +339,13 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 	if (!PC)
 		return;
 	USKCombatComponent* CombatComponent = PC->GetCombatComponent();
-	int LeftATKIndex = CombatComponent->GetComboIndex();
-	int32 MaxIndex = LeftAttackDamageGE.Num() - 1;
-	int32 SafeIndex = FMath::Clamp(LeftATKIndex, 0, MaxIndex);
-
+	
 	for (AActor* HitActor : CombatComponent->GetHitActors())
 	{
 		if (!HitActor)
 			continue;
 
-		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[SafeIndex];
+		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[CurrentComboIndex];
 
 		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
 
