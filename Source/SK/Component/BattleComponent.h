@@ -39,7 +39,11 @@ public:
 
 	virtual void BeginPlay() override;
 
+#pragma region Montage
 
+	UAnimMontage* GetLeftATKMontage(int32 Index);
+	UAnimMontage* GetSkillMontage(int32 Index);
+#pragma endregion
 	
 #pragma region AttackTrace
 	void StartTrace();

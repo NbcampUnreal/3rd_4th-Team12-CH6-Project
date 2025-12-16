@@ -28,6 +28,28 @@ void UBattleComponent::BeginPlay()
 	
 }
 
+UAnimMontage* UBattleComponent::GetLeftATKMontage(int32 Index)
+{
+	if (!CurrentWeaponData)
+		return nullptr;
+
+	if (CurrentWeaponData->LeftAttackMontages.IsValidIndex(Index))
+		return CurrentWeaponData->LeftAttackMontages[Index];
+
+	return nullptr;
+}
+
+UAnimMontage* UBattleComponent::GetSkillMontage(int32 Index)
+{
+	if (!CurrentWeaponData)
+		return nullptr;
+
+	if (CurrentWeaponData->SkillMontages.IsValidIndex(Index))
+		return CurrentWeaponData->SkillMontages[Index];
+
+	return nullptr;
+}
+
 
 // Called every frame
 void UBattleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
