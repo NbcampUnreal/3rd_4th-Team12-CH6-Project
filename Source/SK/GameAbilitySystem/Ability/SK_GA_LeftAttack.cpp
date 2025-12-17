@@ -81,9 +81,9 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	ASKPlayerController* TempController = Cast<ASKPlayerController>(ActorInfo->PlayerController);
 	if (bWasCancelled)
 	{
-		ASKPlayerController* TempController = Cast<ASKPlayerController>(ActorInfo->PlayerController);
 		if (TempController)
 		{
 			if (TempController->GetCanMaintainCombo())
@@ -99,6 +99,10 @@ void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, cons
 	else
 	{
 		ApplyComboStateEffect(ActorInfo);
+		if (TempController)
+		{
+			TempController->SetCanMaintainCombo(false);
+		}
 	}
 	
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
