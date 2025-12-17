@@ -6,6 +6,9 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "GameData/SKGameConstant.h"
+#include "Utility/SKNativeGameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
+
 
 
 
@@ -72,11 +75,76 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	ArmorPower = FMath::Clamp(ArmorPower,0.f,SKConstant::MaxArmorValue);
 	
 	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
-	const float FinalDamage  = AttackPower* DamageMultiplier;
+	float FinalDamage  = AttackPower* DamageMultiplier;
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
-		USKAttributeSet::GetHealthAttribute(),
-		EGameplayModOp::Additive,
-		-FinalDamage));
+	// ==============================
+	// 2. 가드 / 퍼펙트 가드 판정
+	// ==============================
 
+	const bool bIsGuarding =
+		TargetASC->HasMatchingGameplayTag(TAG_State_Action_Guard);
+
+	const bool bIsPerfectGuard =
+		TargetASC->HasMatchingGameplayTag(TAG_State_Action_Guard_Perfect);
+
+	float StaminaCost = 0.f;
+
+	// 퍼펙트 가드 → 데미지 0
+	if (bIsPerfectGuard)
+	{
+		FinalDamage = 0.f;
+		StaminaCost = PerfectGuardCost;
+	}
+	// 일반 가드 → 데미지 감소
+	else if (bIsGuarding)
+	{
+		FinalDamage *= DamageReducedByGuard;
+
+		//공격 타입 분기
+		if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Heavy))
+		{
+			StaminaCost = HeavyAttackGuardCost;
+		}
+		else
+		{
+			StaminaCost = NormalAttackGuardCost;
+		}
+	}
+
+	// ==============================
+	// 3. Guard 성공 이벤트 전송
+	// ==============================
+
+	if ((bIsGuarding || bIsPerfectGuard) && FinalDamage >= 0.f)
+	{
+		AActor* TargetActor = TargetASC->GetAvatarActor();
+		if (TargetActor)
+		{
+			FGameplayEventData EventData;
+			EventData.EventTag = TAG_Event_Guard_Success;
+			EventData.Target = TargetActor;
+
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+				TargetActor,
+				TAG_Event_Guard_Success,
+				EventData
+			);
+		}
+	}
+
+	if (FinalDamage > 0.f)
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
+				USKAttributeSet::GetHealthAttribute(),
+				EGameplayModOp::Additive,
+				-FinalDamage));
+	}
+
+	if (StaminaCost > 0.f)
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
+				USKAttributeSet::GetStaminaAttribute(),
+				EGameplayModOp::Additive,
+				-StaminaCost));
+	}
 }
