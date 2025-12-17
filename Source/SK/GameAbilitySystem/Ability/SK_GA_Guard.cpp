@@ -8,6 +8,8 @@
 #include "Utility/SKNativeGameplayTags.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Abilities/Tasks/AbilityTask_WaitAttributeChange.h"
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 #include "Character/SKPlayerCharacter.h"
@@ -18,7 +20,7 @@ USK_GA_Guard::USK_GA_Guard()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 
 	// Ability 식별용 (선택)
-	AbilityTags.AddTag(TAG_Ability_Guard);
+	SetAssetTags(FGameplayTagContainer(TAG_Ability_Guard));
 
 	ActivationOwnedTags.AddTag(TAG_State_Action_Guard);
 
@@ -41,25 +43,23 @@ void USK_GA_Guard::ActivateAbility(
 		return;
 	}
 
-	// 스테미너 조건 체크
+	// 가드 발동하기 위한 스테미너 조건 체크
 	if (!CanStartGuard(ASC))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("1111"));
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
 	
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("2222"));
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
@@ -67,35 +67,54 @@ void USK_GA_Guard::ActivateAbility(
 	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
 	if (!WeaponAnimData) 
 	{
-		UE_LOG(LogTemp, Warning, TEXT("3333"));
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
 	
-	UAnimMontage* GuardMontage = WeaponAnimData->GuardMontage;
-	if (!GuardMontage)
+	BlockMontage = WeaponAnimData->BlockMontage;
+	if (!BlockMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("4444"));
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	
+	// Guard 성공 이벤트 대기
+	GuardSuccessEventTask =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+			this,
+			TAG_Event_Guard_Success,
+			nullptr,
+			false,
+			false
+		);
 
-	MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+	if (GuardSuccessEventTask)
+	{
+		GuardSuccessEventTask->EventReceived.AddDynamic(
+			this,
+			&USK_GA_Guard::OnGuardSuccess
+		);
+		GuardSuccessEventTask->ReadyForActivation();
+	}
+
+	//가드유지를 위한 스테미너 체크
+	WaitStaminaChangeTask =
+	UAbilityTask_WaitAttributeChange::WaitForAttributeChange(
 		this,
-		NAME_None,
-		GuardMontage,
-		1.f
+		USKAttributeSet::GetStaminaAttribute(),
+		FGameplayTag(),
+		FGameplayTag(),
+		false,
+		nullptr
 	);
 
-	if (MontageTask)
+	if (WaitStaminaChangeTask)
 	{
-		MontageTask->OnInterrupted.AddDynamic(this, &USK_GA_Guard::K2_EndAbility);
-		MontageTask->OnCancelled.AddDynamic(this, &USK_GA_Guard::K2_EndAbility);
-		MontageTask->ReadyForActivation();
-	}
-	else
-	{
-		return;
+		WaitStaminaChangeTask->OnChange.AddDynamic(
+			this,
+			&USK_GA_Guard::OnStaminaChanged
+		);
+		WaitStaminaChangeTask->ReadyForActivation();
 	}
 	
 	// 퍼펙트 가드 윈도우 시작
@@ -121,6 +140,70 @@ void USK_GA_Guard::EndAbility(
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void USK_GA_Guard::OnGuardSuccess(FGameplayEventData Payload)
+{
+	if (IsLocallyControlled())
+	{
+		PlayBlockMontage();
+	}
+	
+	if (HasAuthority(&CurrentActivationInfo))
+	{
+		PlayBlockMontage();
+	}
+	
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!ASC) return;
+
+	ASC->AddLooseGameplayTag(TAG_State_Action_Guard_Success);
+
+	// 짧은 시간만 유지 (예: 0.3초)
+	FTimerHandle GuardSuccessTimer;
+	GetWorld()->GetTimerManager().SetTimer(
+		GuardSuccessTimer,
+		[ASC]()
+		{
+			ASC->RemoveLooseGameplayTag(TAG_State_Action_Guard_Success);
+		},
+		1.5f,
+		false
+	);
+	
+}
+
+void USK_GA_Guard::PlayBlockMontage()
+{
+	BlockMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		BlockMontage,
+		1.f
+	);
+
+	if (BlockMontageTask)
+	{
+		BlockMontageTask->ReadyForActivation();
+	}
+}
+
+void USK_GA_Guard::OnStaminaChanged()
+{
+	// 이미 종료된 상태면 무시
+	if (!IsActive()) return;
+	
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!ASC) return;
+
+	const float CurrentStamina =
+		ASC->GetNumericAttribute(USKAttributeSet::GetStaminaAttribute());
+
+	if (CurrentStamina <= 0.f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Stamina depleted -> Force Guard End"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	}
 }
 
 bool USK_GA_Guard::CanStartGuard(const UAbilitySystemComponent* ASC) const
