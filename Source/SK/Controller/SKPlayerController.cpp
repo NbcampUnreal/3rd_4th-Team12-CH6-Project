@@ -325,6 +325,11 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::Active_QuickSlotItem_01);
 		EnhancedInputComponent->BindAction(QuickSlotItem_02, ETriggerEvent::Started, this,
 		                                   &ASKPlayerController::Active_QuickSlotItem_02);
+		//가드
+		EnhancedInputComponent->BindAction(GuardAction, ETriggerEvent::Started, this,
+										   &ASKPlayerController::StartGuard);
+		EnhancedInputComponent->BindAction(GuardAction, ETriggerEvent::Completed, this,
+										   &ASKPlayerController::StopGuard);
 	}
 }
 
@@ -682,6 +687,49 @@ void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value
 
 	// 4. TryUseQuickSlot 호출 (슬롯 인덱스: 0)
 	QuickSlotComp->TryUseQuickSlot(2);
+}
+
+void ASKPlayerController::StartGuard(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("StartGuard"));
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+		return;
+	
+
+	FGameplayTagContainer GuardTag;
+	GuardTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Guard")));
+
+	ASC->TryActivateAbilitiesByTag(GuardTag);
+}
+
+void ASKPlayerController::StopGuard(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("StopGuard"));
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+		return;
+
+	FGameplayTagContainer GuardTag;
+	GuardTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Guard")));
+
+	ASC->CancelAbilities(&GuardTag);
 }
 
 AActor* ASKPlayerController::FindNearestTarget()
