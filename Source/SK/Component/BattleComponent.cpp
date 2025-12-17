@@ -50,6 +50,17 @@ UAnimMontage* UBattleComponent::GetSkillMontage(int32 Index)
 	return nullptr;
 }
 
+UAnimMontage* UBattleComponent::GetRightATKMontage(int32 Index)
+{
+	if (!CurrentWeaponData)
+		return nullptr;
+
+	if (CurrentWeaponData->RightAttackMontages.IsValidIndex(Index))
+		return CurrentWeaponData->RightAttackMontages[Index];
+
+	return nullptr;
+}
+
 
 // Called every frame
 void UBattleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
