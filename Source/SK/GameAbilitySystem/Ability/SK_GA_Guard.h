@@ -7,6 +7,9 @@
 #include "SK_GA_Guard.generated.h"
 
 class UAbilityTask_PlayMontageAndWait;
+class UAbilityTask_WaitGameplayEvent;
+class UAbilityTask_WaitAttributeChange;
+class UAnimMontage;
 /**
  * 
  */
@@ -32,9 +35,18 @@ public:
 		bool bWasCancelled) override;
 
 protected:
+
+	UFUNCTION()
+	void OnStaminaChanged();
+	
+	/** Guard 성공 이벤트 처리 */
+	UFUNCTION()
+	void OnGuardSuccess(FGameplayEventData Payload);
+
+	void PlayBlockMontage();
+	
 	/** 퍼펙트 가드 윈도우 시작 */
 	void StartPerfectGuardWindow();
-
 	/** 퍼펙트 가드 윈도우 종료 */
 	void EndPerfectGuardWindow();
 
@@ -54,5 +66,16 @@ private:
 	FTimerHandle PerfectGuardTimerHandle;
 
 	UPROPERTY()
-	TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
+	TObjectPtr<UAbilityTask_PlayMontageAndWait> BlockMontageTask;
+
+	/** Guard 성공 이벤트 대기 */
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_WaitGameplayEvent> GuardSuccessEventTask;
+
+	/** 스테미너 변화 감지 */
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_WaitAttributeChange> WaitStaminaChangeTask;
+
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> BlockMontage;
 };
