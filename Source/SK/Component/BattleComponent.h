@@ -56,6 +56,15 @@ public:
 	void SetIsTraced(bool ArgIsTracing);
 	const TArray<AActor*>& GetHitActors();
 
+	UFUNCTION(Server, Reliable)
+	void Server_StartTrace();
+	UFUNCTION(Server, Reliable)
+	void Server_StopTrace();
+	UFUNCTION(Server, Reliable)
+	void Server_LeftATK_ApplyDamage();
+	UFUNCTION(Server, Reliable)
+	void Server_OnATKEndNotify(bool bLeft);
+	
 #pragma endregion
 
 #pragma region WeaponData
