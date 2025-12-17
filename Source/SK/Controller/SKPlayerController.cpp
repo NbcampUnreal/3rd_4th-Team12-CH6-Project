@@ -87,8 +87,7 @@ void ASKPlayerController::Tick(float DeltaTime)
 		if (!ValidateLockOn())
 		{
 			// 예외시 Lock OFF
-			SetLockedTarget(nullptr);
-			SetLockOnState(false);
+			ResetLockOn();
 			return;
 		}
 
