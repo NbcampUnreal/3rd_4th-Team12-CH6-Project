@@ -6,11 +6,12 @@
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_LeftAttack.generated.h"
 
+class ASKPlayerCharacter;
 class USKWeaponData;
 struct FComboTableRow;
 
 USTRUCT()
-struct FComboKey
+struct FLeftComboKey
 {
 	GENERATED_BODY()
 
@@ -20,14 +21,14 @@ struct FComboKey
 	UPROPERTY()
 	FGameplayTag InputTag;
 
-	bool operator==(const FComboKey& Other) const
+	bool operator==(const FLeftComboKey& Other) const
 	{
 		return FromState == Other.FromState &&
 			   InputTag  == Other.InputTag;
 	}
 };
 
-FORCEINLINE uint32 GetTypeHash(const FComboKey& Key)
+FORCEINLINE uint32 GetTypeHash(const FLeftComboKey& Key)
 {
 	return HashCombine(
 		GetTypeHash(Key.FromState),
@@ -93,6 +94,9 @@ public:
 	void OnStopAttackTrace_Server();
 
 protected:
+	UPROPERTY()
+	TObjectPtr<ASKPlayerCharacter> CachedCharacter;
+	
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> LeftAttackDamageGE;
 
@@ -102,7 +106,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TObjectPtr<UDataTable> CurrentComboTable;
 	
-	TMap<FComboKey, const FComboTableRow*> ComboCache;
+	TMap<FLeftComboKey, const FComboTableRow*> ComboCache;
 
 	UPROPERTY()
 	int32 CurrentComboIndex = 0;

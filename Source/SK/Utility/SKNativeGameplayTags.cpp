@@ -58,6 +58,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left3, "Combo.Left3");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left4, "Combo.Left4");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right1, "Combo.Right1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right2, "Combo.Right2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right3, "Combo.Right3");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestLeft, "Input.TestLeft");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestRight, "Input.TestRight");
 

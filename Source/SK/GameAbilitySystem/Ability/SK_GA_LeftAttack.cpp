@@ -25,13 +25,6 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
-	if (!IsValid(SKPlayerState))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
 		
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
@@ -40,10 +33,10 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		return;
 	}
 		
-	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-	UBattleComponent* CurrentBattleComponent = PlayerCharacter->GetBattleComponent();
+	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
+	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
-	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
+	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -59,7 +52,7 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	//몽타주 실행 추가
 	UAnimMontage* Montage = CurrentBattleComponent->GetLeftATKMontage(0);
-	USKWeaponData* CurrentWeapon = CurrentBattleComponent->CurrentWeaponData;
+
 	UAbilityTask_PlayMontageAndWait* PlayTask =
 	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
@@ -74,7 +67,7 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	PlayTask->OnCancelled.AddDynamic(this, &USK_GA_LeftAttack::OnMontageInterrupted);
 	
 	//사용 O
-	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, true);
+	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 	PlayTask->ReadyForActivation();
 }
 
@@ -104,15 +97,10 @@ void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, cons
 			TempController->SetCanMaintainCombo(false);
 		}
 	}
+
+	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
+	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, false);
 	
-	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
-	if (!IsValid(Character))
-		return;
-
-	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-
-	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
-	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -127,16 +115,10 @@ bool USK_GA_LeftAttack::CheckCost(const FGameplayAbilitySpecHandle Handle, const
 	FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
+	
 	if (!result)
 	{
-		ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
-		if (!IsValid(Character))
-			return result;
-
-		ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-		PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
-
-		//콤보 리셋 추가
+		CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
 	}
 
 	return result;
@@ -170,7 +152,7 @@ void USK_GA_LeftAttack::BindComboCache()
 			continue;
 		}
 
-		FComboKey Key;
+		FLeftComboKey Key;
 		Key.FromState = Row->FromState;
 		Key.InputTag  = Row->InputTag;
 
@@ -273,11 +255,10 @@ void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* A
 	const FGameplayTag InputTag = TAG_Input_TestLeft;
 
 	// 캐시에서 찾기
-	const FComboKey Key{ ComboTag, InputTag };
+	const FLeftComboKey Key{ ComboTag, InputTag };
 	const FComboTableRow* Row = ComboCache.FindRef(Key);
 
 	FGameplayTag GiveTag;
-	FName SectionName = GetComboMontageSection(CurrentComboIndex);
 	
 	if (!Row)
 	{

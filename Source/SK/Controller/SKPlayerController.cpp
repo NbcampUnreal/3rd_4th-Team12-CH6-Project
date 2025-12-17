@@ -546,13 +546,14 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 
 	FGameplayTagContainer LeftTagContainer;
 	LeftTagContainer.AddTag(TAG_Ability_LeftATK);
+	LeftTagContainer.AddTag(TAG_Ability_RightATK);
 
 	if (bCanMaintainCombo)
 	{
 		ServerCancelAbility(ASC, LeftTagContainer);
 	}
 
-	ASC->TryActivateAbilitiesByTag(LeftTagContainer);
+	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK));
 
 	bCanMaintainCombo = false;
 }
@@ -560,6 +561,36 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 void ASKPlayerController::RightAttack(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("RIGHT"));
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+	{
+		return;
+	}
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		return;
+	}
+
+	FGameplayTagContainer RightTagContainer;
+	RightTagContainer.AddTag(TAG_Ability_LeftATK);
+	RightTagContainer.AddTag(TAG_Ability_RightATK);
+
+	if (bCanMaintainCombo)
+	{
+		ServerCancelAbility(ASC, RightTagContainer);
+	}
+
+	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_RightATK));
+
+	bCanMaintainCombo = false;
 }
 
 void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
