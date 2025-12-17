@@ -13,6 +13,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Hit, "Event.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_AnimNotify, "Event.AnimNotify");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Success, "Event.Guard.Success");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Perfect, "Event.Guard.Perfect");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object_SpikeTrap, "Object.SpikeTrap");
@@ -49,6 +51,12 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_JumpRush, "Ability.JumpRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ProjectileAttack, "Ability.ProjectileAttack");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left1, "Combo.Left1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left2, "Combo.Left2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left3, "Combo.Left3");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left4, "Combo.Left4");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestLeft, "Input.TestLeft");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
@@ -145,6 +153,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Damaged, "PlayerState.Damaged");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Groggy, "PlayerState.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Dead, "PlayerState.Dead");
 
+//공격속성
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attack_Normal, "Attack.Normal");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attack_Heavy, "Attack.Heavy");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attack_UnGuardable, "Attack.UnGuardable");
 
 // Root 태그
 UE_DEFINE_GAMEPLAY_TAG(TAG_State, "State");
@@ -174,6 +186,12 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Interaction, "State.Action.Interaction")
 // 회피
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Dodge_Evade, "State.Action.Dodge.Evade");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Dodge_Step, "State.Action.Dodge.Step");
+
+//가드
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard, "State.Action.Guard");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Perfect, "State.Action.Guard.Perfect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Success, "State.Action.Guard.Success");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_GuardCounter, "State.Action.Guard.GuardCounter");
 
 // State-Condition (실제 플레이에 영향끼치는 상태)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition, "State.Condition");

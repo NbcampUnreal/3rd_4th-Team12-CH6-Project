@@ -62,7 +62,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LeaveSessionAndReturnToLocalTown();
 
-
 #pragma region Camera
 	void ResetLockOn();
 
@@ -159,6 +158,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> QuickSlotItem_02;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> GuardAction;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|LockOn")
 	float LockOnRadius = 1500.f;
@@ -186,6 +188,9 @@ private:
 	void Active_QuickSlotItem_01(const FInputActionValue& Value);
 	void Active_QuickSlotItem_02(const FInputActionValue& Value);
 
+	void StartGuard(const FInputActionValue& Value);
+	void StopGuard(const FInputActionValue& Value);
+
 	AActor* FindNearestTarget();
 
 private:
@@ -196,7 +201,12 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void RequestLevelUp();
 
+	bool bCanMaintainCombo = false;
+	
 public:
+	bool GetCanMaintainCombo() const {return bCanMaintainCombo;};
+	void SetCanMaintainCombo(bool NewCanMaintainCombo) {bCanMaintainCombo = NewCanMaintainCombo;}
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EMoveDirection CurrentMoveDirection;
 
