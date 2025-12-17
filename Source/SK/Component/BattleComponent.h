@@ -45,6 +45,7 @@ public:
 
 	UAnimMontage* GetLeftATKMontage(int32 Index);
 	UAnimMontage* GetSkillMontage(int32 Index);
+	UAnimMontage* GetRightATKMontage(int32 Index);
 #pragma endregion
 	
 #pragma region AttackTrace
