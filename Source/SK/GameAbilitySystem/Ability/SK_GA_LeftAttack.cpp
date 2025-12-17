@@ -17,7 +17,7 @@ USK_GA_LeftAttack::USK_GA_LeftAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyExecution;
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
 }
 
 void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
