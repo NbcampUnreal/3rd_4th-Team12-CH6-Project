@@ -82,13 +82,13 @@ void ASKPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 	if (bIsLockedOn)
 	{
 		if (!ValidateLockOn())
 		{
 			// 예외시 Lock OFF
-			SetLockedTarget(nullptr);
-			SetLockOnState(false);
+			ResetLockOn();
 			return;
 		}
 
@@ -365,9 +365,10 @@ void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 
 	Server_SetFacingDirection(TargetRot.Yaw);
 
-	FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
-
-	SetControlRotation(NewRot);
+	//록온시 카메라 회전폐기
+	// FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
+	//
+	// SetControlRotation(NewRot);
 }
 
 void ASKPlayerController::Server_SetFacingDirection_Implementation(float NewYaw)
@@ -444,8 +445,6 @@ void ASKPlayerController::OnMoveRepleased()
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
-	if (GetIsLockedOn())
-		return;
 
 	const FVector2D InLookVector = Value.Get<FVector2D>();
 

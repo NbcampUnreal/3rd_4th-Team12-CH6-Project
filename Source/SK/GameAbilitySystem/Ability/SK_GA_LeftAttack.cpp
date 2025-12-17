@@ -11,6 +11,7 @@
 #include "Component/SKCombatComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "GameData/StaticData/ComboTableRow.h"
+#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 USK_GA_LeftAttack::USK_GA_LeftAttack()
@@ -323,9 +324,10 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
 		return;
-	USKCombatComponent* CombatComponent = PC->GetCombatComponent();
 	
-	for (AActor* HitActor : CombatComponent->GetHitActors())
+	UBattleComponent* BattleComponent = PC->GetBattleComponent();
+	
+	for (AActor* HitActor : BattleComponent->GetHitActors())
 	{
 		if (!HitActor)
 			continue;
