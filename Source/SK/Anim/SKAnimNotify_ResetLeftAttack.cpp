@@ -17,7 +17,7 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 	}
 
 	AActor* OwnerActor = MeshComp->GetOwner();
-	if (!IsValid(OwnerActor)|| !OwnerActor->HasAuthority())
+	if (!IsValid(OwnerActor))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to get Owner Actor."));
 		return; 

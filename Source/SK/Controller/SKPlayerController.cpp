@@ -35,6 +35,7 @@ void ASKPlayerController::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 
 	DOREPLIFETIME(ASKPlayerController, bIsLockedOn);
 	DOREPLIFETIME(ASKPlayerController, LockedTarget);
+	DOREPLIFETIME(ASKPlayerController, bCanMaintainCombo);
 }
 
 void ASKPlayerController::ClientShowLoadingScreen_Implementation(bool bShow)
@@ -522,23 +523,32 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 {
 	APawn* ControlledPawn = GetPawn();
 	if (!IsValid(ControlledPawn))
+	{
 		return;
+	}
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
 	if (!IsValid(PlayerCharacter))
+	{
 		return;
-	
+	}
+
 	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		return;
+	}
 
 	FGameplayTagContainer LeftTagContainer;
-	LeftTagContainer.AddTag(TAG_Input_TestLeft);
-	
+	LeftTagContainer.AddTag(TAG_Ability_LeftATK);
+
 	if (bCanMaintainCombo)
 	{
-		ASC->CancelAbilities(&LeftTagContainer, nullptr);
+		ServerCancelAbility(ASC, LeftTagContainer);
 	}
-	
-	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Input_TestLeft));
+
+	ASC->TryActivateAbilitiesByTag(LeftTagContainer);
+
 	bCanMaintainCombo = false;
 }
 
@@ -866,4 +876,14 @@ void ASKPlayerController::RequestLevelUp()
 		// 클라 → 서버로 요청
 		PS->Server_RequestLevelUp();
 	}
+}
+
+void ASKPlayerController::ServerCancelAbility_Implementation(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags)
+{
+	ASC->CancelAbilities(&CancelAbilityTags, nullptr);
+}
+
+bool ASKPlayerController::ServerCancelAbility_Validate(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags)
+{
+	return true;
 }
