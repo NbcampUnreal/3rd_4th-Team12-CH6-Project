@@ -357,6 +357,7 @@ void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 	FVector PlayerLoc = PlayerPawn->GetActorLocation();
 	FVector TargetLoc = LockedTarget->GetActorLocation();
 
+	ASKCameraManager* Cam = Cast<ASKCameraManager>(PlayerCameraManager);
 	TargetLoc.Z += Cam->LockOnHeight;
 
 	FRotator TargetRot = (TargetLoc - PlayerLoc).Rotation();
