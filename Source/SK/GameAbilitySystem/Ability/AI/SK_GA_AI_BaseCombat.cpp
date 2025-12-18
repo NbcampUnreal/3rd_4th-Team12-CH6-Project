@@ -57,6 +57,20 @@ void USK_GA_AI_BaseCombat::ApplyDamageToTarget(TWeakObjectPtr<const AActor> Targ
 			-BaseDamage
 		);
 	*/
+
+	//추가
+	FGameplayEffectSpec* Spec = DamageSpecHandle.Data.Get();
+	if (!Spec)
+	{
+		return;
+	}
+
+	// 공격 타입 태그 전달
+	if (CurrentAttackType.IsValid())
+	{
+		Spec->DynamicGrantedTags.AddTag(CurrentAttackType);
+	}
+	
 	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
 }
 
