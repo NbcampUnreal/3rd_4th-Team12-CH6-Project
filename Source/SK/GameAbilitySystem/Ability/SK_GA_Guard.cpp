@@ -71,10 +71,28 @@ void USK_GA_Guard::ActivateAbility(
 		return;
 	}
 	
-	BlockMontage = WeaponAnimData->BlockMontage;
-	if (!BlockMontage)
+	GuardMontage = WeaponAnimData->GuardMontage;
+	if (!GuardMontage)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+
+	GuardMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		GuardMontage,
+		1.f
+	);
+
+	if (GuardMontageTask)
+	{
+		GuardMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_Guard::K2_EndAbility);
+		GuardMontageTask->OnCancelled.AddDynamic(this, &USK_GA_Guard::K2_EndAbility);
+		GuardMontageTask->ReadyForActivation();
+	}
+	else
+	{
 		return;
 	}
 	
@@ -144,18 +162,13 @@ void USK_GA_Guard::EndAbility(
 
 void USK_GA_Guard::OnGuardSuccess(FGameplayEventData Payload)
 {
-	if (IsLocallyControlled())
-	{
-		PlayBlockMontage();
-	}
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!ASC) return;
 	
 	if (HasAuthority(&CurrentActivationInfo))
 	{
-		PlayBlockMontage();
+		ASC->ExecuteGameplayCue(TAG_GameplayCue_Guard_Block);
 	}
-	
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (!ASC) return;
 
 	ASC->AddLooseGameplayTag(TAG_State_Action_Guard_Success);
 
@@ -170,22 +183,6 @@ void USK_GA_Guard::OnGuardSuccess(FGameplayEventData Payload)
 		1.5f,
 		false
 	);
-	
-}
-
-void USK_GA_Guard::PlayBlockMontage()
-{
-	BlockMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this,
-		NAME_None,
-		BlockMontage,
-		1.f
-	);
-
-	if (BlockMontageTask)
-	{
-		BlockMontageTask->ReadyForActivation();
-	}
 }
 
 void USK_GA_Guard::OnStaminaChanged()
@@ -218,7 +215,7 @@ bool USK_GA_Guard::CanStartGuard(const UAbilitySystemComponent* ASC) const
 }
 
 void USK_GA_Guard::StartPerfectGuardWindow()
-{
+{ 
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!ASC)
 	{

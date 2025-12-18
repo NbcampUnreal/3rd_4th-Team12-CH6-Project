@@ -247,3 +247,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Cooldown, "Item.Cooldown");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_HealPotion, "GameplayCue.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.AttackPotion");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
