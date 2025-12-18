@@ -47,12 +47,6 @@ void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_RightMelee, true);
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	CurrentComboIndex = CheckCombo(ActorInfo);
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
@@ -77,6 +71,11 @@ void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	//사용 O
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 	PlayTask->ReadyForActivation();
+	
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+    {
+    	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+    }
 }
 
 void USK_GA_RightAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
