@@ -60,6 +60,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left4, "Combo.Left4");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right1, "Combo.Right1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right2, "Combo.Right2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right3, "Combo.Right3");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LR, "Combo.LR");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LLR, "Combo.LLR");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestLeft, "Input.TestLeft");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestRight, "Input.TestRight");
 
@@ -249,3 +251,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Cooldown, "Item.Cooldown");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_HealPotion, "GameplayCue.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.AttackPotion");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
