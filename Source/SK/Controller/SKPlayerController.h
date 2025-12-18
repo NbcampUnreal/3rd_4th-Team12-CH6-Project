@@ -7,6 +7,9 @@
 #include "SKPlayerController.generated.h"
 
 
+class UAbilitySystemComponent;
+struct FGameplayTagContainer;
+
 UENUM(BlueprintType)
 enum class EMoveDirection : uint8
 {
@@ -61,7 +64,6 @@ public:
 	//파티 해제 및 로컬 마을 복귀
 	UFUNCTION(BlueprintCallable)
 	void LeaveSessionAndReturnToLocalTown();
-
 
 #pragma region Camera
 	void ResetLockOn();
@@ -159,6 +161,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> QuickSlotItem_02;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> GuardAction;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|LockOn")
 	float LockOnRadius = 1500.f;
@@ -186,6 +191,9 @@ private:
 	void Active_QuickSlotItem_01(const FInputActionValue& Value);
 	void Active_QuickSlotItem_02(const FInputActionValue& Value);
 
+	void StartGuard(const FInputActionValue& Value);
+	void StopGuard(const FInputActionValue& Value);
+
 	AActor* FindNearestTarget();
 
 private:
@@ -196,7 +204,15 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void RequestLevelUp();
 
+	UPROPERTY(Replicated, VisibleAnywhere)
+	bool bCanMaintainCombo = false;
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void ServerCancelAbility(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags);
 public:
+	bool GetCanMaintainCombo() const {return bCanMaintainCombo;};
+	void SetCanMaintainCombo(bool NewCanMaintainCombo) {bCanMaintainCombo = NewCanMaintainCombo;}
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EMoveDirection CurrentMoveDirection;
 

@@ -3,6 +3,7 @@
 
 #include "Object/EquipmentInstance.h"
 
+#include "Component/BattleComponent.h"
 #include "Component/SKCombatComponent.h"
 #include "GameFramework/Character.h"
 #include "Item/Inventory/Data/SKEquipmentItemData.h"
@@ -72,6 +73,16 @@ void UEquipmentInstance::SpawnEquipmentActors(APawn* OwningPawn, const TArray<FS
 					CombatComp->SetWeaponMesh(Mesh);
 				}
 			}
+
+			UBattleComponent* BattleComp = Char ? Char->FindComponentByClass<UBattleComponent>() : nullptr;
+			if (BattleComp)
+			{
+				if (USkeletalMeshComponent* Mesh = NewActor->FindComponentByClass<USkeletalMeshComponent>())
+				{
+					BattleComp->SetWeaponMesh(Mesh);
+				}
+			}
+			
 		}
 	}
 }
@@ -93,6 +104,11 @@ void UEquipmentInstance::DestroyEquipmentActors()
 	if (CombatComp)
 	{
 		CombatComp->SetWeaponMesh(nullptr);   // 이 부분이 중요함
+	}
+	UBattleComponent* BattleComponent = Char ? Char->FindComponentByClass<UBattleComponent>() : nullptr;
+	if (BattleComponent)
+	{
+		BattleComponent->SetWeaponMesh(nullptr);   // 이 부분이 중요함
 	}
 }
 

@@ -26,13 +26,17 @@ struct FSKComboState
 	UPROPERTY()
 	int32 ComboIndex = 0;
 
-	//  로컬영역
+	//공격중인가? True면 공격중인거임
 	UPROPERTY(NotReplicated)
 	bool bIsAttacking = false;
 
+	//다음콤보는 가능한가?
+	//현재안씀
 	UPROPERTY(NotReplicated)
 	bool bCanNextCombo = false;
 
+	//공격이 입력된상태인가?
+	//True면 공격키가 입력받은상태
 	UPROPERTY(NotReplicated)
 	bool bBufferedAttack = false;
 };
