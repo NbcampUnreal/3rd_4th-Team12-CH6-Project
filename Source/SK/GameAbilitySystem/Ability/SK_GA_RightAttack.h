@@ -4,14 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
-#include "SK_GA_LeftAttack.generated.h"
+#include "SK_GA_RightAttack.generated.h"
 
 class ASKPlayerCharacter;
-class USKWeaponData;
 struct FComboTableRow;
 
 USTRUCT()
-struct FLeftComboKey
+struct FRightComboKey
 {
 	GENERATED_BODY()
 
@@ -21,30 +20,31 @@ struct FLeftComboKey
 	UPROPERTY()
 	FGameplayTag InputTag;
 
-	bool operator==(const FLeftComboKey& Other) const
+	bool operator==(const FRightComboKey& Other) const
 	{
 		return FromState == Other.FromState &&
 			   InputTag  == Other.InputTag;
 	}
 };
 
-FORCEINLINE uint32 GetTypeHash(const FLeftComboKey& Key)
+FORCEINLINE uint32 GetTypeHash(const FRightComboKey& Key)
 {
 	return HashCombine(
 		GetTypeHash(Key.FromState),
 		GetTypeHash(Key.InputTag)
 	);
 }
+
+class USKWeaponData;
 /**
  * 
  */
 UCLASS()
-class SK_API USK_GA_LeftAttack : public USKGameplayAbility
+class SK_API USK_GA_RightAttack : public USKGameplayAbility
 {
 	GENERATED_BODY()
-
 public:
-	USK_GA_LeftAttack();
+	USK_GA_RightAttack();
 
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
@@ -106,8 +106,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TObjectPtr<UDataTable> CurrentComboTable;
 	
-	TMap<FLeftComboKey, const FComboTableRow*> ComboCache;
+	TMap<FRightComboKey, const FComboTableRow*> ComboCache;
 
 	UPROPERTY()
-	int32 CurrentComboIndex = 0;
+	int32 CurrentComboIndex = 0;	
 };

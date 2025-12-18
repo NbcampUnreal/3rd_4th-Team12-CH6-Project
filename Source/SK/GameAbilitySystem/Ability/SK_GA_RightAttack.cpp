@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameAbilitySystem/Ability/SK_GA_LeftAttack.h"
+#include "GameAbilitySystem/Ability/SK_GA_RightAttack.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
@@ -11,21 +11,29 @@
 #include "Component/SKCombatComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "GameData/StaticData/ComboTableRow.h"
+#include "GameFramework/Character.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
-USK_GA_LeftAttack::USK_GA_LeftAttack()
+USK_GA_RightAttack::USK_GA_RightAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
 }
 
-void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
+	if (!IsValid(SKPlayerState))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 		
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
@@ -37,7 +45,7 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
-	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
+	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_RightMelee, true);
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -52,8 +60,7 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	FName SectionName = GetComboMontageSection(CurrentComboIndex);
 
 	//몽타주 실행 추가
-	UAnimMontage* Montage = CurrentBattleComponent->GetLeftATKMontage(0);
-
+	UAnimMontage* Montage = CurrentBattleComponent->GetRightATKMontage(0);
 	UAbilityTask_PlayMontageAndWait* PlayTask =
 	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
@@ -63,16 +70,16 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		SectionName
 	);
 	
-	PlayTask->OnCompleted.AddDynamic(this, &USK_GA_LeftAttack::OnMontageCompleted);
-	PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_LeftAttack::OnMontageInterrupted);
-	PlayTask->OnCancelled.AddDynamic(this, &USK_GA_LeftAttack::OnMontageInterrupted);
+	PlayTask->OnCompleted.AddDynamic(this, &USK_GA_RightAttack::OnMontageCompleted);
+	PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_RightAttack::OnMontageInterrupted);
+	PlayTask->OnCancelled.AddDynamic(this, &USK_GA_RightAttack::OnMontageInterrupted);
 	
 	//사용 O
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 	PlayTask->ReadyForActivation();
 }
 
-void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+void USK_GA_RightAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	ASKPlayerController* TempController = Cast<ASKPlayerController>(ActorInfo->PlayerController);
@@ -98,21 +105,21 @@ void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, cons
 			TempController->SetCanMaintainCombo(false);
 		}
 	}
-
+	
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, false);
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void USK_GA_LeftAttack::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+void USK_GA_RightAttack::CancelAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateCancelAbility)
 {
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
-bool USK_GA_LeftAttack::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+bool USK_GA_RightAttack::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 	FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
@@ -121,11 +128,11 @@ bool USK_GA_LeftAttack::CheckCost(const FGameplayAbilitySpecHandle Handle, const
 	{
 		CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
 	}
-
+	
 	return result;
 }
 
-void USK_GA_LeftAttack::BindComboCache()
+void USK_GA_RightAttack::BindComboCache()
 {
 	if (!CurrentComboTable)
 	{
@@ -153,7 +160,7 @@ void USK_GA_LeftAttack::BindComboCache()
 			continue;
 		}
 
-		FLeftComboKey Key;
+		FRightComboKey Key;
 		Key.FromState = Row->FromState;
 		Key.InputTag  = Row->InputTag;
 
@@ -167,7 +174,7 @@ void USK_GA_LeftAttack::BindComboCache()
 	}
 }
 
-void USK_GA_LeftAttack::PrepareComboCache(USKWeaponData* WeaponData)
+void USK_GA_RightAttack::PrepareComboCache(USKWeaponData* WeaponData)
 {
 	if (!WeaponData)
 		return;
@@ -178,7 +185,7 @@ void USK_GA_LeftAttack::PrepareComboCache(USKWeaponData* WeaponData)
 	}
 }
 
-int32 USK_GA_LeftAttack::CheckCombo(const FGameplayAbilityActorInfo* ActorInfo) const
+int32 USK_GA_RightAttack::CheckCombo(const FGameplayAbilityActorInfo* ActorInfo) const
 {
 	if (!ActorInfo || !ActorInfo->AbilitySystemComponent.IsValid())
 	{
@@ -187,15 +194,11 @@ int32 USK_GA_LeftAttack::CheckCombo(const FGameplayAbilityActorInfo* ActorInfo) 
 
 	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
 
-	if (ASC->HasMatchingGameplayTag(TAG_Combo_Left4))
-	{
-		return 3;
-	}
-	else if (ASC->HasMatchingGameplayTag(TAG_Combo_Left3))
+	if (ASC->HasMatchingGameplayTag(TAG_Combo_Left3) || ASC->HasMatchingGameplayTag(TAG_Combo_Right3))
 	{
 		return 2;
 	}
-	else if (ASC->HasMatchingGameplayTag(TAG_Combo_Left2))
+	else if (ASC->HasMatchingGameplayTag(TAG_Combo_Right2))
 	{
 		return 1;
 	}
@@ -203,7 +206,7 @@ int32 USK_GA_LeftAttack::CheckCombo(const FGameplayAbilityActorInfo* ActorInfo) 
 	return 0;
 }
 
-FName USK_GA_LeftAttack::GetComboMontageSection(int32 ComboIndex) const
+FName USK_GA_RightAttack::GetComboMontageSection(int32 ComboIndex) const
 {
 	switch (ComboIndex)
 	{
@@ -216,15 +219,12 @@ FName USK_GA_LeftAttack::GetComboMontageSection(int32 ComboIndex) const
 	case 2:
 		return FName(TEXT("Combo_03"));
 
-	case 3:
-		return FName(TEXT("Combo_04"));
-
 	default:
 		return NAME_None;
 	}
 }
 
-void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* ActorInfo)
+void USK_GA_RightAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* ActorInfo)
 {
 	if (!ActorInfo || !ActorInfo->AbilitySystemComponent.IsValid() || !CurrentComboTable)
 	{
@@ -235,28 +235,25 @@ void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* A
 	
 	FGameplayTag ComboTag;
 
-	if (CurrentComboIndex == 3)
+
+	if (CurrentComboIndex == 2)
 	{
-		ComboTag = TAG_Combo_Left4;
-	}
-	else if (CurrentComboIndex == 2)
-	{
-		ComboTag = TAG_Combo_Left3;
+		ComboTag = TAG_Combo_Right3;
 	}
 	else if (CurrentComboIndex == 1)
 	{
-		ComboTag = TAG_Combo_Left2;
+		ComboTag = TAG_Combo_Right2;
 	}
 	else if (CurrentComboIndex == 0)
 	{
-		ComboTag = TAG_Combo_Left1;
+		ComboTag = TAG_Combo_Right1;
 	}
 
 	// 이번 입력 (LeftAttack GA니까 고정)
-	const FGameplayTag InputTag = TAG_Input_TestLeft;
+	const FGameplayTag InputTag = TAG_Input_TestRight;
 
 	// 캐시에서 찾기
-	const FLeftComboKey Key{ ComboTag, InputTag };
+	const FRightComboKey Key{ ComboTag, InputTag };
 	const FComboTableRow* Row = ComboCache.FindRef(Key);
 
 	FGameplayTag GiveTag;
@@ -296,7 +293,7 @@ void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* A
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 
-void USK_GA_LeftAttack::OnMontageCompleted()
+void USK_GA_RightAttack::OnMontageCompleted()
 {
 	EndAbility(
 		CurrentSpecHandle,
@@ -307,7 +304,7 @@ void USK_GA_LeftAttack::OnMontageCompleted()
 	);
 }
 
-void USK_GA_LeftAttack::OnMontageInterrupted()
+void USK_GA_RightAttack::OnMontageInterrupted()
 {
 	EndAbility(
 		CurrentSpecHandle,
@@ -318,16 +315,15 @@ void USK_GA_LeftAttack::OnMontageInterrupted()
 	);
 }
 
-void USK_GA_LeftAttack::ApplyDamageFromTrace()
+void USK_GA_RightAttack::ApplyDamageFromTrace()
 {
 	//인덱스 판단 태그로 변경
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
 		return;
+	USKCombatComponent* CombatComponent = PC->GetCombatComponent();
 	
-	UBattleComponent* BattleComponent = PC->GetBattleComponent();
-	
-	for (AActor* HitActor : BattleComponent->GetHitActors())
+	for (AActor* HitActor : CombatComponent->GetHitActors())
 	{
 		if (!HitActor)
 			continue;
@@ -346,7 +342,7 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 	}
 }
 
-void USK_GA_LeftAttack::OnStopAttackTrace_Server()
+void USK_GA_RightAttack::OnStopAttackTrace_Server()
 {
 	//몽타주 1번에 여러 공격이 들어갈 때 데미지 빨리 처리 시 불리는 함수
 	ApplyDamageFromTrace();
