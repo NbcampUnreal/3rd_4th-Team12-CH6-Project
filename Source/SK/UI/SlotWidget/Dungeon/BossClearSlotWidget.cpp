@@ -62,7 +62,7 @@ void UBossClearSlotWidget::PlayAppearAnimation()
 
 void UBossClearSlotWidget::OnBossClearMessageReceived(FGameplayTag Channel, const FSlotVisibilityMessage& Message)
 {
-	if (Message.SlotTags.HasTag(TAG_UI_Slot_BossHP))
+	if (Message.SlotTags.HasTag(TAG_UI_Slot_BossHP) && !Message.bVisible)
 	{
 		PlayAppearAnimation();
 	}

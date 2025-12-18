@@ -11,7 +11,7 @@ class USKActionComponent;
 class USKInteractionComponent;
 struct FSKRepComboState;
 class USKCombatComponent;
-
+class UBattleComponent;
 
 UCLASS()
 class SK_API ASKPlayerCharacter : public ASKCharacterBase
@@ -41,12 +41,17 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	USKCombatComponent* GetCombatComponent() const;
+
+	UBattleComponent* GetBattleComponent() const;
+	
 	UFUNCTION()
 	void OnAnimInitialized();
 	void SetTraceSocket();
 
 	void SetLockOnState(bool bLock);
 	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
+
+	void AdjustSpringArmDistance(float WheelValue);
 
 	UFUNCTION()
 	void SetLockOnRotateMode(bool bLockOn);
@@ -64,6 +69,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat")
 	TObjectPtr<USKCombatComponent> CombatComponent;
 	
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
+    	TObjectPtr<UBattleComponent> BattleComponent;
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 private:

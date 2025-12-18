@@ -7,6 +7,7 @@
 #include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
+#include "Component/BattleComponent.h"
 #include "Component/SKCombatComponent.h"
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -50,6 +51,8 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 
 	// 컴뱃컴포넌트 활성화
 	CombatComponent = CreateDefaultSubobject<USKCombatComponent>(TEXT("CombatComponent"));
+
+	BattleComponent = CreateDefaultSubobject<UBattleComponent>(TEXT("BattleComponent"));
 
 
 	// InteractionComponent
@@ -195,11 +198,13 @@ void ASKPlayerCharacter::SetTraceSocket()
 		return;
 
 	CombatComponent->InitializeWeaponSocket(Row);
-
+	BattleComponent->InitializeWeaponSocket(Row);
+	
 	const FWeaponDataRow* DataRow = PS->GetWeaponDataRow();
 	if (!DataRow)
 		return;
 	CombatComponent->InitializeWeaponData(DataRow);
+	BattleComponent->InitializeWeaponData(DataRow);
 }
 
 void ASKPlayerCharacter::SetLockOnState(bool bLock)
@@ -311,13 +316,25 @@ void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 	}
 }
 
+void ASKPlayerCharacter::AdjustSpringArmDistance(float WheelValue)
+{
+	if (!CameraBoom)
+		return;
+
+	const float ZoomStep = 50.f;   // 휠 감도
+	const float MinLength = 250.f; // 최소 거리
+	const float MaxLength = 600.f; // 최대 거리
+
+	float NewLength = CameraBoom->TargetArmLength - WheelValue * ZoomStep;
+	CameraBoom->TargetArmLength = FMath::Clamp(NewLength, MinLength, MaxLength);
+
+}
+
 void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 {
 	if (bLockOn)
 	{
 		// Lock On: Movement 기반 회전 금지
-		// bUseControllerRotationYaw  = false;
-		// GetCharacterMovement()->bOrientRotationToMovement = false;
 		bUseControllerRotationYaw = true;
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		GetCharacterMovement()->bUseControllerDesiredRotation = true;
@@ -326,8 +343,6 @@ void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 	else
 	{
 		// Lock Off: 다시 Movement 기반 회전 허용
-		// bUseControllerRotationYaw = true;
-		// GetCharacterMovement()->bOrientRotationToMovement = true;
 		bUseControllerRotationYaw = false;
 		GetCharacterMovement()->bOrientRotationToMovement = true;
 		GetCharacterMovement()->bUseControllerDesiredRotation = false;
@@ -345,6 +360,11 @@ void ASKPlayerCharacter::SetPlayerStateTag()
 USKCombatComponent* ASKPlayerCharacter::GetCombatComponent() const
 {
 	return CombatComponent;
+}
+
+UBattleComponent* ASKPlayerCharacter::GetBattleComponent() const
+{
+	return BattleComponent;
 }
 
 void ASKPlayerCharacter::OnAnimInitialized()

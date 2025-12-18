@@ -56,5 +56,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|GameplayEffect")
 	TSubclassOf<UGameplayEffect> WeaponGameplayEffect;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ComboTable")
+	TObjectPtr<UDataTable> ComboTable;
 };

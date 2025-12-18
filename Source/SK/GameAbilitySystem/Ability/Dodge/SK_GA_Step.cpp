@@ -4,6 +4,8 @@
 
 void USK_GA_Step::PreActivateDodge(USKActionComponent* ActionComponent)
 {
+	Super::PreActivateDodge(ActionComponent);
+	
 	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
 	if (!WeaponAnimData) return;
 	
