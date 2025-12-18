@@ -16,6 +16,8 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<const AActor> HitActor;
 
+	FGameplayTag CurrentAttackType;
+
 public:
 	USK_GA_AI_BaseCombat();
 
