@@ -355,7 +355,6 @@ void ASKPlayerState::HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, con
 	if (const FActiveGameplayEffect* ActiveGE = ASC->GetActiveGameplayEffect(Handle))
 	{
 		Duration = ActiveGE->GetDuration();
-		UE_LOG(LogTemp, Warning, TEXT("Duration %0.2f"), Duration);
 	}
 
 	if (Duration <= 0.f)
@@ -386,7 +385,6 @@ void ASKPlayerState::HandleGameplayEffectAdded(UAbilitySystemComponent* ASC, con
 		Events->OnStackChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectStackChange);
 		Events->OnTimeChanged.AddUObject(this, &ASKPlayerState::HandleGameplayEffectTimeChange);
 	}
-	UE_LOG(LogTemp, Log, TEXT("[BuffAdd] Duration: %.2f"),Duration);
 }
 
 void ASKPlayerState::HandleGameplayEffectRemoved(const FActiveGameplayEffect& Effect)
