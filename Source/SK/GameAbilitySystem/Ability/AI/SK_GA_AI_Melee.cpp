@@ -73,13 +73,6 @@ void USK_GA_AI_Melee::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Melee");
-	if (!IsValid(AnimMontage))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
 	{
@@ -87,19 +80,33 @@ void USK_GA_AI_Melee::ActivateAbility(
 		return;
 	}
 
-	FName SectionName;
-
-	int32 CurrentMeleeIndex = AICharacter->GetCurrentMeleeIndex();
 	int32 MaxMeleeIndex = AICharacter->GetMaxMeleeIndex();
+	FName SectionName = "Default";
+	TObjectPtr<UAnimMontage> AnimMontage = nullptr;
 	
-	if (CurrentMeleeIndex == MaxMeleeIndex)
+	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
+	if (IsValid(OwnerASC))
 	{
-		SectionName = FName(FString::FromInt(CurrentMeleeIndex));
+		if (OwnerASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
+		{
+			AnimMontage = GetAnimMontage("PowerMelee");
+		}
+		else
+		{
+			if (MaxMeleeIndex > 1)
+			{
+				int32 MeleeIndex = FMath::RandRange(1, MaxMeleeIndex);
+				SectionName = FName(FString::FromInt(MeleeIndex));
+			}
+			
+			AnimMontage = GetAnimMontage("Melee");
+		}
 	}
-	else
+	
+	if (!IsValid(AnimMontage))
 	{
-		AICharacter->SetMeleeIndex(0);
-		SectionName = FName(FString::FromInt(AICharacter->GetCurrentMeleeIndex()));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
 	}
 	
 	Melee(AnimMontage, SectionName);
@@ -114,6 +121,15 @@ void USK_GA_AI_Melee::EndAbility(
 	)
 {
 	ClearFocus();
+
+	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
+	if (IsValid(OwnerASC))
+	{
+		if (OwnerASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
+		{
+			OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack")));
+		}
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

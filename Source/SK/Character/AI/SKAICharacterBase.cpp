@@ -84,7 +84,8 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
 		{
-			AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+			
 			AbilitySystemComponent->CancelAllAbilities();
 		}
 	}
@@ -106,7 +107,7 @@ void ASKAICharacterBase::OnBoxComponentBeginOverlap(
 	const FHitResult& SweepResult
 	)
 {
-	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	AddTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
@@ -118,7 +119,7 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	int32 OtherBodyIndex
 	)
 {
-	AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
@@ -174,12 +175,12 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 	
 	if (AIDataAsset->TeamTag.IsValid())
 	{
-		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TeamTag);
+		AddTag(AIDataAsset->TeamTag);
 	}
 
 	if (AIDataAsset->TypeTag.IsValid())
 	{
-		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TypeTag);
+		AddTag(AIDataAsset->TypeTag);
 	}
 	/*
 	if (AIDataAsset->GiveTeamTagEffect)
@@ -210,6 +211,26 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 	}
 }
 
+void ASKAICharacterBase::AddTag(FGameplayTag Tag) const
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
+	AbilitySystemComponent->AddLooseGameplayTag(Tag);
+}
+
+void ASKAICharacterBase::RemoveTag(FGameplayTag Tag) const
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
+	AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
+}
+
 void ASKAICharacterBase::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
 {
 	FGameplayEventData EventData;
@@ -231,35 +252,9 @@ TObjectPtr<UStateTree> ASKAICharacterBase::GetStateTreeAsset() const
 	return StateTreeAsset;
 }
 
-int32 ASKAICharacterBase::GetCurrentMeleeIndex() const
-{
-	return CurrentMeleeIndex;
-}
-
 int32 ASKAICharacterBase::GetMaxMeleeIndex() const
 {
 	return MaxMeleeIndex;
-}
-
-void ASKAICharacterBase::SetMeleeIndex(int32 NewMeleeIndex)
-{
-	if (NewMeleeIndex == 0)
-	{
-		CurrentMeleeIndex += 1;
-
-		if (CurrentMeleeIndex == MaxMeleeIndex)
-		{
-			CurrentMeleeIndex = 1;
-		}
-	}
-	else if (NewMeleeIndex == -1)
-	{
-		CurrentMeleeIndex = 0;
-	}
-	else
-	{
-		CurrentMeleeIndex = NewMeleeIndex;
-	}
 }
 
 FVector ASKAICharacterBase::GetStartLocation() const
