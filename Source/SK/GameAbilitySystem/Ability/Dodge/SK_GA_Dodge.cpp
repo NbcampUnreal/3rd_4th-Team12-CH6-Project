@@ -41,11 +41,7 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
-	
-	// if (USKCombatComponent* Combat = Char->GetCombatComponent())
-	// {
-	// 	Combat->ResetComboState();
-	// }
+
 	
 
 	// 회피 별 값 세팅

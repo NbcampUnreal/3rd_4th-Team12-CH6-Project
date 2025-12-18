@@ -375,9 +375,9 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
 		return;
-	USKCombatComponent* CombatComponent = PC->GetCombatComponent();
+	UBattleComponent* BattleComponent = PC->GetBattleComponent();
 	
-	for (AActor* HitActor : CombatComponent->GetHitActors())
+	for (AActor* HitActor : BattleComponent->GetHitActors())
 	{
 		if (!HitActor)
 			continue;
