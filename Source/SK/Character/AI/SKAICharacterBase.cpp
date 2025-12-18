@@ -50,7 +50,7 @@ void ASKAICharacterBase::PostInitializeComponents()
 void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	float Damage = Data.OldValue - Data.NewValue;
-
+	
 	AActor* VictimActor = this;
 	AActor* InstigatorActor = nullptr;
 	
@@ -65,6 +65,14 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 	if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
 	{
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("태그부여"));
+			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+			
+			AbilitySystemComponent->CancelAllAbilities();
+		}
+		
 		UAISense_Damage::ReportDamageEvent(
 		VictimActor,
 		VictimActor,        
