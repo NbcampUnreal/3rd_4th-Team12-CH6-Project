@@ -7,6 +7,9 @@
 #include "SKPlayerController.generated.h"
 
 
+class UAbilitySystemComponent;
+struct FGameplayTagContainer;
+
 UENUM(BlueprintType)
 enum class EMoveDirection : uint8
 {
@@ -201,8 +204,11 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void RequestLevelUp();
 
+	UPROPERTY(Replicated, VisibleAnywhere)
 	bool bCanMaintainCombo = false;
-	
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	void ServerCancelAbility(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags);
 public:
 	bool GetCanMaintainCombo() const {return bCanMaintainCombo;};
 	void SetCanMaintainCombo(bool NewCanMaintainCombo) {bCanMaintainCombo = NewCanMaintainCombo;}

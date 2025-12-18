@@ -472,7 +472,30 @@ void UInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
+	if (!InventorySlots.IsEmpty())
+	{
+		return;
+	}
 	
+	if (GetOwner()->HasAuthority())
+	{
+		AddItemByIDAndCount(1001, 1);
+		AddItemByIDAndCount(1002, 1);
+		AddItemByIDAndCount(1003, 1);
+		AddItemByIDAndCount(1004, 1);
+		AddItemByIDAndCount(1005, 1);
+		AddItemByIDAndCount(1006, 1);
+		AddItemByIDAndCount(1007, 1);
+	}
+	else
+	{
+		ServerAddItem(1001, 1);
+		ServerAddItem(1001, 1);
+		ServerAddItem(1001, 1);
+		ServerAddItem(1001, 1);
+		ServerAddItem(1001, 1);
+		ServerAddItem(1001, 1);
+	}
 }
 
 void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

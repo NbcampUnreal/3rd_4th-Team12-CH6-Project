@@ -2,7 +2,7 @@
 
 
 #include "Anim/SKAnimNotify_ResetLeftAttack.h"
-#include "Component/SKCombatComponent.h"
+#include "Component/BattleComponent.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Controller/SKPlayerController.h"
 
@@ -17,7 +17,7 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 	}
 
 	AActor* OwnerActor = MeshComp->GetOwner();
-	if (!IsValid(OwnerActor)|| !OwnerActor->HasAuthority())
+	if (!IsValid(OwnerActor))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("AnimNotify failed to get Owner Actor."));
 		return; 
@@ -39,7 +39,9 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 	{
 		UE_LOG(LogTemp, Log, TEXT("Player Controller Not Found"));
 	}
-	
-	USKCombatComponent* CombatComponent =  PlayerCharacter->GetCombatComponent();
-	CombatComponent->Server_OnATKEndNotify(true);
+	//
+	// USKCombatComponent* CombatComponent =  PlayerCharacter->GetCombatComponent();
+	// CombatComponent->Server_OnATKEndNotify(true);
+	UBattleComponent* BattleComponent =  PlayerCharacter->GetBattleComponent();
+	BattleComponent->Server_OnATKEndNotify(true);
 }

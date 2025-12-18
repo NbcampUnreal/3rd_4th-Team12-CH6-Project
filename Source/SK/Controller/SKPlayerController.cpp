@@ -35,6 +35,7 @@ void ASKPlayerController::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 
 	DOREPLIFETIME(ASKPlayerController, bIsLockedOn);
 	DOREPLIFETIME(ASKPlayerController, LockedTarget);
+	DOREPLIFETIME(ASKPlayerController, bCanMaintainCombo);
 }
 
 void ASKPlayerController::ClientShowLoadingScreen_Implementation(bool bShow)
@@ -81,13 +82,13 @@ void ASKPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 	if (bIsLockedOn)
 	{
 		if (!ValidateLockOn())
 		{
 			// 예외시 Lock OFF
-			SetLockedTarget(nullptr);
-			SetLockOnState(false);
+			ResetLockOn();
 			return;
 		}
 
@@ -364,9 +365,10 @@ void ASKPlayerController::UpdateLockOnRotation(float DeltaTime)
 
 	Server_SetFacingDirection(TargetRot.Yaw);
 
-	FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
-
-	SetControlRotation(NewRot);
+	//록온시 카메라 회전폐기
+	// FRotator NewRot = FMath::RInterpTo(GetControlRotation(), TargetRot, DeltaTime, Cam->LockOnInterpSpeed);
+	//
+	// SetControlRotation(NewRot);
 }
 
 void ASKPlayerController::Server_SetFacingDirection_Implementation(float NewYaw)
@@ -443,8 +445,6 @@ void ASKPlayerController::OnMoveRepleased()
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
-	if (GetIsLockedOn())
-		return;
 
 	const FVector2D InLookVector = Value.Get<FVector2D>();
 
@@ -527,29 +527,69 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 {
 	APawn* ControlledPawn = GetPawn();
 	if (!IsValid(ControlledPawn))
+	{
 		return;
+	}
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
 	if (!IsValid(PlayerCharacter))
+	{
 		return;
-	
+	}
+
 	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		return;
+	}
 
 	FGameplayTagContainer LeftTagContainer;
-	LeftTagContainer.AddTag(TAG_Input_TestLeft);
-	
+	LeftTagContainer.AddTag(TAG_Ability_LeftATK);
+	LeftTagContainer.AddTag(TAG_Ability_RightATK);
+
 	if (bCanMaintainCombo)
 	{
-		ASC->CancelAbilities(&LeftTagContainer, nullptr);
+		ServerCancelAbility(ASC, LeftTagContainer);
 	}
-	
-	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Input_TestLeft));
+
+	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK));
+
 	bCanMaintainCombo = false;
 }
 
 void ASKPlayerController::RightAttack(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("RIGHT"));
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+	{
+		return;
+	}
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		return;
+	}
+
+	FGameplayTagContainer RightTagContainer;
+	RightTagContainer.AddTag(TAG_Ability_LeftATK);
+	RightTagContainer.AddTag(TAG_Ability_RightATK);
+
+	if (bCanMaintainCombo)
+	{
+		ServerCancelAbility(ASC, RightTagContainer);
+	}
+
+	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_RightATK));
+
+	bCanMaintainCombo = false;
 }
 
 void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
@@ -914,4 +954,14 @@ void ASKPlayerController::RequestLevelUp()
 		// 클라 → 서버로 요청
 		PS->Server_RequestLevelUp();
 	}
+}
+
+void ASKPlayerController::ServerCancelAbility_Implementation(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags)
+{
+	ASC->CancelAbilities(&CancelAbilityTags, nullptr);
+}
+
+bool ASKPlayerController::ServerCancelAbility_Validate(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags)
+{
+	return true;
 }

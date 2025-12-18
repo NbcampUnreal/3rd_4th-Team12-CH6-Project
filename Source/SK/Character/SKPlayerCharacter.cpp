@@ -335,8 +335,6 @@ void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 	if (bLockOn)
 	{
 		// Lock On: Movement 기반 회전 금지
-		// bUseControllerRotationYaw  = false;
-		// GetCharacterMovement()->bOrientRotationToMovement = false;
 		bUseControllerRotationYaw = true;
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		GetCharacterMovement()->bUseControllerDesiredRotation = true;
@@ -345,8 +343,6 @@ void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 	else
 	{
 		// Lock Off: 다시 Movement 기반 회전 허용
-		// bUseControllerRotationYaw = true;
-		// GetCharacterMovement()->bOrientRotationToMovement = true;
 		bUseControllerRotationYaw = false;
 		GetCharacterMovement()->bOrientRotationToMovement = true;
 		GetCharacterMovement()->bUseControllerDesiredRotation = false;

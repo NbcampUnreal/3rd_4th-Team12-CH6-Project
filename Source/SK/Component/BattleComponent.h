@@ -45,6 +45,7 @@ public:
 
 	UAnimMontage* GetLeftATKMontage(int32 Index);
 	UAnimMontage* GetSkillMontage(int32 Index);
+	UAnimMontage* GetRightATKMontage(int32 Index);
 #pragma endregion
 	
 #pragma region AttackTrace
@@ -56,6 +57,15 @@ public:
 	void SetIsTraced(bool ArgIsTracing);
 	const TArray<AActor*>& GetHitActors();
 
+	UFUNCTION(Server, Reliable)
+	void Server_StartTrace();
+	UFUNCTION(Server, Reliable)
+	void Server_StopTrace();
+	UFUNCTION(Server, Reliable)
+	void Server_LeftATK_ApplyDamage();
+	UFUNCTION(Server, Reliable)
+	void Server_OnATKEndNotify(bool bLeft);
+	
 #pragma endregion
 
 #pragma region WeaponData

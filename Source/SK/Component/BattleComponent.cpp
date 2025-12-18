@@ -3,6 +3,10 @@
 
 #include "Component/BattleComponent.h"
 
+#include "AbilitySystemComponent.h"
+#include "GameplayAbilitySpec.h"
+#include "Character/SKPlayerCharacter.h"
+#include "GameAbilitySystem/Ability/SK_GA_LeftAttack.h"
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
@@ -46,6 +50,17 @@ UAnimMontage* UBattleComponent::GetSkillMontage(int32 Index)
 
 	if (CurrentWeaponData->SkillMontages.IsValidIndex(Index))
 		return CurrentWeaponData->SkillMontages[Index];
+
+	return nullptr;
+}
+
+UAnimMontage* UBattleComponent::GetRightATKMontage(int32 Index)
+{
+	if (!CurrentWeaponData)
+		return nullptr;
+
+	if (CurrentWeaponData->RightAttackMontages.IsValidIndex(Index))
+		return CurrentWeaponData->RightAttackMontages[Index];
 
 	return nullptr;
 }
@@ -134,16 +149,16 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	);
 
 
-	// DrawDebugCapsule(
-	// 	GetWorld(),
-	// 	CapsuleCenter,
-	// 	HalfHeight,
-	// 	Radius,
-	// 	CapsuleRot, // ★ 핵심: 회전 적용
-	// 	FColor::Green,
-	// 	false,
-	// 	0.05f
-	// );
+	DrawDebugCapsule(
+		GetWorld(),
+		CapsuleCenter,
+		HalfHeight,
+		Radius,
+		CapsuleRot, 
+		FColor::Green,
+		false,
+		0.05f
+	);
 
 
 	if (bHit)
@@ -174,23 +189,59 @@ const TArray<AActor*>& UBattleComponent::GetHitActors()
 	return HitActors;
 }
 
-void UBattleComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
+void UBattleComponent::Server_StartTrace_Implementation()
 {
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	StartTrace();
+}
 
-	TArray<USkeletalMeshComponent*> MeshComponents;
-	OwnerCharacter->GetComponents<USkeletalMeshComponent>(MeshComponents);
+void UBattleComponent::Server_StopTrace_Implementation()
+{
+	StopTrace();
+}
 
-	FName TargetTag = FName(*FindWeaponTagName()); // FString → FName 변환
+void UBattleComponent::Server_LeftATK_ApplyDamage_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
 
-	for (USkeletalMeshComponent* Comp : MeshComponents)
+	if (!ASC)
+		return;
+
+	// 현재 실행 중인 공격 GA 가져오기
+	for (FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
 	{
-		if (Comp && Comp->ComponentHasTag(TargetTag))
+		if (Spec.IsActive() &&
+			Spec.Ability->GetClass()->IsChildOf(USK_GA_LeftAttack::StaticClass()))
 		{
-			SetWeaponMesh(Comp);
+			USK_GA_LeftAttack* GA = Cast<USK_GA_LeftAttack>(Spec.GetPrimaryInstance());
+			if (GA)
+			{
+				GA->OnStopAttackTrace_Server();
+			}
 			break;
 		}
 	}
+}
+
+void UBattleComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
+{
+	
+}
+
+void UBattleComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
+{
+	WeaponMesh = InWeaponMesh;
+
+	if (!WeaponMesh)
+	{
+		// 무기 해제 처리
+		PrevStart = FVector::ZeroVector;
+		PrevEnd = FVector::ZeroVector;
+		return;
+	}
+
+	PrevStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
+	PrevEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
 }
 
 void UBattleComponent::SetWeaponMesh_Init()
