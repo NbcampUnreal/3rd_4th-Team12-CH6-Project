@@ -317,6 +317,8 @@ void USK_GA_RightAttack::OnMontageInterrupted()
 
 void USK_GA_RightAttack::ApplyDamageFromTrace()
 {
+	Super::ApplyDamageFromTrace();
+	
 	//인덱스 판단 태그로 변경
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
@@ -344,6 +346,5 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 
 void USK_GA_RightAttack::OnStopAttackTrace_Server()
 {
-	//몽타주 1번에 여러 공격이 들어갈 때 데미지 빨리 처리 시 불리는 함수
-	ApplyDamageFromTrace();
+	Super::OnStopAttackTrace_Server();
 }
