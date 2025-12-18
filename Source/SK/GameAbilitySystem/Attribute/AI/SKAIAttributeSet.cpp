@@ -1,7 +1,6 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
-#include "Perception/AISense_Damage.h"
 
 USKAIAttributeSet::USKAIAttributeSet()
 {
@@ -44,42 +43,6 @@ void USKAIAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{	
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-		
-		float Damage = -Data.EvaluatedData.Magnitude;
-		
-		const FGameplayEffectContextHandle Context = Data.EffectSpec.GetContext();
-
-		AActor* VictimActor = GetOwningActor();
-		AActor* InstigatorActor = Context.GetInstigator();
-
-		if (Damage <= 0.f || !IsValid(VictimActor) || !IsValid(InstigatorActor))
-		{
-			return;
-		}
-
-		UAISense_Damage::ReportDamageEvent(
-			VictimActor,
-			VictimActor,        
-			InstigatorActor,   
-			Damage,       
-			VictimActor->GetActorLocation(),            
-			VictimActor->GetActorLocation()
-		);
-		
-		if (FMath::IsNearlyZero(GetHealth()))
-		{
-			UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
-			if (!OwningASC)
-			{
-				return;
-			}
-
-			if (!OwningASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
-			{
-				AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
-				CancelAllAbilities();
-			}
-		}
 	}
 }
 
@@ -155,37 +118,4 @@ void USKAIAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 void USKAIAttributeSet::OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAIAttributeSet, SprintWeight, OldSprintWeight);
-}
-
-void USKAIAttributeSet::AddTag(FGameplayTag Tag) const
-{
-	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
-	if (!OwningASC)
-	{
-		return;
-	}
-
-	OwningASC->AddLooseGameplayTag(Tag);
-}
-
-void USKAIAttributeSet::RemoveTag(FGameplayTag Tag) const
-{
-	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
-	if (!OwningASC)
-	{
-		return;
-	}
-
-	OwningASC->RemoveLooseGameplayTag(Tag);
-}
-
-void USKAIAttributeSet::CancelAllAbilities() const
-{
-	UAbilitySystemComponent* OwningASC = GetOwningAbilitySystemComponent();
-	if (!OwningASC)
-	{
-		return;
-	}
-
-	OwningASC->CancelAllAbilities();
 }

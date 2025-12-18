@@ -34,9 +34,8 @@ ASKAIController::ASKAIController()
 	DamageConfig->SetMaxAge(2.0f);
 	
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
-	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
 	AIPerceptionComponent->ConfigureSense(*DamageConfig);
-	AIPerceptionComponent->SetDominantSense(DamageConfig->GetSenseImplementation());
+	AIPerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
 	
 	OwningASC = nullptr;
 	
@@ -212,7 +211,6 @@ void ASKAIController::OnPossess(APawn* InPawn)
 	}
 
 	OwningASC = ASCInterface->GetAbilitySystemComponent();
-
 	if (OwningASC)
 	{
 		FGameplayTagContainer InTags;

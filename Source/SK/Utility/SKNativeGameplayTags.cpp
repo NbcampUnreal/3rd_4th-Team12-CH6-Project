@@ -9,6 +9,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Monster_Boss, "Team.Monster.Boss");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event, "Event");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_LeftATKTraceEnd, "Event.LeftATKTraceEnd");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_EndAbility, "Event.EndAbility");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_CancelAbility, "Event.CancelAbility");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Hit, "Event.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
@@ -216,6 +217,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Backstep, "AI.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Recovery, "AI.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_ProjectileAttack, "AI.ProjectileAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Boss, "AI.Boss");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_PowerAttack, "AI.PowerAttack");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");

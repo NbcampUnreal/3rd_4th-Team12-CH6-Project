@@ -127,5 +127,14 @@ void USK_GA_AI_BaseCombat::EndAbility(
 	bool bWasCancelled
 	)
 {
+	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
+	if (IsValid(OwnerASC))
+	{
+		if (OwnerASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
+		{
+			OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack")));
+		}
+	}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
