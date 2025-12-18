@@ -31,8 +31,6 @@ void USKAnimNotify_StartAttackTrace::Notify(USkeletalMeshComponent* MeshComp, UA
 		return; 
 	}
 
-	// USKCombatComponent* CombatComponent =  PlayerCharacter->GetCombatComponent();
-	// CombatComponent->Server_StartTrace();
 	UBattleComponent* BattleComponent =  PlayerCharacter->GetBattleComponent();
 	BattleComponent->Server_StartTrace();
 }

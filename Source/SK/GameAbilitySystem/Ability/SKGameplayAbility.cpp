@@ -21,4 +21,17 @@ void USKGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
+void USKGameplayAbility::ApplyDamageFromTrace()
+{
+	
+}
+
+void USKGameplayAbility::OnStopAttackTrace_Server()
+{
+	//몽타주 1번에 여러 공격이 들어갈 때 데미지 빨리 처리 시 불리는 함수
+	ApplyDamageFromTrace();
+}
+
+
+
 

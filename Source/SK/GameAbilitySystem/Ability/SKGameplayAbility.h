@@ -31,6 +31,9 @@ public:
 		bool bWasCancelled
 	) override;
 
+	virtual void ApplyDamageFromTrace();
 
+	
+	virtual void OnStopAttackTrace_Server();
 	
 };

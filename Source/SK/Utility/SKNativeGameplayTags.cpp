@@ -28,18 +28,13 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interaction, "Ability.InteractionTrace");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_SimpleInteract, "Ability.SimpleInteract");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK, "Ability.LeftATK");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe, "Ability.LeftATK.Axe");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_TwoHanded, "Ability.LeftATK.TwoHanded");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Cancel, "Ability.LeftATK.Cancel");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num01, "Ability.LeftATK.Axe.Num01");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num02, "Ability.LeftATK.Axe.Num02");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num03, "Ability.LeftATK.Axe.Num03");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num04, "Ability.LeftATK.Axe.Num04");
-
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_01, "Ability.Skill.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_02, "Ability.Skill.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_03, "Ability.Skill.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
