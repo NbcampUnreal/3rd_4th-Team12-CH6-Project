@@ -47,18 +47,18 @@ void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_RightMelee, true);
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	CurrentComboIndex = CheckCombo(ActorInfo);
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
 
 	FName SectionName = GetComboMontageSection(CurrentComboIndex);
-
+	
+	UE_LOG(LogTemp, Log,
+		TEXT("[Combo] Index: %d | Section: %s"),
+		CurrentComboIndex,
+		*SectionName.ToString()
+	);
+	
 	//몽타주 실행 추가
 	UAnimMontage* Montage = CurrentBattleComponent->GetRightATKMontage(0);
 	UAbilityTask_PlayMontageAndWait* PlayTask =
@@ -77,6 +77,11 @@ void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	//사용 O
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 	PlayTask->ReadyForActivation();
+	
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+    {
+    	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+    }
 }
 
 void USK_GA_RightAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -194,7 +199,27 @@ int32 USK_GA_RightAttack::CheckCombo(const FGameplayAbilityActorInfo* ActorInfo)
 
 	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
 
-	if (ASC->HasMatchingGameplayTag(TAG_Combo_Left3) || ASC->HasMatchingGameplayTag(TAG_Combo_Right3))
+	if (ASC->HasMatchingGameplayTag(TAG_Combo_Left4))
+	{
+		return 7;
+	}
+	else if (ASC->HasMatchingGameplayTag(TAG_Combo_LLR))
+	{
+		return 6;
+	}
+	else if (ASC->HasMatchingGameplayTag(TAG_Combo_Left3))
+	{
+		return 5;
+	}
+	else if (ASC->HasMatchingGameplayTag(TAG_Combo_LR))
+	{
+		return 4;
+	}
+	else if (ASC->HasMatchingGameplayTag(TAG_Combo_Left2))
+	{
+		return 3;
+	}
+	else if (ASC->HasMatchingGameplayTag(TAG_Combo_Right3))
 	{
 		return 2;
 	}
@@ -218,9 +243,48 @@ FName USK_GA_RightAttack::GetComboMontageSection(int32 ComboIndex) const
 
 	case 2:
 		return FName(TEXT("Combo_03"));
+		
+	case 3:
+		return FName(TEXT("Combo_LR"));
+		
+	case 4:
+		return FName(TEXT("Combo_LRR"));
 
+	case 5:
+		return FName(TEXT("Combo_LLR"));
+
+	case 6:
+		return FName(TEXT("Combo_LLRR"));
+
+	case 7:
+		return FName(TEXT("Combo_LLLR"));
+		
 	default:
 		return NAME_None;
+	}
+}
+
+FGameplayTag USK_GA_RightAttack::GetComboGiveTag(int32 ComboIndex) const
+{
+	switch (ComboIndex)
+	{
+	case 0:
+		return TAG_Combo_Right1;
+
+	case 1:
+		return TAG_Combo_Right2;
+		
+	case 2:
+		return TAG_Combo_Right3;
+		
+	case 3:
+		return TAG_Combo_LR;
+	
+	case 5:
+		return TAG_Combo_LLR;
+			
+	default:
+		return FGameplayTag();
 	}
 }
 
@@ -233,23 +297,9 @@ void USK_GA_RightAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* 
 
 	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
 	
-	FGameplayTag ComboTag;
+	FGameplayTag ComboTag = GetComboGiveTag(CurrentComboIndex);
 
-
-	if (CurrentComboIndex == 2)
-	{
-		ComboTag = TAG_Combo_Right3;
-	}
-	else if (CurrentComboIndex == 1)
-	{
-		ComboTag = TAG_Combo_Right2;
-	}
-	else if (CurrentComboIndex == 0)
-	{
-		ComboTag = TAG_Combo_Right1;
-	}
-
-	// 이번 입력 (LeftAttack GA니까 고정)
+	// 이번 입력 (Right GA니까 고정)
 	const FGameplayTag InputTag = TAG_Input_TestRight;
 
 	// 캐시에서 찾기
@@ -292,6 +342,8 @@ void USK_GA_RightAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* 
 
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
+
+
 
 void USK_GA_RightAttack::OnMontageCompleted()
 {

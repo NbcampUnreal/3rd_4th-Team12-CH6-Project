@@ -82,6 +82,9 @@ public:
 	void ApplyComboStateEffect(const FGameplayAbilityActorInfo* ActorInfo);
 
 
+	FGameplayTag GetComboGiveTag(int32 ComboIndex) const;
+	
+	
 	UFUNCTION()
 	void OnMontageCompleted();
 
