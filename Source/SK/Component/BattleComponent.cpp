@@ -223,8 +223,33 @@ void UBattleComponent::Server_LeftATK_ApplyDamage_Implementation()
 	}
 }
 
-void UBattleComponent::Server_OnATKEndNotify_Implementation(bool bLeft)
+void UBattleComponent::Server_ATKTYPE_ApplyDamage_Implementation(const FGameplayTag& AttackTag)
 {
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+
+	if (!ASC)
+		return;
+
+	for (FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (!Spec.IsActive())
+			continue;
+
+		UGameplayAbility* Ability = Spec.GetPrimaryInstance();
+		if (!Ability)
+			continue;
+
+		if (Ability->AbilityTags.HasTagExact(AttackTag))
+		{
+			USKGameplayAbility* SKGA = Cast<USKGameplayAbility>(Ability);
+			if (SKGA)
+			{
+				SKGA->OnStopAttackTrace_Server();
+			}
+			return;
+		}
+	}
 	
 }
 

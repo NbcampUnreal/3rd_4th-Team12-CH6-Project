@@ -61,10 +61,12 @@ public:
 	void Server_StartTrace();
 	UFUNCTION(Server, Reliable)
 	void Server_StopTrace();
+	
 	UFUNCTION(Server, Reliable)
 	void Server_LeftATK_ApplyDamage();
 	UFUNCTION(Server, Reliable)
-	void Server_OnATKEndNotify(bool bLeft);
+	void Server_ATKTYPE_ApplyDamage(const FGameplayTag& AttackTag);
+
 	
 #pragma endregion
 
