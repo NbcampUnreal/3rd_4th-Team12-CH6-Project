@@ -12,6 +12,7 @@ class UMotionWarpingComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
+struct FOnAttributeChangeData;
 
 UCLASS()
 class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -51,9 +52,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
-
-	int32 CurrentMeleeIndex = 0;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Index")
 	int32 MaxMeleeIndex = 0;
 
@@ -74,6 +73,12 @@ public:
 	
 	void InitializeAttributeSetAndAbilitiesFromDataAsset();
 
+	UFUNCTION(BlueprintCallable)
+	void AddTag(FGameplayTag Tag) const;
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveTag(FGameplayTag Tag) const;
+
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
 	
 	TMap<FName, TObjectPtr<UAnimMontage>> GetMontages() const;
@@ -81,13 +86,7 @@ public:
 	TObjectPtr<UStateTree> GetStateTreeAsset() const;
 
 	UFUNCTION(BlueprintCallable)
-	int32 GetCurrentMeleeIndex() const;
-
-	UFUNCTION(BlueprintCallable)
 	int32 GetMaxMeleeIndex() const;
-
-	UFUNCTION(BlueprintCallable)
-	void SetMeleeIndex(int32 NewMeleeIndex);
 
 	FVector GetStartLocation() const;
 
@@ -102,6 +101,10 @@ public:
 	void ClearOverlayMaterial();
 	
 protected:
+	virtual void PostInitializeComponents() override;
+
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	
 	virtual void PossessedBy(AController* NewController) override;
 	
 	UFUNCTION()

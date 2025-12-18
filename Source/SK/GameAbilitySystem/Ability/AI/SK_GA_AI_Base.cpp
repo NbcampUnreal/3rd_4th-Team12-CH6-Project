@@ -153,18 +153,23 @@ void USK_GA_AI_Base::EndAbility(
 	bool bWasCancelled
 	)
 {
-	if (bWasCancelled)
-	{
-		CachedController->StopMovement();
-	}
-	
 	UStateTreeAIComponent* ST = CachedController->FindComponentByClass<UStateTreeAIComponent>();
 	if (!IsValid(ST))
 	{
 		return;
 	}
+	
+	if (bWasCancelled)
+	{
+		CachedController->StopMovement();
 
-	ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.CancelAbility"));
+
+	}
+	else
+	{
+		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
