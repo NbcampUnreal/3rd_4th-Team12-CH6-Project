@@ -3,7 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "Animation/SKPlayerAnimInstance.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "Interaction/Ability/SK_GA_Unequip.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 
@@ -19,6 +19,7 @@ void USKActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME(USKActionComponent, CurrentInputVector);
 	DOREPLIFETIME(USKActionComponent, CurrentMoveDirection);
+	DOREPLIFETIME(USKActionComponent, WeaponActors);
 }
 
 void USKActionComponent::BeginPlay()
@@ -33,6 +34,67 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+}
+
+void USKActionComponent::CheckAutoUnEquipped()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char || !Char->HasAuthority()) return;
+	
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	UAnimInstance* AnimInstance = Char->GetMesh()->GetAnimInstance();
+	if (!AnimInstance) return;
+
+	if (AnimInstance->IsAnyMontagePlaying())
+	{
+		return;
+	}
+
+	const FGameplayTag EquipTag =
+		FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Equip"));
+
+	float Now = GetWorld()->GetTimeSeconds();
+
+	if (ASC->HasMatchingGameplayTag(EquipTag))
+	{
+		if (Now - LastCombatTime > AutoUnequipDelay)
+		if (Now - LastCombatTime > AutoUnequipDelay)
+		{
+			ASC->TryActivateAbilityByClass(USK_GA_Unequip::StaticClass());
+		}
+	}
+}
+
+void USKActionComponent::OnOwnerPossessed()
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char || !Char->HasAuthority()) return;
+
+	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
+}
+
+void USKActionComponent::AttachWeapon(const TArray<FName> SocketNames)
+{
+	if (WeaponActors.IsEmpty() || SocketNames.IsEmpty()) return;
+
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+
+	USkeletalMeshComponent* Mesh = Char->GetMesh();
+	if (!Mesh) return;
+
+	const int32 Count = FMath::Min(WeaponActors.Num(), SocketNames.Num());
+	
+	USceneComponent* AttachTarget = GetOwner()->GetRootComponent();
+	for (int i = 0; i < Count; i++)
+	{
+		WeaponActors[i]->AttachToComponent(
+			Mesh,
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			SocketNames[i]);
+	}
 }
 
 void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponAnimData)
