@@ -34,8 +34,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_01, "Ability.Skill.01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_02, "Ability.Skill.02");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_03, "Ability.Skill.03");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GuardCounter, "Ability.GuardCounter");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
@@ -195,6 +196,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard, "State.Action.Guard");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Perfect, "State.Action.Guard.Perfect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Success, "State.Action.Guard.Success");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_GuardCounter, "State.Action.Guard.GuardCounter");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_CounterReady, "State.Action.Guard.CounterReady");
 
 // 장착 해제
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Unequip, "State.Action.Unequip");
@@ -256,3 +258,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_HealPotion, "GameplayCue.Item.HealPo
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.AttackPotion");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Data_DamageMultiplier, "Data.DamageMultiplier");

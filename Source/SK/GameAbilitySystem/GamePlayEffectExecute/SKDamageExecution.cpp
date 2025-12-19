@@ -6,7 +6,7 @@
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "GameData/SKGameConstant.h"
-
+#include "Utility/SKNativeGameplayTags.h"
 
 
 USKDamageExecution::USKDamageExecution()
@@ -32,6 +32,8 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 {
 	Super::Execute_Implementation(ExecutionParams, OutExecutionOutput);
 
+	UE_LOG(LogGameplayTags, Log, TEXT("[SKDamageExecution] start"));
+	
 	//GE가 적용될 스펙
 	const  FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 
@@ -72,10 +74,20 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 	AttackPower = FMath::Max(AttackPower, 0.f);
 	ArmorPower = FMath::Clamp(ArmorPower, 0.f, SKConstant::MaxArmorValue);
 
+	float CallerValue = Spec.GetSetByCallerMagnitude(TAG_Data_DamageMultiplier, false, -1.f);
+	if (CallerValue < 0.0f)
+	{
+		CallerValue = 1.0f;
+	}
+	UE_LOG(LogTemp, Warning,
+		TEXT("[DamageExecution] SetByCaller DamageMultiplier = %f"),
+		CallerValue
+	);
+
 	// 데미지 감소율
 	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
 	
-	const float FinalDamage = AttackPower * DamageMultiplier * GEDamageCoefficient;
+	const float FinalDamage = AttackPower * CallerValue * DamageMultiplier * GEDamageCoefficient;
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
 		USKAIAttributeSet::GetHealthAttribute(),
 		EGameplayModOp::Additive,

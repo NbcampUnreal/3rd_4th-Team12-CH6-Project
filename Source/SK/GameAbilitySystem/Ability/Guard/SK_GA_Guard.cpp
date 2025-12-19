@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameAbilitySystem/Ability/SK_GA_Guard.h"
+#include "GameAbilitySystem/Ability/Guard/SK_GA_Guard.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Actor.h"
 #include "TimerManager.h"
@@ -183,6 +183,25 @@ void USK_GA_Guard::OnGuardSuccess(FGameplayEventData Payload)
 		1.5f,
 		false
 	);
+
+	// Perfect Guard인지 확인
+	bool bIsPerfectGuard = ASC->HasMatchingGameplayTag(TAG_State_Action_Guard_Perfect);
+	if (bIsPerfectGuard)
+	{
+		
+		ASC->AddLooseGameplayTag(TAG_State_Action_Guard_CounterReady);
+
+		FTimerHandle CounterReadyTimer;
+		GetWorld()->GetTimerManager().SetTimer(
+			CounterReadyTimer,
+			[ASC]()
+			{
+				ASC->RemoveLooseGameplayTag(TAG_State_Action_Guard_CounterReady);
+			},
+			GuardCountDuration, // 카운터 입력 허용 시간
+			false
+		);
+	}
 }
 
 void USK_GA_Guard::OnStaminaChanged()

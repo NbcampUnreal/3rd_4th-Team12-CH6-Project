@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_CombatBase.h"
+#include "GameAbilitySystem/Ability/SK_GA_CombatBase.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_Guard.generated.h"
 
@@ -56,6 +56,10 @@ protected:
 	/** 퍼펙트 가드 판정 시간 */
 	UPROPERTY(EditDefaultsOnly, Category = "Guard")
 	float PerfectGuardDuration = 0.5f;
+
+	/** 가드카운터 판정 시간 */
+	UPROPERTY(EditDefaultsOnly, Category = "Guard")
+	float GuardCountDuration = 0.3f;
 
 	/** 가드 시작 최소 스테미너 */
 	UPROPERTY(EditDefaultsOnly, Category = "Guard")
