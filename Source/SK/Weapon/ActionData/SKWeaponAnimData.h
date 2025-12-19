@@ -58,6 +58,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Gaurd")
 	TObjectPtr<UAnimMontage> GuardMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Gaurd")
+	TObjectPtr<UAnimMontage> GuardCounterMontage;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Getup")
 	TObjectPtr<UAnimMontage> GetupMontage;

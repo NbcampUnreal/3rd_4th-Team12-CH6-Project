@@ -163,6 +163,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> GuardAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
+	TObjectPtr<UInputAction> GuardCounterAction;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|LockOn")
@@ -193,6 +195,7 @@ private:
 
 	void StartGuard(const FInputActionValue& Value);
 	void StopGuard(const FInputActionValue& Value);
+	void GuardCounter(const FInputActionValue& Value);
 
 	AActor* FindNearestTarget();
 
