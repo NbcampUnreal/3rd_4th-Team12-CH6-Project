@@ -197,7 +197,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Success, "State.Action.Guard.Succe
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_GuardCounter, "State.Action.Guard.GuardCounter");
 
 // 장착 해제
-UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Unequip, "State.Action.Guard.Unequip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Unequip, "State.Action.Unequip");
 
 // State-Condition (실제 플레이에 영향끼치는 상태)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition, "State.Condition");
