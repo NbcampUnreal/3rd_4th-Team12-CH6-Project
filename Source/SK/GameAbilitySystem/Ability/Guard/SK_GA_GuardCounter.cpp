@@ -35,7 +35,7 @@ void USK_GA_GuardCounter::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	UE_LOG(LogTemp, Log, TEXT("GuardCounter Start"));
+	UE_LOG(LogTemp, Warning, TEXT("GuardCounter execution"));
 	
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!ASC)
@@ -87,9 +87,9 @@ void USK_GA_GuardCounter::ActivateAbility(
 	
 	if (GuardCounterMontage)
 	{
-		PlayTask->OnCompleted.AddDynamic(this, &USK_GA_GuardCounter::K2_EndAbility);
-		PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_GuardCounter::K2_EndAbility);
-		PlayTask->OnCancelled.AddDynamic(this, &USK_GA_GuardCounter::K2_EndAbility);
+		PlayTask->OnCompleted.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
+		PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
+		PlayTask->OnCancelled.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
 		PlayTask->ReadyForActivation();
 	}
 	else
@@ -110,13 +110,7 @@ void USK_GA_GuardCounter::EndAbility(
 	bool bWasCancelled
 )
 {
-	Super::EndAbility(
-		Handle,
-		ActorInfo,
-		ActivationInfo,
-		bReplicateEndAbility,
-		bWasCancelled
-	);
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USK_GA_GuardCounter::ApplyDamageFromTrace()
@@ -157,4 +151,17 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 void USK_GA_GuardCounter::OnStopAttackTrace_Server()
 {
 	Super::OnStopAttackTrace_Server();
+}
+
+void USK_GA_GuardCounter::OnMontageFinished()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[GuardCounter] Montage Finished -> EndAbility"));
+
+	EndAbility(
+		CurrentSpecHandle,
+		CurrentActorInfo,
+		CurrentActivationInfo,
+		true,   // bReplicateEndAbility
+		true   // bWasCancelled
+	);
 }

@@ -331,8 +331,6 @@ void ASKPlayerController::SetupInputComponent()
 										   &ASKPlayerController::StartGuard);
 		EnhancedInputComponent->BindAction(GuardAction, ETriggerEvent::Completed, this,
 										   &ASKPlayerController::StopGuard);
-		EnhancedInputComponent->BindAction(GuardCounterAction, ETriggerEvent::Started, this,
-										   &ASKPlayerController::GuardCounter);
 	}
 }
 
@@ -557,10 +555,18 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 	FGameplayTagContainer GuardCounterTag;
 	GuardCounterTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.GuardCounter")));
 
-	//우선순위가 높은거부터
-	ASC->TryActivateAbilitiesByTag(GuardCounterTag);
-
-	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK));
+	if (ASC->TryActivateAbilitiesByTag(GuardCounterTag))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GuardCounter Success"));
+	}
+	else if (ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK)))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Left Attack Success"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Left Key Fail"));
+	}
 
 	bCanMaintainCombo = false;
 }
@@ -778,28 +784,6 @@ void ASKPlayerController::StopGuard(const FInputActionValue& Value)
 	GuardTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Guard")));
 
 	ASC->CancelAbilities(&GuardTag);
-}
-
-void ASKPlayerController::GuardCounter(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Warning, TEXT("[Controller] Start GuardCounter"));
-	APawn* ControlledPawn = GetPawn();
-	if (!IsValid(ControlledPawn))
-		return;
-
-	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
-	if (!IsValid(PlayerCharacter))
-		return;
-
-	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	if (!IsValid(ASC))
-		return;
-	
-
-	FGameplayTagContainer GuardCounterTag;
-	GuardCounterTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.GuardCounter")));
-
-	ASC->TryActivateAbilitiesByTag(GuardCounterTag);
 }
 
 AActor* ASKPlayerController::FindNearestTarget()
