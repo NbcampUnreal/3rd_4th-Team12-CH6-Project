@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SK_GA_CombatBase.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_Guard.generated.h"
 
@@ -14,7 +15,7 @@ class UAnimMontage;
  * 
  */
 UCLASS()
-class SK_API USK_GA_Guard : public USKGameplayAbility
+class SK_API USK_GA_Guard : public USK_GA_CombatBase
 {
 	GENERATED_BODY()
 

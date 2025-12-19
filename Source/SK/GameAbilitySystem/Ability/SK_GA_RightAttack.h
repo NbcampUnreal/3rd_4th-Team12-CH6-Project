@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SK_GA_CombatBase.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_RightAttack.generated.h"
 
@@ -40,7 +41,7 @@ class USKWeaponData;
  * 
  */
 UCLASS()
-class SK_API USK_GA_RightAttack : public USKGameplayAbility
+class SK_API USK_GA_RightAttack : public USK_GA_CombatBase
 {
 	GENERATED_BODY()
 

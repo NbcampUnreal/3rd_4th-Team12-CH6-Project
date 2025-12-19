@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SK_GA_CombatBase.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_Skill_01.generated.h"
 
@@ -10,7 +11,7 @@
  * 
  */
 UCLASS()
-class SK_API USK_GA_Skill_01 : public USKGameplayAbility
+class SK_API USK_GA_Skill_01 : public USK_GA_CombatBase
 {
 	GENERATED_BODY()
 

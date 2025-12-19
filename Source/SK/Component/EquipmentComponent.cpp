@@ -76,6 +76,7 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 		PlayerState->SetCurWeaponTag(NewWeaponTag);
 	}
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetEquipPawn());
+	if (!Char) return false;
 	USKActionComponent* ActionComponent = Char->GetActionComponent();
 	if (!ActionComponent)
 	{
@@ -90,6 +91,16 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 		return false;
 	}
 	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	ActionComponent->WeaponActors = SlotData.EquipmentInstance->GetSpawnedActors();
+
+	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
+	if (ASC)
+	{
+		FGameplayTag WeaponTag = SlotData.EquipmentInstance->EquipTag;
+		FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
+		ASC->RemoveLooseGameplayTag(UnarmedTag);
+		ASC->AddLooseGameplayTag(WeaponTag);
+	}
 	
 	return true;
 }
@@ -105,6 +116,32 @@ bool UEquipmentComponent::UnequipItem(EEquipmentSlotType Slot)
 		return false;
 
 	FEquipmentSlotData& SlotData = Equipments[Slot];
+
+	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
+	if (!ASC) return false;
+	
+	if (!SlotData.EquipmentInstance) return false;
+	
+	FGameplayTag WeaponTag = SlotData.EquipmentInstance->EquipTag;
+	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
+	ASC->RemoveLooseGameplayTag(WeaponTag);
+	ASC->AddLooseGameplayTag(UnarmedTag);
+	
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetEquipPawn());
+	if (!Char) return false;
+	
+	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	if (!ActionComponent) return false;
+
+	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());
+	if (IsValid(PlayerState))
+	{
+		PlayerState->SetCurWeaponTag(WeaponTag);
+	}
+	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+	if (!WeaponDataRow) return false;
+	
+	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 
 	if (SlotData.EquipmentInstance)
 	{

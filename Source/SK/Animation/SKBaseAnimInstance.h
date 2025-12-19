@@ -42,5 +42,5 @@ protected:
 	uint8 bForceMove : 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	uint8 bISFalling : 1;
+	uint8 bIsFalling : 1;
 };

@@ -88,7 +88,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Dual, "Weapon.Dual");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Katana, "Weapon.Katana");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Spear, "Weapon.Spear");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Warrior, "Weapon.Warrior");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Unarmed, "Weapon.Unarmed");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound, "Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM, "Sound.BGM");
@@ -196,6 +196,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Perfect, "State.Action.Guard.Perfe
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Success, "State.Action.Guard.Success");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_GuardCounter, "State.Action.Guard.GuardCounter");
 
+// 장착 해제
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Unequip, "State.Action.Unequip");
+
 // State-Condition (실제 플레이에 영향끼치는 상태)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition, "State.Condition");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Stun, "State.Condition.Stun");
@@ -204,6 +207,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
 
 // 히트, 넉백, 넉다운
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
+
+// 무기 장착
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Equip, "State.Condition.Equip");
 
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");

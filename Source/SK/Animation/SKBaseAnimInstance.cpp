@@ -29,5 +29,5 @@ void USKBaseAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Velocity = OwnerCharacterMovementComponent->Velocity;
 	GroundSpeed = FVector(Velocity.X, Velocity.Y, 0.f).Size();
 	bShouldMove = ((OwnerCharacterMovementComponent->GetCurrentAcceleration().IsNearlyZero()) == false) && (3.f < GroundSpeed);
-	bISFalling = OwnerCharacterMovementComponent->IsFalling();
+	bIsFalling = OwnerCharacterMovementComponent->IsFalling();
 }

@@ -5,6 +5,8 @@
 #include "Controller/SKPlayerController.h"
 #include "SKActionComponent.generated.h"
 
+class UGameplayEffect;
+class UEquipmentInstance;
 class USKWeaponAnimData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -73,6 +75,29 @@ protected:
 private:
 	FTimerHandle GateTimerHandle;
 	bool bIsGateOpen;
+	
+#pragma endregion
+
+#pragma region Unequip
+public:	
+	void OnOwnerPossessed();
+
+	void AttachWeapon(const TArray<FName> SocketNames);
+
+	UPROPERTY(Replicated)
+	TArray<AActor*> WeaponActors;
+	
+	UPROPERTY()
+	float LastCombatTime;
+	
+protected:
+	void CheckAutoUnEquipped();
+	
+	UPROPERTY()
+	float AutoUnequipDelay = 10.0f;
+
+	UPROPERTY()
+	FTimerHandle AutoUnEquippedTimerHandle;
 	
 #pragma endregion
 };
