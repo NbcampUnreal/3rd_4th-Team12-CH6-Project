@@ -94,7 +94,7 @@ protected:
 	void CheckAutoUnEquipped();
 	
 	UPROPERTY()
-	float AutoUnequipDelay = 5.0f;
+	float AutoUnequipDelay = 10.0f;
 
 	UPROPERTY()
 	FTimerHandle AutoUnEquippedTimerHandle;
