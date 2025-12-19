@@ -45,10 +45,16 @@ void ASKAICharacterBase::PostInitializeComponents()
 	}
 	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USKAIAttributeSet::GetHealthAttribute()).AddUObject(this, &ASKAICharacterBase::OnHealthChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USKAIAttributeSet::GetStaminaAttribute()).AddUObject(this, &ASKAICharacterBase::OnStaminaChanged);
 }
 
 void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
 	float Damage = Data.OldValue - Data.NewValue;
 	
 	AActor* VictimActor = this;
@@ -65,6 +71,7 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 	if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
 	{
+		// 보스인 경우, 가드불가 공격인 경우, Blocked, Groggy인 경우도 발동하지 않게 수정 필요.
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
 		{
 			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
@@ -84,17 +91,35 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 		
 	if (FMath::IsNearlyZero(Data.NewValue))
 	{
-		if (!IsValid(AbilitySystemComponent))
-		{
-			return;
-		}
-
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
 		{
 			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
 			
 			AbilitySystemComponent->CancelAllAbilities();
 		}
+	}
+}
+
+void ASKAICharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	float CurrentStamina = Data.NewValue;
+
+	if (CurrentStamina > 0.f)
+	{
+		AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
+
+		AbilitySystemComponent->CancelAllAbilities();
+	}
+	else if (FMath::IsNearlyZero(CurrentStamina))
+	{
+		AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
+
+		AbilitySystemComponent->CancelAllAbilities();
 	}
 }
 
@@ -338,6 +363,8 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	// ---- 실제 스탯 적용 (AttributeSet or 내부 변수) ----
 	AttributeSet->SetHealth(MonsterData->MaxHealth);
 	AttributeSet->SetMaxHealth(MonsterData->MaxHealth);
+	AttributeSet->SetStamina(MonsterData->MaxStamina);
+	AttributeSet->SetMaxStamina(MonsterData->MaxStamina);
 	AttributeSet->SetAttack(MonsterData->Attack);
 	AttributeSet->SetArmor(MonsterData->Armor);
 	AttributeSet->SetPoise(MonsterData->Poise);

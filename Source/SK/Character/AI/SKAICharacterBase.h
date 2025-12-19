@@ -104,7 +104,9 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
-	
+
+	void OnStaminaChanged(const FOnAttributeChangeData& Data);
+
 	virtual void PossessedBy(AController* NewController) override;
 	
 	UFUNCTION()

@@ -6,6 +6,8 @@ USKAIAttributeSet::USKAIAttributeSet()
 {
 	InitHealth(300.f);
 	InitMaxHealth(300.f);
+	InitStamina(10.f);
+	InitMaxStamina(10.f);
 	InitAttack(20.f);
 	InitArmor(10.f);
 	InitPoise(20.f);
@@ -93,6 +95,16 @@ void USKAIAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 void USKAIAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAIAttributeSet, MaxHealth, OldMaxHealth);
+}
+
+void USKAIAttributeSet::OnRep_Stamina(const FGameplayAttributeData& OldStamina)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAIAttributeSet, MaxHealth, OldStamina);
+}
+
+void USKAIAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAIAttributeSet, MaxHealth, OldMaxStamina);
 }
 
 void USKAIAttributeSet::OnRep_Attack(const FGameplayAttributeData& OldAttack)
