@@ -46,52 +46,6 @@ void USK_GA_AI_Base::WaitEndAbility()
 
 void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 {
-	if (OwnEventTask1)
-	{
-		if (OwnEventTask1->IsActive())
-		{
-			OwnEventTask1->EndTask();
-		}
-	}
-
-	if (OwnEventTask2)
-	{
-		if (OwnEventTask2->IsActive())
-		{
-			OwnEventTask2->EndTask();
-		}
-	}
-	
-	if (OwnMontageTask)
-	{
-		if (OwnMontageTask->IsActive())
-		{
-			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-			if (IsValid(SourceASC))
-			{
-				SourceASC->CurrentMontageStop();
-			}
-			
-			OwnMontageTask->EndTask();
-		}
-	}
-			
-	if (OwnDelayTask)
-	{
-		if (OwnDelayTask->IsActive())
-		{
-			OwnDelayTask->EndTask();
-		}
-	}
-
-	if (OwnJumpTask)
-	{
-		if (OwnJumpTask->IsActive())
-		{
-			OwnJumpTask->EndTask();
-		}
-	}
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 }
 
@@ -163,11 +117,64 @@ void USK_GA_AI_Base::EndAbility(
 	{
 		CachedController->StopMovement();
 
-		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.CancelAbility"));
+		if (OwnEventTask1)
+		{
+			if (OwnEventTask1->IsActive())
+			{
+				OwnEventTask1->EndTask();
+			}
+		}
 
+		if (OwnEventTask2)
+		{
+			if (OwnEventTask2->IsActive())
+			{
+				OwnEventTask2->EndTask();
+			}
+		}
+	
+		if (OwnMontageTask)
+		{
+			if (OwnMontageTask->IsActive())
+			{
+				UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+				if (IsValid(SourceASC))
+				{
+					SourceASC->CurrentMontageStop();
+				}
+			
+				OwnMontageTask->EndTask();
+			}
+		}
+			
+		if (OwnDelayTask)
+		{
+			if (OwnDelayTask->IsActive())
+			{
+				OwnDelayTask->EndTask();
+			}
+		}
+
+		if (OwnJumpTask)
+		{
+			if (OwnJumpTask->IsActive())
+			{
+				OwnJumpTask->EndTask();
+			}
+		}
+		
+		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.CancelAbility"));
 	}
 	else
 	{
+		if (CommonEventTask)
+		{
+			if (CommonEventTask->IsActive())
+			{
+				CommonEventTask->EndTask();
+			}
+		}
+		
 		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 	}
 	

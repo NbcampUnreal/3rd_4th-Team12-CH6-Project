@@ -67,7 +67,6 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 	{
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("태그부여"));
 			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 			
 			AbilitySystemComponent->CancelAllAbilities();
