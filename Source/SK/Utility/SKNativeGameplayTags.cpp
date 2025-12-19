@@ -34,8 +34,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_01, "Ability.Skill.01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_02, "Ability.Skill.02");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_03, "Ability.Skill.03");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GuardCounter, "Ability.GuardCounter");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
@@ -88,7 +89,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Dual, "Weapon.Dual");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Katana, "Weapon.Katana");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Spear, "Weapon.Spear");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Warrior, "Weapon.Warrior");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Unarmed, "Weapon.Unarmed");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound, "Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM, "Sound.BGM");
@@ -195,6 +196,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard, "State.Action.Guard");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Perfect, "State.Action.Guard.Perfect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Success, "State.Action.Guard.Success");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_GuardCounter, "State.Action.Guard.GuardCounter");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_CounterReady, "State.Action.Guard.CounterReady");
+
+// 장착 해제
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Unequip, "State.Action.Unequip");
 
 // State-Condition (실제 플레이에 영향끼치는 상태)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition, "State.Condition");
@@ -204,6 +209,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
 
 // 히트, 넉백, 넉다운
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
+
+// 무기 장착
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Equip, "State.Condition.Equip");
 
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
@@ -250,3 +258,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_HealPotion, "GameplayCue.Item.HealPo
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.AttackPotion");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Data_DamageMultiplier, "Data.DamageMultiplier");

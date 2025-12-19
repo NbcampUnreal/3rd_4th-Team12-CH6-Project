@@ -115,7 +115,7 @@ void ASKCharacterBase::BeginPlay()
 
 void ASKCharacterBase::BaseSetting()
 {
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	// GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...

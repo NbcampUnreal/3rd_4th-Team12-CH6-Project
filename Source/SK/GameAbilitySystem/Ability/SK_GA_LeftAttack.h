@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SK_GA_CombatBase.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_LeftAttack.generated.h"
 
@@ -39,7 +40,7 @@ FORCEINLINE uint32 GetTypeHash(const FLeftComboKey& Key)
  * 
  */
 UCLASS()
-class SK_API USK_GA_LeftAttack : public USKGameplayAbility
+class SK_API USK_GA_LeftAttack : public USK_GA_CombatBase
 {
 	GENERATED_BODY()
 

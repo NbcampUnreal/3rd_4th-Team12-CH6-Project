@@ -6,7 +6,7 @@ void USKInteractableWidget::NativeConstruct()
 
 	if (DisplayText)
 	{
-		const FText FormattedText = FText::Format(FText::FromString(TEXT("E {0}")), InitialText);
+		const FText FormattedText = FText::Format(FText::FromString(TEXT("{0}")), InitialText);
 		DisplayText->SetText(FormattedText);
 	}
 	else
