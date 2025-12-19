@@ -5,6 +5,8 @@
 #include "Animation/SKPlayerAnimInstance.h"
 #include "Interaction/Ability/SK_GA_Unequip.h"
 #include "Net/UnrealNetwork.h"
+#include "PlayerState/SKPlayerState.h"
+#include "Weapon/SKWeaponData.h"
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 
 USKActionComponent::USKActionComponent()
@@ -73,6 +75,21 @@ void USKActionComponent::OnOwnerPossessed()
 	if (!Char || !Char->HasAuthority()) return;
 
 	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
+
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (!ASC) return;	
+	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
+	ASC->AddLooseGameplayTag(UnarmedTag);
+
+	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Char->GetPlayerState());
+	if (IsValid(PlayerState))
+	{
+		PlayerState->SetCurWeaponTag(UnarmedTag);
+	}
+	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+	if (!WeaponDataRow) return;
+	
+	Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 }
 
 void USKActionComponent::AttachWeapon(const TArray<FName> SocketNames)
