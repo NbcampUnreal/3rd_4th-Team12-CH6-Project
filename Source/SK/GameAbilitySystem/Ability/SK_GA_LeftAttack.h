@@ -89,9 +89,8 @@ public:
 	void OnMontageInterrupted();
 
 	
-	void ApplyDamageFromTrace();
-
-	void OnStopAttackTrace_Server();
+	virtual void ApplyDamageFromTrace() override;
+	virtual void OnStopAttackTrace_Server() override;
 
 protected:
 	UPROPERTY()
