@@ -90,6 +90,7 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 		return false;
 	}
 	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	ActionComponent->WeaponActors = SlotData.EquipmentInstance->GetSpawnedActors();
 	// USKCombatComponent* CombatComponent = Char->GetCombatComponent();
 	// CombatComponent->CurrentWeaponData = WeaponDataRow->WeaponData;
 	
