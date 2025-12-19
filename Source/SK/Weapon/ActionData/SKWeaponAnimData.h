@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
+#include "GameplayEffect.h"
 #include "SKWeaponAnimData.generated.h"
 
 class USKPlayerAnimInstance;
@@ -36,6 +37,21 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Dodge|Step")
 	TObjectPtr<UAnimMontage> StepMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Unequip")
+	TObjectPtr<UAnimMontage> UnequipMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Unequip")
+	TArray<FName> EquipSocketName;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Unequip")
+	TArray<FName> UnequipSocketName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Unequip")
+	TSubclassOf<UGameplayEffect> EquipGE;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Unequip")
+	TSubclassOf<UGameplayEffect> UnequipGE;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Block")
 	TObjectPtr<UAnimMontage> BlockMontage;
