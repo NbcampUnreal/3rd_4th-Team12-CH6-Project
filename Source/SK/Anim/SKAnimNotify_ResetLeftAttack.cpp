@@ -2,7 +2,6 @@
 
 
 #include "Anim/SKAnimNotify_ResetLeftAttack.h"
-#include "Component/BattleComponent.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Controller/SKPlayerController.h"
 
@@ -42,6 +41,5 @@ void USKAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAn
 	//
 	// USKCombatComponent* CombatComponent =  PlayerCharacter->GetCombatComponent();
 	// CombatComponent->Server_OnATKEndNotify(true);
-	UBattleComponent* BattleComponent =  PlayerCharacter->GetBattleComponent();
-	BattleComponent->Server_OnATKEndNotify(true);
+
 }

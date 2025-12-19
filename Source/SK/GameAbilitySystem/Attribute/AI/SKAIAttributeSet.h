@@ -93,11 +93,4 @@ protected:
 	
 	UFUNCTION()
 	void OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight);
-
-	// AI Control
-	void AddTag(FGameplayTag Tag) const;
-
-	void RemoveTag(FGameplayTag Tag) const;
-
-	void CancelAllAbilities() const;
 };

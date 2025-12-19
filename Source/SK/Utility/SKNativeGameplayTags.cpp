@@ -9,6 +9,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Monster_Boss, "Team.Monster.Boss");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event, "Event");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_LeftATKTraceEnd, "Event.LeftATKTraceEnd");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_EndAbility, "Event.EndAbility");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_CancelAbility, "Event.CancelAbility");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Hit, "Event.Hit");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Death, "Event.Death");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
@@ -27,18 +28,13 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Interaction, "Ability.InteractionTrace");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_SimpleInteract, "Ability.SimpleInteract");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK, "Ability.LeftATK");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe, "Ability.LeftATK.Axe");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_TwoHanded, "Ability.LeftATK.TwoHanded");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Cancel, "Ability.LeftATK.Cancel");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num01, "Ability.LeftATK.Axe.Num01");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num02, "Ability.LeftATK.Axe.Num02");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num03, "Ability.LeftATK.Axe.Num03");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_LeftATK_Axe_Num04, "Ability.LeftATK.Axe.Num04");
-
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_RightATK, "Ability.RightATK");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_01, "Ability.Skill.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_02, "Ability.Skill.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_03, "Ability.Skill.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
@@ -51,6 +47,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_JumpRush, "Ability.JumpRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ProjectileAttack, "Ability.ProjectileAttack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction, "Ability.HitReaction");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left1, "Combo.Left1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left2, "Combo.Left2");
@@ -59,6 +56,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left4, "Combo.Left4");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right1, "Combo.Right1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right2, "Combo.Right2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right3, "Combo.Right3");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LR, "Combo.LR");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LLR, "Combo.LLR");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestLeft, "Input.TestLeft");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestRight, "Input.TestRight");
 
@@ -225,6 +224,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Backstep, "AI.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Recovery, "AI.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_ProjectileAttack, "AI.ProjectileAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Boss, "AI.Boss");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_PowerAttack, "AI.PowerAttack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_HitReaction, "AI.HitReaction");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
@@ -253,3 +254,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Cooldown, "Item.Cooldown");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_HealPotion, "GameplayCue.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.AttackPotion");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");

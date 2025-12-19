@@ -1,5 +1,6 @@
 #include "Character/AI/SKAICharacterBase.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayEffectExtension.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
@@ -9,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
 #include "GameData/StaticData/MonsterDataTable.h"
+#include "Perception/AISense_Damage.h"
 
 ASKAICharacterBase::ASKAICharacterBase()
 {
@@ -29,8 +31,72 @@ ASKAICharacterBase::ASKAICharacterBase()
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); // or Full
-
+	
 	AttributeSet = CreateDefaultSubobject<USKAIAttributeSet>(TEXT("AttributeSet"));
+}
+
+void ASKAICharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USKAIAttributeSet::GetHealthAttribute()).AddUObject(this, &ASKAICharacterBase::OnHealthChanged);
+}
+
+void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Damage = Data.OldValue - Data.NewValue;
+	
+	AActor* VictimActor = this;
+	AActor* InstigatorActor = nullptr;
+	
+	if (const FGameplayEffectModCallbackData* ModData = Data.GEModData)
+	{
+		const FGameplayEffectContextHandle& EffectContextHandle = ModData->EffectSpec.GetEffectContext();
+		if (const FGameplayEffectContext* EffectContext = EffectContextHandle.Get())
+		{
+			InstigatorActor = EffectContext->GetInstigator();
+		}
+	}
+
+	if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
+	{
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("태그부여"));
+			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+			
+			AbilitySystemComponent->CancelAllAbilities();
+		}
+		
+		UAISense_Damage::ReportDamageEvent(
+		VictimActor,
+		VictimActor,        
+		InstigatorActor,   
+		Damage,       
+		VictimActor->GetActorLocation(),            
+		VictimActor->GetActorLocation()
+		);
+	}
+		
+	if (FMath::IsNearlyZero(Data.NewValue))
+	{
+		if (!IsValid(AbilitySystemComponent))
+		{
+			return;
+		}
+
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
+		{
+			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+			
+			AbilitySystemComponent->CancelAllAbilities();
+		}
+	}
 }
 
 void ASKAICharacterBase::PossessedBy(AController* NewController)
@@ -49,7 +115,7 @@ void ASKAICharacterBase::OnBoxComponentBeginOverlap(
 	const FHitResult& SweepResult
 	)
 {
-	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	AddTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
@@ -61,7 +127,7 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	int32 OtherBodyIndex
 	)
 {
-	AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
@@ -117,12 +183,12 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 	
 	if (AIDataAsset->TeamTag.IsValid())
 	{
-		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TeamTag);
+		AddTag(AIDataAsset->TeamTag);
 	}
 
 	if (AIDataAsset->TypeTag.IsValid())
 	{
-		AbilitySystemComponent->AddLooseGameplayTag(AIDataAsset->TypeTag);
+		AddTag(AIDataAsset->TypeTag);
 	}
 	/*
 	if (AIDataAsset->GiveTeamTagEffect)
@@ -153,6 +219,26 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 	}
 }
 
+void ASKAICharacterBase::AddTag(FGameplayTag Tag) const
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
+	AbilitySystemComponent->AddLooseGameplayTag(Tag);
+}
+
+void ASKAICharacterBase::RemoveTag(FGameplayTag Tag) const
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
+	AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
+}
+
 void ASKAICharacterBase::SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const
 {
 	FGameplayEventData EventData;
@@ -174,35 +260,9 @@ TObjectPtr<UStateTree> ASKAICharacterBase::GetStateTreeAsset() const
 	return StateTreeAsset;
 }
 
-int32 ASKAICharacterBase::GetCurrentMeleeIndex() const
-{
-	return CurrentMeleeIndex;
-}
-
 int32 ASKAICharacterBase::GetMaxMeleeIndex() const
 {
 	return MaxMeleeIndex;
-}
-
-void ASKAICharacterBase::SetMeleeIndex(int32 NewMeleeIndex)
-{
-	if (NewMeleeIndex == 0)
-	{
-		CurrentMeleeIndex += 1;
-
-		if (CurrentMeleeIndex == MaxMeleeIndex)
-		{
-			CurrentMeleeIndex = 1;
-		}
-	}
-	else if (NewMeleeIndex == -1)
-	{
-		CurrentMeleeIndex = 0;
-	}
-	else
-	{
-		CurrentMeleeIndex = NewMeleeIndex;
-	}
 }
 
 FVector ASKAICharacterBase::GetStartLocation() const

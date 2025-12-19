@@ -24,7 +24,7 @@ struct FRightComboKey
 	bool operator==(const FRightComboKey& Other) const
 	{
 		return FromState == Other.FromState &&
-			   InputTag  == Other.InputTag;
+			InputTag == Other.InputTag;
 	}
 };
 
@@ -44,6 +44,7 @@ UCLASS()
 class SK_API USK_GA_RightAttack : public USK_GA_CombatBase
 {
 	GENERATED_BODY()
+
 public:
 	USK_GA_RightAttack();
 
@@ -63,24 +64,26 @@ public:
 	override;
 
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateCancelAbility)
+	                           const FGameplayAbilityActorInfo* ActorInfo,
+	                           const FGameplayAbilityActivationInfo ActivationInfo,
+	                           bool bReplicateCancelAbility)
 	override;
 
 	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	OUT FGameplayTagContainer* OptionalRelevantTags = nullptr)
+	                       const FGameplayAbilityActorInfo* ActorInfo,
+	                       OUT FGameplayTagContainer* OptionalRelevantTags = nullptr)
 	const override;
 
 	void BindComboCache();
 	void PrepareComboCache(USKWeaponData* WeaponData);
-	
+
 	int32 CheckCombo(const FGameplayAbilityActorInfo* ActorInfo) const;
 	FName GetComboMontageSection(int32 ComboIndex) const;
 
 	void ApplyComboStateEffect(const FGameplayAbilityActorInfo* ActorInfo);
 
+
+	FGameplayTag GetComboGiveTag(int32 ComboIndex) const;
 	
 	
 	UFUNCTION()
@@ -89,26 +92,26 @@ public:
 	UFUNCTION()
 	void OnMontageInterrupted();
 
-	
-	void ApplyDamageFromTrace();
 
-	void OnStopAttackTrace_Server();
+	virtual void ApplyDamageFromTrace() override;
+
+	virtual void OnStopAttackTrace_Server() override;
 
 protected:
 	UPROPERTY()
 	TObjectPtr<ASKPlayerCharacter> CachedCharacter;
-	
+
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> LeftAttackDamageGE;
 
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TSubclassOf<UGameplayEffect> TagGiveGE;
-	
+
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TObjectPtr<UDataTable> CurrentComboTable;
-	
+
 	TMap<FRightComboKey, const FComboTableRow*> ComboCache;
 
 	UPROPERTY()
-	int32 CurrentComboIndex = 0;	
+	int32 CurrentComboIndex = 0;
 };

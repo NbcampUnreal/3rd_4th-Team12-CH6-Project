@@ -38,13 +38,7 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
-
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
+	
 	CurrentComboIndex = CheckCombo(ActorInfo);
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
@@ -70,6 +64,11 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	//사용 O
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 	PlayTask->ReadyForActivation();
+
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+	}
 }
 
 void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -320,6 +319,8 @@ void USK_GA_LeftAttack::OnMontageInterrupted()
 
 void USK_GA_LeftAttack::ApplyDamageFromTrace()
 {
+	Super::ApplyDamageFromTrace();
+	
 	//인덱스 판단 태그로 변경
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
@@ -348,6 +349,6 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 
 void USK_GA_LeftAttack::OnStopAttackTrace_Server()
 {
-	//몽타주 1번에 여러 공격이 들어갈 때 데미지 빨리 처리 시 불리는 함수
-	ApplyDamageFromTrace();
+	Super::OnStopAttackTrace_Server();
+	// 상속받아서 진행
 }

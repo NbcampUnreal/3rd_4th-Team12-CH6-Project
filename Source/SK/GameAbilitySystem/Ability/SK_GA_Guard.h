@@ -43,8 +43,6 @@ protected:
 	/** Guard 성공 이벤트 처리 */
 	UFUNCTION()
 	void OnGuardSuccess(FGameplayEventData Payload);
-
-	void PlayBlockMontage();
 	
 	/** 퍼펙트 가드 윈도우 시작 */
 	void StartPerfectGuardWindow();
@@ -67,7 +65,7 @@ private:
 	FTimerHandle PerfectGuardTimerHandle;
 
 	UPROPERTY()
-	TObjectPtr<UAbilityTask_PlayMontageAndWait> BlockMontageTask;
+	TObjectPtr<UAbilityTask_PlayMontageAndWait> GuardMontageTask;
 
 	/** Guard 성공 이벤트 대기 */
 	UPROPERTY()
@@ -78,5 +76,5 @@ private:
 	TObjectPtr<UAbilityTask_WaitAttributeChange> WaitStaminaChangeTask;
 
 	UPROPERTY()
-	TObjectPtr<UAnimMontage> BlockMontage;
+	TObjectPtr<UAnimMontage> GuardMontage;
 };
