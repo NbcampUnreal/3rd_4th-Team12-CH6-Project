@@ -13,6 +13,9 @@ USK_GA_Unequip::USK_GA_Unequip()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action.Unequip")));
+	BlockAbilitiesWithTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action")));
 }
 
 void USK_GA_Unequip::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -25,23 +28,25 @@ void USK_GA_Unequip::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	if (!Char)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
 	}
 	
 	USKActionComponent* ActionComponent = Char->GetActionComponent();
 	if (!ActionComponent)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		return;
 	}
 	
 	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
-	if (!WeaponAnimData) return;
+	if (!WeaponAnimData)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
 	
 	UAnimMontage* UnequipMontage = WeaponAnimData->UnequipMontage;
 	if (!UnequipMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UnequipMontage is null"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}
 	
 	if (UnequipMontage)
@@ -66,5 +71,54 @@ void USK_GA_Unequip::OnCompleted()
 
 void USK_GA_Unequip::OnCanceled()
 {
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Char)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+		
+	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	if (!ActionComponent)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (ASC)
+	{
+		const FGameplayTag EquipTag = FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Equip"));
+		// ASC->RemoveLooseGameplayTag(EquipTag);
+		
+		USKWeaponAnimData* AnimData = ActionComponent->GetWeaponAnimData();
+		if (!AnimData)
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		}
+		
+		if (AnimData->UnequipGE && AnimData->EquipGE)
+		{
+			ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->UnequipGE, ASC, 1);
+			ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->EquipGE, ASC, 1);
+			
+			FGameplayEffectSpecHandle UnequipGESpecHandle = ASC->MakeOutgoingSpec(AnimData->UnequipGE, 1.f, ASC->MakeEffectContext());
+			if (UnequipGESpecHandle.IsValid())
+			{
+				ASC->ApplyGameplayEffectSpecToSelf(*UnequipGESpecHandle.Data.Get());
+			}
+		}
+	}
+
+	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
+	if (!WeaponAnimData)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+
+	TArray<FName> UnequipSocketName = WeaponAnimData->UnequipSocketName;
+
+	ActionComponent->AttachWeapon(UnequipSocketName);
+	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
