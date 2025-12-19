@@ -49,6 +49,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ProjectileAttack, "Ability.ProjectileAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction, "Ability.HitReaction");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Blocked, "Ability.Blocked");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Groggy, "Ability.Groggy");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left1, "Combo.Left1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left2, "Combo.Left2");
