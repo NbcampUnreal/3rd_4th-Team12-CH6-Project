@@ -64,16 +64,22 @@ void ASKAICharacter::PossessedBy(AController* NewController)
 void ASKAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	float Z = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	FVector NewLocation = GetActorLocation();
+	NewLocation.Z += Z;
 	
 	if (HealthWidgetComponent)
 	{
 		UUserWidget* HealthWidget = HealthWidgetComponent->GetUserWidgetObject();
 		if (HealthWidget)
 		{
-			UMonsterHealthWidget* MonsterHealt = Cast<UMonsterHealthWidget>(HealthWidget);
-			if (MonsterHealt)
+			UMonsterHealthWidget* MonsterHealth = Cast<UMonsterHealthWidget>(HealthWidget);
+			if (MonsterHealth)
 			{
-				MonsterHealt->SettingWidget(this);
+				MonsterHealth->SettingWidget(this);
+
+				HealthWidgetComponent->SetWorldLocation(NewLocation);
 			}
 		}
 	}
@@ -87,6 +93,9 @@ void ASKAICharacter::BeginPlay()
 			if (MonsterDamage)
 			{
 				MonsterDamage->SettingWidget(this);
+
+				NewLocation.Z += 30.f;
+				DamageWidgetComponent->SetWorldLocation(NewLocation);
 			}
 		}
 	}

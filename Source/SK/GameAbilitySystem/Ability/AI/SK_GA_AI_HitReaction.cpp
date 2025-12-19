@@ -1,6 +1,7 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_HitReaction.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystemComponent.h"
 
 USK_GA_AI_HitReaction::USK_GA_AI_HitReaction()
 {
@@ -10,13 +11,11 @@ USK_GA_AI_HitReaction::USK_GA_AI_HitReaction()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.HitReaction")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 }
 
 void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> AnimMontage)
 {
-	//SetFocus();
-	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
@@ -67,7 +66,15 @@ void USK_GA_AI_HitReaction::EndAbility(
 	bool bWasCancelled
 	)
 {
-	//ClearFocus();
-	//태그제거
+	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
+	if (IsValid(OwnerASC))
+	{
+		if (OwnerASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction"))))
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("태그제거"));
+			OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+		}
+	}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
