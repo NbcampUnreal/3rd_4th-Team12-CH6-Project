@@ -89,7 +89,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Dual, "Weapon.Dual");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Katana, "Weapon.Katana");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Spear, "Weapon.Spear");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Warrior, "Weapon.Warrior");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon_Unarmed, "Weapon.Unarmed");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound, "Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM, "Sound.BGM");
@@ -205,6 +205,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Death, "State.Condition.Death");
 
 // 히트, 넉백, 넉다운
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
+
+// 무기 장착
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Equip, "State.Condition.Equip");
 
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
