@@ -197,6 +197,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Perfect, "State.Action.Guard.Perfe
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Guard_Success, "State.Action.Guard.Success");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_GuardCounter, "State.Action.Guard.GuardCounter");
 
+// 장착 해제
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action_Unequip, "State.Action.Guard.Unequip");
+
 // State-Condition (실제 플레이에 영향끼치는 상태)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition, "State.Condition");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Stun, "State.Condition.Stun");

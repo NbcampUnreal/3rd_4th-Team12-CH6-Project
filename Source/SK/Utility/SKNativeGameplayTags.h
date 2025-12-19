@@ -190,6 +190,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_Guard_Perfect);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_Guard_Success);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_GuardCounter);
 
+// 장착 해제
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Action_Unequip);
+
 //Condition -실제 플레이에 영향끼치는 상태
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Condition_Stun);
