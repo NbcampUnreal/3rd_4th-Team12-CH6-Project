@@ -25,21 +25,28 @@ struct FSKBattleState
 };
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SK_API UBattleComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UBattleComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-							   FActorComponentTickFunction* ThisTickFunction) override;
+	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION(Server, Reliable)
+	void Server_Input_Skill_01();
+	UFUNCTION(Server, Reliable)
+	void Server_Input_Skill_02();
+	UFUNCTION(Server, Reliable)
+	void Server_Input_Skill_03();
 
 #pragma region Montage
 
@@ -47,12 +54,12 @@ public:
 	UAnimMontage* GetSkillMontage(int32 Index);
 	UAnimMontage* GetRightATKMontage(int32 Index);
 #pragma endregion
-	
+
 #pragma region AttackTrace
 	void StartTrace();
 	void StopTrace();
 	void PerformTrace(float DeltaTime);
-	
+
 	void ClearHitActor();
 	void SetIsTraced(bool ArgIsTracing);
 	const TArray<AActor*>& GetHitActors();
@@ -61,13 +68,13 @@ public:
 	void Server_StartTrace();
 	UFUNCTION(Server, Reliable)
 	void Server_StopTrace();
-	
+
 	UFUNCTION(Server, Reliable)
 	void Server_LeftATK_ApplyDamage();
 	UFUNCTION(Server, Reliable)
 	void Server_ATKTYPE_ApplyDamage(const FGameplayTag& AttackTag);
 
-	
+
 #pragma endregion
 
 #pragma region WeaponData
@@ -76,14 +83,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
 	TObjectPtr<USKWeaponData> CurrentWeaponData;
-	
-#pragma endregion 
+
+#pragma endregion
 	void InitializeWeaponSocket(const FSKWeaponDataRow* Row);
 	void InitializeWeaponData(const FWeaponDataRow* Row);
-protected:
 
+protected:
 	FString FindWeaponTagName();
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* WeaponMesh;
 
@@ -91,15 +98,14 @@ protected:
 	float CapsuleRadius = 30.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CapsultHalfHeight = 60.f;
-	
-private:
 
+private:
 	UPROPERTY(ReplicatedUsing=OnRep_ComboState)
 	FSKBattleState ComboState;
 
 	UFUNCTION()
 	void OnRep_ComboState();
-	
+
 
 #pragma region TraceVariable
 	bool bIsTracing = false;
@@ -119,6 +125,4 @@ private:
 	FVector PrevStart;
 	FVector PrevEnd;
 #pragma endregion
-	
-		
 };
