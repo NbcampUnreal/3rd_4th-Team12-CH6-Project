@@ -13,7 +13,7 @@
 #include "Constants/SKGameConstants.h"
 #include "Engine/OverlapResult.h"
 #include "GameFramework/Character.h"
-#include "Component/SKCombatComponent.h"
+#include "Component/BattleComponent.h"
 #include "GameInstance/SKGameInstance.h"
 #include "GameMode/SKGameMode.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
@@ -640,18 +640,40 @@ void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Val
 	if (!IsValid(PlayerCharacter))
 		return;
 
-	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
-	CombatComponent->Server_Input_Skill_01();
+	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
+	BattleComponent->Server_Input_Skill_01();
 }
 
 void ASKPlayerController::Active_QuickSlotAction_01(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_01"));
+
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
+	BattleComponent->Server_Input_Skill_02();
 }
 
 void ASKPlayerController::Active_QuickSlotAction_02(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_02"));
+
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
+	BattleComponent->Server_Input_Skill_03();
 }
 
 void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value)
