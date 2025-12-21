@@ -226,23 +226,7 @@ void ASKPlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	SetPlayerStateTag();
-	// ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
-	// if (!PS)
-	// 	return;
-	//
-	// AbilitySystemComponent = PS->GetAbilitySystemComponent();
-	// AttributeSet = PS->GetAttributeSet();
-	//
-	// // AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-	// SetTraceSocket();
-	//
-	// GetWorld()->GetTimerManager().SetTimer(
-	// 	InitASCTimerHandle,
-	// 	this,
-	// 	&ASKPlayerCharacter::TryInitASC,
-	// 	0.01f,
-	// 	true
-	// );
+
 }
 
 
