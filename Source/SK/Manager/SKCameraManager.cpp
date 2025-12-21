@@ -3,6 +3,9 @@
 
 #include "Manager/SKCameraManager.h"
 
+#include "SKCameraShakeBase.h"
+#include "Camera/CameraShakeBase.h"
+#include "Shakes/PerlinNoiseCameraShakePattern.h"
 #include "Controller/SKPlayerController.h"
 
 
@@ -13,6 +16,16 @@ ASKCameraManager::ASKCameraManager()
 void ASKCameraManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void ASKCameraManager::PlayAttackCameraShake(float YawAmplitude, float PitchAmplitude, float Frequency, float Duration)
+{
+	USKCameraShakeBase::G_YawAmp     = YawAmplitude;
+	USKCameraShakeBase::G_PitchAmp  = PitchAmplitude;
+	USKCameraShakeBase::G_Frequency = Frequency;
+	USKCameraShakeBase::G_Duration  = Duration;
+
+	StartCameraShake(USKCameraShakeBase::StaticClass());
 }
 
 

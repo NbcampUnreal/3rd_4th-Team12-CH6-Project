@@ -19,6 +19,13 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	void PlayAttackCameraShake(
+		float YawAmplitude,
+		float PitchAmplitude,
+		float Frequency,
+		float Duration
+	);
+
 	bool ValidateLockOn(AActor* Player);
 	void AdjustCameraDistance(float WheelValue);
 
@@ -85,7 +92,7 @@ public:
 	bool bLockOnReleasing = false;
 
 	void BeginLockOnRelease(const FTViewTarget& OutVT);
-	void LerpLockOnOff(FVector& OutLoc,FRotator& OutRot);
+	void LerpLockOnOff(FVector& OutLoc, FRotator& OutRot);
 
 	float LockOnReleaseTime = 0.f;
 	float LockOnReleaseDuration = 0.25f;
