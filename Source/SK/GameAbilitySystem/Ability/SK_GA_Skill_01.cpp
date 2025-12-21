@@ -5,9 +5,10 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "Animation/SKPlayerAnimInstance.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Component/SKCombatComponent.h"
+#include "Component/BattleComponent.h"
+#include "GameData/StaticData/ComboTableRow.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -17,40 +18,50 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		return;
-	}
-
-	ASKPlayerState* SKPlayerState = Cast<ASKPlayerState>(GetOwningActorFromActorInfo());
-	if (!IsValid(SKPlayerState))
-		return;
-
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
-		return;
-
-	UAnimInstance* BaseAnim = Character->GetMesh()->GetAnimInstance();
-	if (!IsValid(BaseAnim))
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
+	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
+	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
-	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
+	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, true);
 
+	CurrentComboIndex = CheckCombo(ActorInfo);
+	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
+	BindComboCache();
 
-	CombatComponent->ResetComboState();
+	FName SectionName = GetComboMontageSection(CurrentComboIndex);
 
+	//몽타주 실행 추가
+	
+	UAnimMontage* Montage = CurrentBattleComponent->GetSkillMontage(MontageIndex);
 
-	UAnimMontage* Montage = CombatComponent->GetSkillMontage(0);
-	FName SectionName = FName(*FString::Printf(TEXT("Skill_00")));
+	UAbilityTask_PlayMontageAndWait* PlayTask =
+	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		Montage,
+		1.0f,
+		SectionName
+	);
+	
+	PlayTask->OnCompleted.AddDynamic(this, &USK_GA_Skill_01::OnMontageCompleted);
+	PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_Skill_01::OnMontageInterrupted);
+	PlayTask->OnCancelled.AddDynamic(this, &USK_GA_Skill_01::OnMontageInterrupted);
+	
+	//사용 O
+	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
+	PlayTask->ReadyForActivation();
 
-	CombatComponent->Multicast_PlayMontage(Montage, SectionName);
-	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, true);
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+	}
+	
 }
 
 void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -63,10 +74,18 @@ void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
 
-	// PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
+	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
+
+	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
 	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void USK_GA_Skill_01::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 bool USK_GA_Skill_01::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -75,36 +94,146 @@ bool USK_GA_Skill_01::CheckCost(const FGameplayAbilitySpecHandle Handle, const F
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 	if (!result)
 	{
-		ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
-		if (!IsValid(Character))
-			return result;
-
-		ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-		USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
-		CombatComponent->ResetComboState();
-
-		PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
+		CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
 	}
 
 	return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 }
 
+void USK_GA_Skill_01::BindComboCache()
+{
+	if (!CurrentComboTable)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("BindComboCache failed: ComboTable is null"));
+		return;
+	}
+
+	if (CurrentComboTable->GetRowStruct() != FComboTableRow::StaticStruct())
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("BindComboCache failed: RowStruct mismatch"));
+		return;
+	}
+
+	ComboCache.Empty();
+
+	for (const auto& Pair : CurrentComboTable->GetRowMap())
+	{
+		const FComboTableRow* Row =
+			reinterpret_cast<const FComboTableRow*>(Pair.Value);
+
+		if (!Row)
+		{
+			continue;
+		}
+
+		FSkillComboKey Key;
+		Key.FromState = Row->FromState;
+		Key.InputTag  = Row->InputTag;
+
+		if (ComboCache.Contains(Key))
+		{
+			
+			continue;
+		}
+
+		ComboCache.Add(Key, Row);
+	}
+}
+
+void USK_GA_Skill_01::PrepareComboCache(USKWeaponData* WeaponData)
+{
+	if (!WeaponData)
+		return;
+
+	if (WeaponData->ComboTable)
+	{
+		CurrentComboTable = WeaponData->ComboTable;
+	}
+}
+
+int32 USK_GA_Skill_01::CheckCombo(const FGameplayAbilityActorInfo* ActorInfo) const
+{
+	if (!ActorInfo || !ActorInfo->AbilitySystemComponent.IsValid())
+	{
+		return 0;
+	}
+
+	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+
+	if (ASC->HasMatchingGameplayTag(TAG_Combo_Skill2))
+	{
+		return 2;
+	}
+	else if (ASC->HasMatchingGameplayTag(TAG_Combo_Skill3))
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+FName USK_GA_Skill_01::GetComboMontageSection(int32 ComboIndex) const
+{
+	switch (ComboIndex)
+	{
+	case 0:
+		return FName(TEXT("Combo_01"));
+
+	case 1:
+		return FName(TEXT("Combo_02"));
+
+	case 2:
+		return FName(TEXT("Combo_03"));
+
+	case 3:
+		return FName(TEXT("Combo_04"));
+
+	default:
+		return NAME_None;
+	}
+}
+
+void USK_GA_Skill_01::OnMontageCompleted()
+{
+	EndAbility(
+		CurrentSpecHandle,
+		CurrentActorInfo,
+		CurrentActivationInfo,
+		false,
+		false
+	);
+}
+
+void USK_GA_Skill_01::OnMontageInterrupted()
+{
+	EndAbility(
+		CurrentSpecHandle,
+		CurrentActorInfo,
+		CurrentActivationInfo,
+		false,
+		true
+	);
+}
+
 void USK_GA_Skill_01::ApplyDamageFromTrace()
 {
+	Super::ApplyDamageFromTrace();
+
+	//인덱스 판단 태그로 변경
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
 		return;
-	USKCombatComponent* CombatComponent = PC->GetCombatComponent();
-	int LeftATKIndex = CombatComponent->GetComboIndex();
-	int32 MaxIndex = SkillDamageGE.Num() - 1;
-	int32 SafeIndex = FMath::Clamp(LeftATKIndex, 0, MaxIndex);
 
-	for (AActor* HitActor : CombatComponent->GetHitActors())
+	UBattleComponent* BattleComponent = PC->GetBattleComponent();
+
+	for (AActor* HitActor : BattleComponent->GetHitActors())
 	{
 		if (!HitActor)
 			continue;
 
-		TSubclassOf<UGameplayEffect> EffectClass = SkillDamageGE[SafeIndex];
+		TSubclassOf<UGameplayEffect> EffectClass = SkillDamageGE[CurrentComboIndex];
 
 		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
 
@@ -120,6 +249,5 @@ void USK_GA_Skill_01::ApplyDamageFromTrace()
 
 void USK_GA_Skill_01::OnStopAttackTrace_Server()
 {
-	ApplyDamageFromTrace();
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	Super::OnStopAttackTrace_Server();
 }
