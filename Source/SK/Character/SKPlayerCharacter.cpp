@@ -121,6 +121,8 @@ void ASKPlayerCharacter::PossessedBy(AController* NewController)
 	{
 		PS->EquipmentComponentSetting();
 	}
+
+	ActionComponent->OnOwnerPossessed();
 }
 
 void ASKPlayerCharacter::PostInitializeComponents()

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameAbilitySystem/Ability/SK_GA_CombatBase.h"
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 #include "SK_GA_Guard.generated.h"
 
@@ -14,7 +15,7 @@ class UAnimMontage;
  * 
  */
 UCLASS()
-class SK_API USK_GA_Guard : public USKGameplayAbility
+class SK_API USK_GA_Guard : public USK_GA_CombatBase
 {
 	GENERATED_BODY()
 
@@ -56,6 +57,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Guard")
 	float PerfectGuardDuration = 0.5f;
 
+	/** 가드카운터 판정 시간 */
+	UPROPERTY(EditDefaultsOnly, Category = "Guard")
+	float GuardCountDuration = 0.3f;
+
 	/** 가드 시작 최소 스테미너 */
 	UPROPERTY(EditDefaultsOnly, Category = "Guard")
 	float MinGuardStamina = 10.f;
@@ -76,4 +81,7 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> GuardMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> GE_GuardCounterReady;
 };

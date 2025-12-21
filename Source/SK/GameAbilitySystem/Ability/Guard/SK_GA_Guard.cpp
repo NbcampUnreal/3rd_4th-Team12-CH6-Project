@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameAbilitySystem/Ability/SK_GA_Guard.h"
+#include "GameAbilitySystem/Ability/Guard/SK_GA_Guard.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Actor.h"
 #include "TimerManager.h"
@@ -182,6 +182,36 @@ void USK_GA_Guard::OnGuardSuccess(FGameplayEventData Payload)
 		},
 		1.5f,
 		false
+	);
+
+	// Perfect Guard인지 확인
+	bool bIsPerfectGuard = ASC->HasMatchingGameplayTag(TAG_State_Action_Guard_Perfect);
+	if (!bIsPerfectGuard) return;
+	
+	// 🔥 서버에서만 CounterReady 부여
+	if (!HasAuthority(&CurrentActivationInfo))
+		return;
+
+	if (!GE_GuardCounterReady)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[GA_Guard] GE_GuardCounterReady is not set"));
+		return;
+	}
+
+	// GE Spec 생성
+	FGameplayEffectSpecHandle SpecHandle =
+		MakeOutgoingGameplayEffectSpec(GE_GuardCounterReady, 1.f);
+
+	if (!SpecHandle.IsValid())
+		return;
+
+	// Owner에게 적용 (→ 태그 부여 + 자동 제거 + 복제)
+	ApplyGameplayEffectSpecToOwner(
+		CurrentSpecHandle,
+		CurrentActorInfo,
+		CurrentActivationInfo,
+		SpecHandle
 	);
 }
 

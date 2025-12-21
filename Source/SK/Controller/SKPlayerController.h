@@ -163,7 +163,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="SK|Input")
 	TObjectPtr<UInputAction> GuardAction;
-
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SK|LockOn")
 	float LockOnRadius = 1500.f;

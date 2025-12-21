@@ -552,7 +552,21 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 		ServerCancelAbility(ASC, LeftTagContainer);
 	}
 
-	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK));
+	FGameplayTagContainer GuardCounterTag;
+	GuardCounterTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.GuardCounter")));
+
+	if (ASC->TryActivateAbilitiesByTag(GuardCounterTag))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GuardCounter Success"));
+	}
+	else if (ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK)))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Left Attack Success"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Left Key Fail"));
+	}
 
 	bCanMaintainCombo = false;
 }
@@ -753,7 +767,7 @@ void ASKPlayerController::Active_QuickSlotItem_02(const FInputActionValue& Value
 
 void ASKPlayerController::StartGuard(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("StartGuard"));
+	UE_LOG(LogTemp, Warning, TEXT("[Controller] StartGuard"));
 	APawn* ControlledPawn = GetPawn();
 	if (!IsValid(ControlledPawn))
 		return;
@@ -775,7 +789,7 @@ void ASKPlayerController::StartGuard(const FInputActionValue& Value)
 
 void ASKPlayerController::StopGuard(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("StopGuard"));
+	UE_LOG(LogTemp, Warning, TEXT("[Controller] StopGuard"));
 	APawn* ControlledPawn = GetPawn();
 	if (!IsValid(ControlledPawn))
 		return;

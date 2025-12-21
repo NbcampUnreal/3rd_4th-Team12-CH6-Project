@@ -47,4 +47,7 @@ public:
 protected:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> SpawnedActors;
+
+public:
+	FORCEINLINE TArray<AActor*> GetSpawnedActors() const { return SpawnedActors; }
 };
