@@ -10,7 +10,28 @@
 #include "AbilitySystemBlueprintLibrary.h"
 
 
+bool USKAIDamageExecution::IsFrontGuardable(
+	const AActor* Attacker,
+	const AActor* Defender,
+	float DotThreshold
+) const
+{
+	if (!Attacker || !Defender)
+	{
+		return false;
+	}
 
+	const FVector DefenderForward = Defender->GetActorForwardVector();
+	const FVector AttackDir =
+		(Attacker->GetActorLocation() - Defender->GetActorLocation()).GetSafeNormal();
+
+	const float Dot = FVector::DotProduct(DefenderForward, AttackDir);
+
+	// 디버그용
+	UE_LOG(LogTemp, Warning, TEXT("[GuardCheck] Dot=%.2f"), Dot);
+
+	return Dot >= DotThreshold;
+}
 
 USKAIDamageExecution::USKAIDamageExecution()
 {
@@ -78,6 +99,18 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	float FinalDamage  = AttackPower* DamageMultiplier;
 
 	// ==============================
+	// 1. 플레이어 무적 판정
+	// ==============================
+	const bool bIsInvincibility =
+		TargetASC->HasMatchingGameplayTag(TAG_State_invincibility);
+	if (bIsInvincibility)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player is invincibility"));
+		return;
+	}
+	
+
+	// ==============================
 	// 2. 가드 / 퍼펙트 가드 판정
 	// ==============================
 
@@ -87,16 +120,20 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	const bool bIsPerfectGuard =
 		TargetASC->HasMatchingGameplayTag(TAG_State_Action_Guard_Perfect);
 
+	AActor* SourceActor = SourceASC->GetAvatarActor();
+	AActor* TargetActor = TargetASC->GetAvatarActor();
+	const bool bIsGuardRotator = IsFrontGuardable(SourceActor, TargetActor, GuardAngle);
+
 	float StaminaCost = 0.f;
 
 	// 퍼펙트 가드 → 데미지 0
-	if (bIsPerfectGuard)
+	if (bIsPerfectGuard && bIsGuarding)
 	{
 		FinalDamage = 0.f;
 		StaminaCost = PerfectGuardCost;
 	}
 	// 일반 가드 → 데미지 감소
-	else if (bIsGuarding)
+	else if (bIsGuarding && bIsGuardRotator)
 	{
 		FinalDamage *= DamageReducedByGuard;
 
@@ -115,9 +152,9 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	// 3. Guard 성공 이벤트 전송
 	// ==============================
 
-	if ((bIsGuarding || bIsPerfectGuard) && FinalDamage >= 0.f)
+	if ((bIsGuarding || bIsPerfectGuard) && bIsGuardRotator && FinalDamage >= 0.f)
 	{
-		AActor* TargetActor = TargetASC->GetAvatarActor();
+		//AActor* TargetActor = TargetASC->GetAvatarActor();
 		if (TargetActor)
 		{
 			FGameplayEventData EventData;
