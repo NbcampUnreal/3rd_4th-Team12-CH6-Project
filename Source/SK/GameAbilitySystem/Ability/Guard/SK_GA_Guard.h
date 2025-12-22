@@ -81,4 +81,7 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> GuardMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> GE_GuardCounterReady;
 };

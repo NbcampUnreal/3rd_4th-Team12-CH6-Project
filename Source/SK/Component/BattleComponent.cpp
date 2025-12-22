@@ -10,6 +10,7 @@
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/SKWeaponData.h"
 
 // Sets default values for this component's properties
@@ -30,6 +31,39 @@ void UBattleComponent::BeginPlay()
 
 	SetWeaponMesh_Init();
 	
+}
+
+void UBattleComponent::Server_Input_Skill_01_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	
+	FGameplayTagContainer Container;
+	Container.AddTag(TAG_Ability_Skill_01);
+	ASC->TryActivateAbilitiesByTag(Container);
+}
+
+void UBattleComponent::Server_Input_Skill_02_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	
+	FGameplayTagContainer Container;
+	Container.AddTag(TAG_Ability_Skill_02);
+	ASC->TryActivateAbilitiesByTag(Container);
+}
+
+void UBattleComponent::Server_Input_Skill_03_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	
+	FGameplayTagContainer Container;
+	Container.AddTag(TAG_Ability_Skill_03);
+	ASC->TryActivateAbilitiesByTag(Container);
 }
 
 UAnimMontage* UBattleComponent::GetLeftATKMontage(int32 Index)
