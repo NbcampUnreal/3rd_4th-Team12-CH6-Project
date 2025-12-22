@@ -103,7 +103,7 @@ void ASKPickupItem::ExecuteInteraction_Implementation(AActor* Interactor)
 {
 	if (!HasAuthority()) return;
 
-	PreExecuteInteraction();
+	PreExecuteInteraction(Interactor);
 	
 	AddToInventory(Interactor, ItemInfo.ItemID, ItemInfo.ItemCount);
 
