@@ -50,12 +50,12 @@ public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
+	void OnInteractionBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
 						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
 						bool bFromSweep, const FHitResult& SweepResult);
 	
 	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	void OnInteractionEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	// 상호작용 실행 하기 전 호출 필수

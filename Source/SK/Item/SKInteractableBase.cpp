@@ -26,8 +26,8 @@ ASKInteractableBase::ASKInteractableBase()
 
 	// InteractionCollision->SetHiddenInGame(false);
 	
-	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapBegin);
-	InteractionCollision->OnComponentEndOverlap.AddDynamic(this, &ASKInteractableBase::OnOverlapEnd);
+	InteractionCollision->OnComponentBeginOverlap.AddDynamic(this, &ASKInteractableBase::OnInteractionBeginOverlap);
+	InteractionCollision->OnComponentEndOverlap.AddDynamic(this, &ASKInteractableBase::OnInteractionEndOverlap);
 	InteractionCollision->SetIsReplicated(true);
 	
 	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>("InteractionWidget");
@@ -58,7 +58,7 @@ void ASKInteractableBase::BeginPlay()
 	}
 }
 
-void ASKInteractableBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void ASKInteractableBase::OnInteractionBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 							  bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -72,7 +72,7 @@ void ASKInteractableBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 
 }
 
-void ASKInteractableBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void ASKInteractableBase::OnInteractionEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (!HasAuthority()) return;
