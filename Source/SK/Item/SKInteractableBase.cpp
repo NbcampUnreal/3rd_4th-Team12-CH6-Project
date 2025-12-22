@@ -49,9 +49,9 @@ void ASKInteractableBase::BeginPlay()
 	
 	SetReplicateMovement(true);
 
-	if (!InteractionUI) return;
+	if (!InteractionWidgetClass) return;
 
-	if (USKInteractableWidget* WidgetClass = Cast<USKInteractableWidget>(InteractionUI))
+	if (USKInteractableWidget* WidgetClass = Cast<USKInteractableWidget>(InteractionWidgetClass))
 	{
 		InteractionWidget->SetWidget(WidgetClass);
 		WidgetClass->SetInitialText(InteractableText);
@@ -85,9 +85,28 @@ void ASKInteractableBase::OnInteractionEndOverlap(UPrimitiveComponent* Overlappe
 
 }
 
-void ASKInteractableBase::PreExecuteInteraction()
+void ASKInteractableBase::PreExecuteInteraction(AActor* Interactor)
 {
-	bCanInteract = false;
+	if (!Interactor) return;
+	
+	if (Interactor->HasAuthority())
+	{
+		bCanInteract = false;
+		HandleCanInteractChanged();
+	}
+	else
+	{
+		bCanInteract = false;
+	}
+}
+
+void ASKInteractableBase::OnRep_CanInteract()
+{
+	HandleCanInteractChanged();
+}
+
+void ASKInteractableBase::HandleCanInteractChanged()
+{
 };
 
 void ASKInteractableBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

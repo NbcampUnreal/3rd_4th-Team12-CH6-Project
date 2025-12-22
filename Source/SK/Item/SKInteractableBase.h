@@ -34,12 +34,12 @@ public:
 	TObjectPtr<USphereComponent> InteractionCollision;
 
 #pragma region Interaction
-	
+protected:
 	virtual void GetInteractionData_Implementation(FSKInteractionData& OutData) override;
 	
 	virtual void Interact_Implementation(AActor* Interactor) override
 	{
-		PreExecuteInteraction();
+		// PreExecuteInteraction();
 		ExecuteInteraction(Interactor);
 	}
 
@@ -58,17 +58,24 @@ public:
 	void OnInteractionEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+public:
 	// 상호작용 실행 하기 전 호출 필수
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	void PreExecuteInteraction();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
-	FSKInteractionData InteractionData;
+	void PreExecuteInteraction(AActor* Interactor);
 
 	EObjectType ObjectType;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_CanInteract)
 	bool bCanInteract;
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SK|Data")
+	FSKInteractionData InteractionData;
+
+	UFUNCTION()
+	void OnRep_CanInteract();
+
+	virtual void HandleCanInteractChanged();
 	
 #pragma endregion
 	
@@ -86,7 +93,7 @@ public:
 	TObjectPtr<UWidgetComponent> InteractionWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
-	TObjectPtr<UUserWidget> InteractionUI;
+	TObjectPtr<UUserWidget> InteractionWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
 	FText InteractableText;
