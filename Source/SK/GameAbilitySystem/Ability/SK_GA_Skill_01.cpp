@@ -59,9 +59,11 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
+		CurrentBattleComponent->NotifyUseSkill(MontageIndex, false);
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 	}
-	
+
+	CurrentBattleComponent->NotifyUseSkill(MontageIndex, true);
 }
 
 void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -97,7 +99,7 @@ bool USK_GA_Skill_01::CheckCost(const FGameplayAbilitySpecHandle Handle, const F
 		CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
 	}
 
-	return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
+	return result;
 }
 
 void USK_GA_Skill_01::BindComboCache()
