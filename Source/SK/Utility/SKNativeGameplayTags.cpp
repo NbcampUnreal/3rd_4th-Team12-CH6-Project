@@ -263,3 +263,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.Atta
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_DamageMultiplier, "Data.DamageMultiplier");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake, "GameplayCue.Shake");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_01, "GameplayCue.Shake.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_02, "GameplayCue.Shake.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_03, "GameplayCue.Shake.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_04, "GameplayCue.Shake.04");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_05, "GameplayCue.Shake.05");
