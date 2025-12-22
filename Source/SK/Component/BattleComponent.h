@@ -10,6 +10,7 @@
 
 struct FSKWeaponDataRow;
 struct FWeaponDataRow;
+struct FHitResult;
 
 USTRUCT(BlueprintType)
 struct FSKBattleState
@@ -61,8 +62,11 @@ public:
 	void PerformTrace(float DeltaTime);
 
 	void ClearHitActor();
+	void ClearHitResult();
+	void AddHitResult(const FHitResult& Hit);
 	void SetIsTraced(bool ArgIsTracing);
 	const TArray<AActor*>& GetHitActors();
+	const TArray<FHitResult>& GetHitResult();
 
 	UFUNCTION(Server, Reliable)
 	void Server_StartTrace();
@@ -112,6 +116,9 @@ private:
 
 	UPROPERTY()
 	TArray<AActor*> HitActors;
+
+	UPROPERTY()
+	TArray<FHitResult> HitResults;
 
 	TArray<FName> TraceSockets;
 	TArray<FVector> PrevSocketLocations;
