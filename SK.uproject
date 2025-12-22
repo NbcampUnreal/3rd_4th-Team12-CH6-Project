@@ -65,10 +65,6 @@
 		{
 			"Name": "PCGGeometryScriptInterop",
 			"Enabled": true
-		},
-		{
-			"Name": "MotionWarping",
-			"Enabled": true
 		}
 	]
 }

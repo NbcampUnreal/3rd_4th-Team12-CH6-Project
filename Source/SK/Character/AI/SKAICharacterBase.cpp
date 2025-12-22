@@ -4,7 +4,6 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
-#include "MotionWarpingComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -25,8 +24,6 @@ ASKAICharacterBase::ASKAICharacterBase()
 	BoxComponent->SetCollisionProfileName("CombatArea");
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentBeginOverlap);
 	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentEndOverlap);
-
-	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
