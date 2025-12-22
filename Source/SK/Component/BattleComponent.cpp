@@ -120,7 +120,7 @@ void UBattleComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void UBattleComponent::StartTrace()
 {
 	SetIsTraced(true);
-	ClearHitActor();
+	ClearHitResult();
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (!OwnerCharacter)
@@ -198,9 +198,11 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	if (bHit)
 	{
 		AActor* HitActor = Hit.GetActor();
+
 		if (HitActor && !HitActors.Contains(HitActor))
 		{
-			HitActors.Add(HitActor);
+			// HitActors.Add(HitActor);
+			HitResults.Add(Hit);
 		}
 	}
 
@@ -213,6 +215,16 @@ void UBattleComponent::ClearHitActor()
 	HitActors.Empty();
 }
 
+void UBattleComponent::ClearHitResult()
+{
+	HitResults.Reset();
+}
+
+void UBattleComponent::AddHitResult(const FHitResult& Hit)
+{
+	HitResults.Add(Hit);
+}
+
 void UBattleComponent::SetIsTraced(bool ArgIsTracing)
 {
 	bIsTracing = ArgIsTracing;
@@ -221,6 +233,11 @@ void UBattleComponent::SetIsTraced(bool ArgIsTracing)
 const TArray<AActor*>& UBattleComponent::GetHitActors()
 {
 	return HitActors;
+}
+
+const TArray<FHitResult>& UBattleComponent::GetHitResult()
+{
+	return HitResults;
 }
 
 void UBattleComponent::Server_StartTrace_Implementation()
