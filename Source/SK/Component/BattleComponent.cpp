@@ -10,6 +10,8 @@
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/SKWeaponData.h"
 
@@ -64,6 +66,48 @@ void UBattleComponent::Server_Input_Skill_03_Implementation()
 	FGameplayTagContainer Container;
 	Container.AddTag(TAG_Ability_Skill_03);
 	ASC->TryActivateAbilitiesByTag(Container);
+}
+
+void UBattleComponent::Client_SendSkillUIMessage_Implementation(int32 SkillNum, bool bSuccess)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if (!GameInstance)
+	{
+		return;
+	}
+
+	USKGameplayMessageSubsystem* MessageSubsystem =
+		GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+
+	if (!MessageSubsystem)
+	{
+		return;
+	}
+
+	FSkillUIMessage Message;
+	Message.SkillNum = SkillNum;
+	Message.bSuccess = bSuccess;
+
+	MessageSubsystem->BroadcastMessage(
+		TAG_Message_Channel_SkillUse,
+		Message
+	);
+}
+
+void UBattleComponent::NotifyUseSkill(int32 SkillNum, bool bSuccess)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
+	Client_SendSkillUIMessage(SkillNum, bSuccess);
 }
 
 UAnimMontage* UBattleComponent::GetLeftATKMontage(int32 Index)

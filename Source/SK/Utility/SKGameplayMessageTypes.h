@@ -216,3 +216,16 @@ struct FUIInteractionMoveMessage
 	UPROPERTY(BlueprintReadWrite)
 	int32 MoveDirection;
 };
+
+USTRUCT(BlueprintType)
+struct FSkillUIMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 SkillNum;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bSuccess;
+	
+};

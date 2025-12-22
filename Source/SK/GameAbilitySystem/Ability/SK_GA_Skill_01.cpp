@@ -59,9 +59,11 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
+		CurrentBattleComponent->NotifyUseSkill(MontageIndex, false);
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 	}
-	
+
+	CurrentBattleComponent->NotifyUseSkill(MontageIndex, false);
 }
 
 void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

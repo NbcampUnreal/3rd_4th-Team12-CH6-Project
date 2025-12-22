@@ -48,6 +48,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Skill")
 	TArray<TObjectPtr<UAnimMontage>> SkillMontages;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Skill")
+	TArray<TObjectPtr<UTexture2D>> SkillImages;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Equip")
 	TObjectPtr<UAnimMontage> EquipMontage;
 	

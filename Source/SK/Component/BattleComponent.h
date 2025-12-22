@@ -48,6 +48,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_Input_Skill_03();
 
+	UFUNCTION()
+	void NotifyUseSkill(int32 SkillNum, bool bSuccess);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_SendSkillUIMessage(int32 SkillNum, bool bSuccess);
+	
 #pragma region Montage
 
 	UAnimMontage* GetLeftATKMontage(int32 Index);
@@ -79,6 +85,7 @@ public:
 
 #pragma region WeaponData
 	void SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh);
+	USKWeaponData* GetCurrentWeaponData() { return CurrentWeaponData; }
 	void SetWeaponMesh_Init();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Weapon")
