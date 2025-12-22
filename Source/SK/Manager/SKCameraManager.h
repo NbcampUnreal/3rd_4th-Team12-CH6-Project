@@ -19,12 +19,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void PlayAttackCameraShake(
-		float YawAmplitude,
-		float PitchAmplitude,
-		float Frequency,
-		float Duration
-	);
+
 
 	bool ValidateLockOn(AActor* Player);
 	void AdjustCameraDistance(float WheelValue);
@@ -73,14 +68,9 @@ public:
 	//카메라 줌 거리
 	UPROPERTY(EditAnywhere, Category = "SK|LockOn")
 	float MinCameraZoom = 200.f;
-
-	void BeginLockOnReleaseFromCurrentView();
+	
 	bool IsLockOnReleasing() const;
-	void CalcFreeCameraTarget(
-		const FTViewTarget& OutVT,
-		FVector& OutLoc,
-		FRotator& OutRot
-	);
+
 	// 위치 보간 속도
 	float LockOnLocInterpSpeed = 7.f;
 	//// 회전 보간 속도
@@ -91,8 +81,7 @@ public:
 
 	bool bLockOnReleasing = false;
 
-	void BeginLockOnRelease(const FTViewTarget& OutVT);
-	void LerpLockOnOff(FVector& OutLoc, FRotator& OutRot);
+
 
 	float LockOnReleaseTime = 0.f;
 	float LockOnReleaseDuration = 0.25f;
