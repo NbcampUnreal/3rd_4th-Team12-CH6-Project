@@ -60,8 +60,11 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
+		CurrentBattleComponent->NotifyUseSkill(MontageIndex, false);
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 	}
+
+	CurrentBattleComponent->NotifyUseSkill(MontageIndex, true);
 }
 
 void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -73,9 +76,7 @@ void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 		return;
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-
-	// UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
-
+	
 	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
 	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
 
@@ -100,7 +101,7 @@ bool USK_GA_Skill_01::CheckCost(const FGameplayAbilitySpecHandle Handle, const F
                                 FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
-
+	
 	// if (!result && CachedCharacter)
 	// {
 	// 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);

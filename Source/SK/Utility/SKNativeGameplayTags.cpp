@@ -252,6 +252,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UseQuickSlotItem, "Message.Channel.Us
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BossWidgetSetting, "Message.Channel.BossWidgetSetting");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_LoadingUIVisible, "Message.Channel.LoadingUIVisible");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UIInteraction, "Message.Channel.UIInteraction");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SkillUse, "Message.Channel.SkillUse");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
