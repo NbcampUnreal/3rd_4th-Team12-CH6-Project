@@ -3,7 +3,7 @@
 
 #include "Manager/SKCameraManager.h"
 
-#include "SKCameraShakeBase.h"
+
 #include "Camera/CameraShakeBase.h"
 #include "Controller/SKPlayerController.h"
 
