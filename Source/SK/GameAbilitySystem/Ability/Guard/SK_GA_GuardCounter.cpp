@@ -34,8 +34,6 @@ void USK_GA_GuardCounter::ActivateAbility(
 )
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	UE_LOG(LogTemp, Warning, TEXT("GuardCounter execution"));
 	
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!ASC)
@@ -90,6 +88,7 @@ void USK_GA_GuardCounter::ActivateAbility(
 		PlayTask->OnCompleted.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
 		PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
 		PlayTask->OnCancelled.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
+		PlayTask->OnBlendOut.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
 		PlayTask->ReadyForActivation();
 	}
 	else
