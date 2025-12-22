@@ -5,6 +5,8 @@
 #include "Item/SKInteractableBase.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/WidgetComponent.h"
+#include "Item/Openable/SKOpenableBase.h"
 
 USKInteractionComponent::USKInteractionComponent()
 {
@@ -109,12 +111,27 @@ void USKInteractionComponent::UpdateTargetActor()
 	
 }
 
-
 void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 {
 	if (IsValid(CurrentTargetActor))
 	{
-		Client_ToggleInteractableWidget(CurrentTargetActor, bIsVisible);
+		UWidgetComponent* NewWidget = CurrentTargetActor->InteractionWidget;
+		if (NewWidget)
+		{
+			Client_ToggleInteractableWidget(NewWidget,bIsVisible);
+		}
+		// 근접 UI 표시 해제
+		if (CurrentTargetActor->bCanInteract)
+		{
+			ASKOpenableBase* OpenableTarget = Cast<ASKOpenableBase>(CurrentTargetActor);
+			if (!OpenableTarget) return;
+	
+			UWidgetComponent* DetectWidget = OpenableTarget->DetectWidget;
+			if (DetectWidget)
+			{
+				Client_ToggleInteractableWidget(DetectWidget, !bIsVisible);
+			}
+		}
 	}
 }
 
@@ -154,12 +171,11 @@ void USKInteractionComponent::ActivateInteractionAbility(TSubclassOf<UGameplayAb
 	ASC->TryActivateAbilityByClass(Ability);
 }
 
-void USKInteractionComponent::Client_ToggleInteractableWidget_Implementation(ASKInteractableBase* Interactable,
-                                                                             bool bIsVisible)
+void USKInteractionComponent::Client_ToggleInteractableWidget_Implementation(UWidgetComponent* Widget, bool bIsVisible)
 {
-	if (Interactable)
+	if (Widget)
 	{
-		Interactable->ToggleWidget(bIsVisible);
+		Widget->SetVisibility(bIsVisible);
 	}
 }
 

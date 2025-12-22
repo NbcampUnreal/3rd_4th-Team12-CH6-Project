@@ -228,23 +228,45 @@ void USK_GA_Skill_01::ApplyDamageFromTrace()
 	if (!PC)
 		return;
 
-	UBattleComponent* BattleComponent = PC->GetBattleComponent();
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+		return;
 
-	for (AActor* HitActor : BattleComponent->GetHitActors())
+	UBattleComponent* BattleComponent = PC->GetBattleComponent();
+	const TArray<FHitResult>& HitResults = BattleComponent->GetHitResult();
+
+	for (const FHitResult& Hit : HitResults)
 	{
+		AActor* HitActor = Hit.GetActor();
 		if (!HitActor)
 			continue;
 
-		TSubclassOf<UGameplayEffect> EffectClass = SkillDamageGE[CurrentComboIndex];
+		UAbilitySystemComponent* TargetASC =
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 
-		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
+		if (!TargetASC)
+			continue;
 
-		// Target의 AbilitySystemComponent 가져오기
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+		TSubclassOf<UGameplayEffect> EffectClass =
+			SkillDamageGE[CurrentComboIndex];
 
-		if (SpecHandle.IsValid() && TargetASC)
+
+		FGameplayEffectContextHandle Context =
+			SourceASC->MakeEffectContext();
+
+		Context.AddSourceObject(this);
+
+		Context.AddHitResult(Hit);
+
+		FGameplayEffectSpecHandle SpecHandle =
+			SourceASC->MakeOutgoingSpec(EffectClass, 1.f, Context);
+
+		if (SpecHandle.IsValid())
 		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			SourceASC->ApplyGameplayEffectSpecToTarget(
+				*SpecHandle.Data.Get(),
+				TargetASC
+			);
 		}
 	}
 }

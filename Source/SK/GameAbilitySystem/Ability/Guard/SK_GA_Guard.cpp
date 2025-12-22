@@ -172,6 +172,23 @@ void USK_GA_Guard::OnGuardSuccess(FGameplayEventData Payload)
 
 	ASC->AddLooseGameplayTag(TAG_State_Action_Guard_Success);
 
+	/////////
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (!MoveComp) return;
+
+	// 공격 반대 방향으로 살짝 밀기
+	FVector BackDir = -Character->GetActorForwardVector();
+
+	Character->LaunchCharacter(
+		BackDir * PushStrength,
+		true,   // XY override
+		false   // Z 유지
+	);
+	//////////////
+
 	// 짧은 시간만 유지 (예: 0.3초)
 	FTimerHandle GuardSuccessTimer;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -188,7 +205,7 @@ void USK_GA_Guard::OnGuardSuccess(FGameplayEventData Payload)
 	bool bIsPerfectGuard = ASC->HasMatchingGameplayTag(TAG_State_Action_Guard_Perfect);
 	if (!bIsPerfectGuard) return;
 	
-	// 🔥 서버에서만 CounterReady 부여
+	// 서버에서만 CounterReady 부여
 	if (!HasAuthority(&CurrentActivationInfo))
 		return;
 
