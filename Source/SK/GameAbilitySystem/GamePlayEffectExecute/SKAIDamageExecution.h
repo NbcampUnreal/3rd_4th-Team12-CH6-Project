@@ -45,4 +45,9 @@ protected:
 	//퍼펙트 가드로 공격 막았을 시 스테미너 소모 코스트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
 	float PerfectGuardCost = 0.0f;
+
+	bool IsFrontGuardable(const AActor* Attacker, const AActor* Defender, float DotThreshold) const;
+	//방어 가능한 각도 -1 ~ 1  -1:후면,  1:정면,  0:측면
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
+	float GuardAngle = 0.2f;
 };
