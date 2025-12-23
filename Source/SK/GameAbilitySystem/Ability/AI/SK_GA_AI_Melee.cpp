@@ -13,7 +13,7 @@ USK_GA_AI_Melee::USK_GA_AI_Melee()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Melee")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
+	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
 }
 
 void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection)
@@ -82,25 +82,17 @@ void USK_GA_AI_Melee::ActivateAbility(
 
 	int32 MaxMeleeIndex = AICharacter->GetMaxMeleeIndex();
 	FName SectionName = "Default";
-	TObjectPtr<UAnimMontage> AnimMontage = nullptr;
+	TObjectPtr<UAnimMontage> AnimMontage;
 	
-	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
-	if (IsValid(OwnerASC))
+	if (MaxMeleeIndex > 1)
 	{
-		if (OwnerASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
-		{
-			AnimMontage = GetAnimMontage("PowerMelee");
-		}
-		else
-		{
-			if (MaxMeleeIndex > 1)
-			{
-				int32 MeleeIndex = FMath::RandRange(1, MaxMeleeIndex);
-				SectionName = FName(FString::FromInt(MeleeIndex));
-			}
-			
-			AnimMontage = GetAnimMontage("Melee");
-		}
+		int32 MeleeIndex = FMath::RandRange(1, MaxMeleeIndex);
+		FString AnimMontageName = FString::Printf(TEXT("Melee%d"), MeleeIndex);
+		AnimMontage = GetAnimMontage(*AnimMontageName);
+	}
+	else
+	{
+		AnimMontage = GetAnimMontage("Melee1");
 	}
 	
 	if (!IsValid(AnimMontage))
@@ -108,7 +100,7 @@ void USK_GA_AI_Melee::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	
+
 	Melee(AnimMontage, SectionName);
 }
 
@@ -121,6 +113,14 @@ void USK_GA_AI_Melee::EndAbility(
 	)
 {
 	ClearFocus();
+
+	if (OwnEventTask1)
+	{
+		if (OwnEventTask1->IsActive())
+		{
+			OwnEventTask1->EndTask();
+		}
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

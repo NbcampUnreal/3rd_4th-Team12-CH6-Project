@@ -66,12 +66,10 @@ public:
 	void StartTrace();
 	void StopTrace();
 	void PerformTrace(float DeltaTime);
-
-	void ClearHitActor();
+	
 	void ClearHitResult();
 	void AddHitResult(const FHitResult& Hit);
 	void SetIsTraced(bool ArgIsTracing);
-	const TArray<AActor*>& GetHitActors();
 	const TArray<FHitResult>& GetHitResult();
 
 	UFUNCTION(Server, Reliable)

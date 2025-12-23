@@ -245,8 +245,7 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 
 		if (HitActor && !HitActors.Contains(HitActor))
 		{
-			// HitActors.Add(HitActor);
-			HitResults.Add(Hit);
+			AddHitResult(Hit);
 		}
 	}
 
@@ -254,10 +253,6 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	PrevEnd = CurrEnd;
 }
 
-void UBattleComponent::ClearHitActor()
-{
-	HitActors.Empty();
-}
 
 void UBattleComponent::ClearHitResult()
 {
@@ -272,11 +267,6 @@ void UBattleComponent::AddHitResult(const FHitResult& Hit)
 void UBattleComponent::SetIsTraced(bool ArgIsTracing)
 {
 	bIsTracing = ArgIsTracing;
-}
-
-const TArray<AActor*>& UBattleComponent::GetHitActors()
-{
-	return HitActors;
 }
 
 const TArray<FHitResult>& UBattleComponent::GetHitResult()

@@ -24,6 +24,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	float MaxHealth = 0.f;
 
+	/** 기본 스태미너 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
+	float MaxStamina = 0.f;
+
+	/** 맥스 밀리 인덱스 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
+	int32 MaxMeleeIndex = 0;
+	
 	/** 기본 공격력 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	float Attack = 0.f;
