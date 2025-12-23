@@ -14,7 +14,8 @@
 				"CommonUI",
 				"UMG",
 				"AIModule",
-				"MotionWarping"
+				"MotionWarping",
+				"NiagaraAnimNotifies"
 			]
 		}
 	],
@@ -64,10 +65,6 @@
 		},
 		{
 			"Name": "PCGGeometryScriptInterop",
-			"Enabled": true
-		},
-		{
-			"Name": "MotionWarping",
 			"Enabled": true
 		}
 	]

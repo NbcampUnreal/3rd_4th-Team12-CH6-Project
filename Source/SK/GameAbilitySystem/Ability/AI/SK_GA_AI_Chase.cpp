@@ -53,8 +53,6 @@ void USK_GA_AI_Chase::WaitMoveComplete()
 
 void USK_GA_AI_Chase::OnWaitMoveCompleteCompleted(FGameplayEventData EventData)
 {
-	CommonEventTask->EndTask();
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 

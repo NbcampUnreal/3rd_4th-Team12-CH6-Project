@@ -13,13 +13,16 @@
 ASKBonfire::ASKBonfire()
 	: bIsDefaultBonfire(false)
 {
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("MeshComponent");
-	MeshComponent->SetupAttachment(Root);
+	BonfireMesh = CreateDefaultSubobject<UStaticMeshComponent>("Bonfire");
+	BonfireMesh->SetupAttachment(Root);
 
 	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("NiagaraComponent");
-	NiagaraComponent->SetupAttachment(MeshComponent);
+	NiagaraComponent->SetupAttachment(BonfireMesh);
 	NiagaraComponent->SetRelativeScale3D(FVector(2.0f));
 	NiagaraComponent->SetRelativeLocation(FVector(0.f, 0.f, 60.0f));
+	
+	StoolMesh = CreateDefaultSubobject<UStaticMeshComponent>("Stool");
+	StoolMesh->SetupAttachment(Root);
 	
 	InteractionCollision->SetSphereRadius(300.0f);
 	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));

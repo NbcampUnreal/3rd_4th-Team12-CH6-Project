@@ -1,5 +1,4 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Rush.h"
-#include "MotionWarpingComponent.h"
 #include "SK_GA_AI_Melee.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -20,12 +19,6 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
 	if (!IsValid(AICharacter))
-	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
-		return;
-	}
-
-	if (!AICharacter->MotionWarpingComponent)
 	{
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
@@ -73,11 +66,6 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 	FTransform TargetTransform = FTransform::Identity;
 	TargetTransform.SetLocation(PredictedLocation);
 	TargetTransform.SetRotation(PredictedRotation.Quaternion());
-	
-	AICharacter->MotionWarpingComponent->AddOrUpdateWarpTargetFromTransform(
-		FName("Player"),
-		TargetTransform
-	);
 	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,

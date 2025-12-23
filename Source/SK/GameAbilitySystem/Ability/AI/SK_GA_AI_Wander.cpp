@@ -87,8 +87,6 @@ void USK_GA_AI_Wander::Delay(float DelayDuration)
 
 void USK_GA_AI_Wander::OnDelayCompleted()
 {
-	CommonEventTask->EndTask();
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 

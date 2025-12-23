@@ -10,6 +10,7 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Item/Openable/Bonfire/SKBonfire.h"
+#include "AbilitySystemComponent.h"
 
 void UBonfireMenuSlotWidget::NativeConstruct()
 {
@@ -147,18 +148,15 @@ void UBonfireMenuSlotWidget::OnLeaveClicked()
 	
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(PC->GetPawn());
 	if (!PlayerCharacter) return;
-
-	ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
-	if (!PS) return;
-
-	ASKBonfire* Bonfire = PS->CurrentBonfire;
 	
-	if (Bonfire->EndMontage)
-	{
-		PlayerCharacter->PlayAnimMontage(Bonfire->EndMontage);
-	}
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!ASC) return;
 
-	Bonfire->bCanInteract = true;
+	FGameplayTagContainer BonfireEndTag;
+	BonfireEndTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.InteractBonfireEnd")));
+
+	ASC->TryActivateAbilitiesByTag(BonfireEndTag);
+
 	
 }
 
