@@ -8,6 +8,7 @@
 #include "SKAICharacterBase.generated.h"
 
 class UBoxComponent;
+class USphereComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
@@ -21,6 +22,9 @@ class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterf
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
 	TObjectPtr<UBoxComponent> BoxComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
+	TObjectPtr<USphereComponent> SphereComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;
@@ -117,6 +121,24 @@ protected:
 	
 	UFUNCTION()
 	void OnBoxComponentEndOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);	
+
+	UFUNCTION()
+	void OnSphereComponentBeginOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+	
+	UFUNCTION()
+	void OnSphereComponentEndOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

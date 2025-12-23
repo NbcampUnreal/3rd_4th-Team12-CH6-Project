@@ -3,6 +3,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/AI/SKAICharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 USK_GA_AI_Melee::USK_GA_AI_Melee()
 {
@@ -13,7 +14,7 @@ USK_GA_AI_Melee::USK_GA_AI_Melee()
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Melee")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
+	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
 }
 
 void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection)
@@ -108,7 +109,7 @@ void USK_GA_AI_Melee::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	
+
 	Melee(AnimMontage, SectionName);
 }
 

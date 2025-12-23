@@ -5,6 +5,7 @@
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -24,6 +25,12 @@ ASKAICharacterBase::ASKAICharacterBase()
 	BoxComponent->SetCollisionProfileName("CombatArea");
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentBeginOverlap);
 	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentEndOverlap);
+
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp|CombatArea|Melee"));
+	SphereComponent->SetupAttachment(GetRootComponent());
+	SphereComponent->SetCollisionProfileName("CombatArea");
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnSphereComponentBeginOverlap);
+	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnSphereComponentEndOverlap);
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -149,6 +156,32 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	)
 {
 	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	
+	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+}
+
+void ASKAICharacterBase::OnSphereComponentBeginOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+	)
+{
+	AddTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
+	
+	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+}
+
+void ASKAICharacterBase::OnSphereComponentEndOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+	)
+{
+	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }

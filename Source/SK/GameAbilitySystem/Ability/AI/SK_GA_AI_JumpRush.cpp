@@ -32,10 +32,11 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 	
 	float CapsuleRadiusSum = CachedCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius() + TargetCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	float Distance = FVector(ToTargetVector.X, ToTargetVector.Y, 0.f).Length() - CapsuleRadiusSum;
-	float Height = FMath::Clamp(Distance * 0.6f, 200.f, 600.f);
-	float Duration = FMath::Clamp(Distance / 800.f, 0.5f, 1.5f);
-	
-	float MontageRate = AnimMontage->GetPlayLength() / Duration;
+	float Height = FMath::Clamp(Distance * 0.1f, 40.f, 100.f);
+	//float Duration = FMath::Clamp(Distance / 800.f, 0.5f, 1.5f);
+	float Duration = AnimMontage->GetPlayLength();
+
+	//float MontageRate = AnimMontage->GetPlayLength() / Duration;
 
 	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
@@ -69,10 +70,10 @@ void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<AActor> TargetActor, TObjectPtr<UAn
 				this,
 				NAME_None,
 				AnimMontage,
-				MontageRate,
+				1.f,//MontageRate,
 				NAME_None,
 				true,
-				1.0f
+				1.f
 				);		
 	//OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_JumpRush::OnMeleeCompleted);
 	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_JumpRush::OnMontageInterrupted);
