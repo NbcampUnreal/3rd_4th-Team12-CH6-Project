@@ -368,6 +368,16 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 		FGameplayEffectSpecHandle SpecHandle =
 			SourceASC->MakeOutgoingSpec(EffectClass, 1.f, Context);
 
+		//추가
+		FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+		if (!Spec)
+		{
+			return;
+		}
+
+		// 공격 타입 태그 전달
+		Spec->DynamicGrantedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Test")));
+		
 		if (SpecHandle.IsValid())
 		{
 			SourceASC->ApplyGameplayEffectSpecToTarget(
