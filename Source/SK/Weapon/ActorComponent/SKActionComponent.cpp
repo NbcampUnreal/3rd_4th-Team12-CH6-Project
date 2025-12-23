@@ -8,6 +8,7 @@
 #include "PlayerState/SKPlayerState.h"
 #include "Weapon/SKWeaponData.h"
 #include "Weapon/ActionData/SKWeaponAnimData.h"
+#include "Components/CapsuleComponent.h"
 
 USKActionComponent::USKActionComponent()
 	: CurrentWeaponAnimData(nullptr)
@@ -22,6 +23,7 @@ void USKActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(USKActionComponent, CurrentInputVector);
 	DOREPLIFETIME(USKActionComponent, CurrentMoveDirection);
 	DOREPLIFETIME(USKActionComponent, WeaponActors);
+	DOREPLIFETIME(USKActionComponent, bIgnoreWorldStatic);
 }
 
 void USKActionComponent::BeginPlay()
@@ -67,6 +69,30 @@ void USKActionComponent::CheckAutoUnEquipped()
 			ASC->TryActivateAbilityByClass(USK_GA_Unequip::StaticClass());
 		}
 	}
+}
+
+void USKActionComponent::Server_SetIgnoreWorldStatic_Implementation(bool bIgnore)
+{
+	bIgnoreWorldStatic = bIgnore;
+	ApplyCollisionSetting();
+}
+
+void USKActionComponent::OnRep_IgnoreWorldStatic()
+{
+	ApplyCollisionSetting();
+}
+
+void USKActionComponent::ApplyCollisionSetting()
+{
+	ACharacter* Char = Cast<ACharacter>(GetOwner());
+	if (!Char) return;
+	
+	UCapsuleComponent* Capsule = Char->GetCapsuleComponent();
+	
+	Capsule->SetCollisionResponseToChannel(
+		ECC_WorldStatic,
+		bIgnoreWorldStatic ? ECR_Ignore : ECR_Block
+	);
 }
 
 void USKActionComponent::OnOwnerPossessed()

@@ -56,7 +56,6 @@ protected:
 
 #pragma endregion
 
-	
 #pragma region Dodge
 
 public:
@@ -100,4 +99,17 @@ protected:
 	FTimerHandle AutoUnEquippedTimerHandle;
 	
 #pragma endregion
+
+public:
+	UFUNCTION(Server, Reliable)
+	void Server_SetIgnoreWorldStatic(bool bIgnore);
+
+protected:
+	UPROPERTY(ReplicatedUsing = OnRep_IgnoreWorldStatic)
+	bool bIgnoreWorldStatic;
+	
+	UFUNCTION()
+	void OnRep_IgnoreWorldStatic();
+
+	void ApplyCollisionSetting();
 };

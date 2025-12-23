@@ -20,7 +20,7 @@ public:
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	FORCEINLINE void SetForceMove(const bool bNewForceMove) {	bForceMove = bNewForceMove; };
+	FORCEINLINE void SetForceMove(const bool bNewForceMove) { bForceMove = bNewForceMove; };
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -43,4 +43,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 bIsFalling : 1;
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	uint8 bIsSit : 1;
 };
