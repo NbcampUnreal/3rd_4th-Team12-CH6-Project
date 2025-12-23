@@ -9,6 +9,7 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Component/BattleComponent.h"
 #include "GameData/StaticData/ComboTableRow.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -37,22 +38,22 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	FName SectionName = GetComboMontageSection(CurrentComboIndex);
 
 	//몽타주 실행 추가
-	
+
 	UAnimMontage* Montage = CurrentBattleComponent->GetSkillMontage(MontageIndex);
 
 	UAbilityTask_PlayMontageAndWait* PlayTask =
-	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this,
-		NAME_None,
-		Montage,
-		1.0f,
-		SectionName
-	);
-	
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			NAME_None,
+			Montage,
+			1.0f,
+			SectionName
+		);
+
 	PlayTask->OnCompleted.AddDynamic(this, &USK_GA_Skill_01::OnMontageCompleted);
 	PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_Skill_01::OnMontageInterrupted);
 	PlayTask->OnCancelled.AddDynamic(this, &USK_GA_Skill_01::OnMontageInterrupted);
-	
+
 	//사용 O
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 	PlayTask->ReadyForActivation();
@@ -75,17 +76,23 @@ void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
 		return;
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-
-	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
-
+	
 	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
 	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
+
+
+	//방어코드 추가
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (!MoveComp)
+		return;
+	MoveComp->SetMovementMode(MOVE_Walking);
+
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USK_GA_Skill_01::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+                                    const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
@@ -94,10 +101,11 @@ bool USK_GA_Skill_01::CheckCost(const FGameplayAbilitySpecHandle Handle, const F
                                 FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
-	if (!result)
-	{
-		CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
-	}
+	
+	// if (!result && CachedCharacter)
+	// {
+	// 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
+	// }
 
 	return result;
 }
@@ -107,14 +115,14 @@ void USK_GA_Skill_01::BindComboCache()
 	if (!CurrentComboTable)
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("BindComboCache failed: ComboTable is null"));
+		       TEXT("BindComboCache failed: ComboTable is null"));
 		return;
 	}
 
 	if (CurrentComboTable->GetRowStruct() != FComboTableRow::StaticStruct())
 	{
 		UE_LOG(LogTemp, Error,
-			TEXT("BindComboCache failed: RowStruct mismatch"));
+		       TEXT("BindComboCache failed: RowStruct mismatch"));
 		return;
 	}
 
@@ -132,11 +140,10 @@ void USK_GA_Skill_01::BindComboCache()
 
 		FSkillComboKey Key;
 		Key.FromState = Row->FromState;
-		Key.InputTag  = Row->InputTag;
+		Key.InputTag = Row->InputTag;
 
 		if (ComboCache.Contains(Key))
 		{
-			
 			continue;
 		}
 
@@ -235,10 +242,15 @@ void USK_GA_Skill_01::ApplyDamageFromTrace()
 	UBattleComponent* BattleComponent = PC->GetBattleComponent();
 	const TArray<FHitResult>& HitResults = BattleComponent->GetHitResult();
 
+	TSet<TWeakObjectPtr<AActor>> DamagedActors;
+	
 	for (const FHitResult& Hit : HitResults)
 	{
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor)
+			continue;
+		
+		if (DamagedActors.Contains(HitActor))
 			continue;
 
 		UAbilitySystemComponent* TargetASC =
@@ -246,6 +258,8 @@ void USK_GA_Skill_01::ApplyDamageFromTrace()
 
 		if (!TargetASC)
 			continue;
+
+		DamagedActors.Add(HitActor); 
 
 		TSubclassOf<UGameplayEffect> EffectClass =
 			SkillDamageGE[CurrentComboIndex];

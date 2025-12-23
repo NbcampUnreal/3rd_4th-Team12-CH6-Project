@@ -382,11 +382,16 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 
 	UBattleComponent* BattleComponent = PC->GetBattleComponent();
 	const TArray<FHitResult>& HitResults = BattleComponent->GetHitResult();
-
+	
+	TSet<TWeakObjectPtr<AActor>> DamagedActors;
+	
 	for (const FHitResult& Hit : HitResults)
 	{
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor)
+			continue;
+		
+		if (DamagedActors.Contains(HitActor))
 			continue;
 
 		UAbilitySystemComponent* TargetASC =
@@ -394,6 +399,8 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 
 		if (!TargetASC)
 			continue;
+
+		DamagedActors.Add(HitActor); 
 
 		TSubclassOf<UGameplayEffect> EffectClass =
 			LeftAttackDamageGE[CurrentComboIndex];
