@@ -8,7 +8,7 @@
 #include "SKAICharacterBase.generated.h"
 
 class UBoxComponent;
-class UMotionWarpingComponent;
+class USphereComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
@@ -23,8 +23,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
 	TObjectPtr<UBoxComponent> BoxComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component|Animation")
-	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
+	TObjectPtr<USphereComponent> SphereComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;
@@ -53,7 +53,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Index")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Index")
 	int32 MaxMeleeIndex = 0;
 
 private:
@@ -104,7 +104,9 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
-	
+
+	void OnStaminaChanged(const FOnAttributeChangeData& Data);
+
 	virtual void PossessedBy(AController* NewController) override;
 	
 	UFUNCTION()
@@ -119,6 +121,24 @@ protected:
 	
 	UFUNCTION()
 	void OnBoxComponentEndOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);	
+
+	UFUNCTION()
+	void OnSphereComponentBeginOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+	
+	UFUNCTION()
+	void OnSphereComponentEndOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

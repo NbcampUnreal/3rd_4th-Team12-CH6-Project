@@ -1,20 +1,20 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_AI_HitReaction.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Blocked.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "AbilitySystemComponent.h"
 
-USK_GA_AI_HitReaction::USK_GA_AI_HitReaction()
+USK_GA_AI_Blocked::USK_GA_AI_Blocked()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.HitReaction")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Blocked")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
 }
 
-void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Blocked::Blocked(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
@@ -25,19 +25,19 @@ void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> AnimMontage)
 				false,
 				1.0f
 				);
-	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_HitReaction::OnHitReactionCompleted);
-	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_HitReaction::OnMontageInterrupted);
-	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_HitReaction::OnMontageCancelled);
-	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_HitReaction::OnMontageBlendOut);
+	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Blocked::OnBlockedCompleted);
+	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_Blocked::OnMontageInterrupted);
+	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_Blocked::OnMontageCancelled);
+	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_Blocked::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
 }
 
-void USK_GA_AI_HitReaction::OnHitReactionCompleted()
+void USK_GA_AI_Blocked::OnBlockedCompleted()
 {
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
-void USK_GA_AI_HitReaction::ActivateAbility(
+void USK_GA_AI_Blocked::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -48,17 +48,17 @@ void USK_GA_AI_HitReaction::ActivateAbility(
 	
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("HitReaction");
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Blocked");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
-	HitReaction(AnimMontage);
+	Blocked(AnimMontage);
 }
 
-void USK_GA_AI_HitReaction::EndAbility(
+void USK_GA_AI_Blocked::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -69,7 +69,7 @@ void USK_GA_AI_HitReaction::EndAbility(
 	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
 	if (IsValid(OwnerASC))
 	{
-		OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+		OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

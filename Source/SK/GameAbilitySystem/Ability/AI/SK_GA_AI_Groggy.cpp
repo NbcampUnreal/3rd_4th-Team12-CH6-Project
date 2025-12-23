@@ -1,20 +1,20 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_AI_HitReaction.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Groggy.h"
+#include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-#include "AbilitySystemComponent.h"
 
-USK_GA_AI_HitReaction::USK_GA_AI_HitReaction()
+USK_GA_AI_Groggy::USK_GA_AI_Groggy()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.HitReaction")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Groggy")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
 }
 
-void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Groggy::Groggy(TObjectPtr<UAnimMontage> AnimMontage)
 {
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
@@ -25,19 +25,19 @@ void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> AnimMontage)
 				false,
 				1.0f
 				);
-	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_HitReaction::OnHitReactionCompleted);
-	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_HitReaction::OnMontageInterrupted);
-	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_HitReaction::OnMontageCancelled);
-	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_HitReaction::OnMontageBlendOut);
+	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Groggy::OnGroggyCompleted);
+	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_Groggy::OnMontageInterrupted);
+	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_Groggy::OnMontageCancelled);
+	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_Groggy::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
 }
 
-void USK_GA_AI_HitReaction::OnHitReactionCompleted()
+void USK_GA_AI_Groggy::OnGroggyCompleted()
 {
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
-void USK_GA_AI_HitReaction::ActivateAbility(
+void USK_GA_AI_Groggy::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -48,17 +48,17 @@ void USK_GA_AI_HitReaction::ActivateAbility(
 	
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("HitReaction");
+	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Groggy");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
-	HitReaction(AnimMontage);
+	Groggy(AnimMontage);
 }
 
-void USK_GA_AI_HitReaction::EndAbility(
+void USK_GA_AI_Groggy::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -69,8 +69,9 @@ void USK_GA_AI_HitReaction::EndAbility(
 	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
 	if (IsValid(OwnerASC))
 	{
-		OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+		OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
+

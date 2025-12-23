@@ -4,8 +4,8 @@
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
-#include "MotionWarpingComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -26,7 +26,11 @@ ASKAICharacterBase::ASKAICharacterBase()
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentBeginOverlap);
 	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentEndOverlap);
 
-	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp|CombatArea|Melee"));
+	SphereComponent->SetupAttachment(GetRootComponent());
+	SphereComponent->SetCollisionProfileName("CombatArea");
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnSphereComponentBeginOverlap);
+	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnSphereComponentEndOverlap);
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -45,10 +49,16 @@ void ASKAICharacterBase::PostInitializeComponents()
 	}
 	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USKAIAttributeSet::GetHealthAttribute()).AddUObject(this, &ASKAICharacterBase::OnHealthChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USKAIAttributeSet::GetStaminaAttribute()).AddUObject(this, &ASKAICharacterBase::OnStaminaChanged);
 }
 
 void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+	
 	float Damage = Data.OldValue - Data.NewValue;
 	
 	AActor* VictimActor = this;
@@ -65,9 +75,9 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 	if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
 	{
+		// 보스인 경우, 가드불가 공격인 경우, Blocked, Groggy인 경우도 발동하지 않게 수정 필요.
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("태그부여"));
 			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 			
 			AbilitySystemComponent->CancelAllAbilities();
@@ -85,17 +95,35 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 		
 	if (FMath::IsNearlyZero(Data.NewValue))
 	{
-		if (!IsValid(AbilitySystemComponent))
-		{
-			return;
-		}
-
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
 		{
 			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
 			
 			AbilitySystemComponent->CancelAllAbilities();
 		}
+	}
+}
+
+void ASKAICharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	float CurrentStamina = Data.NewValue;
+
+	if (CurrentStamina > 0.f)
+	{
+		AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
+
+		AbilitySystemComponent->CancelAllAbilities();
+	}
+	else if (FMath::IsNearlyZero(CurrentStamina))
+	{
+		AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
+
+		AbilitySystemComponent->CancelAllAbilities();
 	}
 }
 
@@ -128,6 +156,32 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	)
 {
 	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Combat"));
+	
+	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+}
+
+void ASKAICharacterBase::OnSphereComponentBeginOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+	)
+{
+	AddTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
+	
+	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+}
+
+void ASKAICharacterBase::OnSphereComponentEndOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+	)
+{
+	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
@@ -339,10 +393,13 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	// ---- 실제 스탯 적용 (AttributeSet or 내부 변수) ----
 	AttributeSet->SetHealth(MonsterData->MaxHealth);
 	AttributeSet->SetMaxHealth(MonsterData->MaxHealth);
+	AttributeSet->SetStamina(MonsterData->MaxStamina);
+	AttributeSet->SetMaxStamina(MonsterData->MaxStamina);
 	AttributeSet->SetAttack(MonsterData->Attack);
 	AttributeSet->SetArmor(MonsterData->Armor);
 	AttributeSet->SetPoise(MonsterData->Poise);
 	AttributeSet->SetSpeed(MonsterData->Speed);
+	MaxMeleeIndex = MonsterData->MaxMeleeIndex;
 	BackstepDistance = MonsterData->BackstepDistance;
 	
 	// 예시: 이동 속도 적용

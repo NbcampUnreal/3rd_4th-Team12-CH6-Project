@@ -49,6 +49,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Recovery, "Ability.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ProjectileAttack, "Ability.ProjectileAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction, "Ability.HitReaction");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Blocked, "Ability.Blocked");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Groggy, "Ability.Groggy");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left1, "Combo.Left1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left2, "Combo.Left2");
@@ -235,6 +237,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_ProjectileAttack, "AI.ProjectileAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Boss, "AI.Boss");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_PowerAttack, "AI.PowerAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_HitReaction, "AI.HitReaction");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Blocked, "AI.Blocked");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Groggy, "AI.Groggy");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
