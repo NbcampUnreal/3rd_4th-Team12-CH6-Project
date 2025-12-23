@@ -65,6 +65,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Guard")
 	float MinGuardStamina = 10.f;
 
+	/** 가드 블록시 밀려나가는 거리 */
+	UPROPERTY(EditDefaultsOnly, Category = "Guard")
+	float PushStrength = 200.0f;
+
 private:
 	FTimerHandle PerfectGuardTimerHandle;
 
@@ -81,4 +85,7 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> GuardMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> GE_GuardCounterReady;
 };

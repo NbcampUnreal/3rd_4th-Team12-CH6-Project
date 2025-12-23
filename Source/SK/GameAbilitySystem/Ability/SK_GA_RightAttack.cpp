@@ -370,28 +370,58 @@ void USK_GA_RightAttack::OnMontageInterrupted()
 void USK_GA_RightAttack::ApplyDamageFromTrace()
 {
 	Super::ApplyDamageFromTrace();
-	
+
 	//인덱스 판단 태그로 변경
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
 		return;
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+		return;
+
 	UBattleComponent* BattleComponent = PC->GetBattleComponent();
+	const TArray<FHitResult>& HitResults = BattleComponent->GetHitResult();
 	
-	for (AActor* HitActor : BattleComponent->GetHitActors())
+	TSet<TWeakObjectPtr<AActor>> DamagedActors;
+	
+	for (const FHitResult& Hit : HitResults)
 	{
+		AActor* HitActor = Hit.GetActor();
 		if (!HitActor)
 			continue;
+		
+		if (DamagedActors.Contains(HitActor))
+			continue;
 
-		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[CurrentComboIndex];
+		UAbilitySystemComponent* TargetASC =
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 
-		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
+		if (!TargetASC)
+			continue;
 
-		// Target의 AbilitySystemComponent 가져오기
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+		DamagedActors.Add(HitActor); 
 
-		if (SpecHandle.IsValid() && TargetASC)
+		TSubclassOf<UGameplayEffect> EffectClass =
+			LeftAttackDamageGE[CurrentComboIndex];
+
+
+		FGameplayEffectContextHandle Context =
+			SourceASC->MakeEffectContext();
+
+		Context.AddSourceObject(this);
+
+		Context.AddHitResult(Hit);
+
+		FGameplayEffectSpecHandle SpecHandle =
+			SourceASC->MakeOutgoingSpec(EffectClass, 1.f, Context);
+
+		if (SpecHandle.IsValid())
 		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			SourceASC->ApplyGameplayEffectSpecToTarget(
+				*SpecHandle.Data.Get(),
+				TargetASC
+			);
 		}
 	}
 }

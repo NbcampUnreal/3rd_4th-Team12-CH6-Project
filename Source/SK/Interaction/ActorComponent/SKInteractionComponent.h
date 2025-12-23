@@ -5,6 +5,7 @@
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKInteractionComponent.generated.h"
 
+class UWidgetComponent;
 class ASKInteractableBase;
 class ASKPlayerCharacter;
 
@@ -37,10 +38,12 @@ public:
 
 #pragma region Client RPC
 	UFUNCTION(Client, Reliable)
-	void Client_ToggleInteractableWidget(ASKInteractableBase* Interactable, bool bIsVisible);
+	void Client_ToggleInteractableWidget(UWidgetComponent* Widget, bool bIsVisible);
 
 #pragma endregion
 
+#pragma region Interaction
+	
 protected:
 	
 	void UpdateTargetActor();
@@ -72,4 +75,6 @@ private:
 	
 	UPROPERTY(Replicated)
 	ASKInteractableBase* CurrentTargetActor;
+	
+#pragma endregion
 };

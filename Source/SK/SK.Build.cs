@@ -44,9 +44,12 @@ public class SK : ModuleRules
 			
 			// 지오메트리 컬랙션
 			"GeometryCollectionEngine",
+			//카메라 쉐이크
+			"GameplayCameras",
+			"EngineCameras"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayDebugger" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayDebugger", "EngineCameras", "EngineCameras" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

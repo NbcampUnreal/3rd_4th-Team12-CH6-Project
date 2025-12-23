@@ -22,23 +22,24 @@ USK_GA_LeftAttack::USK_GA_LeftAttack()
 }
 
 void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+                                        const FGameplayAbilityActorInfo* ActorInfo,
+                                        const FGameplayAbilityActivationInfo ActivationInfo,
+                                        const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-		
+
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	if (!IsValid(Character))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-		
+
 	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
-	
+
 	CurrentComboIndex = CheckCombo(ActorInfo);
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
@@ -49,18 +50,18 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	UAnimMontage* Montage = CurrentBattleComponent->GetLeftATKMontage(0);
 
 	UAbilityTask_PlayMontageAndWait* PlayTask =
-	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this,
-		NAME_None,
-		Montage,
-		1.0f,
-		SectionName
-	);
-	
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			NAME_None,
+			Montage,
+			1.0f,
+			SectionName
+		);
+
 	PlayTask->OnCompleted.AddDynamic(this, &USK_GA_LeftAttack::OnMontageCompleted);
 	PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_LeftAttack::OnMontageInterrupted);
 	PlayTask->OnCancelled.AddDynamic(this, &USK_GA_LeftAttack::OnMontageInterrupted);
-	
+
 	//사용 O
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 	PlayTask->ReadyForActivation();
@@ -72,7 +73,8 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 }
 
 void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+                                   const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility,
+                                   bool bWasCancelled)
 {
 	ASKPlayerController* TempController = Cast<ASKPlayerController>(ActorInfo->PlayerController);
 	if (bWasCancelled)
@@ -100,22 +102,23 @@ void USK_GA_LeftAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, cons
 
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
 	CachedCharacter->SetLooseTag(TAG_State_Action_ATK, false);
-	
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USK_GA_LeftAttack::CancelAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	bool bReplicateCancelAbility)
+                                      const FGameplayAbilityActorInfo* ActorInfo,
+                                      const FGameplayAbilityActivationInfo ActivationInfo,
+                                      bool bReplicateCancelAbility)
 {
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 bool USK_GA_LeftAttack::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	FGameplayTagContainer* OptionalRelevantTags) const
+                                  FGameplayTagContainer* OptionalRelevantTags) const
 {
 	bool result = Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
-	
+
 	if (!result)
 	{
 		CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
@@ -129,14 +132,14 @@ void USK_GA_LeftAttack::BindComboCache()
 	if (!CurrentComboTable)
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("BindComboCache failed: ComboTable is null"));
+		       TEXT("BindComboCache failed: ComboTable is null"));
 		return;
 	}
 
 	if (CurrentComboTable->GetRowStruct() != FComboTableRow::StaticStruct())
 	{
 		UE_LOG(LogTemp, Error,
-			TEXT("BindComboCache failed: RowStruct mismatch"));
+		       TEXT("BindComboCache failed: RowStruct mismatch"));
 		return;
 	}
 
@@ -154,11 +157,10 @@ void USK_GA_LeftAttack::BindComboCache()
 
 		FLeftComboKey Key;
 		Key.FromState = Row->FromState;
-		Key.InputTag  = Row->InputTag;
+		Key.InputTag = Row->InputTag;
 
 		if (ComboCache.Contains(Key))
 		{
-			
 			continue;
 		}
 
@@ -231,7 +233,7 @@ void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* A
 	}
 
 	UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-	
+
 	FGameplayTag ComboTag;
 
 	if (CurrentComboIndex == 3)
@@ -255,11 +257,11 @@ void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* A
 	const FGameplayTag InputTag = TAG_Input_TestLeft;
 
 	// 캐시에서 찾기
-	const FLeftComboKey Key{ ComboTag, InputTag };
+	const FLeftComboKey Key{ComboTag, InputTag};
 	const FComboTableRow* Row = ComboCache.FindRef(Key);
 
 	FGameplayTag GiveTag;
-	
+
 	if (!Row)
 	{
 		if (CurrentComboIndex == 0)
@@ -275,7 +277,7 @@ void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* A
 	{
 		GiveTag = Row->ToState;
 	}
-	
+
 	TSubclassOf<UGameplayEffect> EffectClass = TagGiveGE; // 태그용 GE
 	if (!EffectClass)
 	{
@@ -289,7 +291,7 @@ void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* A
 	{
 		return;
 	}
-	
+
 	SpecHandle.Data.Get()->DynamicGrantedTags.AddTag(GiveTag);
 
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
@@ -320,31 +322,61 @@ void USK_GA_LeftAttack::OnMontageInterrupted()
 void USK_GA_LeftAttack::ApplyDamageFromTrace()
 {
 	Super::ApplyDamageFromTrace();
-	
+
 	//인덱스 판단 태그로 변경
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
 		return;
-	
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+		return;
+
 	UBattleComponent* BattleComponent = PC->GetBattleComponent();
-	
-	for (AActor* HitActor : BattleComponent->GetHitActors())
+	const TArray<FHitResult>& HitResults = BattleComponent->GetHitResult();
+
+	TSet<TWeakObjectPtr<AActor>> DamagedActors;
+
+	for (const FHitResult& Hit : HitResults)
 	{
+		AActor* HitActor = Hit.GetActor();
 		if (!HitActor)
 			continue;
 
-		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[CurrentComboIndex];
+		if (DamagedActors.Contains(HitActor))
+			continue;
+		
+		UAbilitySystemComponent* TargetASC =
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 
-		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
+		if (!TargetASC)
+			continue;
 
-		// Target의 AbilitySystemComponent 가져오기
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+		DamagedActors.Add(HitActor); 
+		
+		TSubclassOf<UGameplayEffect> EffectClass =
+			LeftAttackDamageGE[CurrentComboIndex];
 
-		if (SpecHandle.IsValid() && TargetASC)
+
+		FGameplayEffectContextHandle Context =
+			SourceASC->MakeEffectContext();
+
+		Context.AddSourceObject(this);
+
+		Context.AddHitResult(Hit);
+
+		FGameplayEffectSpecHandle SpecHandle =
+			SourceASC->MakeOutgoingSpec(EffectClass, 1.f, Context);
+
+		if (SpecHandle.IsValid())
 		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			SourceASC->ApplyGameplayEffectSpecToTarget(
+				*SpecHandle.Data.Get(),
+				TargetASC
+			);
 		}
 	}
+	
 }
 
 void USK_GA_LeftAttack::OnStopAttackTrace_Server()

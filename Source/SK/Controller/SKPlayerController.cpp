@@ -13,7 +13,7 @@
 #include "Constants/SKGameConstants.h"
 #include "Engine/OverlapResult.h"
 #include "GameFramework/Character.h"
-#include "Component/SKCombatComponent.h"
+#include "Component/BattleComponent.h"
 #include "GameInstance/SKGameInstance.h"
 #include "GameMode/SKGameMode.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
@@ -82,7 +82,7 @@ void ASKPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+
 	if (bIsLockedOn)
 	{
 		if (!ValidateLockOn())
@@ -193,7 +193,7 @@ void ASKPlayerController::SetIsLockedOn(bool ArgIsLockedOn)
 
 AActor* ASKPlayerController::GetLockedTarget()
 {
-	return  LockedTarget;
+	return LockedTarget;
 }
 
 void ASKPlayerController::SetLockOnState(bool bNewState)
@@ -328,11 +328,9 @@ void ASKPlayerController::SetupInputComponent()
 		                                   &ASKPlayerController::Active_QuickSlotItem_02);
 		//가드
 		EnhancedInputComponent->BindAction(GuardAction, ETriggerEvent::Started, this,
-										   &ASKPlayerController::StartGuard);
+		                                   &ASKPlayerController::StartGuard);
 		EnhancedInputComponent->BindAction(GuardAction, ETriggerEvent::Completed, this,
-										   &ASKPlayerController::StopGuard);
-		EnhancedInputComponent->BindAction(GuardCounterAction, ETriggerEvent::Started, this,
-										   &ASKPlayerController::GuardCounter);
+		                                   &ASKPlayerController::StopGuard);
 	}
 }
 
@@ -388,18 +386,20 @@ void ASKPlayerController::Server_SetFacingDirection_Implementation(float NewYaw)
 
 void ASKPlayerController::Dash(const FInputActionValue& Value)
 {
-	ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
-	if (!SKChar)
-		return;
-	UAbilitySystemComponent* ASC = SKChar->GetAbilitySystemComponent();
-	if (!ASC)
-		return;
+	// ASKCharacterBase* SKChar = Cast<ASKCharacterBase>(GetPawn());
+	// if (!SKChar)
+	// 	return;
+	// UAbilitySystemComponent* ASC = SKChar->GetAbilitySystemComponent();
+	// if (!ASC)
+	// 	return;
+	//
+	//
+	// FGameplayTagContainer DashTag;
+	// DashTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Dash")));
+	//
+	// ASC->TryActivateAbilitiesByTag(DashTag);
 
 
-	FGameplayTagContainer DashTag;
-	DashTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Dash")));
-
-	ASC->TryActivateAbilitiesByTag(DashTag);
 }
 
 void ASKPlayerController::Move(const FInputActionValue& Value)
@@ -417,7 +417,7 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
 
-		
+
 		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(ControlledPawn);
 		if (Char)
 		{
@@ -447,7 +447,6 @@ void ASKPlayerController::OnMoveRepleased()
 
 void ASKPlayerController::Look(const FInputActionValue& Value)
 {
-
 	const FVector2D InLookVector = Value.Get<FVector2D>();
 
 	AddYawInput(InLookVector.X);
@@ -557,10 +556,18 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 	FGameplayTagContainer GuardCounterTag;
 	GuardCounterTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.GuardCounter")));
 
-	//우선순위가 높은거부터
-	ASC->TryActivateAbilitiesByTag(GuardCounterTag);
-
-	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK));
+	if (ASC->TryActivateAbilitiesByTag(GuardCounterTag))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GuardCounter Success"));
+	}
+	else if (ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK)))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Left Attack Success"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Left Key Fail"));
+	}
 
 	bCanMaintainCombo = false;
 }
@@ -632,9 +639,7 @@ void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
 	{
 		PlayerChar->AdjustSpringArmDistance(WheelValue);
 	}
-	
 }
-
 
 
 void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Value)
@@ -648,18 +653,40 @@ void ASKPlayerController::Active_QuickSlotAction_00(const FInputActionValue& Val
 	if (!IsValid(PlayerCharacter))
 		return;
 
-	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
-	CombatComponent->Server_Input_Skill_01();
+	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
+	BattleComponent->Server_Input_Skill_01();
 }
 
 void ASKPlayerController::Active_QuickSlotAction_01(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_01"));
+
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
+	BattleComponent->Server_Input_Skill_02();
 }
 
 void ASKPlayerController::Active_QuickSlotAction_02(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Display, TEXT("Active_QuickSlotAction_02"));
+
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UBattleComponent* BattleComponent = PlayerCharacter->GetBattleComponent();
+	BattleComponent->Server_Input_Skill_03();
 }
 
 void ASKPlayerController::Active_QuickSlotItem_00(const FInputActionValue& Value)
@@ -751,7 +778,7 @@ void ASKPlayerController::StartGuard(const FInputActionValue& Value)
 	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
 	if (!IsValid(ASC))
 		return;
-	
+
 
 	FGameplayTagContainer GuardTag;
 	GuardTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Guard")));
@@ -778,28 +805,6 @@ void ASKPlayerController::StopGuard(const FInputActionValue& Value)
 	GuardTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Guard")));
 
 	ASC->CancelAbilities(&GuardTag);
-}
-
-void ASKPlayerController::GuardCounter(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Warning, TEXT("[Controller] Start GuardCounter"));
-	APawn* ControlledPawn = GetPawn();
-	if (!IsValid(ControlledPawn))
-		return;
-
-	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
-	if (!IsValid(PlayerCharacter))
-		return;
-
-	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	if (!IsValid(ASC))
-		return;
-	
-
-	FGameplayTagContainer GuardCounterTag;
-	GuardCounterTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.GuardCounter")));
-
-	ASC->TryActivateAbilitiesByTag(GuardCounterTag);
 }
 
 AActor* ASKPlayerController::FindNearestTarget()
@@ -941,7 +946,7 @@ void ASKPlayerController::RequestRespawn()
 	if (!GM) return;
 
 	GM->RestartPlayerAtTransform(this, SpawnTransform);
-	
+
 	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
 }
 
@@ -986,12 +991,14 @@ void ASKPlayerController::RequestLevelUp()
 	}
 }
 
-void ASKPlayerController::ServerCancelAbility_Implementation(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags)
+void ASKPlayerController::ServerCancelAbility_Implementation(UAbilitySystemComponent* ASC,
+                                                             FGameplayTagContainer CancelAbilityTags)
 {
 	ASC->CancelAbilities(&CancelAbilityTags, nullptr);
 }
 
-bool ASKPlayerController::ServerCancelAbility_Validate(UAbilitySystemComponent* ASC, FGameplayTagContainer CancelAbilityTags)
+bool ASKPlayerController::ServerCancelAbility_Validate(UAbilitySystemComponent* ASC,
+                                                       FGameplayTagContainer CancelAbilityTags)
 {
 	return true;
 }

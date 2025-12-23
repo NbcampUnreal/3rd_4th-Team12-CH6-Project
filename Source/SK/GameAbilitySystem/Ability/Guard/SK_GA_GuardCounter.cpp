@@ -16,7 +16,7 @@ USK_GA_GuardCounter::USK_GA_GuardCounter()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-	
+
 	SetAssetTags(FGameplayTagContainer(TAG_Ability_GuardCounter));
 
 	// 발동 조건
@@ -35,8 +35,6 @@ void USK_GA_GuardCounter::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	UE_LOG(LogTemp, Log, TEXT("GuardCounter Start"));
-	
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!ASC)
 	{
@@ -50,7 +48,7 @@ void USK_GA_GuardCounter::ActivateAbility(
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
-	
+
 	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent)
 	{
@@ -59,12 +57,12 @@ void USK_GA_GuardCounter::ActivateAbility(
 	}
 
 	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
-	if (!WeaponAnimData) 
+	if (!WeaponAnimData)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
-	
+
 	GuardCounterMontage = WeaponAnimData->GuardCounterMontage;
 	if (!GuardCounterMontage)
 	{
@@ -78,18 +76,19 @@ void USK_GA_GuardCounter::ActivateAbility(
 	ASC->RemoveLooseGameplayTag(TAG_State_Action_Guard);
 
 	UAbilityTask_PlayMontageAndWait* PlayTask =
-	UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this,	
-		NAME_None,
-		GuardCounterMontage,
-		1.0f
-	);
-	
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			NAME_None,
+			GuardCounterMontage,
+			1.0f
+		);
+
 	if (GuardCounterMontage)
 	{
-		PlayTask->OnCompleted.AddDynamic(this, &USK_GA_GuardCounter::K2_EndAbility);
-		PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_GuardCounter::K2_EndAbility);
-		PlayTask->OnCancelled.AddDynamic(this, &USK_GA_GuardCounter::K2_EndAbility);
+		PlayTask->OnCompleted.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
+		PlayTask->OnInterrupted.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
+		PlayTask->OnCancelled.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
+		PlayTask->OnBlendOut.AddDynamic(this, &USK_GA_GuardCounter::OnMontageFinished);
 		PlayTask->ReadyForActivation();
 	}
 	else
@@ -97,9 +96,8 @@ void USK_GA_GuardCounter::ActivateAbility(
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
-	
+
 	//ASC->ExecuteGameplayCue(TAG_Cue_Guard_Counter);
-	
 }
 
 void USK_GA_GuardCounter::EndAbility(
@@ -110,13 +108,7 @@ void USK_GA_GuardCounter::EndAbility(
 	bool bWasCancelled
 )
 {
-	Super::EndAbility(
-		Handle,
-		ActorInfo,
-		ActivationInfo,
-		bReplicateEndAbility,
-		bWasCancelled
-	);
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void USK_GA_GuardCounter::ApplyDamageFromTrace()
@@ -124,23 +116,41 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 	Super::ApplyDamageFromTrace();
 
 	UE_LOG(LogTemp, Log, TEXT("GuardCounter ApplyDamageFromTrace"));
-	
+
 	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!Character)
 		return;
-	
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+		
+		return;
 	UBattleComponent* BattleComponent = Character->GetBattleComponent();
-	
-	for (AActor* HitActor : BattleComponent->GetHitActors())
+	const TArray<FHitResult>& HitResults = BattleComponent->GetHitResult();
+
+	TSet<TWeakObjectPtr<AActor>> DamagedActors;
+
+	for (const FHitResult& Hit : HitResults)
 	{
+		AActor* HitActor = Hit.GetActor();
 		if (!HitActor)
+			continue;
+
+		if (DamagedActors.Contains(HitActor))
 			continue;
 
 		// Target의 AbilitySystemComponent 가져오기
 		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 
 		FGameplayEffectSpecHandle SpecHandle =
-				MakeOutgoingGameplayEffectSpec(GuardCounterDamageEffect, 1.f);
+			MakeOutgoingGameplayEffectSpec(GuardCounterDamageEffect, 1.f);
+
+		FGameplayEffectContextHandle Context =
+			SourceASC->MakeEffectContext();
+
+		Context.AddSourceObject(this);
+
+		Context.AddHitResult(Hit);
 
 		SpecHandle.Data->SetSetByCallerMagnitude(
 			TAG_Data_DamageMultiplier,
@@ -157,4 +167,17 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 void USK_GA_GuardCounter::OnStopAttackTrace_Server()
 {
 	Super::OnStopAttackTrace_Server();
+}
+
+void USK_GA_GuardCounter::OnMontageFinished()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[GuardCounter] Montage Finished -> EndAbility"));
+
+	EndAbility(
+		CurrentSpecHandle,
+		CurrentActorInfo,
+		CurrentActivationInfo,
+		true, // bReplicateEndAbility
+		true // bWasCancelled
+	);
 }

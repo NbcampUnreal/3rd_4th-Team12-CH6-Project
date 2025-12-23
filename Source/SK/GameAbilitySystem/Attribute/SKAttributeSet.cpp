@@ -184,6 +184,13 @@ void USKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 		//MaxStatmina 넘지않게 하기
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxStamina());
 	}
+
+	//스태미나 
+	if (Attribute == GetHeatAttribute())
+	{
+		//MaxStatmina 넘지않게 하기
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHeat());
+	}
 }
 
 void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)

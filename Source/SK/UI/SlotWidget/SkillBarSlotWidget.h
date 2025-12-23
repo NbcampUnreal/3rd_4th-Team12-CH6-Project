@@ -4,8 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+
 #include "SkillBarSlotWidget.generated.h"
 
+class ASKPlayerCharacter;
+class USKWeaponData;
+struct FSkillUIMessage;
+struct FSwitchLayoutMessage;
 class UTextBlock;
 class UImage;
 /**
@@ -27,35 +33,53 @@ public:
 	UImage* SkillImage3;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* SkillImage4;
+	UImage* SkillKey1;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* SkillImage5;
+	UImage* SkillKey2;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* SkillImage6;
+	UImage* SkillKey3;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SkillKey1;
+protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+	
+	UPROPERTY()
+	ASKPlayerCharacter* Character;
+	
+	UPROPERTY()
+	const USKWeaponData* CurrentWeaponData;
+	
+	FSKGameplayMessageListenerHandle WeaponChangeMessageHandle;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SkillKey2;
+	void OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message);
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SkillKey3;
+	FSKGameplayMessageListenerHandle SkillUseMessageHandle;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SkillKey4;
+	void OnSkillUseMessageReceived(FGameplayTag Channel, const FSkillUIMessage& Message);
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SkillKey5;
+	void Skill1AnimPlay(bool bSuccess);
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SkillKey6;
+	void Skill2AnimPlay(bool bSuccess);
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ExtraKey1;
+	void Skill3AnimPlay(bool bSuccess);
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_Skill1Success;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ExtraKey2;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_Skill1Fail;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_Skill2Success;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_Skill2Fail;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_Skill3Success;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_Skill3Fail;
 };

@@ -59,6 +59,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left4, "Combo.Left4");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right1, "Combo.Right1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right2, "Combo.Right2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Right3, "Combo.Right3");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Skill1, "Combo.Skill1");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Skill2, "Combo.Skill2");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Skill3, "Combo.Skill3");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LR, "Combo.LR");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LLR, "Combo.LLR");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestLeft, "Input.TestLeft");
@@ -177,6 +180,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Idle, "State.Movement.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Walk, "State.Movement.Walk");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Sprint, "State.Movement.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Movement_Dash, "State.Movement.Dash");
+
+//무적
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_invincibility, "State.invincibility");
+
 // State-Action (행동)
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Action, "State.Action");
 // State-Action-ATK (공격)
@@ -249,6 +256,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UseQuickSlotItem, "Message.Channel.Us
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BossWidgetSetting, "Message.Channel.BossWidgetSetting");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_LoadingUIVisible, "Message.Channel.LoadingUIVisible");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UIInteraction, "Message.Channel.UIInteraction");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SkillUse, "Message.Channel.SkillUse");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
@@ -264,3 +272,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.Atta
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_DamageMultiplier, "Data.DamageMultiplier");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake, "GameplayCue.Shake");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_01, "GameplayCue.Shake.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_02, "GameplayCue.Shake.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_03, "GameplayCue.Shake.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_04, "GameplayCue.Shake.04");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_05, "GameplayCue.Shake.05");

@@ -10,6 +10,9 @@
 #include "GameData/WeaponDataRow.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/SKWeaponData.h"
 
 // Sets default values for this component's properties
@@ -30,6 +33,81 @@ void UBattleComponent::BeginPlay()
 
 	SetWeaponMesh_Init();
 	
+}
+
+void UBattleComponent::Server_Input_Skill_01_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	
+	FGameplayTagContainer Container;
+	Container.AddTag(TAG_Ability_Skill_01);
+	ASC->TryActivateAbilitiesByTag(Container);
+}
+
+void UBattleComponent::Server_Input_Skill_02_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	
+	FGameplayTagContainer Container;
+	Container.AddTag(TAG_Ability_Skill_02);
+	ASC->TryActivateAbilitiesByTag(Container);
+}
+
+void UBattleComponent::Server_Input_Skill_03_Implementation()
+{
+	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
+
+	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
+	
+	FGameplayTagContainer Container;
+	Container.AddTag(TAG_Ability_Skill_03);
+	ASC->TryActivateAbilitiesByTag(Container);
+}
+
+void UBattleComponent::Client_SendSkillUIMessage_Implementation(int32 SkillNum, bool bSuccess)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	UGameInstance* GameInstance = World->GetGameInstance();
+	if (!GameInstance)
+	{
+		return;
+	}
+
+	USKGameplayMessageSubsystem* MessageSubsystem =
+		GameInstance->GetSubsystem<USKGameplayMessageSubsystem>();
+
+	if (!MessageSubsystem)
+	{
+		return;
+	}
+
+	FSkillUIMessage Message;
+	Message.SkillNum = SkillNum;
+	Message.bSuccess = bSuccess;
+
+	MessageSubsystem->BroadcastMessage(
+		TAG_Message_Channel_SkillUse,
+		Message
+	);
+}
+
+void UBattleComponent::NotifyUseSkill(int32 SkillNum, bool bSuccess)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
+	Client_SendSkillUIMessage(SkillNum, bSuccess);
 }
 
 UAnimMontage* UBattleComponent::GetLeftATKMontage(int32 Index)
@@ -86,7 +164,7 @@ void UBattleComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void UBattleComponent::StartTrace()
 {
 	SetIsTraced(true);
-	ClearHitActor();
+	ClearHitResult();
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (!OwnerCharacter)
@@ -164,9 +242,10 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	if (bHit)
 	{
 		AActor* HitActor = Hit.GetActor();
+
 		if (HitActor && !HitActors.Contains(HitActor))
 		{
-			HitActors.Add(HitActor);
+			AddHitResult(Hit);
 		}
 	}
 
@@ -174,9 +253,15 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	PrevEnd = CurrEnd;
 }
 
-void UBattleComponent::ClearHitActor()
+
+void UBattleComponent::ClearHitResult()
 {
-	HitActors.Empty();
+	HitResults.Reset();
+}
+
+void UBattleComponent::AddHitResult(const FHitResult& Hit)
+{
+	HitResults.Add(Hit);
 }
 
 void UBattleComponent::SetIsTraced(bool ArgIsTracing)
@@ -184,9 +269,9 @@ void UBattleComponent::SetIsTraced(bool ArgIsTracing)
 	bIsTracing = ArgIsTracing;
 }
 
-const TArray<AActor*>& UBattleComponent::GetHitActors()
+const TArray<FHitResult>& UBattleComponent::GetHitResult()
 {
-	return HitActors;
+	return HitResults;
 }
 
 void UBattleComponent::Server_StartTrace_Implementation()

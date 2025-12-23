@@ -36,6 +36,9 @@ protected:
 	virtual void ApplyDamageFromTrace() override;
 	virtual void OnStopAttackTrace_Server() override;
 
+	UFUNCTION()
+	void OnMontageFinished();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GuardCounter")
 	TSubclassOf<UGameplayEffect> GuardCounterDamageEffect;
