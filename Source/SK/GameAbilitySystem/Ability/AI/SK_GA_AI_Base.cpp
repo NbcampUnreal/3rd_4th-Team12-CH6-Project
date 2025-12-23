@@ -13,9 +13,9 @@ USK_GA_AI_Base::USK_GA_AI_Base()
 
 }
 
-TObjectPtr<UAnimMontage> USK_GA_AI_Base::GetAnimMontage(FName AbilityName)
+TObjectPtr<UAnimMontage> USK_GA_AI_Base::GetAnimMontage(FName MontageName)
 {
-	TObjectPtr<UAnimMontage>* MapAnimMontage = Montages.Find(AbilityName);
+	TObjectPtr<UAnimMontage>* MapAnimMontage = Montages.Find(MontageName);
 	if (!MapAnimMontage)
 	{
 		return nullptr;

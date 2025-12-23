@@ -399,6 +399,7 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	AttributeSet->SetArmor(MonsterData->Armor);
 	AttributeSet->SetPoise(MonsterData->Poise);
 	AttributeSet->SetSpeed(MonsterData->Speed);
+	MaxMeleeIndex = MonsterData->MaxMeleeIndex;
 	BackstepDistance = MonsterData->BackstepDistance;
 	
 	// 예시: 이동 속도 적용

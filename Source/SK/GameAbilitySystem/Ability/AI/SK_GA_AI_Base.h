@@ -43,7 +43,7 @@ protected:
 public:
 	USK_GA_AI_Base();
 
-	TObjectPtr<UAnimMontage> GetAnimMontage(FName AbilityName);
+	TObjectPtr<UAnimMontage> GetAnimMontage(FName MontageName);
 
 	void WaitEndAbility();
 

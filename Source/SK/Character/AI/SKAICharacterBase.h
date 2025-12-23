@@ -53,7 +53,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Index")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Index")
 	int32 MaxMeleeIndex = 0;
 
 private:
