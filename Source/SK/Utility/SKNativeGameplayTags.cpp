@@ -275,3 +275,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_02, "GameplayCue.Shake.02");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_03, "GameplayCue.Shake.03");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_04, "GameplayCue.Shake.04");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_05, "GameplayCue.Shake.05");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_06, "GameplayCue.Shake.06");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_07, "GameplayCue.Shake.07");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_08, "GameplayCue.Shake.08");
