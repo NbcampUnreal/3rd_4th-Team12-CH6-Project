@@ -14,7 +14,8 @@
 				"CommonUI",
 				"UMG",
 				"AIModule",
-				"MotionWarping"
+				"MotionWarping",
+				"NiagaraAnimNotifies"
 			]
 		}
 	],
