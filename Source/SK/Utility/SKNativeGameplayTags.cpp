@@ -50,6 +50,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Backstep, "Ability.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_ProjectileAttack, "Ability.ProjectileAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction, "Ability.HitReaction");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_InteractBonfireEnd, "Ability.InteractBonfireEnd");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left1, "Combo.Left1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left2, "Combo.Left2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left3, "Combo.Left3");
