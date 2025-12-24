@@ -264,6 +264,33 @@ FName USK_GA_RightAttack::GetComboMontageSection(int32 ComboIndex) const
 	}
 }
 
+FGameplayTag USK_GA_RightAttack::GetComboTag(int32 ComboIndex) const
+{
+	switch (ComboIndex)
+	{
+	case 0:
+		return TAG_Combo_Right1;
+	case 1:
+		return TAG_Combo_Right2;
+	case 2:
+		return TAG_Combo_Right3;
+	case 3:
+		return TAG_Combo_LR;
+	case 4:
+		return TAG_Combo_LRR;
+	case 5:
+		return TAG_Combo_LLR;
+	case 6:
+		return TAG_Combo_LLRR;
+	case 7:
+		return TAG_Combo_LLLR;
+	default:
+		break;
+	}
+
+	return FGameplayTag();
+}
+
 FGameplayTag USK_GA_RightAttack::GetComboGiveTag(int32 ComboIndex) const
 {
 	switch (ComboIndex)
@@ -332,7 +359,7 @@ void USK_GA_RightAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* 
 
 	FGameplayEffectSpecHandle SpecHandle =
 		MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
-
+		
 	if (!SpecHandle.IsValid())
 	{
 		return;
@@ -370,7 +397,7 @@ void USK_GA_RightAttack::OnMontageInterrupted()
 void USK_GA_RightAttack::ApplyDamageFromTrace()
 {
 	Super::ApplyDamageFromTrace();
-
+	
 	//인덱스 판단 태그로 변경
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
@@ -416,6 +443,15 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 		FGameplayEffectSpecHandle SpecHandle =
 			SourceASC->MakeOutgoingSpec(EffectClass, 1.f, Context);
 
+		const FRightComboKey Key{GetComboTag(CurrentComboIndex), TAG_Input_TestRight};
+		const FComboTableRow* Row = ComboCache.FindRef(Key);
+		if (Row->ComboAttackType != FGameplayTag::EmptyTag)
+		{
+			AttackTypeTag = Row->ComboAttackType;
+			FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+			AddAttackTypeToEffectSpec(*Spec);
+		}
+		
 		if (SpecHandle.IsValid())
 		{
 			SourceASC->ApplyGameplayEffectSpecToTarget(
