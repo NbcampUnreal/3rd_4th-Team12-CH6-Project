@@ -5,6 +5,7 @@
 #include "Controller/SKPlayerController.h"
 #include "SKActionComponent.generated.h"
 
+class ASKInteractableBase;
 class UGameplayEffect;
 class UEquipmentInstance;
 class USKWeaponAnimData;
@@ -100,9 +101,14 @@ protected:
 	
 #pragma endregion
 
+#pragma region Bonfire
+	
 public:
 	UFUNCTION(Server, Reliable)
 	void Server_SetIgnoreWorldStatic(bool bIgnore);
+
+	UPROPERTY()
+	ASKInteractableBase* InteractedStool;
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_IgnoreWorldStatic)
@@ -112,4 +118,5 @@ protected:
 	void OnRep_IgnoreWorldStatic();
 
 	void ApplyCollisionSetting();
+#pragma endregion
 };

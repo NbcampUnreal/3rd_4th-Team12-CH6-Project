@@ -275,6 +275,10 @@ void USK_GA_Skill_01::ApplyDamageFromTrace()
 		FGameplayEffectSpecHandle SpecHandle =
 			SourceASC->MakeOutgoingSpec(EffectClass, 1.f, Context);
 
+		//추가
+		FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+		AddAttackTypeToEffectSpec(*Spec);
+		
 		if (SpecHandle.IsValid())
 		{
 			SourceASC->ApplyGameplayEffectSpecToTarget(

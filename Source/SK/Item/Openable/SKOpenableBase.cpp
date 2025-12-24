@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
+#include "Weapon/ActorComponent/SKActionComponent.h"
 
 ASKOpenableBase::ASKOpenableBase()
 {
@@ -50,6 +51,14 @@ void ASKOpenableBase::BeginPlay()
 	}
 }
 
+void ASKOpenableBase::OverLapBeginHandle()
+{
+}
+
+void ASKOpenableBase::OverLapEndHandle()
+{
+}
+
 void ASKOpenableBase::OnDetectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -57,10 +66,15 @@ void ASKOpenableBase::OnDetectBeginOverlap(UPrimitiveComponent* OverlappedComp, 
 	
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(OtherActor);
 	if (!Char) return;
+
+	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	if (!ActionComponent || ActionComponent->InteractedStool) return;
 	
 	if (!Char->IsLocallyControlled()) return;
 	
 	DetectWidget->SetVisibility(true);
+
+	OverLapBeginHandle();
 }
 
 void ASKOpenableBase::OnDetectEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -74,6 +88,8 @@ void ASKOpenableBase::OnDetectEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	if (!Char->IsLocallyControlled()) return;
 	
 	DetectWidget->SetVisibility(false);
+	
+	OverLapEndHandle();
 }
 
 void ASKOpenableBase::HandleCanInteractChanged()
