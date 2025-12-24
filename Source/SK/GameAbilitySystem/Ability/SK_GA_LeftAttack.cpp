@@ -225,6 +225,25 @@ FName USK_GA_LeftAttack::GetComboMontageSection(int32 ComboIndex) const
 	}
 }
 
+FGameplayTag USK_GA_LeftAttack::GetComboTag(int32 ComboIndex) const
+{
+	switch (ComboIndex)
+	{
+		case 0:
+			return TAG_Combo_Left1;
+		case 1:
+			return TAG_Combo_Left2;
+		case 2:
+			return TAG_Combo_Left3;
+		case 3:
+			return TAG_Combo_Left4;
+		default:
+			break;
+	}
+
+	return FGameplayTag();
+}
+
 void USK_GA_LeftAttack::ApplyComboStateEffect(const FGameplayAbilityActorInfo* ActorInfo)
 {
 	if (!ActorInfo || !ActorInfo->AbilitySystemComponent.IsValid() || !CurrentComboTable)
@@ -368,6 +387,15 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 		FGameplayEffectSpecHandle SpecHandle =
 			SourceASC->MakeOutgoingSpec(EffectClass, 1.f, Context);
 
+		const FLeftComboKey Key{GetComboTag(CurrentComboIndex), TAG_Input_TestLeft};
+		const FComboTableRow* Row = ComboCache.FindRef(Key);
+		if (Row->ComboAttackType != FGameplayTag::EmptyTag)
+		{
+			AttackTypeTag = Row->ComboAttackType;
+			FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+			AddAttackTypeToEffectSpec(*Spec);
+		}
+				
 		if (SpecHandle.IsValid())
 		{
 			SourceASC->ApplyGameplayEffectSpecToTarget(

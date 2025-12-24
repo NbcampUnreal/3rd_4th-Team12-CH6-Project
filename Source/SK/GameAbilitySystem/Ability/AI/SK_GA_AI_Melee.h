@@ -15,6 +15,9 @@ public:
 	void Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection);
 
 	UFUNCTION()
+	void OnAnimNotifyCompleted(FGameplayEventData EventData);
+	
+	UFUNCTION()
 	void OnHitCompleted(FGameplayEventData EventData);
 	
 	UFUNCTION()
