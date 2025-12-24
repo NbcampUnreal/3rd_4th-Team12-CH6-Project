@@ -79,7 +79,8 @@ public:
 
 	int32 CheckCombo(const FGameplayAbilityActorInfo* ActorInfo) const;
 	FName GetComboMontageSection(int32 ComboIndex) const;
-
+	FGameplayTag GetComboTag(int32 ComboIndex) const;
+	
 	void ApplyComboStateEffect(const FGameplayAbilityActorInfo* ActorInfo);
 
 
