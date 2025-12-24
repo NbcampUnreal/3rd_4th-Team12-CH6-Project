@@ -19,7 +19,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components|StaticMesh")
-	TObjectPtr<UStaticMeshComponent> MeshComponent;
+	TObjectPtr<UStaticMeshComponent> BonfireMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components|StaticMesh")
+	TObjectPtr<UStaticMeshComponent> StoolMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components|Niagara")
 	TObjectPtr<UNiagaraComponent> NiagaraComponent;

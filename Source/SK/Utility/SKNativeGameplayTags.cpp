@@ -52,6 +52,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReaction, "Ability.HitReaction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Blocked, "Ability.Blocked");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Groggy, "Ability.Groggy");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_InteractBonfireEnd, "Ability.InteractBonfireEnd");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left1, "Combo.Left1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left2, "Combo.Left2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Left3, "Combo.Left3");
@@ -280,3 +282,22 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_02, "GameplayCue.Shake.02");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_03, "GameplayCue.Shake.03");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_04, "GameplayCue.Shake.04");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_05, "GameplayCue.Shake.05");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_06, "GameplayCue.Shake.06");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_07, "GameplayCue.Shake.07");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_08, "GameplayCue.Shake.08");
+
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound, "GameplayCue.Sound");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman, "GameplayCue.Sound.Woman");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK,"GameplayCue.Sound.Woman"); // 공격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_01,"GameplayCue.Sound.Woman.ATK.01"); //    
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_02,"GameplayCue.Sound.Woman.ATK.02"); //   
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_03,"GameplayCue.Sound.Woman.ATK.03"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_04,"GameplayCue.Sound.Woman.ATK.04"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_05,"GameplayCue.Sound.Woman.ATK.05"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_06,"GameplayCue.Sound.Woman.ATK.06"); //   
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_07,"GameplayCue.Sound.Woman.ATK.07"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_08,"GameplayCue.Sound.Woman.ATK.08"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_09,"GameplayCue.Sound.Woman.ATK.09"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit,"GameplayCue.Sound.Woman.Hit"); // 피격사운드

@@ -35,5 +35,13 @@ public:
 
 	
 	virtual void OnStopAttackTrace_Server();
+
+protected:
+	/** Damage Spec 생성 시 공격 타입 태그를 넣어준다 */
+	void AddAttackTypeToEffectSpec(FGameplayEffectSpec& Spec) const;
 	
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attack")
+	FGameplayTag AttackTypeTag;
 };
