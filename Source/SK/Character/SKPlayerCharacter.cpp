@@ -35,7 +35,7 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 600.0f; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bDoCollisionTest = false;
 
