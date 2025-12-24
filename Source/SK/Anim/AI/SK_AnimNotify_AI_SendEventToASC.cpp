@@ -23,5 +23,5 @@ void USK_AnimNotify_AI_SendEventToASC::Notify(USkeletalMeshComponent* MeshComp, 
 		return;
 	}
 
-	AIController->SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag(TEXT("Event.AnimNotify")));
+	AIController->SendEventToASC(nullptr, nullptr, EventTag);
 }

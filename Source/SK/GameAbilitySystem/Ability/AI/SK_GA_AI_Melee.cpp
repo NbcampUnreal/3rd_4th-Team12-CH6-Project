@@ -22,7 +22,7 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSec
 
 	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
-				FGameplayTag::RequestGameplayTag(TEXT("Event.AnimNotify")),
+				FGameplayTag::RequestGameplayTag(TEXT("Attack")),
 				nullptr,
 				false,
 				false
@@ -58,7 +58,7 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSec
 
 void USK_GA_AI_Melee::OnAnimNotifyCompleted(FGameplayEventData EventData)
 {
-	//CurrentAttackType = ;
+	CurrentAttackType = EventData.EventTag;
 }
 
 void USK_GA_AI_Melee::OnHitCompleted(FGameplayEventData EventData)

@@ -241,7 +241,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_PowerAttack, "AI.PowerAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_HitReaction, "AI.HitReaction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Blocked, "AI.Blocked");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Groggy, "AI.Groggy");
-UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Test, "AI.Test");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
