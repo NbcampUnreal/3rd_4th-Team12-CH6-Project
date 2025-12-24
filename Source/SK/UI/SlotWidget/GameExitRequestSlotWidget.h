@@ -29,6 +29,9 @@ protected:
 	UButton* DungeonExitButton;
 	
 	UPROPERTY(meta = (BindWidget))
+	UButton* OptionButton;
+	
+	UPROPERTY(meta = (BindWidget))
 	UButton* ExitButton;
 
 	UPROPERTY()
@@ -43,6 +46,9 @@ protected:
 	
 	UFUNCTION()
 	void OnExitClicked();
+
+	UFUNCTION()
+	void OnOptionClicked();
 	
 	FSKGameplayMessageListenerHandle ConfirmResponseHandle;
 
