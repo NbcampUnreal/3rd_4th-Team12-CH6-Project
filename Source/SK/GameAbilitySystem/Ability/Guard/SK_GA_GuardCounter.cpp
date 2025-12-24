@@ -24,6 +24,8 @@ USK_GA_GuardCounter::USK_GA_GuardCounter()
 
 	// Guard 중에는 Counter 외 행동 차단
 	//ActivationBlockedTags.AddTag(TAG_State_Action_Guard);
+
+	AttackTypeTag = TAG_Attack_Heavy;
 }
 
 void USK_GA_GuardCounter::ActivateAbility(
@@ -156,10 +158,16 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 			TAG_Data_DamageMultiplier,
 			DamageMultiplier
 		);
+		
+		FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+		AddAttackTypeToEffectSpec(*Spec);
 
 		if (SpecHandle.IsValid() && TargetASC)
 		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			SourceASC->ApplyGameplayEffectSpecToTarget(
+				*SpecHandle.Data.Get(),
+				TargetASC
+			);
 		}
 	}
 }

@@ -20,4 +20,7 @@ struct FComboTableRow : public FTableRowBase
 	// 다음 콤보 상태
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FGameplayTag ToState;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FGameplayTag ComboAttackType;
 };

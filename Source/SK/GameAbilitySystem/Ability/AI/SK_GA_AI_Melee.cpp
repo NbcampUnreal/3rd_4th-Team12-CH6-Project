@@ -19,16 +19,26 @@ USK_GA_AI_Melee::USK_GA_AI_Melee()
 void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection)
 {
 	SetFocus();
-	
+
 	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Attack")),
+				nullptr,
+				false,
+				false
+				);
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Melee::OnAnimNotifyCompleted);
+	OwnEventTask1->ReadyForActivation();
+	
+	OwnEventTask2 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
 				nullptr,
-				true,
+				false,
 				false
 				);
-	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Melee::OnHitCompleted);
-	OwnEventTask1->ReadyForActivation();
+	OwnEventTask2->EventReceived.AddDynamic(this, &USK_GA_AI_Melee::OnHitCompleted);
+	OwnEventTask2->ReadyForActivation();
 	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
@@ -44,6 +54,11 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSec
 	//Task->OnCancelled.AddDynamic(this, &USK_GA_Melee::OnMontageCancelled);
 	//Task->OnBlendOut.AddDynamic(this, &USK_GA_Melee::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
+}
+
+void USK_GA_AI_Melee::OnAnimNotifyCompleted(FGameplayEventData EventData)
+{
+	CurrentAttackType = EventData.EventTag;
 }
 
 void USK_GA_AI_Melee::OnHitCompleted(FGameplayEventData EventData)
@@ -119,6 +134,14 @@ void USK_GA_AI_Melee::EndAbility(
 		if (OwnEventTask1->IsActive())
 		{
 			OwnEventTask1->EndTask();
+		}
+	}
+
+	if (OwnEventTask2)
+	{
+		if (OwnEventTask2->IsActive())
+		{
+			OwnEventTask2->EndTask();
 		}
 	}
 	
