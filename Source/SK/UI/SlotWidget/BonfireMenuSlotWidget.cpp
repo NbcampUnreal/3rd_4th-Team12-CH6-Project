@@ -9,7 +9,6 @@
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
-#include "Item/Openable/Bonfire/SKBonfire.h"
 #include "AbilitySystemComponent.h"
 
 void UBonfireMenuSlotWidget::NativeConstruct()

@@ -68,15 +68,20 @@ void USKInteractionComponent::UpdateTargetActor()
 
 		// 두 벡터 내적이 0보다 큰지
 		FVector ToActor = (ActorLocation - OwnerLocation).GetSafeNormal();
+		FVector ToOwner = (OwnerLocation - ActorLocation).GetSafeNormal();
 		float Dot = 0;
 		switch (Actor->ObjectType)
 		{
 		case EObjectType::Pickup:
-		case EObjectType::Fireplace:
 			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
+		case EObjectType::Stool:
+			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0.3)
+			{
+				Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
+			}
+			break;
 		case EObjectType::Openable:
-			FVector ToOwner = (OwnerLocation - ActorLocation).GetSafeNormal();
 			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0)
 			{
 				Dot = FVector::DotProduct(ToActor, OwnerForwardVector);

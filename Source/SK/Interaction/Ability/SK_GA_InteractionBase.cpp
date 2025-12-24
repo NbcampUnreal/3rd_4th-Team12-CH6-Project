@@ -82,24 +82,6 @@ void USK_GA_InteractionBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
 	if (!InteractionComponent) return;
 	
-	// 로컬 캐릭터, 재상호작용 가능한 것만 UI 처리
-	if (Char->IsLocallyControlled())
-	{
-		if (CachedTargetActor)
-		{
-			if (CachedTargetActor->ObjectType == EObjectType::Fireplace)
-			{
-				ASKOpenableBase* OpenableTarget = Cast<ASKOpenableBase>(CachedTargetActor);
-				if (!OpenableTarget) return;
-	
-				UWidgetComponent* DetectWidget = OpenableTarget->DetectWidget;
-				if (DetectWidget)
-				{
-					InteractionComponent->Client_ToggleInteractableWidget(DetectWidget, true);
-				}
-			}
-		}
-	}
 
 	InteractionComponent->SetInteractionData(FSKInteractionData());
 	CachedTargetActor = nullptr;
