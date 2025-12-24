@@ -1,5 +1,4 @@
 #include "Anim/AI/SK_AnimNotify_AI_SendEventToASC.h"
-
 #include "Controller/AI/SKAIController.h"
 #include "GameFramework/Character.h"
 
