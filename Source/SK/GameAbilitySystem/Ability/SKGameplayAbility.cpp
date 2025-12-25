@@ -4,6 +4,8 @@
 
 #include "GameAbilitySystem/Ability/SKGameplayAbility.h"
 
+#include "AbilitySystemComponent.h"
+
 USKGameplayAbility::USKGameplayAbility()
 {
 }
@@ -37,6 +39,32 @@ void USKGameplayAbility::AddAttackTypeToEffectSpec(FGameplayEffectSpec& Spec) co
 	if (AttackTypeTag.IsValid())
 	{
 		Spec.DynamicGrantedTags.AddTag(AttackTypeTag);
+	}
+}
+
+void USKGameplayAbility::ApplyHeatGE(int32 HeatIndex,UAbilitySystemComponent* SourceASC)
+{
+	// TSubclassOf<UGameplayEffect> HeatEffectClass =
+	// 	HeatGE[HeatIndex];
+	TSubclassOf<UGameplayEffect> HeatEffectClass =
+		HeatGE[0];
+
+	if (HeatEffectClass)
+	{
+		FGameplayEffectContextHandle HeatContext =
+			SourceASC->MakeEffectContext();
+
+		HeatContext.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle HeatSpecHandle =
+			SourceASC->MakeOutgoingSpec(HeatEffectClass, 1.f, HeatContext);
+
+		if (HeatSpecHandle.IsValid())
+		{
+			SourceASC->ApplyGameplayEffectSpecToSelf(
+				*HeatSpecHandle.Data.Get()
+			);
+		}
 	}
 }
 
