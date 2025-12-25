@@ -5,10 +5,26 @@
 #include "Item/Openable/Bonfire/SKBonfire.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/PlayerStart.h"
+#include "Utility/SpawnSubsystem.h"
 
 ADungeonGameMode::ADungeonGameMode()
 {
 	bUseSeamlessTravel = true;
+}
+
+void ADungeonGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("ADungeonGameMode::BeginPlay"));
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	USpawnSubsystem* SpawnSubsystem = World->GetSubsystem<USpawnSubsystem>();
+	if (!SpawnSubsystem) return;
+
+	SpawnSubsystem->SpawnAll();
 }
 
 void ADungeonGameMode::PostSeamlessTravel()
@@ -152,10 +168,17 @@ void ADungeonGameMode::TryProgressState()
 {
 	bool bPlayersReady = (GetDungeonState() == EDungeonMatchState::Dungeon_PlayerReady);
 
-	UE_LOG(LogTemp, Warning, TEXT("ADungeonGameMode::TryProgressState() - bPCGFinished : %d,   bInitialSpawnFinished : %d,   bPlayersReady : %d"), bPCGFinished, bInitialSpawnFinished, bPlayersReady);
+	//UE_LOG(LogTemp, Warning, TEXT("ADungeonGameMode::TryProgressState() - bPCGFinished : %d,   bInitialSpawnFinished : %d,   bPlayersReady : %d"), bPCGFinished, bInitialSpawnFinished, bPlayersReady);
+	UE_LOG(LogTemp, Warning, TEXT("ADungeonGameMode::TryProgressState() - bInitialSpawnFinished : %d,   bPlayersReady : %d"), bInitialSpawnFinished, bPlayersReady);
+
+	//임시
+	bPlayersReady = true;
 	
 	// PCG 완료 + 초기 스폰 완료 → DungeonReady
-	if (bPCGFinished && bInitialSpawnFinished && bPlayersReady)
+	//if (bPCGFinished && bInitialSpawnFinished && bPlayersReady)
+
+	//초기 스폰 완료 → DungeonReady
+	if (bInitialSpawnFinished && bPlayersReady)
 	{
 		// 바로 전투 시작
 		ChangeDungeonState(EDungeonMatchState::Dungeon_InProgress);
