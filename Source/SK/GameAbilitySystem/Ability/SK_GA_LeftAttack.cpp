@@ -376,7 +376,6 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 		TSubclassOf<UGameplayEffect> EffectClass =
 			LeftAttackDamageGE[CurrentComboIndex];
 
-
 		FGameplayEffectContextHandle Context =
 			SourceASC->MakeEffectContext();
 
@@ -402,6 +401,8 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 				*SpecHandle.Data.Get(),
 				TargetASC
 			);
+
+			ApplyHeatGE(CurrentComboIndex,SourceASC);
 		}
 	}
 	

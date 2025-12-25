@@ -300,3 +300,6 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_ATK_07); //
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_ATK_08); //
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_ATK_09); //
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Hit); // 피격사운드
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Hit_01); // 피격사운드
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Hit_02); // 피격사운드
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Death); // 사망

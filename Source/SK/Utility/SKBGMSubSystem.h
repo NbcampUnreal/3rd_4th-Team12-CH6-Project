@@ -31,10 +31,6 @@ private:
 	bool IsRunningListenServer() const;
 	void OnPostLoadMap(UWorld* LoadedWorld); // 레벨이 로드 될 때마다 해당 함수 호출(Bind)
 
-private:
-	// UPROPERTY()
-	// TObjectPtr<UAudioComponent> CurrentBGM;
-
 	UPROPERTY()
 	TObjectPtr<UAudioComponent> BGMComponent;
 

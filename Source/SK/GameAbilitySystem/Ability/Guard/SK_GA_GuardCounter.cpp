@@ -173,6 +173,8 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 				*SpecHandle.Data.Get(),
 				TargetASC
 			);
+
+			ApplyHeatGE(1,SourceASC);
 		}
 	}
 }
