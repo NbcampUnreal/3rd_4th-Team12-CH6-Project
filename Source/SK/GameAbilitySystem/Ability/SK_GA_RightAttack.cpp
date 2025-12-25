@@ -458,6 +458,8 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 				*SpecHandle.Data.Get(),
 				TargetASC
 			);
+
+			ApplyHeatGE(CurrentComboIndex,SourceASC);
 		}
 	}
 }
