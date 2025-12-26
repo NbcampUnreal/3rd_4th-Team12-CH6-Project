@@ -124,12 +124,20 @@ void USKActionComponent::OnOwnerPossessed()
 		}
 		else
 		{
+			UE_LOG(LogTemp, Warning, TEXT("??????"))
 			// 무기 장착시 태그 해제
+			const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+			if (!WeaponDataRow)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("WeaponData Is Null"))
+			}
+			UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponDataRow->WeaponAnimData.GetName())
+	
+			Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+			Multicast_SetWeaponData(WeaponDataRow->WeaponData);
 			if (ASC)
 			{
-				USKActionComponent* ActionComponent = Cast<ASKPlayerCharacter>(GetOwner())->GetActionComponent();
-				if (!ActionComponent) return;
-				USKWeaponAnimData* AnimData = ActionComponent->GetWeaponAnimData();
+				USKWeaponAnimData* AnimData = WeaponDataRow->WeaponAnimData;
 				if (!AnimData) return;
 		
 				if (AnimData->UnequipGE && AnimData->EquipGE)
@@ -144,13 +152,6 @@ void USKActionComponent::OnOwnerPossessed()
 					}
 				}
 			}
-			const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
-			if (!WeaponDataRow) return;
-			UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponDataRow->WeaponAnimData.GetName())
-	
-			Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
-			Multicast_SetWeaponData(WeaponDataRow->WeaponData);
-			
 			return;
 		}
 	}
