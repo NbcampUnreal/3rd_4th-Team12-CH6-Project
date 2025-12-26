@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "Animation/SKPlayerAnimInstance.h"
+#include "Component/BattleComponent.h"
 #include "Interaction/Ability/SK_GA_Unequip.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
@@ -21,6 +22,7 @@ void USKActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(USKActionComponent, CurrentWeaponAnimData);
 	DOREPLIFETIME(USKActionComponent, CurrentInputVector);
 	DOREPLIFETIME(USKActionComponent, CurrentMoveDirection);
 	DOREPLIFETIME(USKActionComponent, WeaponActors);
@@ -39,6 +41,15 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+}
+
+void USKActionComponent::Multicast_SetWeaponData_Implementation(USKWeaponData* NewWeaponData)
+{
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+	UBattleComponent* BattleComponent = Char->GetBattleComponent();
+	if (!BattleComponent) return;
+	BattleComponent->CurrentWeaponData = NewWeaponData;
 }
 
 void USKActionComponent::CheckAutoUnEquipped()
@@ -101,22 +112,65 @@ void USKActionComponent::OnOwnerPossessed()
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Char || !Char->HasAuthority()) return;
 
-	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
-
 	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
 	if (!ASC) return;	
-	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
-	ASC->AddLooseGameplayTag(UnarmedTag);
 
 	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Char->GetPlayerState());
+	if (IsValid(PlayerState))
+	{
+		if (PlayerState->bIsFirstSpawned)
+		{
+			PlayerState->bIsFirstSpawned = false;
+		}
+		else
+		{
+			// 무기 장착시 태그 해제
+			if (ASC)
+			{
+				USKActionComponent* ActionComponent = Cast<ASKPlayerCharacter>(GetOwner())->GetActionComponent();
+				if (!ActionComponent) return;
+				USKWeaponAnimData* AnimData = ActionComponent->GetWeaponAnimData();
+				if (!AnimData) return;
+		
+				if (AnimData->UnequipGE && AnimData->EquipGE)
+				{
+					ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->UnequipGE, ASC, 1);
+					ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->EquipGE, ASC, 1);
+			
+					FGameplayEffectSpecHandle UnequipGESpecHandle = ASC->MakeOutgoingSpec(AnimData->UnequipGE, 1.f, ASC->MakeEffectContext());
+					if (UnequipGESpecHandle.IsValid())
+					{
+						ASC->ApplyGameplayEffectSpecToSelf(*UnequipGESpecHandle.Data.Get());
+					}
+				}
+			}
+			const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+			if (!WeaponDataRow) return;
+			UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponDataRow->WeaponAnimData.GetName())
+	
+			Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+			Multicast_SetWeaponData(WeaponDataRow->WeaponData);
+			
+			return;
+		}
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
+	// 초기 태그 설정
+	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
+	ASC->AddLooseGameplayTag(UnarmedTag);
+	
 	if (IsValid(PlayerState))
 	{
 		PlayerState->SetCurWeaponTag(UnarmedTag);
 	}
 	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
 	if (!WeaponDataRow) return;
+	UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponDataRow->WeaponAnimData.GetName())
 	
-	Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	CurrentWeaponAnimData = WeaponDataRow->WeaponAnimData;
+	
+	Char->GetMesh()->SetAnimInstanceClass(CurrentWeaponAnimData->AnimInstance);
 }
 
 void USKActionComponent::AttachWeapon(const TArray<FName> SocketNames)
@@ -139,6 +193,40 @@ void USKActionComponent::AttachWeapon(const TArray<FName> SocketNames)
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 			SocketNames[i]);
 	}
+}
+
+void USKActionComponent::OnCombatStart()
+{
+	UE_LOG(LogTemp, Display, TEXT("OnCombatAction"));
+
+	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Char) return;
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	const FGameplayTag EquipTag = FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Equip"));
+
+	// ASC->RemoveLooseGameplayTag(EquipTag);
+	// ASC->AddLooseGameplayTag(EquipTag);
+
+	USKWeaponAnimData* AnimData = GetWeaponAnimData();
+	if (!AnimData) return;
+		
+	if (AnimData->UnequipGE && AnimData->EquipGE)
+	{
+		ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->UnequipGE, ASC, 1);
+		ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->EquipGE, ASC, 1);
+				
+		FGameplayEffectSpecHandle UnequipGESpecHandle = ASC->MakeOutgoingSpec(AnimData->EquipGE, 1.f, ASC->MakeEffectContext());
+		if (UnequipGESpecHandle.IsValid())
+		{
+			ASC->ApplyGameplayEffectSpecToSelf(*UnequipGESpecHandle.Data.Get());
+		}
+	}
+			
+	AttachWeapon(GetWeaponAnimData()->EquipSocketName);
+
+	LastCombatTime = GetWorld()->GetTimeSeconds();
 }
 
 void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponAnimData)

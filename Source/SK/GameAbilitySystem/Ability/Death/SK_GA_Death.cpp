@@ -30,13 +30,20 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		   Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 
 	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	if (!ActionComponent)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	}
+	GetWorld()->GetTimerManager().ClearTimer(ActionComponent->AutoUnEquippedTimerHandle);
 	
 	USKWeaponAnimData* WeaponAnimData = ActionComponent->GetWeaponAnimData();
 	if (!WeaponAnimData)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponData Is Null"))
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponAnimData->GetName())
 	
 	UAnimMontage* DeathMontage = WeaponAnimData->DeathMontages;
 	ASKPlayerController* PC = Cast<ASKPlayerController>(Char->GetController());

@@ -30,10 +30,13 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetWeaponAnimData(USKWeaponAnimData* NewWeaponAnimData);
 	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetWeaponData(USKWeaponData* NewWeaponData);
+	
 	FORCEINLINE USKWeaponAnimData* GetWeaponAnimData() const { return CurrentWeaponAnimData; }
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	USKWeaponAnimData* CurrentWeaponAnimData;
 
 #pragma region MovementInfo
@@ -84,6 +87,8 @@ public:
 
 	void AttachWeapon(const TArray<FName> SocketNames);
 
+	void OnCombatStart();
+
 	UPROPERTY(Replicated)
 	TArray<AActor*> WeaponActors;
 	
@@ -96,6 +101,7 @@ protected:
 	UPROPERTY()
 	float AutoUnequipDelay = 10.0f;
 
+public:
 	UPROPERTY()
 	FTimerHandle AutoUnEquippedTimerHandle;
 	
