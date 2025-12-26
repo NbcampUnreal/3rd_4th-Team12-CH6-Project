@@ -31,6 +31,9 @@ protected:
 	UProgressBar* HealthProgressBar;
 
 	UPROPERTY(meta = (BindWidget))
+	UProgressBar* TargetHealthProgressBar;
+
+	UPROPERTY(meta = (BindWidget))
 	UProgressBar* StaminaProgressBar;
 
 	UPROPERTY(meta = (BindWidget))
@@ -45,7 +48,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Heat")
 	UTexture2D* EmptyHeatTexture;
 	
-	void HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const;
+	UPROPERTY()
+	float DisplayHealthPercent = 1.0f;
+
+	UPROPERTY()
+	float TargetHealthPercent = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category="Health")
+	float HealthInterpSpeed = 8.0f;
+
+	FTimerHandle HealthAnimTimerHandle;
+	
+	void HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
+
+	void StartHealthAnimation();
+
+	void AnimateHealth();
+	void StopHealthAnimation();
 	
 	void StaminaChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const;
 

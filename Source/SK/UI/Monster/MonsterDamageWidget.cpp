@@ -3,78 +3,52 @@
 
 #include "UI/Monster/MonsterDamageWidget.h"
 
-#include "AbilitySystemComponent.h"
 #include "Components/TextBlock.h"
 #include "TimerManager.h"
-#include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 
 
-void UMonsterDamageWidget::SettingWidget(APawn* OwnerPawn)
+void UMonsterDamageWidget::SettingWidget(float Damage, const FVector2D RendPos, int32 AttackType)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PossessPawnChanged O"));	
-	if (!OwnerPawn)
+	bIsActive = true;
+	SetVisibility(ESlateVisibility::Visible);
+
+	if (!DamageText)
 	{
 		return;
 	}
 
-	UAbilitySystemComponent* ASC = OwnerPawn->FindComponentByClass<UAbilitySystemComponent>();
-	if (!ASC)
+	DamageText->SetText(
+		FText::AsNumber(FMath::RoundToInt(Damage))
+	);
+
+	SetRenderTranslation(RendPos);
+
+	if (Anim_TextMove)
+	{
+		PlayAnimationForward(Anim_TextMove);
+	}
+
+	if (!GetWorld())
 	{
 		return;
 	}
-		
-	if (AttributeSet)
-	{
-		AttributeSet->OnCurrentHealthChanged.RemoveAll(this);
-		AttributeSet = nullptr;
-	}
-	
-	AttributeSet = Cast<USKAIAttributeSet>(ASC->GetAttributeSet(USKAIAttributeSet::StaticClass()));
-	
-	if (!AttributeSet)
-	{
-		return;
-	}
-	
-	AttributeSet->OnCurrentHealthChanged.AddUObject(this, &UMonsterDamageWidget::HealthChanged);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		HideTimerHandle,
+		this,
+		&UMonsterDamageWidget::Deactivate,
+		2.0f,
+		false
+	);
+}
+
+void UMonsterDamageWidget::Deactivate()
+{
+	bIsActive = false;
+	SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UMonsterDamageWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	SetVisibility(ESlateVisibility::Hidden);
-}
-
-void UMonsterDamageWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser,
-	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
-{
-	if (!DamageText || !AttributeSet)
-	{
-		return;
-	}
-	const float DamageValue = OldValue - NewValue;
-	
-	if (DamageValue <= 0.f)
-	{
-		return;
-	}
-
-	FText DamageTextValue = FText::AsNumber(FMath::RoundToInt(DamageValue));
-	DamageText->SetText(DamageTextValue);
-	
-	SetVisibility(ESlateVisibility::Visible);
-
-	GetWorld()->GetTimerManager().ClearTimer(HideTimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(HideTimerHandle, this, &UMonsterDamageWidget::HideDamageText, 3.0f, false);
-}
-
-void UMonsterDamageWidget::HideDamageText()
-{
-	if (DamageText)
-	{
-		DamageText->SetRenderTranslation(FVector2D::ZeroVector);
-	}
-
-	SetVisibility(ESlateVisibility::Hidden);
 }

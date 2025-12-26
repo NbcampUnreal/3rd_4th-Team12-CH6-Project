@@ -6,9 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MonsterDamageWidget.generated.h"
 
-class USKAIAttributeSet;
 class UTextBlock;
-struct FGameplayEffectSpec;
 /**
  * 
  */
@@ -18,21 +16,21 @@ class SK_API UMonsterDamageWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-	void SettingWidget(APawn* OwnerPawn);
+	void SettingWidget(float Damage, const FVector2D RendPos, int32 AttackType);
+	void Deactivate();
 	
+	bool IsActive() const {return bIsActive;}
 protected:
 	virtual void NativeConstruct() override;
-
-	void HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
-
-	UFUNCTION()
-	void HideDamageText();
-
+	
+	UPROPERTY()
+	bool bIsActive = false;
+	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DamageText;
-
-	UPROPERTY()
-	const USKAIAttributeSet* AttributeSet;
-
+	
 	FTimerHandle HideTimerHandle;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_TextMove;
 };

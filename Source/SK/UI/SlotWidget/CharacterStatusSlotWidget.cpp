@@ -16,6 +16,15 @@ void UCharacterStatusSlotWidget::NativeConstruct()
 	Super::NativeConstruct();
  
 	TryBind();
+
+	if (AttributeSet && HealthProgressBar)
+	{
+		const float MaxHealth = FMath::Max(AttributeSet->GetMaxHealth(), 1.0f);
+		DisplayHealthPercent = TargetHealthPercent =
+			AttributeSet->GetHealth() / MaxHealth;
+
+		HealthProgressBar->SetPercent(DisplayHealthPercent);
+	}
 }
 
 void UCharacterStatusSlotWidget::NativeDestruct()
@@ -90,27 +99,74 @@ void UCharacterStatusSlotWidget::TryBind()
 	HeatChanged(nullptr, nullptr, nullptr, 0.f, 0.f, AttributeSet->GetHeat());
 }
 
-void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
+void UCharacterStatusSlotWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
 {
-	if (!HealthProgressBar)
+	if (!HealthProgressBar || !AttributeSet)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] HealthProgressBar NO"));
 		return;
 	}
-	
-	if (!AttributeSet)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[HealthChanged] AttributeSet NO"));
-		return;
-	}
-	
-	const float Percent = NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f);
 
-	HealthProgressBar->SetPercent(Percent);
+	const float MaxHealth = FMath::Max(AttributeSet->GetMaxHealth(), 1.0f);
+	TargetHealthPercent = NewValue / MaxHealth;
+	HealthProgressBar->SetPercent(TargetHealthPercent);
+	StartHealthAnimation();
+}
+
+void UCharacterStatusSlotWidget::StartHealthAnimation()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	// 이미 돌고 있으면 재시작
+	GetWorld()->GetTimerManager().ClearTimer(HealthAnimTimerHandle);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		HealthAnimTimerHandle,
+		this,
+		&UCharacterStatusSlotWidget::AnimateHealth,
+		0.016f,   // 약 60fps
+		true,
+		0.5f
+	);
+}
+
+void UCharacterStatusSlotWidget::AnimateHealth()
+{
+	if (!TargetHealthProgressBar)
+	{
+		StopHealthAnimation();
+		return;
+	}
+
+	DisplayHealthPercent = FMath::FInterpTo(
+		DisplayHealthPercent,
+		TargetHealthPercent,
+		0.016f,
+		HealthInterpSpeed
+	);
+
+	TargetHealthProgressBar->SetPercent(DisplayHealthPercent);
+
+	if (FMath::IsNearlyEqual(DisplayHealthPercent, TargetHealthPercent, 0.001f))
+	{
+		DisplayHealthPercent = TargetHealthPercent;
+		TargetHealthProgressBar->SetPercent(DisplayHealthPercent);
+		StopHealthAnimation();
+	}
+}
+
+void UCharacterStatusSlotWidget::StopHealthAnimation()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(HealthAnimTimerHandle);
+	}
 }
 
 void UCharacterStatusSlotWidget::StaminaChanged(AActor* EffectInstigator, AActor* EffectCauser,
-	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
+                                                const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue) const
 {
 	if (!StaminaProgressBar)
 	{
