@@ -6,6 +6,7 @@
 #include "Item/Openable/SKOpenableBase.h"
 #include "SKBonfire.generated.h"
 
+class UNiagaraSystem;
 class UNavModifierComponent;
 class UNiagaraComponent;
 class ASKStool;
@@ -37,6 +38,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bonfire")
 	TSubclassOf<UGameplayEffect> ResetGameplayEffect;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bonfire")
+	TObjectPtr<UNiagaraSystem> SpawnNiagara;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bonfire")
+	TObjectPtr<UNiagaraSystem> RestNiagara;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SpawnEffect(FTransform Transform);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_RestEffect(FTransform Transform);
+	
 	UPROPERTY()
 	TSet<UWidgetComponent*> DetectWidgets;
 	

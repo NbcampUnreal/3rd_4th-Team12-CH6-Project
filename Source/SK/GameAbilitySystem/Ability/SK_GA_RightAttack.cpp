@@ -45,6 +45,8 @@ void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
+	
+	ApplyMotionWarp(CachedCharacter);
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_RightMelee, true);
 
 	CurrentComboIndex = CheckCombo(ActorInfo);
@@ -433,6 +435,7 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 			LeftAttackDamageGE[CurrentComboIndex];
 
 
+		
 		FGameplayEffectContextHandle Context =
 			SourceASC->MakeEffectContext();
 

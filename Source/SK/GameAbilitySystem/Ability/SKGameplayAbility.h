@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "SKGameplayAbility.generated.h"
 
+class ASKPlayerCharacter;
 /**
  * 
  */
@@ -39,8 +40,10 @@ public:
 protected:
 	/** Damage Spec 생성 시 공격 타입 태그를 넣어준다 */
 	void AddAttackTypeToEffectSpec(FGameplayEffectSpec& Spec) const;
-	
 
+	void ApplyMotionWarp(ASKPlayerCharacter* SKPlayer);
+	FVector GetAttackTargetLocation() const;
+	
 	UPROPERTY(EditAnywhere, Category = "SK|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> HeatGE;
 

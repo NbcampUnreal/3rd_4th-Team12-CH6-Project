@@ -25,7 +25,7 @@ void USK_GA_Interaction_Bonfire::ActivateAbility(const FGameplayAbilitySpecHandl
 	USKActionComponent* ActionComponent = PlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
-		ActionComponent->Server_SetIgnoreWorldStatic(true);
+		ActionComponent->Server_SetIgnoreCollision(true);
 		ActionComponent->InteractedStool = CachedTargetActor;
 
 		ASKStool* Stool = Cast<ASKStool>(CachedTargetActor);
@@ -42,7 +42,6 @@ void USK_GA_Interaction_Bonfire::ActivateAbility(const FGameplayAbilitySpecHandl
 			}
 		}
 	}
-	UCapsuleComponent* Capsule = PlayerCharacter->GetCapsuleComponent();
 	
 	MoveToLocation(PlayerCharacter, TargetLocation, Duration);
 }

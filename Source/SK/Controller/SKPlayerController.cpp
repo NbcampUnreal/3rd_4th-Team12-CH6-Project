@@ -4,6 +4,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NNETypes.h"
 #include "Animation/SKPlayerAnimInstance.h"
 #include "Manager/SKCameraManager.h"
 #include "Character/SKCharacterBase.h"
@@ -621,6 +623,16 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	AActor* Target = FindNearestTarget();
 	SetLockedTarget(Target);
 	SetLockOnState(Target != nullptr);
+
+	// 무기 어태치
+	ASKPlayerCharacter* SKPlayerCharacter = Cast<ASKPlayerCharacter>(GetPawn());
+	if (!SKPlayerCharacter) return;
+
+	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
+	if (ActionComponent)
+	{
+		ActionComponent->OnCombatStart();
+	}
 }
 
 void ASKPlayerController::Active_MouseWheelMove(const FInputActionValue& Value)
@@ -945,9 +957,24 @@ void ASKPlayerController::RequestRespawn()
 	AGameModeBase* GM = GetWorld()->GetAuthGameMode();
 	if (!GM) return;
 
+	// 리스폰
 	GM->RestartPlayerAtTransform(this, SpawnTransform);
+	Bonfire->Multicast_SpawnEffect(SpawnTransform);
 
+	// 체력, 스테미나 초기화
 	Bonfire->ResetBonfire(Cast<ASKPlayerCharacter>(GetPawn()));
+
+	// 죽음 태그 제거
+	UAbilitySystemComponent* ASC = PS->FindComponentByClass<UAbilitySystemComponent>();
+	if (!ASC) return;
+	FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(FName("State.Condition.Death"));
+	ASC->RemoveLooseGameplayTag(DeathTag);
+	// 락온 해제
+	if (bIsLockedOn)
+	{
+		SetLockedTarget(nullptr);
+		SetLockOnState(false);
+	}
 }
 
 

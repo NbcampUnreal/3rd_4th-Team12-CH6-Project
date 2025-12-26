@@ -30,10 +30,13 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetWeaponAnimData(USKWeaponAnimData* NewWeaponAnimData);
 	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetWeaponData(USKWeaponData* NewWeaponData);
+	
 	FORCEINLINE USKWeaponAnimData* GetWeaponAnimData() const { return CurrentWeaponAnimData; }
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	USKWeaponAnimData* CurrentWeaponAnimData;
 
 #pragma region MovementInfo
@@ -84,6 +87,8 @@ public:
 
 	void AttachWeapon(const TArray<FName> SocketNames);
 
+	void OnCombatStart();
+
 	UPROPERTY(Replicated)
 	TArray<AActor*> WeaponActors;
 	
@@ -96,6 +101,7 @@ protected:
 	UPROPERTY()
 	float AutoUnequipDelay = 10.0f;
 
+public:
 	UPROPERTY()
 	FTimerHandle AutoUnEquippedTimerHandle;
 	
@@ -105,17 +111,17 @@ protected:
 	
 public:
 	UFUNCTION(Server, Reliable)
-	void Server_SetIgnoreWorldStatic(bool bIgnore);
+	void Server_SetIgnoreCollision(bool bIgnore);
 
 	UPROPERTY()
 	ASKInteractableBase* InteractedStool;
 
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_IgnoreWorldStatic)
-	bool bIgnoreWorldStatic;
+	UPROPERTY(ReplicatedUsing = OnRep_IgnoreCollision)
+	bool bIgnoreCollision;
 	
 	UFUNCTION()
-	void OnRep_IgnoreWorldStatic();
+	void OnRep_IgnoreCollision();
 
 	void ApplyCollisionSetting();
 #pragma endregion
