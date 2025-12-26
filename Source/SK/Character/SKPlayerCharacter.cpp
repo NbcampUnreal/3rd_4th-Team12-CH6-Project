@@ -49,6 +49,10 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 	//틱활성화
 	PrimaryActorTick.bCanEverTick = true;
 
+	//모션워핑
+	MotionWarpingComp =
+	   CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
+	
 	// 컴뱃컴포넌트 활성화
 	CombatComponent = CreateDefaultSubobject<USKCombatComponent>(TEXT("CombatComponent"));
 
@@ -209,19 +213,7 @@ void ASKPlayerCharacter::SetTraceSocket()
 	BattleComponent->InitializeWeaponData(DataRow);
 }
 
-void ASKPlayerCharacter::SetLockOnState(bool bLock)
-{
-	if (bLock)
-	{
-		GetCharacterMovement()->bUseControllerDesiredRotation = true;
-		GetCharacterMovement()->bOrientRotationToMovement = false;
-	}
-	else
-	{
-		GetCharacterMovement()->bUseControllerDesiredRotation = false;
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-	}
-}
+
 
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
@@ -318,21 +310,26 @@ void ASKPlayerCharacter::AdjustSpringArmDistance(float WheelValue)
 
 void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 {
-	if (bLockOn)
-	{
-		// Lock On: Movement 기반 회전 금지
-		bUseControllerRotationYaw = true;
-		GetCharacterMovement()->bOrientRotationToMovement = false;
-		GetCharacterMovement()->bUseControllerDesiredRotation = true;
-		
-	}
-	else
-	{
-		// Lock Off: 다시 Movement 기반 회전 허용
-		bUseControllerRotationYaw = false;
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	}
+	bUseControllerRotationYaw = true;
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	
+	// if (bLockOn)
+	// {
+	// 	// Lock On: Movement 기반 회전 금지
+	// 	bUseControllerRotationYaw = true;
+	// 	GetCharacterMovement()->bOrientRotationToMovement = false;
+	// 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	// 	
+	// }
+	// else
+	// {
+	// 	// Lock Off: 다시 Movement 기반 회전 허용
+	// 	bUseControllerRotationYaw = false;
+	// 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	// 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	// }
 }
 
 void ASKPlayerCharacter::SetPlayerStateTag()
@@ -351,6 +348,11 @@ USKCombatComponent* ASKPlayerCharacter::GetCombatComponent() const
 UBattleComponent* ASKPlayerCharacter::GetBattleComponent() const
 {
 	return BattleComponent;
+}
+
+UMotionWarpingComponent* ASKPlayerCharacter::GetMotionWarpingComponent()
+{
+	return  MotionWarpingComp;
 }
 
 void ASKPlayerCharacter::OnAnimInitialized()
