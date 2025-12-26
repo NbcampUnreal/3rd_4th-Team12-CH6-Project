@@ -32,6 +32,14 @@ void USKGameplayAbility::OnStopAttackTrace_Server()
 	ApplyDamageFromTrace();
 }
 
+void USKGameplayAbility::AddAttackTypeToEffectSpec(FGameplayEffectSpec& Spec) const
+{
+	if (AttackTypeTag.IsValid())
+	{
+		Spec.DynamicGrantedTags.AddTag(AttackTypeTag);
+	}
+}
+
 
 
 

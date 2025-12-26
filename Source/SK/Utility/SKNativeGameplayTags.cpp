@@ -65,7 +65,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Skill1, "Combo.Skill1");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Skill2, "Combo.Skill2");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_Skill3, "Combo.Skill3");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LR, "Combo.LR");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LRR, "Combo.LRR");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LLR, "Combo.LLR");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LLRR, "Combo.LLRR");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Combo_LLLR, "Combo.LLLR");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestLeft, "Input.TestLeft");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestRight, "Input.TestRight");
 
@@ -237,7 +240,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Backstep, "AI.Backstep");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Recovery, "AI.Recovery");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_ProjectileAttack, "AI.ProjectileAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Boss, "AI.Boss");
-UE_DEFINE_GAMEPLAY_TAG(TAG_AI_PowerAttack, "AI.PowerAttack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_HitReaction, "AI.HitReaction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Blocked, "AI.Blocked");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Groggy, "AI.Groggy");

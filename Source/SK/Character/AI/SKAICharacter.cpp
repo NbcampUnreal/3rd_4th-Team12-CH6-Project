@@ -16,7 +16,7 @@ ASKAICharacter::ASKAICharacter()
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
 	HealthWidgetComponent->SetupAttachment(RootComponent);
 	HealthWidgetComponent->SetWidgetSpace(EWidgetSpace::World); // 화면 고정형
-	HealthWidgetComponent->SetDrawSize(FVector2D(200.f, 50.f));
+	HealthWidgetComponent->SetDrawSize(FVector2D(200.f, 10.f));
 
 	DamageWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DamageWidget"));
 	DamageWidgetComponent->SetupAttachment(RootComponent);
