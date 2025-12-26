@@ -12,7 +12,7 @@ class SK_API USK_GA_AI_HitReaction : public USK_GA_AI_Base
 public:
 	USK_GA_AI_HitReaction();
 
-	void HitReaction(TObjectPtr<UAnimMontage> AnimMontage);
+	void HitReaction(TObjectPtr<UAnimMontage> LocalAnimMontage);
 
 	UFUNCTION()
 	void OnHitReactionCompleted();

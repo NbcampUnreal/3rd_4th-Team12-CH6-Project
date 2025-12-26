@@ -14,10 +14,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tag")
 	FGameplayTag EventTag;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Name")
+	FName Name;
+
 	
 public:
 	USK_AnimNotify_AI_SendEventToASC();
 
+	FName GetName() const;
+	
 protected:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

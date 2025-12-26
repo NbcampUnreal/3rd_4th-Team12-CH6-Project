@@ -12,7 +12,7 @@ class SK_API USK_GA_AI_Blocked : public USK_GA_AI_Base
 public:
 	USK_GA_AI_Blocked();
 
-	void Blocked(TObjectPtr<UAnimMontage> AnimMontage);
+	void Blocked(TObjectPtr<UAnimMontage> LocalAnimMontage);
 
 	UFUNCTION()
 	void OnBlockedCompleted();

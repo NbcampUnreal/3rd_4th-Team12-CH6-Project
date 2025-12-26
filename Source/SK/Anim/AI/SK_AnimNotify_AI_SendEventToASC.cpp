@@ -7,6 +7,11 @@ USK_AnimNotify_AI_SendEventToASC::USK_AnimNotify_AI_SendEventToASC()
 	
 }
 
+FName USK_AnimNotify_AI_SendEventToASC::GetName() const
+{
+	return Name;
+}
+
 void USK_AnimNotify_AI_SendEventToASC::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);

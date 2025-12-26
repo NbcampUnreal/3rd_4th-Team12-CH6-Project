@@ -7,6 +7,7 @@
 class UAbilityTask_WaitGameplayEvent;
 class UAbilityTask_PlayMontageAndWait;
 class UAbilityTask_WaitDelay;
+class UAbilityTask_ApplyRootMotionMoveToForce;
 class UAbilityTask_ApplyRootMotionJumpForce;
 
 UCLASS()
@@ -25,7 +26,9 @@ protected:
 
 	UPROPERTY()
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
-
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> AnimMontage;
+	
 	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* OwnEventTask1;
 	UPROPERTY()
@@ -37,7 +40,9 @@ protected:
 	UPROPERTY()
 	UAbilityTask_WaitDelay* OwnDelayTask;
 	UPROPERTY()
-	UAbilityTask_ApplyRootMotionJumpForce* OwnJumpTask;
+	UAbilityTask_ApplyRootMotionMoveToForce* OwnRushTask;
+	UPROPERTY()
+	UAbilityTask_ApplyRootMotionJumpForce* OwnJumpRushTask;
 
 
 public:
@@ -50,7 +55,10 @@ public:
 	UFUNCTION()
 	void OnWaitEndAbilityCompleted(FGameplayEventData EventData);
 
-	
+	void SetFocus() const;
+
+	void ClearFocus() const;
+
 protected:
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

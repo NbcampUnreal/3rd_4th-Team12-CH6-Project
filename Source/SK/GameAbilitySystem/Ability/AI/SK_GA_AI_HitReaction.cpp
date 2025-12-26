@@ -14,12 +14,12 @@ USK_GA_AI_HitReaction::USK_GA_AI_HitReaction()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 }
 
-void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
 				NAME_None,
 				false,
@@ -48,7 +48,7 @@ void USK_GA_AI_HitReaction::ActivateAbility(
 	
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("HitReaction");
+	AnimMontage = GetAnimMontage("HitReaction");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

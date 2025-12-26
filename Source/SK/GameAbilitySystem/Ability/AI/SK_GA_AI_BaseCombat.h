@@ -17,6 +17,7 @@ protected:
 	TWeakObjectPtr<const AActor> HitActor;
 
 	FGameplayTag CurrentAttackType;
+	
 
 public:
 	USK_GA_AI_BaseCombat();
@@ -25,9 +26,11 @@ public:
 
 	TObjectPtr<AActor> GetTargetActor() const;
 
-	void SetFocus() const;
+	FVector GetPredictedTargetLocation(float PredictionTime) const;
 
-	void ClearFocus() const;
+	FVector GetPredictedToTargetDirection(const FVector& PredictedLocation) const;
+
+	float GetRushTime(const UAnimMontage& LocalAnimMontage) const;
 
 protected:
 	virtual void ActivateAbility(

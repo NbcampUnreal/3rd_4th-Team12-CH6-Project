@@ -103,12 +103,12 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 			ObjectTypes,
 			false,
 			IgnoreActors,
-			EDrawDebugTrace::None,//EDrawDebugTrace::None, //EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::ForDuration,//EDrawDebugTrace::None, //EDrawDebugTrace::ForDuration,
 			Hits,
-			true
-			//FColor::Red,
-			//FColor::Green,
-			//0.5f
+			true,
+			FColor::Red,
+			FColor::Green,
+			0.5f
 		);
 
 		if (bHit)

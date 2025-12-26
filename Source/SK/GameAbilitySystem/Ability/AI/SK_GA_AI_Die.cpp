@@ -23,12 +23,12 @@ USK_GA_AI_Die::USK_GA_AI_Die()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Death")));
 }
 
-void USK_GA_AI_Die::Die(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Die::Die(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
 				NAME_None,
 				false,
@@ -130,7 +130,7 @@ void USK_GA_AI_Die::ActivateAbility(
 		}
 	}
 	
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Death");
+	AnimMontage = GetAnimMontage("Death");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

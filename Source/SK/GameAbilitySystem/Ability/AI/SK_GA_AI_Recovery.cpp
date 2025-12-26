@@ -13,15 +13,17 @@ USK_GA_AI_Recovery::USK_GA_AI_Recovery()
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Recovery")));
 }
 
-void USK_GA_AI_Recovery::Recovery(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Recovery::Recovery(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
+	SetFocus();
+	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
 				NAME_None,
-				false,
+				true,
 				1.0f
 				);
 	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Recovery::OnRecoveryCompleted);
@@ -47,7 +49,7 @@ void USK_GA_AI_Recovery::ActivateAbility(
 
 	CommonEventTask->EndTask();
 	
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Recovery");
+	AnimMontage = GetAnimMontage("Recovery");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -65,5 +67,7 @@ void USK_GA_AI_Recovery::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

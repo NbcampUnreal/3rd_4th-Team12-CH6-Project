@@ -30,7 +30,7 @@ public:
 	
 	void SpawnProjectile();
 
-	void LaunchProjectile(TObjectPtr<UAnimMontage> AnimMontage);
+	void LaunchProjectile(TObjectPtr<UAnimMontage> LocalAnimMontage);
 
 	UFUNCTION()
 	void OnWaitAnimNotifyCompleted(FGameplayEventData EventData);

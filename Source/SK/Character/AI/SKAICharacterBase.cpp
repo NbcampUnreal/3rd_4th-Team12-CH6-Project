@@ -331,6 +331,11 @@ void ASKAICharacterBase::SendEventToASC(AActor* LocalInstigator, AActor* LocalTa
 	AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
 }
 
+FName ASKAICharacterBase::GetMonsterName() const
+{
+	return MonsterName;
+}
+
 TMap<FName, TObjectPtr<UAnimMontage>> ASKAICharacterBase::GetMontages() const
 {
 	return Montages;
@@ -344,6 +349,16 @@ TObjectPtr<UStateTree> ASKAICharacterBase::GetStateTreeAsset() const
 int32 ASKAICharacterBase::GetMaxMeleeIndex() const
 {
 	return MaxMeleeIndex;
+}
+
+int32 ASKAICharacterBase::GetMaxRushIndex() const
+{
+	return MaxRushIndex;
+}
+
+int32 ASKAICharacterBase::GetMaxJumpRushIndex() const
+{
+	return MaxJumpRushIndex;
 }
 
 FVector ASKAICharacterBase::GetStartLocation() const
@@ -426,7 +441,10 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	AttributeSet->SetArmor(MonsterData->Armor);
 	AttributeSet->SetPoise(MonsterData->Poise);
 	AttributeSet->SetSpeed(MonsterData->Speed);
+	MonsterName = MonsterData->MonsterName;
 	MaxMeleeIndex = MonsterData->MaxMeleeIndex;
+	MaxRushIndex = MonsterData->MaxRushIndex;
+	MaxJumpRushIndex = MonsterData->MaxJumpRushIndex;
 	BackstepDistance = MonsterData->BackstepDistance;
 	
 	// 예시: 이동 속도 적용

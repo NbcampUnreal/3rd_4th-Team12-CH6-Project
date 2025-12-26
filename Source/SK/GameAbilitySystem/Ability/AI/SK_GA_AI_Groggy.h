@@ -12,7 +12,7 @@ class SK_API USK_GA_AI_Groggy : public USK_GA_AI_Base
 public:
 	USK_GA_AI_Groggy();
 
-	void Groggy(TObjectPtr<UAnimMontage> AnimMontage);
+	void Groggy(TObjectPtr<UAnimMontage> LocalAnimMontage);
 
 	UFUNCTION()
 	void OnGroggyCompleted();
