@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Character/SKCharacterBase.h"
+#include "MotionWarpingComponent.h"
 #include "SKPlayerCharacter.generated.h"
 
 class USKActionComponent;
@@ -43,12 +44,12 @@ public:
 	USKCombatComponent* GetCombatComponent() const;
 
 	UBattleComponent* GetBattleComponent() const;
-	
+
+	UMotionWarpingComponent* GetMotionWarpingComponent();
 	UFUNCTION()
 	void OnAnimInitialized();
 	void SetTraceSocket();
-
-	void SetLockOnState(bool bLock);
+	
 	void SetLooseTag(const FGameplayTag& Tag, bool bEnable);
 
 	void AdjustSpringArmDistance(float WheelValue);
@@ -58,6 +59,9 @@ public:
 protected:
 	virtual void OnRep_PlayerState() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MotionWarping")
+	UMotionWarpingComponent* MotionWarpingComp;
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;

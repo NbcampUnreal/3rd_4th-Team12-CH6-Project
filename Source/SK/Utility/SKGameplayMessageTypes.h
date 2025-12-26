@@ -227,5 +227,22 @@ struct FSkillUIMessage
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bSuccess;
-	
+};
+
+USTRUCT(BlueprintType)
+struct FDialogSendMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	FString MessageText;
+};
+
+USTRUCT(BlueprintType)
+struct FDialogSkipMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 TempNum;
 };

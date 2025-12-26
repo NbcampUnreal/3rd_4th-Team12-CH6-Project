@@ -169,8 +169,10 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 		                                              false);
 		if (BGMComponent)
 		{
-			BGMComponent->Play();
+			// BGMComponent->SetLoop(FoundSound->bLoop);
 			BGMComponent->bIsUISound = true;
+			BGMComponent->Play();
+
 		}
 	});
 }

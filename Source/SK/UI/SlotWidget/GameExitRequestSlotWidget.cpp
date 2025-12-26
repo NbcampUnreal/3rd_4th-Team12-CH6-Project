@@ -24,6 +24,11 @@ void UGameExitRequestSlotWidget::NativeConstruct()
 	{
 		DungeonExitButton->OnClicked.AddDynamic(this, &UGameExitRequestSlotWidget::OnDungeonExitClicked);
 	}
+
+	if (OptionButton)
+	{
+		OptionButton->OnClicked.AddDynamic(this, &UGameExitRequestSlotWidget::OnOptionClicked);
+	}
 	
 	if (ExitButton)
 	{
@@ -106,9 +111,7 @@ void UGameExitRequestSlotWidget::OnDungeonExitClicked()
 			Message.CancelText = FText::FromString(TEXT("취소"));
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_RequestConfirm, Message);
-
-			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.SlotTag.ToString());
-
+			
 			RequestButton = 2;
 		}
 	}
@@ -131,18 +134,28 @@ void UGameExitRequestSlotWidget::OnExitClicked()
 			Message.CancelText = FText::FromString(TEXT("취소"));
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_RequestConfirm, Message);
-
-			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.SlotTag.ToString());
-
+			
 			RequestButton = 1;
 		}
 	}
 }
 
+void UGameExitRequestSlotWidget::OnOptionClicked()
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			FSwitchLayoutMessage Message(TAG_UI_Layout_Option,true );
+
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout,	Message);
+		}
+	}
+}
 
 
 void UGameExitRequestSlotWidget::OnConfirmResponseMessageReceived(FGameplayTag Channel,
-	const FConfirmResponseMessage& Message)
+                                                                  const FConfirmResponseMessage& Message)
 {
 	if (Message.SlotTag != TAG_UI_Slot_GameExitRequest)
 	{

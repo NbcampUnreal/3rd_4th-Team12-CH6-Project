@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "GameInstance/SKGameInstance.h"
 
 void USKAnimNotify_PlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
@@ -18,11 +19,26 @@ void USKAnimNotify_PlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 	if (!ASC) return;
 
+	UWorld* World = Owner->GetWorld();
+	if (!World)
+		return;
+
+	USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+	if (!SKGI)
+		return;
+
+	const float SFXVolume = SKGI->GetSFXVolume();
+	const float MasterVolume = SKGI->GetMasterVolume();
+	float FinalVolume = MasterVolume * SFXVolume;
+	
+	FGameplayCueParameters CueParams;
+	CueParams.RawMagnitude = FinalVolume; 
+	
 	FGameplayEventData EventData;
 	EventData.EventTag = GameplayCueTag;
 	EventData.Instigator = Owner;
 	EventData.Target = Owner;
 
 
-	ASC->ExecuteGameplayCue(GameplayCueTag, FGameplayCueParameters());
+	ASC->ExecuteGameplayCue(GameplayCueTag, CueParams);
 }
