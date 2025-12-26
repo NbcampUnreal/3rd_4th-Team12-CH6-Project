@@ -165,10 +165,16 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
 		if (ASC)
 		{
-			FGameplayTagContainer DeathTag;
-			DeathTag.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Condition.Death")));
+			FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(FName("State.Condition.Death"));
+			
+			if (ASC->HasMatchingGameplayTag(DeathTag))
+			{
+				return;
+			}
 
-			ASC->TryActivateAbilitiesByTag(DeathTag);
+			ASC->AddLooseGameplayTag(DeathTag);
+
+			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(DeathTag));
 		}
 		
 	}

@@ -25,7 +25,7 @@ void USK_GA_Interaction_BonfireEnd::OnMontageCompleted()
 	USKActionComponent* ActionComponent = PlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
-		ActionComponent->Server_SetIgnoreWorldStatic(false);
+		ActionComponent->Server_SetIgnoreCollision(false);
 
 		ASKInteractableBase* TargetActor = ActionComponent->InteractedStool;
 		if (TargetActor)

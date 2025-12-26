@@ -5,6 +5,7 @@
 #include "Character/SKPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "NavModifierComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Utility/SpawnSubsystem.h"
 
 ASKBonfire::ASKBonfire()
@@ -33,6 +34,21 @@ void ASKBonfire::BeginPlay()
 	}
 }
 
+void ASKBonfire::Multicast_SpawnEffect_Implementation(FTransform Transform)
+{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+	SpawnNiagara,
+	Transform.GetLocation());
+}
+
+void ASKBonfire::Multicast_RestEffect_Implementation(FTransform Transform)
+{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+	GetWorld(),
+RestNiagara,
+Transform.GetLocation());
+}
 
 void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
 {

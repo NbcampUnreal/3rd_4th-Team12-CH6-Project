@@ -74,6 +74,13 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	if (IsValid(PlayerState))
 	{
 		PlayerState->SetCurWeaponTag(NewWeaponTag);
+		
+		ASKPlayerController* PC = Cast<ASKPlayerController>(PlayerState->GetPlayerController());
+		if (PC)
+		{
+			PC->SetLockedTarget(nullptr);
+			PC->SetLockOnState(false);
+		}
 	}
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetEquipPawn());
 	if (!Char) return false;
