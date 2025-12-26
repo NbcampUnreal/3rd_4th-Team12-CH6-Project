@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
+#include "UI/Monster/MonsterDamageContainerWidget.h"
 #include "UI/Monster/MonsterDamageWidget.h"
 #include "UI/Monster/MonsterHealthWidget.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
@@ -15,13 +16,13 @@ ASKAICharacter::ASKAICharacter()
 	
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
 	HealthWidgetComponent->SetupAttachment(RootComponent);
-	HealthWidgetComponent->SetWidgetSpace(EWidgetSpace::World); // 화면 고정형
+	HealthWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); // 화면 고정형
 	HealthWidgetComponent->SetDrawSize(FVector2D(200.f, 10.f));
 
 	DamageWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DamageWidget"));
 	DamageWidgetComponent->SetupAttachment(RootComponent);
 	DamageWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	DamageWidgetComponent->SetDrawSize(FVector2D(200.f, 50.f));
+	DamageWidgetComponent->SetDrawSize(FVector2D(500.f, 300.f));
 }
 
 void ASKAICharacter::PossessedBy(AController* NewController)
@@ -89,13 +90,10 @@ void ASKAICharacter::BeginPlay()
 		UUserWidget* DamageWidget = DamageWidgetComponent->GetUserWidgetObject();
 		if (DamageWidget)
 		{
-			UMonsterDamageWidget* MonsterDamage = Cast<UMonsterDamageWidget>(DamageWidget);
+			UMonsterDamageContainerWidget* MonsterDamage = Cast<UMonsterDamageContainerWidget>(DamageWidget);
 			if (MonsterDamage)
 			{
 				MonsterDamage->SettingWidget(this);
-
-				NewLocation.Z += 30.f;
-				DamageWidgetComponent->SetWorldLocation(NewLocation);
 			}
 		}
 	}
