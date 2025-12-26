@@ -259,4 +259,7 @@ protected:
 public:
 	UPROPERTY()
 	ASKBonfire* CurrentBonfire;
+
+	UPROPERTY()
+	bool bIsFirstSpawned = true;
 };
