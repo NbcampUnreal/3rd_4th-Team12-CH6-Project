@@ -24,6 +24,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OverLapBeginHandle();
+
+	virtual void OverLapEndHandle();
+
 #pragma region Near UI
 	UFUNCTION()
 	void OnDetectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 

@@ -29,6 +29,8 @@ void USK_GA_Skill_01::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
+	
+	ApplyMotionWarp(CachedCharacter);
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, true);
 
 	CurrentComboIndex = CheckCombo(ActorInfo);

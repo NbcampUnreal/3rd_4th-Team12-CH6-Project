@@ -35,8 +35,12 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		return;
 	}
 
+
+	
 	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
+
+	ApplyMotionWarp(CachedCharacter);
 
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
 
@@ -376,7 +380,6 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 		TSubclassOf<UGameplayEffect> EffectClass =
 			LeftAttackDamageGE[CurrentComboIndex];
 
-
 		FGameplayEffectContextHandle Context =
 			SourceASC->MakeEffectContext();
 
@@ -402,6 +405,8 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 				*SpecHandle.Data.Get(),
 				TargetASC
 			);
+
+			ApplyHeatGE(CurrentComboIndex,SourceASC);
 		}
 	}
 	

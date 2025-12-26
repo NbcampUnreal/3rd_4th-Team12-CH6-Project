@@ -1,14 +1,12 @@
 ﻿#include "SKBonfire.h"
 
 #include "NiagaraComponent.h"
-#include "Character/SKPlayerCharacter.h"
 #include "Components/SphereComponent.h"
-#include "PlayerState/SKPlayerState.h"
-#include "Utility/SKGameplayMessageSubsystem.h"
-#include "Utility/SKGameplayMessageTypes.h"
-#include "Utility/SKNativeGameplayTags.h"
+#include "Character/SKPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
-#include "Utility/SpawnSubsystem.h" 
+#include "NavModifierComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Utility/SpawnSubsystem.h"
 
 ASKBonfire::ASKBonfire()
 	: bIsDefaultBonfire(false)
@@ -20,45 +18,36 @@ ASKBonfire::ASKBonfire()
 	NiagaraComponent->SetupAttachment(BonfireMesh);
 	NiagaraComponent->SetRelativeScale3D(FVector(2.0f));
 	NiagaraComponent->SetRelativeLocation(FVector(0.f, 0.f, 60.0f));
-	
-	StoolMesh = CreateDefaultSubobject<UStaticMeshComponent>("Stool");
-	StoolMesh->SetupAttachment(Root);
-	
-	InteractionCollision->SetSphereRadius(300.0f);
-	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
-	
-	ObjectType = EObjectType::Fireplace;
+
+	DetectCollision->SetSphereRadius(1200.f);
+
+	NavModifierComponent = CreateDefaultSubobject<UNavModifierComponent>("NavModifier");
 }
 
 void ASKBonfire::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (DetectWidget)
+	{
+		DetectWidgets.Add(DetectWidget);
+	}
 }
 
-void ASKBonfire::ExecuteInteraction_Implementation(AActor* Interactor)
+void ASKBonfire::Multicast_SpawnEffect_Implementation(FTransform Transform)
 {
-	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+	SpawnNiagara,
+	Transform.GetLocation());
+}
 
-	ResetBonfire(PlayerCharacter);
-	
-	ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
-	if (!PS) return;
-	
-	PS->CurrentBonfire = this;
-
-	// UI 동작
-	if (UWorld* World = GetWorld())
-	{
-		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
-		{
-			// 전송할 메시지 생성
-			FSwitchLayoutMessage Message(TAG_UI_Layout_BonfireMenu, true);
-
-			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
-		}
-	}
+void ASKBonfire::Multicast_RestEffect_Implementation(FTransform Transform)
+{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+	GetWorld(),
+RestNiagara,
+Transform.GetLocation());
 }
 
 void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
@@ -70,7 +59,11 @@ void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
 	if (!ASC) return;
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-	ASC->ApplyGameplayEffectToSelf(ResetGameplayEffect.GetDefaultObject(), 1.0f, Context);
+
+	if (ResetGameplayEffect)
+	{
+		ASC->ApplyGameplayEffectToSelf(ResetGameplayEffect.GetDefaultObject(), 1.0f, Context);
+	}
 
 	// 몬스터 재스폰
 	auto* SpawnSubSystem = GetWorld()->GetSubsystem<USpawnSubsystem>();

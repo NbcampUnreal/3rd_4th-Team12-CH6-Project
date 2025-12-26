@@ -130,6 +130,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_EquipmentSelect, "UI.Layout.EquipmentSelect
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_QuickSlotSelect, "UI.Layout.QuickSlotSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_DungeonSelect, "UI.Layout.DungeonSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_BonfireMenu, "UI.Layout.BonfireMenu");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Option, "UI.Layout.Option");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Layout_Dialogue, "UI.Layout.Dialogue");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_CharacterStatus, "UI.Slot.CharacterStatus");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickItem, "UI.Slot.QuickItem");
@@ -156,6 +158,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_QuickSlotToolTip, "UI.Slot.QuickSlotToolTip")
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Interaction, "UI.Slot.Interaction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_DungeonSelect, "UI.Slot.DungeonSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BonfireMenu, "UI.Slot.BonfireMenu");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Option, "UI.Slot.Option");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Dialogue, "UI.Slot.Dialogue");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState, "PlayerState");
@@ -261,6 +265,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_BossWidgetSetting, "Message.Channel.B
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_LoadingUIVisible, "Message.Channel.LoadingUIVisible");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UIInteraction, "Message.Channel.UIInteraction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SkillUse, "Message.Channel.SkillUse");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogue, "Message.Channel.NPCDialogue");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogueSkip, "Message.Channel.NPCDialogueSkip");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
@@ -302,3 +308,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_07,"GameplayCue.Sound.Wom
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_08,"GameplayCue.Sound.Woman.ATK.08"); //
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_09,"GameplayCue.Sound.Woman.ATK.09"); //
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit,"GameplayCue.Sound.Woman.Hit"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_01,"GameplayCue.Sound.Woman.Hit.01"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_02,"GameplayCue.Sound.Woman.Hit.02"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death,"GameplayCue.Sound.Woman.Death"); // 피격사운드

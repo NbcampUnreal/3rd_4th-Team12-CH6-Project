@@ -144,6 +144,11 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 		// Target의 AbilitySystemComponent 가져오기
 		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
 
+		if (!TargetASC)
+			continue;
+		
+		DamagedActors.Add(HitActor);
+		
 		FGameplayEffectSpecHandle SpecHandle =
 			MakeOutgoingGameplayEffectSpec(GuardCounterDamageEffect, 1.f);
 
@@ -168,6 +173,8 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 				*SpecHandle.Data.Get(),
 				TargetASC
 			);
+
+			ApplyHeatGE(1,SourceASC);
 		}
 	}
 }

@@ -68,15 +68,21 @@ void USKInteractionComponent::UpdateTargetActor()
 
 		// 두 벡터 내적이 0보다 큰지
 		FVector ToActor = (ActorLocation - OwnerLocation).GetSafeNormal();
+		FVector ToOwner = (OwnerLocation - ActorLocation).GetSafeNormal();
 		float Dot = 0;
 		switch (Actor->ObjectType)
 		{
 		case EObjectType::Pickup:
-		case EObjectType::Fireplace:
 			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
+		case EObjectType::NPC:
+		case EObjectType::Stool:
+			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0.3)
+			{
+				Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
+			}
+			break;
 		case EObjectType::Openable:
-			FVector ToOwner = (OwnerLocation - ActorLocation).GetSafeNormal();
 			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0)
 			{
 				Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
@@ -186,7 +192,8 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	UE_LOG(LogTemp, Warning, TEXT("Remote: %d"), CurrentTargetActor->GetRemoteRole());
 
 	// Pickup은 바로 발동
-	if (CurrentTargetActor->ObjectType == EObjectType::Pickup)
+	if (CurrentTargetActor->ObjectType == EObjectType::Pickup
+		|| CurrentTargetActor->ObjectType == EObjectType::NPC)
 	{
 		ISKInteractable::Execute_Interact(CurrentTargetActor, GetOwner());
 	}
