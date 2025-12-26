@@ -36,6 +36,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DialogueText;
 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* Anim_CloseImage;
+
 	FString FullText;
 	int32 CurrentCharIndex = 0;
 
@@ -43,5 +46,6 @@ protected:
 
 	float TypingInterval = 0.3f; // 글자 속도
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bTyping = false;
 };

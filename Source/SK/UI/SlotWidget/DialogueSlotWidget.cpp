@@ -20,6 +20,11 @@ void UDialogueSlotWidget::DialogueSkipMessageReceived(FGameplayTag Channel, cons
 	}
 	else
 	{
+		if (Anim_CloseImage)
+		{
+			StopAnimation(Anim_CloseImage); // 애니메이션 즉시 중단
+		}
+		
 		if (UWorld* World = GetWorld())
 		{
 			if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
@@ -111,6 +116,13 @@ void UDialogueSlotWidget::TypeNextChar()
 	if (CurrentCharIndex >= FullText.Len())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TypingTimerHandle);
+		PlayAnimation(
+			Anim_CloseImage,
+			0.f,
+			20,
+			EUMGSequencePlayMode::Forward,
+			1.0f
+		);
 		return;
 	}
 
@@ -125,4 +137,11 @@ void UDialogueSlotWidget::SkipTyping()
 	GetWorld()->GetTimerManager().ClearTimer(TypingTimerHandle);
 	DialogueText->SetText(FText::FromString(FullText));
 	bTyping = false;
+	PlayAnimation(
+		Anim_CloseImage,
+		0.f,
+		20,
+		EUMGSequencePlayMode::Forward,
+		1.0f
+	);
 }
