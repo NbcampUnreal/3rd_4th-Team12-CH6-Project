@@ -14,12 +14,12 @@ USK_GA_AI_Groggy::USK_GA_AI_Groggy()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
 }
 
-void USK_GA_AI_Groggy::Groggy(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Groggy::Groggy(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
 				NAME_None,
 				false,
@@ -48,7 +48,7 @@ void USK_GA_AI_Groggy::ActivateAbility(
 	
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Groggy");
+	AnimMontage = GetAnimMontage("Groggy");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

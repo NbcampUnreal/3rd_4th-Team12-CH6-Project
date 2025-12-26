@@ -12,8 +12,14 @@ class SK_API USK_GA_AI_Rush : public USK_GA_AI_BaseCombat
 public:
 	USK_GA_AI_Rush();
 
-	void Rush(TObjectPtr<UAnimMontage> AnimMontage);
+	void Rush(TObjectPtr<UAnimMontage> LocalAnimMontage);
 
+	UFUNCTION()
+	void OnAnimNotifyCompleted(FGameplayEventData EventData);
+
+	UFUNCTION()
+	void OnHitCompleted(FGameplayEventData EventData);
+	
 	UFUNCTION()
 	void OnRushCompleted();
 

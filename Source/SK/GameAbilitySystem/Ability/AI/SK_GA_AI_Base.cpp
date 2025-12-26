@@ -2,11 +2,13 @@
 #include "GameFramework/Character.h"
 #include "Components/StateTreeAIComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionJumpForce.h"
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/AI/SKAICharacterBase.h"
+#include "Controller/AI/SKAIController.h"
 
 USK_GA_AI_Base::USK_GA_AI_Base()
 {
@@ -21,7 +23,7 @@ TObjectPtr<UAnimMontage> USK_GA_AI_Base::GetAnimMontage(FName MontageName)
 		return nullptr;
 	}
 	
-	TObjectPtr<UAnimMontage> AnimMontage = *MapAnimMontage;
+	AnimMontage = *MapAnimMontage;
 	if (!IsValid(AnimMontage))
 	{
 		return nullptr;
@@ -47,6 +49,28 @@ void USK_GA_AI_Base::WaitEndAbility()
 void USK_GA_AI_Base::OnWaitEndAbilityCompleted(FGameplayEventData EventData)
 {
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+}
+
+void USK_GA_AI_Base::SetFocus() const
+{
+	ASKAIController*  AIController = Cast<ASKAIController>(CachedController);
+	if (IsValid(AIController))
+	{
+		TObjectPtr<AActor> TargetActor = AIController->GetTargetActor();
+		if (IsValid(TargetActor))
+		{
+			AIController->SetFocus(TargetActor);
+		}
+	}
+}
+
+void USK_GA_AI_Base::ClearFocus() const
+{
+	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
+	if (IsValid(AIController))
+	{
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	}
 }
 
 void USK_GA_AI_Base::ActivateAbility(
@@ -113,68 +137,76 @@ void USK_GA_AI_Base::EndAbility(
 		return;
 	}
 	
+	CachedController->StopMovement();
+
+	if (OwnEventTask1)
+	{
+		if (OwnEventTask1->IsActive())
+		{
+				OwnEventTask1->EndTask();
+		}
+	}
+
+	if (OwnEventTask2)
+	{
+		if (OwnEventTask2->IsActive())
+		{
+			OwnEventTask2->EndTask();
+		}
+	}
+
+	if (CommonEventTask)
+	{
+		if (CommonEventTask->IsActive())
+		{
+			CommonEventTask->EndTask();
+		}
+	}
+		
+	if (OwnMontageTask)
+	{
+		if (OwnMontageTask->IsActive())
+		{
+			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+			if (IsValid(SourceASC))
+			{
+				SourceASC->CurrentMontageStop();
+			}
+
+			OwnMontageTask->EndTask();
+		}
+	}
+			
+	if (OwnDelayTask)
+	{
+		if (OwnDelayTask->IsActive())
+		{
+			OwnDelayTask->EndTask();
+		}
+	}
+
+	if (OwnRushTask)
+	{
+		if (OwnRushTask->IsActive())
+		{
+			OwnRushTask->EndTask();
+		}
+	}
+		
+	if (OwnJumpRushTask)
+	{
+		if (OwnJumpRushTask->IsActive())
+		{
+			OwnJumpRushTask->EndTask();
+		}
+	}
+
 	if (bWasCancelled)
 	{
-		CachedController->StopMovement();
-
-		if (OwnEventTask1)
-		{
-			if (OwnEventTask1->IsActive())
-			{
-				OwnEventTask1->EndTask();
-			}
-		}
-
-		if (OwnEventTask2)
-		{
-			if (OwnEventTask2->IsActive())
-			{
-				OwnEventTask2->EndTask();
-			}
-		}
-	
-		if (OwnMontageTask)
-		{
-			if (OwnMontageTask->IsActive())
-			{
-				UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-				if (IsValid(SourceASC))
-				{
-					SourceASC->CurrentMontageStop();
-				}
-			
-				OwnMontageTask->EndTask();
-			}
-		}
-			
-		if (OwnDelayTask)
-		{
-			if (OwnDelayTask->IsActive())
-			{
-				OwnDelayTask->EndTask();
-			}
-		}
-
-		if (OwnJumpTask)
-		{
-			if (OwnJumpTask->IsActive())
-			{
-				OwnJumpTask->EndTask();
-			}
-		}
-		
 		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.CancelAbility"));
 	}
 	else
 	{
-		if (CommonEventTask)
-		{
-			if (CommonEventTask->IsActive())
-			{
-				CommonEventTask->EndTask();
-			}
-		}
-		
 		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 	}
 	

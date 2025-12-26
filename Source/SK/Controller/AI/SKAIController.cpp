@@ -49,7 +49,7 @@ TObjectPtr<AActor> ASKAIController::GetTargetActor() const
 	return TargetActor;
 }
 
-bool ASKAIController::CheckDistance(float AdditionalCapsuleRadiusSum)
+bool ASKAIController::CheckClose(float AdditionalCapsuleRadiusSum)
 {
 	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
 	if (!IsValid(AICharacter))
@@ -82,17 +82,36 @@ bool ASKAIController::CheckDistance(float AdditionalCapsuleRadiusSum)
 	return false;
 }
 
-FVector ASKAIController::GetTargetDirection() const
+FVector ASKAIController::GetPredictedTargetLocation(float PredictionTime) const
 {
-	if (!IsValid(TargetActor))
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
+	if (!IsValid(AICharacter))
 	{
 		return FVector::ZeroVector;
 	}
 
-	FVector ToTargetVector = TargetActor->GetActorLocation() - GetCharacter()->GetActorLocation();
-	FVector TargetDirection = ToTargetVector.GetSafeNormal();
+	FVector AILocation = AICharacter->GetActorLocation();
+	
+	if (!IsValid(TargetActor))
+	{
+		return AILocation;
+	}
 
-	return TargetDirection;
+	FVector PlayerLocation = TargetActor->GetActorLocation();
+	FVector PlayerVelocity = TargetActor->GetVelocity();
+	
+	FVector PredictedLocation = PlayerLocation + PlayerVelocity * PredictionTime;
+	PredictedLocation.Z = AILocation.Z;
+
+	return PredictedLocation;
+}
+
+FVector ASKAIController::GetPredictedToTargetDirection(const FVector& PredictedLocation) const
+{
+	FVector ToTargetVector = PredictedLocation - GetCharacter()->GetActorLocation();
+	FVector ToTargetDirection = ToTargetVector.GetSafeNormal();
+
+	return ToTargetDirection;
 }
 
 void ASKAIController::AddTag(FGameplayTag Tag) const

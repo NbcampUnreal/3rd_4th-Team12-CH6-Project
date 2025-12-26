@@ -13,14 +13,14 @@ USK_GA_AI_Ready::USK_GA_AI_Ready()
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Ready")));
 }
 
-void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	SetFocus();
 	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
 				NAME_None,
 				false,
@@ -49,7 +49,7 @@ void USK_GA_AI_Ready::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Ready");
+	AnimMontage = GetAnimMontage("Ready");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

@@ -54,10 +54,11 @@ public:
 
 	TObjectPtr<AActor> GetTargetActor() const;
 
-	UFUNCTION(BlueprintCallable, Category="StateTree")
-	bool CheckDistance(float AdditionalCapsuleRadiusSum);
+	bool CheckClose(float AdditionalCapsuleRadiusSum);
 
-	FVector GetTargetDirection() const;
+	FVector GetPredictedTargetLocation(float PredictionTime) const;
+
+	FVector GetPredictedToTargetDirection(const FVector& PredictedLocation) const;
 	
 	void AddTag(FGameplayTag Tag) const;
 

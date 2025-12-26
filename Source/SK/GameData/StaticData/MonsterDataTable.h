@@ -31,6 +31,14 @@ public:
 	/** 맥스 밀리 인덱스 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
 	int32 MaxMeleeIndex = 0;
+
+	/** 맥스 밀리 인덱스 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
+	int32 MaxRushIndex = 0;
+	
+	/** 맥스 밀리 인덱스 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
+	int32 MaxJumpRushIndex = 0;
 	
 	/** 기본 공격력 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")

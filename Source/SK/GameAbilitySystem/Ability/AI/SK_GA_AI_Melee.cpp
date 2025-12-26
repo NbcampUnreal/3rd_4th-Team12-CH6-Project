@@ -16,7 +16,7 @@ USK_GA_AI_Melee::USK_GA_AI_Melee()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Melee")));
 }
 
-void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection)
+void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	SetFocus();
 
@@ -24,7 +24,7 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSec
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Attack")),
 				nullptr,
-				false,
+				true,
 				false
 				);
 	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Melee::OnAnimNotifyCompleted);
@@ -43,9 +43,9 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSec
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
-				StartSection,
+				"Default",
 				true,
 				1.0f
 				);
@@ -96,8 +96,6 @@ void USK_GA_AI_Melee::ActivateAbility(
 	}
 
 	int32 MaxMeleeIndex = AICharacter->GetMaxMeleeIndex();
-	FName SectionName = "Default";
-	TObjectPtr<UAnimMontage> AnimMontage;
 	
 	if (MaxMeleeIndex > 1)
 	{
@@ -116,7 +114,7 @@ void USK_GA_AI_Melee::ActivateAbility(
 		return;
 	}
 
-	Melee(AnimMontage, SectionName);
+	Melee(AnimMontage);
 }
 
 void USK_GA_AI_Melee::EndAbility(
@@ -128,22 +126,6 @@ void USK_GA_AI_Melee::EndAbility(
 	)
 {
 	ClearFocus();
-
-	if (OwnEventTask1)
-	{
-		if (OwnEventTask1->IsActive())
-		{
-			OwnEventTask1->EndTask();
-		}
-	}
-
-	if (OwnEventTask2)
-	{
-		if (OwnEventTask2->IsActive())
-		{
-			OwnEventTask2->EndTask();
-		}
-	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

@@ -14,12 +14,12 @@ USK_GA_AI_Blocked::USK_GA_AI_Blocked()
 	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
 }
 
-void USK_GA_AI_Blocked::Blocked(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Blocked::Blocked(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
 				NAME_None,
 				false,
@@ -48,7 +48,7 @@ void USK_GA_AI_Blocked::ActivateAbility(
 	
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Blocked");
+	AnimMontage = GetAnimMontage("Blocked");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

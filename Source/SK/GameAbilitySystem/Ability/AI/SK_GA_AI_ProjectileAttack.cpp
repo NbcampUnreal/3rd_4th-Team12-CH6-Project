@@ -63,7 +63,7 @@ void USK_GA_AI_ProjectileAttack::SpawnProjectile()
 	Projectile = GetWorld()->SpawnActor<ASKBaseProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
 }
 
-void USK_GA_AI_ProjectileAttack::LaunchProjectile(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_ProjectileAttack::LaunchProjectile(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	WaitAnimNotify();
 
@@ -80,7 +80,7 @@ void USK_GA_AI_ProjectileAttack::LaunchProjectile(TObjectPtr<UAnimMontage> AnimM
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.f,
 				NAME_None,
 				true,
@@ -101,8 +101,9 @@ void USK_GA_AI_ProjectileAttack::OnWaitAnimNotifyCompleted(FGameplayEventData Ev
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
-	
-	const FVector LaunchDirection = AIController->GetTargetDirection();
+
+	FVector PredictedTargetLocation = GetPredictedTargetLocation(0.5f); // 예측시간 상황에 맞게 변경 필요.
+	const FVector LaunchDirection = GetPredictedToTargetDirection(PredictedTargetLocation);
 		
 	Projectile->LaunchProjectile(LaunchDirection);
 }
@@ -134,7 +135,7 @@ void USK_GA_AI_ProjectileAttack::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("ProjectileAttack");
+	AnimMontage = GetAnimMontage("ProjectileAttack");
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

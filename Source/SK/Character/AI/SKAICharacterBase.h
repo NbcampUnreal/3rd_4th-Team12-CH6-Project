@@ -46,6 +46,8 @@ protected:
 
 	/** 몬스터 정적 ID */
 	const FMonsterData* MonsterData;
+
+	FName MonsterName;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation|Montages")
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
@@ -53,8 +55,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Index")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttackIndex")
 	int32 MaxMeleeIndex = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttackIndex")
+	int32 MaxRushIndex = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttackIndex")
+	int32 MaxJumpRushIndex = 0;
 
 private:
 	FVector StartLocation;
@@ -80,14 +88,19 @@ public:
 	void RemoveTag(FGameplayTag Tag) const;
 
 	void SendEventToASC(AActor* LocalInstigator, AActor* LocalTargetActor, FGameplayTag EventTag) const;
+
+	FName GetMonsterName() const;
 	
 	TMap<FName, TObjectPtr<UAnimMontage>> GetMontages() const;
 	
 	TObjectPtr<UStateTree> GetStateTreeAsset() const;
 
-	UFUNCTION(BlueprintCallable)
 	int32 GetMaxMeleeIndex() const;
 
+	int32 GetMaxRushIndex() const;
+	
+	int32 GetMaxJumpRushIndex() const;
+	
 	FVector GetStartLocation() const;
 
 	float GetBackstepDistance() const;

@@ -1,8 +1,12 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Rush.h"
 #include "SK_GA_AI_Melee.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/AI/SKAICharacter.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/RootMotionSource.h"
 
 USK_GA_AI_Rush::USK_GA_AI_Rush()
 {
@@ -15,39 +19,9 @@ USK_GA_AI_Rush::USK_GA_AI_Rush()
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Rush")));
 }
 
-void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
+void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
-	if (!IsValid(AICharacter))
-	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
-		return;
-	}
-
-	TObjectPtr<AActor> TargetActor = GetTargetActor();
-	if (!IsValid(TargetActor))
-	{
-		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
-		return;
-	}
-
-	FVector AILocation = AICharacter->GetActorLocation();
-	FVector TargetLocation = TargetActor->GetActorLocation();
-	FVector TargetVelocity = TargetActor->GetVelocity();
-
-	float PredictionTime = AnimMontage->GetPlayLength() * 0.6f;
-	
-	FVector PredictedLocation = TargetLocation + TargetVelocity * PredictionTime;
-	PredictedLocation.Z = TargetLocation.Z;
-
-	FVector PredictedVector = PredictedLocation - AILocation;
-
-	FVector PredictedHorizontalVector = PredictedVector;
-	PredictedHorizontalVector.Z = 0.0f;
-	
-	float WarpDistance = PredictedHorizontalVector.Length();
-	float MaxDistance = FVector::Distance(AILocation, TargetLocation) + 200.0f;
-
+	/*
 	if (WarpDistance > MaxDistance)
 	{
 		PredictedHorizontalVector = PredictedHorizontalVector.GetSafeNormal() * MaxDistance;
@@ -58,39 +32,87 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> AnimMontage)
 						PredictedVector.Z 
 		);
 	}
+	*/
+	SetFocus();
 	
-	FVector PredictedDirection = (PredictedLocation - AILocation);
-	PredictedDirection.Z = 0;
-	FRotator PredictedRotation = PredictedDirection.Rotation();
-	
-	FTransform TargetTransform = FTransform::Identity;
-	TargetTransform.SetLocation(PredictedLocation);
-	TargetTransform.SetRotation(PredictedRotation.Quaternion());
+	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Attack")),
+				nullptr,
+				true,
+				false
+				);
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Rush::OnAnimNotifyCompleted);
+	OwnEventTask1->ReadyForActivation();
+
+	OwnEventTask2 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
+				nullptr,
+				false,
+				false
+				);
+	OwnEventTask2->EventReceived.AddDynamic(this, &USK_GA_AI_Rush::OnHitCompleted);
+	OwnEventTask2->ReadyForActivation();
 	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
-				AnimMontage,
+				LocalAnimMontage,
 				1.0f,
-				NAME_None,
-				false,
+				"Default",
+				true,
 				1.0f
 				);
 	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Rush::OnRushCompleted);
-	//Task->OnInterrupted.AddDynamic(this, &USK_GA_Melee::OnMontageInterrupted);
-	//Task->OnCancelled.AddDynamic(this, &USK_GA_Melee::OnMontageCancelled);
-	//Task->OnBlendOut.AddDynamic(this, &USK_GA_Melee::OnMontageBlendOut);
+	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_Rush::OnMontageInterrupted);
+	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_Rush::OnMontageCancelled);
+	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_Rush::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
+}
+
+void USK_GA_AI_Rush::OnAnimNotifyCompleted(FGameplayEventData EventData)
+{
+	if (!IsValid(AnimMontage))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+	
+	CurrentAttackType = EventData.EventTag;
+	
+	float PredictionTime = GetRushTime(*AnimMontage);
+	FVector PredictedTargetLocation = GetPredictedTargetLocation(PredictionTime);
+	
+	OwnRushTask = UAbilityTask_ApplyRootMotionMoveToForce::ApplyRootMotionMoveToForce(
+				this,
+				"Rush",
+				PredictedTargetLocation,
+				PredictionTime,
+				true,
+				MOVE_Flying,
+				true,
+				nullptr,
+				ERootMotionFinishVelocityMode::SetVelocity,
+				FVector::ZeroVector,
+				0.f
+				);
+	OwnRushTask->ReadyForActivation();
+}
+
+void USK_GA_AI_Rush::OnHitCompleted(FGameplayEventData EventData)
+{
+	HitActor = EventData.Target.Get();
+	if (!HitActor.IsValid())
+	{
+		return;
+	}
+	
+	ApplyDamageToTarget(HitActor);
 }
 
 void USK_GA_AI_Rush::OnRushCompleted()
 {
-	FRotator CorrectRotation = CachedCharacter->GetActorRotation();
-	CorrectRotation.Pitch = 0.f;
-	CorrectRotation.Roll = 0.f;
-	CachedCharacter->SetActorRotation(CorrectRotation);
-	// 필요하다면 커스텀 틱 태스크에서 보간보정 필요
-	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
@@ -105,7 +127,26 @@ void USK_GA_AI_Rush::ActivateAbility(
 
 	CommonEventTask->EndTask();
 
-	TObjectPtr<UAnimMontage> AnimMontage = GetAnimMontage("Rush");
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(CachedCharacter);
+	if (!IsValid(AICharacter))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	int32 MaxRushIndex = AICharacter->GetMaxRushIndex();
+	
+	if (MaxRushIndex > 1)
+	{
+		int32 RushIndex = FMath::RandRange(1, MaxRushIndex);
+		FString AnimMontageName = FString::Printf(TEXT("Rush%d"), RushIndex);
+		AnimMontage = GetAnimMontage(*AnimMontageName);
+	}
+	else
+	{
+		AnimMontage = GetAnimMontage("Rush1");
+	}
+	
 	if (!IsValid(AnimMontage))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -123,5 +164,9 @@ void USK_GA_AI_Rush::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+	
+	CachedCharacter->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

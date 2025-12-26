@@ -12,7 +12,7 @@ class SK_API USK_GA_AI_Melee : public USK_GA_AI_BaseCombat
 public:
 	USK_GA_AI_Melee();
 	
-	void Melee(TObjectPtr<UAnimMontage> AnimMontage, FName StartSection);
+	void Melee(TObjectPtr<UAnimMontage> LocalAnimMontage);
 
 	UFUNCTION()
 	void OnAnimNotifyCompleted(FGameplayEventData EventData);

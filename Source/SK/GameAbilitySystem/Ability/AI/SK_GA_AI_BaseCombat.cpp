@@ -1,7 +1,9 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_BaseCombat.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Anim/AI/SK_AnimNotify_AI_SendEventToASC.h"
 #include "Controller/AI/SKAIController.h"
+#include "GameFramework/Character.h"
 
 USK_GA_AI_BaseCombat::USK_GA_AI_BaseCombat()
 {
@@ -87,26 +89,66 @@ TObjectPtr<AActor> USK_GA_AI_BaseCombat::GetTargetActor() const
 	return TargetActor;
 }
 
-void USK_GA_AI_BaseCombat::SetFocus() const
-{
-	ASKAIController*  AIController = Cast<ASKAIController>(CachedController);
-	if (IsValid(AIController))
-	{
-		TObjectPtr<AActor> TargetActor = AIController->GetTargetActor();
-		if (IsValid(TargetActor))
-		{
-			AIController->SetFocus(TargetActor);
-		}
-	}
-}
-
-void USK_GA_AI_BaseCombat::ClearFocus() const
+FVector USK_GA_AI_BaseCombat::GetPredictedTargetLocation(float PredictionTime) const
 {
 	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
-	if (IsValid(AIController))
+	if (!IsValid(AIController))
 	{
-		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+		return CachedCharacter->GetActorLocation();
 	}
+
+	FVector PredictedTargetLocation = AIController->GetPredictedTargetLocation(PredictionTime);
+	
+	return PredictedTargetLocation;
+}
+
+FVector USK_GA_AI_BaseCombat::GetPredictedToTargetDirection(const FVector& PredictedLocation) const
+{
+	ASKAIController* AIController = Cast<ASKAIController>(CachedController);
+	if (!IsValid(AIController))
+	{
+		return CachedCharacter->GetActorForwardVector();
+	}
+
+	FVector PredictedToTargetDirection = AIController->GetPredictedToTargetDirection(PredictedLocation);
+
+	return PredictedToTargetDirection;
+}
+
+float USK_GA_AI_BaseCombat::GetRushTime(const UAnimMontage& LocalAnimMontage) const
+{
+	if (!IsValid(&LocalAnimMontage))
+	{
+		return 0.f;
+	}
+
+	float StartTime = -1.f;
+	float EndTime = -1.f;
+	
+	for (const FAnimNotifyEvent& NotifyEvent : LocalAnimMontage.Notifies)
+	{
+		USK_AnimNotify_AI_SendEventToASC* AnimNotify = Cast<USK_AnimNotify_AI_SendEventToASC>(NotifyEvent.Notify);
+		if (!IsValid(AnimNotify))
+		{
+			continue;
+		}
+		
+		if (AnimNotify->GetName() == "Start")
+		{
+			StartTime = NotifyEvent.GetTriggerTime();
+		}
+		else if (AnimNotify->GetName() == "End")
+		{
+			EndTime = NotifyEvent.GetTriggerTime();
+		}
+	}
+
+	if (StartTime >= 0.f && EndTime >= 0.f)
+	{
+		return (EndTime - StartTime);
+	}
+	
+	return 0.f;	
 }
 
 void USK_GA_AI_BaseCombat::ActivateAbility(
@@ -127,14 +169,5 @@ void USK_GA_AI_BaseCombat::EndAbility(
 	bool bWasCancelled
 	)
 {
-	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
-	if (IsValid(OwnerASC))
-	{
-		if (OwnerASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack"))))
-		{
-			OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.PowerAttack")));
-		}
-	}
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

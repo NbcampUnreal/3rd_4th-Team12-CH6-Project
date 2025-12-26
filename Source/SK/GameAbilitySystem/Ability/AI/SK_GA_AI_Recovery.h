@@ -12,7 +12,7 @@ class SK_API USK_GA_AI_Recovery : public USK_GA_AI_Base
 public:
 	USK_GA_AI_Recovery();
 
-	void Recovery(TObjectPtr<UAnimMontage> AnimMontage);
+	void Recovery(TObjectPtr<UAnimMontage> LocalAnimMontage);
 
 	UFUNCTION()
 	void OnRecoveryCompleted();
