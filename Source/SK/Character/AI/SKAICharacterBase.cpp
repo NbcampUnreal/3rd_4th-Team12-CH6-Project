@@ -145,15 +145,21 @@ void ASKAICharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
 
 	if (CurrentStamina > 0.f)
 	{
-		AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked"))))
+		{
+			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
 
-		AbilitySystemComponent->CancelAllAbilities();
+			AbilitySystemComponent->CancelAllAbilities();
+		}
 	}
 	else if (FMath::IsNearlyZero(CurrentStamina))
 	{
-		AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy"))))
+		{
+			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
 
-		AbilitySystemComponent->CancelAllAbilities();
+			AbilitySystemComponent->CancelAllAbilities();
+		}
 	}
 }
 
