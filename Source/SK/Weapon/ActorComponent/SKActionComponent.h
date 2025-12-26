@@ -105,17 +105,17 @@ protected:
 	
 public:
 	UFUNCTION(Server, Reliable)
-	void Server_SetIgnoreWorldStatic(bool bIgnore);
+	void Server_SetIgnoreCollision(bool bIgnore);
 
 	UPROPERTY()
 	ASKInteractableBase* InteractedStool;
 
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_IgnoreWorldStatic)
-	bool bIgnoreWorldStatic;
+	UPROPERTY(ReplicatedUsing = OnRep_IgnoreCollision)
+	bool bIgnoreCollision;
 	
 	UFUNCTION()
-	void OnRep_IgnoreWorldStatic();
+	void OnRep_IgnoreCollision();
 
 	void ApplyCollisionSetting();
 #pragma endregion

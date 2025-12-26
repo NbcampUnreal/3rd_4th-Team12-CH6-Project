@@ -7,13 +7,14 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "SKBonfire.h"
+#include "GameData/SKGameConstant.h"
 
 ASKStool::ASKStool()
 {
 	StoolMesh = CreateDefaultSubobject<UStaticMeshComponent>("Stool");
 	StoolMesh->SetupAttachment(Root);
 
-	StoolMesh->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
+	StoolMesh->SetCollisionObjectType(SKConstant::ECC_Interactable);
 	
 	InteractionCollision->SetSphereRadius(150.0f);
 	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));

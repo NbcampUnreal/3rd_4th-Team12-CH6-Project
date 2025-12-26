@@ -9,6 +9,7 @@
 #include "Weapon/SKWeaponData.h"
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 #include "Components/CapsuleComponent.h"
+#include "GameData/SKGameConstant.h"
 
 USKActionComponent::USKActionComponent()
 	: CurrentWeaponAnimData(nullptr)
@@ -23,7 +24,7 @@ void USKActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(USKActionComponent, CurrentInputVector);
 	DOREPLIFETIME(USKActionComponent, CurrentMoveDirection);
 	DOREPLIFETIME(USKActionComponent, WeaponActors);
-	DOREPLIFETIME(USKActionComponent, bIgnoreWorldStatic);
+	DOREPLIFETIME(USKActionComponent, bIgnoreCollision);
 }
 
 void USKActionComponent::BeginPlay()
@@ -71,13 +72,13 @@ void USKActionComponent::CheckAutoUnEquipped()
 	}
 }
 
-void USKActionComponent::Server_SetIgnoreWorldStatic_Implementation(bool bIgnore)
+void USKActionComponent::Server_SetIgnoreCollision_Implementation(bool bIgnore)
 {
-	bIgnoreWorldStatic = bIgnore;
+	bIgnoreCollision = bIgnore;
 	ApplyCollisionSetting();
 }
 
-void USKActionComponent::OnRep_IgnoreWorldStatic()
+void USKActionComponent::OnRep_IgnoreCollision()
 {
 	ApplyCollisionSetting();
 }
@@ -90,8 +91,8 @@ void USKActionComponent::ApplyCollisionSetting()
 	UCapsuleComponent* Capsule = Char->GetCapsuleComponent();
 	
 	Capsule->SetCollisionResponseToChannel(
-		ECC_WorldStatic,
-		bIgnoreWorldStatic ? ECR_Ignore : ECR_Block
+		SKConstant::ECC_Interactable,
+		bIgnoreCollision ? ECR_Ignore : ECR_Block
 	);
 }
 
