@@ -94,5 +94,14 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 		-FinalDamage));
 	
 	UE_LOG(LogTemp, Warning, TEXT("Damage: %f"), FinalDamage);
-	
+
+	if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Heavy))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("USKDamageExecution: Heavy Attack"));
+
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
+		USKAIAttributeSet::GetStaminaAttribute(),
+		EGameplayModOp::Additive,
+		-StaminaLossToStrongAttacks));
+	}
 }
