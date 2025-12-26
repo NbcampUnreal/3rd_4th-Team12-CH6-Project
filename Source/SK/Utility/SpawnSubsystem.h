@@ -52,5 +52,5 @@ private:
 	/** 가중치 랜덤 선택 */
 	int32 PickMonsterID(const struct FMonsterSpawnRule* Rule) const;
 
-	float SpawnScatterRadius = 500.f;
+	float SpawnScatterRadius = 1000.f;
 };

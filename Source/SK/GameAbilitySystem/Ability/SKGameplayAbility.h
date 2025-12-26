@@ -41,6 +41,10 @@ protected:
 	void AddAttackTypeToEffectSpec(FGameplayEffectSpec& Spec) const;
 	
 
+	UPROPERTY(EditAnywhere, Category = "SK|GAS")
+	TArray<TSubclassOf<UGameplayEffect>> HeatGE;
+
+	void ApplyHeatGE(int32 HeatIndex,UAbilitySystemComponent* SourceASC);
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attack")
 	FGameplayTag AttackTypeTag;

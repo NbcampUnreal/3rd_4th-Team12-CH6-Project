@@ -308,3 +308,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_07,"GameplayCue.Sound.Wom
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_08,"GameplayCue.Sound.Woman.ATK.08"); //
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_09,"GameplayCue.Sound.Woman.ATK.09"); //
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit,"GameplayCue.Sound.Woman.Hit"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_01,"GameplayCue.Sound.Woman.Hit.01"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_02,"GameplayCue.Sound.Woman.Hit.02"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death,"GameplayCue.Sound.Woman.Death"); // 피격사운드

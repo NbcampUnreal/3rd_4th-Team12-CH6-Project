@@ -29,6 +29,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
 	float GEDamageCoefficient = 1.f;
 
+	//강공격일때 몬스터의 스테미너 감소량
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
+	float StaminaLossToStrongAttacks = 5.f;
+
 	//계산용 attribute
 	FGameplayEffectAttributeCaptureDefinition AttackDef;
 	FGameplayEffectAttributeCaptureDefinition ArmorDef;

@@ -50,6 +50,8 @@ protected:
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override; //플레이어 맵 로드 후
 #pragma endregion
 
+	virtual void BeginPlay() override;
+	
 	//상태변경
 	void ChangeDungeonState(EDungeonMatchState NewState);
 

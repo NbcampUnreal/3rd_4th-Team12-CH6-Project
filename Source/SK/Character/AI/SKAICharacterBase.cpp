@@ -96,9 +96,12 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 		// 보스인 경우, 가드불가 공격인 경우, Blocked, Groggy인 경우도 발동하지 않게 수정 필요.
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))))
 		{
-			AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+			if (PlayerAttackType == "UnGuardable")
+			{
+				AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 			
-			AbilitySystemComponent->CancelAllAbilities();
+				AbilitySystemComponent->CancelAllAbilities();
+			}
 		}
 		else
 		{
