@@ -72,10 +72,10 @@ void USKInteractionComponent::UpdateTargetActor()
 		float Dot = 0;
 		switch (Actor->ObjectType)
 		{
-		case EObjectType::NPC:
 		case EObjectType::Pickup:
 			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
+		case EObjectType::NPC:
 		case EObjectType::Stool:
 			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0.3)
 			{
