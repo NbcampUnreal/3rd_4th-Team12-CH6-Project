@@ -47,6 +47,7 @@ void ASKStool::ExecuteInteraction_Implementation(AActor* Interactor)
 	if (OwnerBonfire)
 	{
 		PS->CurrentBonfire = OwnerBonfire;
+		OwnerBonfire->Multicast_RestEffect(PlayerCharacter->GetTransform());
 	}
 
 	// UI 동작
