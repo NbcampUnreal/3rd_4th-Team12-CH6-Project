@@ -47,7 +47,6 @@ void USK_GA_Traversal_AvoidObstacle::SetEndAbility()
 	if (TraversalObject)
 	{
 		SetForceMove(PlayerCharacter, false, TraversalObject->ForceMoveMode);
-		TraversalObject->DetectWidget->SetVisibility(true);
 	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("End Traversal Avoid Ability, %s"), PlayerCharacter->HasAuthority() ? TEXT("Server") : TEXT("Client"));
