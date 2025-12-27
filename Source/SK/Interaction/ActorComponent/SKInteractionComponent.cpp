@@ -75,6 +75,7 @@ void USKInteractionComponent::UpdateTargetActor()
 		case EObjectType::Pickup:
 			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
+		case EObjectType::Obstacle:
 		case EObjectType::NPC:
 		case EObjectType::Stool:
 			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0.3)
@@ -87,6 +88,9 @@ void USKInteractionComponent::UpdateTargetActor()
 			{
 				Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			}
+			break;
+		default:
+			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
 		}
 		if (Dot > 0)

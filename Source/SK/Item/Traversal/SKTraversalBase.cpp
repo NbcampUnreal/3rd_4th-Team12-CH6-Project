@@ -1,26 +1,15 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "SKTraversalBase.h"
 
+#include "Components/SphereComponent.h"
+#include "GameData/SKGameConstant.h"
 
-#include "SKTraversalBase.h"
-
-
-// Sets default values
 ASKTraversalBase::ASKTraversalBase()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-}
-
-// Called when the game starts or when spawned
-void ASKTraversalBase::BeginPlay()
-{
-	Super::BeginPlay();
+	ObstacleMesh = CreateDefaultSubobject<UStaticMeshComponent>("ObstacleMesh");
+	ObstacleMesh->SetupAttachment(Root);
+	// ObstacleMesh->SetCollisionObjectType(SKConstant::ECC_Interactable);
 	
-}
+	DetectCollision->SetSphereRadius(500.0f);
 
-// Called every frame
-void ASKTraversalBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	ObjectType = EObjectType::Obstacle;
 }
-
