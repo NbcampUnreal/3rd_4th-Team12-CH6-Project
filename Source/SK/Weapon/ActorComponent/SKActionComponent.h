@@ -24,9 +24,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+#pragma region Weapon Data
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetWeaponAnimData(USKWeaponAnimData* NewWeaponAnimData);
 	
@@ -38,6 +38,7 @@ public:
 protected:
 	UPROPERTY(Replicated)
 	USKWeaponAnimData* CurrentWeaponAnimData;
+#pragma endregion
 
 #pragma region MovementInfo
 
@@ -112,6 +113,8 @@ public:
 public:
 	UFUNCTION(Server, Reliable)
 	void Server_SetIgnoreCollision(bool bIgnore);
+
+	void SetBonfireWidgetVisibility(ASKInteractableBase* TargetActor, bool bOnWidget);
 
 	UPROPERTY()
 	ASKInteractableBase* InteractedStool;

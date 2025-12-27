@@ -11,6 +11,9 @@
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 #include "Components/CapsuleComponent.h"
 #include "GameData/SKGameConstant.h"
+#include "Item/Bonfire/SKStool.h"
+#include "Item/Bonfire/SKBonfire.h"
+#include "Components/WidgetComponent.h"
 
 USKActionComponent::USKActionComponent()
 	: CurrentWeaponAnimData(nullptr)
@@ -89,6 +92,28 @@ void USKActionComponent::Server_SetIgnoreCollision_Implementation(bool bIgnore)
 	ApplyCollisionSetting();
 }
 
+void USKActionComponent::SetBonfireWidgetVisibility(ASKInteractableBase* TargetActor, bool bOnWidget)
+{
+	Server_SetIgnoreCollision(!bOnWidget);
+	if (!bOnWidget) InteractedStool = TargetActor;
+	else InteractedStool->bCanInteract = true;
+	
+	ASKStool* Stool = Cast<ASKStool>(InteractedStool? InteractedStool : TargetActor);
+	if (Stool)
+	{
+		ASKBonfire* Bonfire = Stool->OwnerBonfire;
+		if (Bonfire)
+		{
+			TSet<UWidgetComponent*>& DetectWidgets = Bonfire->DetectWidgets;
+			for (auto* Widget : DetectWidgets)
+			{
+				Widget->SetVisibility(bOnWidget);
+			}
+		}
+	}
+	if (bOnWidget) InteractedStool = nullptr;
+}
+
 void USKActionComponent::OnRep_IgnoreCollision()
 {
 	ApplyCollisionSetting();
@@ -118,13 +143,8 @@ void USKActionComponent::OnOwnerPossessed()
 	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Char->GetPlayerState());
 	if (IsValid(PlayerState))
 	{
-		if (PlayerState->bIsFirstSpawned)
+		if (!PlayerState->bIsFirstSpawned)
 		{
-			PlayerState->bIsFirstSpawned = false;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("??????"))
 			// 무기 장착시 태그 해제
 			const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
 			if (!WeaponDataRow)
@@ -154,6 +174,7 @@ void USKActionComponent::OnOwnerPossessed()
 			}
 			return;
 		}
+		PlayerState->bIsFirstSpawned = false;
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
