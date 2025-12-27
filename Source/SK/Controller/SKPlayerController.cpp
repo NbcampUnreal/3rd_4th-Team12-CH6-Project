@@ -631,7 +631,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
-		ActionComponent->OnCombatStart();
+		ActionComponent->OnCombatAction(true);
 	}
 }
 

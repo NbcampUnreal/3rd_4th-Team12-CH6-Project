@@ -88,7 +88,9 @@ public:
 
 	void AttachWeapon(const TArray<FName> SocketNames);
 
-	void OnCombatStart();
+	void OnCombatAction(bool bIsEquip);
+
+	void ApplyEquipGE(bool bIsEquip);
 
 	UPROPERTY(Replicated)
 	TArray<AActor*> WeaponActors;
