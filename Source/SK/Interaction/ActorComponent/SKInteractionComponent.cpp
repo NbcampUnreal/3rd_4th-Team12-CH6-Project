@@ -20,6 +20,8 @@ void USKInteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 	DOREPLIFETIME(USKInteractionComponent, CurrentInteractionData);
 	DOREPLIFETIME(USKInteractionComponent, CurrentTargetActor);
+	DOREPLIFETIME(USKInteractionComponent, ForceMoveMode);
+	DOREPLIFETIME(USKInteractionComponent, bForceMove);
 }
 
 
@@ -180,6 +182,16 @@ void USKInteractionComponent::ActivateInteractionAbility(TSubclassOf<UGameplayAb
 	// ASC->TryActivateAbilitiesByTag(InteractionTag);
 	ASC->TryActivateAbilityByClass(Ability);
 }
+
+void USKInteractionComponent::Server_SetForceMove_Implementation(const bool NewForceMode)
+{
+	bForceMove = NewForceMode;
+};
+
+void USKInteractionComponent::Server_SetForceMoveMode_Implementation(const EForceMoveMode NewForceMoveMode)
+{
+	ForceMoveMode = NewForceMoveMode;
+};
 
 void USKInteractionComponent::Client_ToggleInteractableWidget_Implementation(UWidgetComponent* Widget, bool bIsVisible)
 {

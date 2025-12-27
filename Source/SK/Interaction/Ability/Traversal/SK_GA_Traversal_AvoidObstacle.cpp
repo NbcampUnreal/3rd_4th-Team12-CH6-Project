@@ -1,5 +1,6 @@
 ﻿#include "SK_GA_Traversal_AvoidObstacle.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Components/WidgetComponent.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 #include "Item/SKInteractableBase.h"
 #include "Item/Traversal/SKTraversalBase.h"
@@ -48,6 +49,7 @@ void USK_GA_Traversal_AvoidObstacle::SetEndAbility()
 		SetForceMove(PlayerCharacter, false, TraversalObject->ForceMoveMode);
 	}
 	
+	UE_LOG(LogTemp, Warning, TEXT("End Traversal Avoid Ability, %s"), PlayerCharacter->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 	CachedTargetActor->bCanInteract = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
@@ -56,5 +58,8 @@ void USK_GA_Traversal_AvoidObstacle::OnMoveCompleted()
 {
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	SetEndAbility();
+	if (HasAuthority(&CurrentActivationInfo))
+	{
+		SetEndAbility();
+	}
 }

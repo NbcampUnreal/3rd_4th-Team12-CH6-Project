@@ -1,18 +1,18 @@
 ﻿#include "SK_GA_InteractionTemplate.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Animation/SKBaseAnimInstance.h"
 #include "Interaction/Interface/SKInteractable.h"
+#include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_MoveToLocation.h"
 
 void USK_GA_InteractionTemplate::SetForceMove(ASKPlayerCharacter* PlayerCharacter, const bool bForceMove, const EForceMoveMode ForceMoveMode)
 {
-	USKBaseAnimInstance* AnimClass = Cast<USKBaseAnimInstance>(PlayerCharacter->GetMesh()->GetAnimInstance());
-	if (AnimClass)
+	USKInteractionComponent* InteractionComponent = PlayerCharacter->GetInteractionComponent();
+	if (InteractionComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ForceMoveMode = %d"), (int32)ForceMoveMode);
-		AnimClass->SetForceMove(bForceMove);
-		AnimClass->SetForceMoveMode(ForceMoveMode);
+		InteractionComponent->Server_SetForceMove(bForceMove);
+		InteractionComponent->Server_SetForceMoveMode(ForceMoveMode);
 	}
 }
 

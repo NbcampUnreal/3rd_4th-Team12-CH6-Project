@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Animation/SKBaseAnimInstance.h"
 #include "Components/ActorComponent.h"
 #include "Interaction/Interface/SKInteractable.h"
 #include "SKInteractionComponent.generated.h"
@@ -56,6 +57,17 @@ protected:
 	float UpdateInterval = 0.1f;
 	
 public:
+	UFUNCTION(Server, Reliable)
+	void Server_SetForceMoveMode(const EForceMoveMode NewForceMoveMode);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetForceMove(const bool NewForceMode);
+
+	UFUNCTION(BlueprintCallable)
+	EForceMoveMode GetForceMoveMode() const { return ForceMoveMode; };
+	
+	UFUNCTION(BlueprintCallable)
+	bool GetForceMove() const { return bForceMove; };
 
 	FORCEINLINE void SetInteractionData(const FSKInteractionData& NewInteractionData) { CurrentInteractionData = NewInteractionData; }
 	FORCEINLINE const FSKInteractionData& GetInteractionData() { return CurrentInteractionData; }
@@ -69,12 +81,18 @@ public:
 	UPROPERTY()
 	TSet<ASKInteractableBase*> CandidateActors;
 
-private:
+protected:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentInteractionData)
 	FSKInteractionData CurrentInteractionData;
 	
 	UPROPERTY(Replicated)
 	ASKInteractableBase* CurrentTargetActor;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	EForceMoveMode ForceMoveMode;
+		
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	uint8 bForceMove : 1;
 	
 #pragma endregion
 };
