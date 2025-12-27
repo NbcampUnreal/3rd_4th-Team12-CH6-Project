@@ -4,7 +4,7 @@
 #include "Controller/SKPlayerController.h"
 #include "Animation/SKPlayerAnimInstance.h"
 #include "Component/BattleComponent.h"
-#include "Interaction/Ability/SK_GA_Unequip.h"
+#include "GameAbilitySystem/Ability/Unequip/SK_GA_Unequip.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Weapon/SKWeaponData.h"
