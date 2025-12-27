@@ -1,6 +1,5 @@
 ﻿#include "SK_GA_Interaction_BonfireEnd.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Item/SKInteractableBase.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 

@@ -4,6 +4,7 @@
 #include "SK_GA_InteractionBase.h"
 #include "SK_GA_InteractionTemplate.generated.h"
 
+enum class EForceMoveMode : uint8;
 class USKBaseAnimInstance;
 class ASKPlayerCharacter;
 
@@ -22,9 +23,9 @@ protected:
 	virtual FRotator GetTargetRotation(ASKPlayerCharacter* PlayerCharacter, FVector TargetLocation);
 	
 	UFUNCTION()
-	virtual void SetForceMove(ASKPlayerCharacter* PlayerCharacter, bool ForceMove);
+	virtual void SetForceMove(ASKPlayerCharacter* PlayerCharacter, const bool bForceMove, const EForceMoveMode ForceMoveMode);
 	UFUNCTION()
-	virtual void MoveToLocation(ASKPlayerCharacter* PlayerCharacter, FVector TargetLocation, const float Duration);
+	virtual void MoveToLocation(ASKPlayerCharacter* PlayerCharacter, FVector TargetLocation, const float Duration, const EForceMoveMode ForceMoveMode);
 	UFUNCTION()
 	virtual void PlayAnimMontage(UAnimMontage* InteractMontage);
 	UFUNCTION()

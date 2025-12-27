@@ -1,4 +1,6 @@
 ﻿#include "SK_GA_Interaction_Openable.h"
+
+#include "Animation/SKBaseAnimInstance.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Item/SKInteractableBase.h"
 
@@ -20,7 +22,7 @@ void USK_GA_Interaction_Openable::ActivateAbility(const FGameplayAbilitySpecHand
 		PlayerCharacter->SetActorRotation(GetTargetRotation(PlayerCharacter, TargetLocation));
 	}
 	
-	MoveToLocation(PlayerCharacter, TargetLocation, Duration);
+	MoveToLocation(PlayerCharacter, TargetLocation, Duration, EForceMoveMode::Normal);
 	
 }
 
@@ -28,7 +30,7 @@ void USK_GA_Interaction_Openable::OnMoveCompleted()
 {
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	SetForceMove(PlayerCharacter, false);
+	SetForceMove(PlayerCharacter, false, EForceMoveMode::Normal);
 	
 	ExecuteTargetInteraction(Cast<UObject>(CachedTargetActor), PlayerCharacter);
 

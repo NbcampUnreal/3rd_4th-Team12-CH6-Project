@@ -1,6 +1,7 @@
 ﻿#include "SK_GA_Interaction_Bonfire.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Animation/SKBaseAnimInstance.h"
 #include "Character/SKPlayerCharacter.h"
 #include "Item/SKInteractableBase.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
@@ -25,14 +26,14 @@ void USK_GA_Interaction_Bonfire::ActivateAbility(const FGameplayAbilitySpecHandl
 		ActionComponent->SetBonfireWidgetVisibility(CachedTargetActor, false);
 	}
 	
-	MoveToLocation(PlayerCharacter, TargetLocation, Duration);
+	MoveToLocation(PlayerCharacter, TargetLocation, Duration, EForceMoveMode::Normal);
 }
 
 void USK_GA_Interaction_Bonfire::OnMoveCompleted()
 {	
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	SetForceMove(PlayerCharacter, false);
+	SetForceMove(PlayerCharacter, false, EForceMoveMode::Normal);
 	
 	PlayerCharacter->SetActorRotation(CachedInteractionData.InteractionRotation);
 	

@@ -5,12 +5,14 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_MoveToLocation.h"
 
-void USK_GA_InteractionTemplate::SetForceMove(ASKPlayerCharacter* PlayerCharacter, bool ForceMove)
+void USK_GA_InteractionTemplate::SetForceMove(ASKPlayerCharacter* PlayerCharacter, const bool bForceMove, const EForceMoveMode ForceMoveMode)
 {
 	USKBaseAnimInstance* AnimClass = Cast<USKBaseAnimInstance>(PlayerCharacter->GetMesh()->GetAnimInstance());
 	if (AnimClass)
 	{
-		AnimClass->SetForceMove(ForceMove);
+		UE_LOG(LogTemp, Warning, TEXT("ForceMoveMode = %d"), (int32)ForceMoveMode);
+		AnimClass->SetForceMove(bForceMove);
+		AnimClass->SetForceMoveMode(ForceMoveMode);
 	}
 }
 
@@ -29,7 +31,7 @@ FRotator USK_GA_InteractionTemplate::GetTargetRotation(ASKPlayerCharacter* Playe
 	return Direction.Rotation();
 }
 
-void USK_GA_InteractionTemplate::MoveToLocation(ASKPlayerCharacter* PlayerCharacter, FVector TargetLocation, const float Duration)
+void USK_GA_InteractionTemplate::MoveToLocation(ASKPlayerCharacter* PlayerCharacter, FVector TargetLocation, const float Duration, const EForceMoveMode ForceMoveMode)
 {
 	UAbilityTask_MoveToLocation* MoveTask = UAbilityTask_MoveToLocation::MoveToLocation(this, NAME_None, TargetLocation, Duration, nullptr, nullptr);
 
@@ -37,7 +39,7 @@ void USK_GA_InteractionTemplate::MoveToLocation(ASKPlayerCharacter* PlayerCharac
 	{
 		MoveTask->OnTargetLocationReached.AddDynamic(this, &USK_GA_InteractionTemplate::OnMoveCompleted);
 		MoveTask->ReadyForActivation();
-		SetForceMove(PlayerCharacter, true);
+		SetForceMove(PlayerCharacter, true, ForceMoveMode);
 	}
 }
 
