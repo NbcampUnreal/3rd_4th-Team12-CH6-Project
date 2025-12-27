@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_InteractionTemplate.h"
-#include "SK_GA_Interaction_BonfireEnd.generated.h"
+#include "Interaction/Ability/SK_GA_InteractionTemplate.h"
+#include "SK_GA_Traversal_Base.generated.h"
 
 UCLASS()
-class SK_API USK_GA_Interaction_BonfireEnd : public USK_GA_InteractionTemplate
+class SK_API USK_GA_Traversal_Base : public USK_GA_InteractionTemplate
 {
 	GENERATED_BODY()
 public:
@@ -13,10 +13,14 @@ public:
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
-protected:
-	virtual void OnMoveCompleted() override;
-	virtual void OnMontageCompleted() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimMontage> BonfireEndMontage;
+protected:
+	void SetMovementMode(ACharacter* Character, bool bIsFlying);
+
+	void SetEndAbility();
+	
+	virtual void OnMoveCompleted() override;
+	
+	virtual void OnMontageCompleted() override;
+	virtual void OnMontageCanceled() override;
 };

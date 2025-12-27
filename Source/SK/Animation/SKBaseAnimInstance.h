@@ -7,6 +7,14 @@
 class ASKCharacterBase;
 class UCharacterMovementComponent;
 
+UENUM(BlueprintType)
+enum class EForceMoveMode : uint8
+{
+	Normal,
+	Crouch,
+	GoUnder
+};
+
 UCLASS()
 class SK_API USKBaseAnimInstance : public UAnimInstance
 {
@@ -19,8 +27,6 @@ public:
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-	FORCEINLINE void SetForceMove(const bool bNewForceMove) { bForceMove = bNewForceMove; };
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -37,9 +43,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 bShouldMove : 1;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	uint8 bForceMove : 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 bIsFalling : 1;

@@ -4,13 +4,16 @@
 #include "Controller/SKPlayerController.h"
 #include "Animation/SKPlayerAnimInstance.h"
 #include "Component/BattleComponent.h"
-#include "Interaction/Ability/SK_GA_Unequip.h"
+#include "GameAbilitySystem/Ability/Unequip/SK_GA_Unequip.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Weapon/SKWeaponData.h"
 #include "Weapon/ActionData/SKWeaponAnimData.h"
 #include "Components/CapsuleComponent.h"
 #include "GameData/SKGameConstant.h"
+#include "Item/Bonfire/SKStool.h"
+#include "Item/Bonfire/SKBonfire.h"
+#include "Components/WidgetComponent.h"
 
 USKActionComponent::USKActionComponent()
 	: CurrentWeaponAnimData(nullptr)
@@ -76,7 +79,6 @@ void USKActionComponent::CheckAutoUnEquipped()
 	if (ASC->HasMatchingGameplayTag(EquipTag))
 	{
 		if (Now - LastCombatTime > AutoUnequipDelay)
-		if (Now - LastCombatTime > AutoUnequipDelay)
 		{
 			ASC->TryActivateAbilityByClass(USK_GA_Unequip::StaticClass());
 		}
@@ -87,6 +89,28 @@ void USKActionComponent::Server_SetIgnoreCollision_Implementation(bool bIgnore)
 {
 	bIgnoreCollision = bIgnore;
 	ApplyCollisionSetting();
+}
+
+void USKActionComponent::SetBonfireWidgetVisibility(ASKInteractableBase* TargetActor, bool bOnWidget)
+{
+	Server_SetIgnoreCollision(!bOnWidget);
+	if (!bOnWidget) InteractedStool = TargetActor;
+	else InteractedStool->bCanInteract = true;
+	
+	ASKStool* Stool = Cast<ASKStool>(InteractedStool? InteractedStool : TargetActor);
+	if (Stool)
+	{
+		ASKBonfire* Bonfire = Stool->OwnerBonfire;
+		if (Bonfire)
+		{
+			TSet<UWidgetComponent*>& DetectWidgets = Bonfire->DetectWidgets;
+			for (auto* Widget : DetectWidgets)
+			{
+				Widget->SetVisibility(bOnWidget);
+			}
+		}
+	}
+	if (bOnWidget) InteractedStool = nullptr;
 }
 
 void USKActionComponent::OnRep_IgnoreCollision()
@@ -112,51 +136,26 @@ void USKActionComponent::OnOwnerPossessed()
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Char || !Char->HasAuthority()) return;
 
-	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
-	if (!ASC) return;	
-
 	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Char->GetPlayerState());
 	if (IsValid(PlayerState))
 	{
-		if (PlayerState->bIsFirstSpawned)
+		if (!PlayerState->bIsFirstSpawned)
 		{
-			PlayerState->bIsFirstSpawned = false;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("??????"))
-			// 무기 장착시 태그 해제
+			// 무기 데이터 설정
 			const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
-			if (!WeaponDataRow)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("WeaponData Is Null"))
-			}
-			UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponDataRow->WeaponAnimData.GetName())
-	
 			Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 			Multicast_SetWeaponData(WeaponDataRow->WeaponData);
-			if (ASC)
-			{
-				USKWeaponAnimData* AnimData = WeaponDataRow->WeaponAnimData;
-				if (!AnimData) return;
-		
-				if (AnimData->UnequipGE && AnimData->EquipGE)
-				{
-					ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->UnequipGE, ASC, 1);
-					ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->EquipGE, ASC, 1);
-			
-					FGameplayEffectSpecHandle UnequipGESpecHandle = ASC->MakeOutgoingSpec(AnimData->UnequipGE, 1.f, ASC->MakeEffectContext());
-					if (UnequipGESpecHandle.IsValid())
-					{
-						ASC->ApplyGameplayEffectSpecToSelf(*UnequipGESpecHandle.Data.Get());
-					}
-				}
-			}
+			// 장착 태그 부여
+			ApplyEquipGE(false);
 			return;
 		}
+		PlayerState->bIsFirstSpawned = false;
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
+	
+	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	if (!ASC) return;
 	// 초기 태그 설정
 	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
 	ASC->AddLooseGameplayTag(UnarmedTag);
@@ -167,7 +166,6 @@ void USKActionComponent::OnOwnerPossessed()
 	}
 	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
 	if (!WeaponDataRow) return;
-	UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponDataRow->WeaponAnimData.GetName())
 	
 	CurrentWeaponAnimData = WeaponDataRow->WeaponAnimData;
 	
@@ -196,19 +194,30 @@ void USKActionComponent::AttachWeapon(const TArray<FName> SocketNames)
 	}
 }
 
-void USKActionComponent::OnCombatStart()
+void USKActionComponent::OnCombatAction(bool bIsEquip)
 {
 	UE_LOG(LogTemp, Display, TEXT("OnCombatAction"));
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
-	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	ApplyEquipGE(bIsEquip);
+
+	if (bIsEquip)
+	{
+		AttachWeapon(GetWeaponAnimData()->EquipSocketName);
+		LastCombatTime = GetWorld()->GetTimeSeconds();
+	}
+	else
+	{
+		AttachWeapon(GetWeaponAnimData()->UnequipSocketName);
+	}
+}
+
+void USKActionComponent::ApplyEquipGE(bool bIsEquip)
+{
+	ASKPlayerCharacter* Charcter = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Charcter) return;
+
+	UAbilitySystemComponent* ASC = Charcter->GetAbilitySystemComponent();
 	if (!ASC) return;
-
-	const FGameplayTag EquipTag = FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Equip"));
-
-	// ASC->RemoveLooseGameplayTag(EquipTag);
-	// ASC->AddLooseGameplayTag(EquipTag);
 
 	USKWeaponAnimData* AnimData = GetWeaponAnimData();
 	if (!AnimData) return;
@@ -218,16 +227,12 @@ void USKActionComponent::OnCombatStart()
 		ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->UnequipGE, ASC, 1);
 		ASC->RemoveActiveGameplayEffectBySourceEffect(AnimData->EquipGE, ASC, 1);
 				
-		FGameplayEffectSpecHandle UnequipGESpecHandle = ASC->MakeOutgoingSpec(AnimData->EquipGE, 1.f, ASC->MakeEffectContext());
-		if (UnequipGESpecHandle.IsValid())
+		FGameplayEffectSpecHandle EquipGESpecHandle = ASC->MakeOutgoingSpec(bIsEquip ? AnimData->EquipGE : AnimData->UnequipGE, 1.f, ASC->MakeEffectContext());
+		if (EquipGESpecHandle.IsValid())
 		{
-			ASC->ApplyGameplayEffectSpecToSelf(*UnequipGESpecHandle.Data.Get());
+			ASC->ApplyGameplayEffectSpecToSelf(*EquipGESpecHandle.Data.Get());
 		}
 	}
-			
-	AttachWeapon(GetWeaponAnimData()->EquipSocketName);
-
-	LastCombatTime = GetWorld()->GetTimeSeconds();
 }
 
 void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponAnimData)

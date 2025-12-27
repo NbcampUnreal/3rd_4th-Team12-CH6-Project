@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_InteractionTemplate.h"
+#include "Interaction/Ability/SK_GA_InteractionTemplate.h"
 #include "SK_GA_Interaction_Bonfire.generated.h"
 
 UCLASS()

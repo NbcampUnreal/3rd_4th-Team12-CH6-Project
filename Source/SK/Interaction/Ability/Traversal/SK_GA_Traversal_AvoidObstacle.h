@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SK_GA_InteractionTemplate.h"
-#include "SK_GA_Interaction_Openable.generated.h"
+#include "Interaction/Ability/SK_GA_InteractionTemplate.h"
+#include "SK_GA_Traversal_AvoidObstacle.generated.h"
 
 UCLASS()
-class SK_API USK_GA_Interaction_Openable : public USK_GA_InteractionTemplate
+class SK_API USK_GA_Traversal_AvoidObstacle : public USK_GA_InteractionTemplate
 {
 	GENERATED_BODY()
 public:
@@ -15,6 +15,7 @@ public:
 		const FGameplayEventData* TriggerEventData) override;
 
 protected:
+	void SetEndAbility();
+	
 	virtual void OnMoveCompleted() override;
-
 };

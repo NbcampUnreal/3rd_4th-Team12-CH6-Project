@@ -19,7 +19,7 @@
 #include "GameInstance/SKGameInstance.h"
 #include "GameMode/SKGameMode.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
-#include "Item/Openable/Bonfire/SKBonfire.h"
+#include "Item/Bonfire/SKBonfire.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -631,7 +631,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
-		ActionComponent->OnCombatStart();
+		ActionComponent->OnCombatAction(true);
 	}
 }
 

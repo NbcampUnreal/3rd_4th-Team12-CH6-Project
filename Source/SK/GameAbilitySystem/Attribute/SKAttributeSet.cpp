@@ -160,7 +160,7 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 	}
 
 	// 죽음 처리
-	if (FMath::IsNearlyZero(GetHealth()))
+	if (GetHealth() <= 0.01f)
 	{
 		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
 		if (ASC)
