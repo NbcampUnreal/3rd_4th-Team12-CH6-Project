@@ -63,27 +63,3 @@ void ASKStool::ExecuteInteraction_Implementation(AActor* Interactor)
 		}
 	}
 }
-
-void ASKStool::OverLapBeginHandle()
-{
-	if (OwnerBonfire)
-	{
-		TSet<UWidgetComponent*>& DetectWidgets = OwnerBonfire->DetectWidgets;
-		if (DetectWidget)
-		{
-			DetectWidgets.Add(DetectWidget);
-		}
-	}
-}
-
-void ASKStool::OverLapEndHandle()
-{
-	if (OwnerBonfire)
-	{
-		TSet<UWidgetComponent*>& DetectWidgets = OwnerBonfire->DetectWidgets;
-		if (DetectWidget)
-		{
-			DetectWidgets.Remove(DetectWidget);
-		}
-	}
-}

@@ -2,7 +2,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerState/SKPlayerState.h"
-#include "Item/Openable/Bonfire/SKBonfire.h"
+#include "Item/Bonfire/SKBonfire.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Utility/SpawnSubsystem.h"

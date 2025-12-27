@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Item/Openable/SKOpenableBase.h"
+#include "Item/SKDetectableBase.h"
 #include "SKBonfire.generated.h"
 
 class UNiagaraSystem;
@@ -12,7 +12,7 @@ class UNiagaraComponent;
 class ASKStool;
 
 UCLASS()
-class SK_API ASKBonfire : public ASKOpenableBase
+class SK_API ASKBonfire : public ASKDetectableBase
 {
 	GENERATED_BODY()
 

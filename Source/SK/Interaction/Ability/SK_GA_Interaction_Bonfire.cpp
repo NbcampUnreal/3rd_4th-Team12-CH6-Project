@@ -2,10 +2,7 @@
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Components/WidgetComponent.h"
 #include "Item/SKInteractableBase.h"
-#include "Item/Openable/Bonfire/SKBonfire.h"
-#include "Item/Openable/Bonfire/SKStool.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
 void USK_GA_Interaction_Bonfire::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -25,22 +22,7 @@ void USK_GA_Interaction_Bonfire::ActivateAbility(const FGameplayAbilitySpecHandl
 	USKActionComponent* ActionComponent = PlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
-		ActionComponent->Server_SetIgnoreCollision(true);
-		ActionComponent->InteractedStool = CachedTargetActor;
-
-		ASKStool* Stool = Cast<ASKStool>(CachedTargetActor);
-		if (Stool)
-		{
-			ASKBonfire* Bonfire = Stool->OwnerBonfire;
-			if (Bonfire)
-			{
-				TSet<UWidgetComponent*>& DetectWidgets = Bonfire->DetectWidgets;
-				for (auto* Widget : DetectWidgets)
-				{
-					Widget->SetVisibility(false);
-				}
-			}
-		}
+		ActionComponent->SetBonfireWidgetVisibility(CachedTargetActor, false);
 	}
 	
 	MoveToLocation(PlayerCharacter, TargetLocation, Duration);

@@ -6,7 +6,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/WidgetComponent.h"
-#include "Item/Openable/SKOpenableBase.h"
+#include "Item/SKDetectableBase.h"
 
 USKInteractionComponent::USKInteractionComponent()
 {
@@ -129,7 +129,7 @@ void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 		// 근접 UI 표시 해제
 		if (CurrentTargetActor->bCanInteract)
 		{
-			ASKOpenableBase* OpenableTarget = Cast<ASKOpenableBase>(CurrentTargetActor);
+			ASKDetectableBase* OpenableTarget = Cast<ASKDetectableBase>(CurrentTargetActor);
 			if (!OpenableTarget) return;
 	
 			UWidgetComponent* DetectWidget = OpenableTarget->DetectWidget;

@@ -19,7 +19,7 @@
 #include "GameInstance/SKGameInstance.h"
 #include "GameMode/SKGameMode.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
-#include "Item/Openable/Bonfire/SKBonfire.h"
+#include "Item/Bonfire/SKBonfire.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"

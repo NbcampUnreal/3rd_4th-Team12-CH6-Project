@@ -1,10 +1,8 @@
 ﻿#include "SK_GA_Interaction_BonfireEnd.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Item/Openable/Bonfire/SKStool.h"
-#include "Item/Openable/Bonfire/SKBonfire.h"
+#include "Item/SKInteractableBase.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
-#include "Components/WidgetComponent.h"
 
 void USK_GA_Interaction_BonfireEnd::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                     const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -25,30 +23,8 @@ void USK_GA_Interaction_BonfireEnd::OnMontageCompleted()
 	USKActionComponent* ActionComponent = PlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
-		ActionComponent->Server_SetIgnoreCollision(false);
-
-		ASKInteractableBase* TargetActor = ActionComponent->InteractedStool;
-		if (TargetActor)
-		{
-			TargetActor->bCanInteract = true;
-				
-			ASKStool* Stool = Cast<ASKStool>(TargetActor);
-			if (Stool)
-			{
-				ASKBonfire* Bonfire = Stool->OwnerBonfire;
-				if (Bonfire)
-				{
-					TSet<UWidgetComponent*>& DetectWidgets = Bonfire->DetectWidgets;
-					for (auto Widget : DetectWidgets)
-					{
-						Widget->SetVisibility(true);
-					}
-				}
-			}
-		}
-		ActionComponent->InteractedStool = nullptr;
+		ActionComponent->SetBonfireWidgetVisibility(CachedTargetActor, true);
 	}
-
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
