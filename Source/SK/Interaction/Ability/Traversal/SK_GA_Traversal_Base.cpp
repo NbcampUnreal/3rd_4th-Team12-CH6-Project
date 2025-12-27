@@ -2,13 +2,15 @@
 
 #include "Animation/SKBaseAnimInstance.h"
 #include "Character/SKPlayerCharacter.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 #include "Item/SKInteractableBase.h"
+#include "Item/Traversal/SKTraversalBase.h"
 
 void USK_GA_Traversal_Base::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
+                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                            const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
