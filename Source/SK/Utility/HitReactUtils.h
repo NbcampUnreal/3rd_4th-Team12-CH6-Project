@@ -15,6 +15,14 @@ enum class EHitReactAnim : uint8
 	Back       UMETA(DisplayName = "Back"),
 };
 
+UENUM(BlueprintType)
+enum class EHitReactType : uint8
+{
+	Normal,
+	Heavy,
+	Unblockable
+};
+
 EHitReactAnim DetermineHitReactAnim(
 	const FVector& HitSourceLocation,
 	const AActor* Victim

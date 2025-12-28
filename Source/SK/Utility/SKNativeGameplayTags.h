@@ -311,3 +311,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Death); // 사망
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_HitReact_FrontLeft);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_HitReact_FrontRight);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_HitReact_Back);
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_HitReact_Normal);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_HitReact_Heavy);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_HitReact_Unblockable);

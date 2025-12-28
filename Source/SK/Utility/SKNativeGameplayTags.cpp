@@ -315,3 +315,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death,"GameplayCue.Sound.Woma
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontLeft,"GameplayCue.HitReact.FrontLeft");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontRight,"GameplayCue.HitReact.FrontRight");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Back,"GameplayCue.HitReact.Back");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Normal,"GameplayCue.HitReact.Normal");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Heavy,"GameplayCue.HitReact.Heavy");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Unblockable,"GameplayCue.HitReact.Unblockable");

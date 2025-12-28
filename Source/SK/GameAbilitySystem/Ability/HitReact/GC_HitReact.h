@@ -10,6 +10,10 @@
 /**
  * 
  */
+
+class ASKPlayerCharacter;
+class USKWeaponAnimData;
+
 UCLASS()
 class SK_API UGC_HitReact : public UGameplayCueNotify_Static
 {
@@ -21,8 +25,29 @@ public:
 		const FGameplayCueParameters& Parameters
 	) const override;
 
-private:
-	EHitReactAnim GetHitReactDirectionFromTag(
-		const FGameplayTag& CueTag
+protected:
+	void PlayNormal(
+		ASKPlayerCharacter* Player,
+		AActor* Enemy,
+		USKWeaponAnimData* AnimData,
+		const FVector& KnockBackDir,
+		const EHitReactAnim
 	) const;
+
+	void PlayHeavy(
+		ASKPlayerCharacter* Player,
+		AActor* Enemy,
+		USKWeaponAnimData* AnimData,
+		const FVector& KnockBackDir,
+		const EHitReactAnim
+	) const;
+
+	void PlayUnblockable(
+		ASKPlayerCharacter* Player,
+		AActor* Enemy,
+		USKWeaponAnimData* AnimData,
+		const FVector& KnockBackDir,
+		const EHitReactAnim
+	) const;
+	
 };

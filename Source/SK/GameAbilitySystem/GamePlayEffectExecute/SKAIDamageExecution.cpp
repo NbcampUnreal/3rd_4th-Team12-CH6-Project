@@ -204,7 +204,7 @@ void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UA
 	if (!TargetActor->IsA(ASKPlayerCharacter::StaticClass()))
 		return;
 
-	const FGameplayTag HitStateTag = FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Hit"));
+	const FGameplayTag HitStateTag = TAG_State_Condition_Hit;
 
 	if (TargetASC->HasMatchingGameplayTag(HitStateTag))
 	{
@@ -212,11 +212,13 @@ void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UA
 	}
 
 	// 방향 판정
+	/*
 	const EHitReactAnim ReactType =
 		DetermineHitReactAnim(
 			InstigatorActor->GetActorLocation(),
 			TargetActor
 		);
+	*/
 
 	// 5️⃣ Hit 상태 부여 (Lock)
 	if (HitConditionEffect)
@@ -230,21 +232,37 @@ void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UA
 		);
 	}
 
+	EHitReactType HitType = EHitReactType::Normal;
+	
+	if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Normal))
+	{
+		HitType = EHitReactType::Normal;
+	}
+	else if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Heavy))
+	{
+		HitType = EHitReactType::Heavy;
+	}
+	else if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_UnGuardable))
+	{
+		HitType = EHitReactType::Unblockable;
+	}
+
+
 	// GameplayCue 선택
 	FGameplayTag CueTag;
 
-	switch (ReactType)
+	switch (HitType)
 	{
-	case EHitReactAnim::FrontLeft:
-		CueTag = FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.HitReact.FrontLeft"));
+	case EHitReactType::Normal:
+		CueTag = TAG_GameplayCue_HitReact_Normal;
 		break;
 
-	case EHitReactAnim::FrontRight:
-		CueTag = FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.HitReact.FrontRight"));
+	case EHitReactType::Heavy:
+		CueTag = TAG_GameplayCue_HitReact_Heavy;
 		break;
 
-	case EHitReactAnim::Back:
-		CueTag = FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.HitReact.Back"));
+	case EHitReactType::Unblockable:
+		CueTag = TAG_GameplayCue_HitReact_Unblockable;
 		break;
 
 	default:
@@ -252,5 +270,8 @@ void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UA
 	}
 
 	// 서버에서 GameplayCue 실행
-	TargetASC->ExecuteGameplayCue(CueTag);
+	TargetASC->ExecuteGameplayCue(
+		CueTag,
+		FGameplayCueParameters{Spec.GetContext()}
+	);
 }
