@@ -8,6 +8,21 @@
 
 class USKPlayerAnimInstance;
 
+USTRUCT(BlueprintType)
+struct FHitReactMontageSet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAnimMontage* FrontLeft;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAnimMontage* FrontRight;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAnimMontage* Back;
+};
+
 UCLASS()
 class SK_API USKWeaponAnimData : public UDataAsset
 {
@@ -64,4 +79,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Getup")
 	TObjectPtr<UAnimMontage> GetupMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FHitReactMontageSet HitReactMontages;
 };

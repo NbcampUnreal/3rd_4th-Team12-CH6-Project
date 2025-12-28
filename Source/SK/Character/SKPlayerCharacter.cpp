@@ -89,6 +89,22 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+	
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	const FGameplayTag HitTag =	TAG_State_Condition_Hit;
+
+	AbilitySystemComponent->RegisterGameplayTagEvent(
+		HitTag,
+		EGameplayTagEventType::NewOrRemoved
+	).AddUObject(
+		this,
+		&ASKPlayerCharacter::OnHitConditionTagChanged
+	);
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
@@ -228,6 +244,25 @@ void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, u
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 	UpdateMovementTag(); // Idle/Move 상태 갱신 함수
+}
+
+void ASKPlayerCharacter::OnHitConditionTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) return;
+
+	if (NewCount > 0)
+	{
+		// HitCondition 시작
+		PC->SetIgnoreMoveInput(true);
+		//PC->SetIgnoreLookInput(true); // 선택
+	}
+	else
+	{
+		// HitCondition 종료
+		PC->SetIgnoreMoveInput(false);
+		//PC->SetIgnoreLookInput(false);
+	}
 }
 
 void ASKPlayerCharacter::TryInitASC()

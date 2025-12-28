@@ -73,9 +73,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat")
 	TObjectPtr<USKCombatComponent> CombatComponent;
 	
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
-    	TObjectPtr<UBattleComponent> BattleComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
+	TObjectPtr<UBattleComponent> BattleComponent;
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+
+	UFUNCTION()
+	void OnHitConditionTagChanged(const FGameplayTag Tag, int32 NewCount);
+
+	EMovementMode CachedMovementMode;
 
 private:
 	FTimerHandle InitASCTimerHandle;

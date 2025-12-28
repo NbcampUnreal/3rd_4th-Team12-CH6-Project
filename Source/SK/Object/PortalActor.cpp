@@ -41,9 +41,7 @@ APortalActor::APortalActor()
 
 void APortalActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	UE_LOG(LogTemp, Error, TEXT("APortalActor::OnOverlapBegin"));
-	
+{	
 	UWorld* World = GetWorld();
 	if (!World) return;
 	
@@ -67,12 +65,10 @@ void APortalActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAct
 
 	if (GM->IsA(ADungeonGameMode::StaticClass())) // 던전 → 마을
 	{
-		UE_LOG(LogTemp, Error, TEXT("APortalActor::ReturnToTown"));
 		PC->ReturnToTown();
 	}
 	else if (GM->IsA(ATownGameMode::StaticClass())) // 마을 → 던전 선택 UI
 	{
-		UE_LOG(LogTemp, Error, TEXT("APortalActor::EnterDungeon"));
 		UGameInstance* GI = World->GetGameInstance();
 		if (!GI) return;
 
