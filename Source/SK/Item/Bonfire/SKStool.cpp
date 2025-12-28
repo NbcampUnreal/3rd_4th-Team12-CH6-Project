@@ -36,30 +36,36 @@ void ASKStool::ExecuteInteraction_Implementation(AActor* Interactor)
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Interactor);
 	if (!PlayerCharacter) return;
 
-	if (OwnerBonfire)
+	if (PlayerCharacter->HasAuthority())
 	{
-		OwnerBonfire->ResetBonfire(PlayerCharacter);
-	}
-	
-	ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
-	if (!PS) return;
-
-	if (OwnerBonfire)
-	{
-		PS->CurrentBonfire = OwnerBonfire;
-		OwnerBonfire->Multicast_RestEffect(PlayerCharacter->GetTransform());
-	}
-
-	// UI 동작
-	if (UWorld* World = GetWorld())
-	{
-		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		if (OwnerBonfire)
 		{
-			// 전송할 메시지 생성
-			FSwitchLayoutMessage Message(TAG_UI_Layout_BonfireMenu, true);
-
-			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+			OwnerBonfire->ResetBonfire(PlayerCharacter);
 		}
+	
+		ASKPlayerState* PS = PlayerCharacter->GetPlayerState<ASKPlayerState>();
+		if (!PS) return;
+
+		if (OwnerBonfire)
+		{
+			PS->CurrentBonfire = OwnerBonfire;
+			OwnerBonfire->Multicast_RestEffect(PlayerCharacter->GetTransform());
+		}
+	}
+
+	if (PlayerCharacter->IsLocallyControlled())
+	{
+		// UI 동작
+		if (UWorld* World = GetWorld())
+		{
+			if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+			{
+				// 전송할 메시지 생성
+				FSwitchLayoutMessage Message(TAG_UI_Layout_BonfireMenu, true);
+
+				// 메시지 브로드캐스트 (UI 전환용 채널로)
+				MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+			}
+		}	
 	}
 }
