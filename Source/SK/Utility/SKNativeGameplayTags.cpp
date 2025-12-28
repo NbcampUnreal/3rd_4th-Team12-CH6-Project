@@ -311,3 +311,11 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit,"GameplayCue.Sound.Woman.
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_01,"GameplayCue.Sound.Woman.Hit.01"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_02,"GameplayCue.Sound.Woman.Hit.02"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death,"GameplayCue.Sound.Woman.Death"); // 피격사운드
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontLeft,"GameplayCue.HitReact.FrontLeft");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontRight,"GameplayCue.HitReact.FrontRight");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Back,"GameplayCue.HitReact.Back");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Normal,"GameplayCue.HitReact.Normal");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Heavy,"GameplayCue.HitReact.Heavy");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Unblockable,"GameplayCue.HitReact.Unblockable");

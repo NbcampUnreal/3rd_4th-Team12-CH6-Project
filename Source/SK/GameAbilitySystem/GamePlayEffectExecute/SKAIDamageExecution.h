@@ -21,6 +21,13 @@ public:
 	                                    FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
 protected:
+	void HandleHitReaction(
+		const FGameplayEffectSpec& Spec,
+		UAbilitySystemComponent* TargetASC,
+		AActor* TargetActor
+	) const;
+	
+protected:
 	//ASC 비참조 데미지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
 	float NonASCAttackPower = 0.f;
@@ -47,7 +54,11 @@ protected:
 	float PerfectGuardCost = 0.0f;
 
 	bool IsFrontGuardable(const AActor* Attacker, const AActor* Defender, float DotThreshold) const;
+
 	//방어 가능한 각도 -1 ~ 1  -1:후면,  1:정면,  0:측면
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
 	float GuardAngle = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category="SK|HitReact")
+	TSubclassOf<UGameplayEffect> HitConditionEffect;
 };
