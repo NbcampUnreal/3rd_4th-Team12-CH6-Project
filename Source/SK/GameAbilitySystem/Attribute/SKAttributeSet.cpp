@@ -214,10 +214,6 @@ void USKAttributeSet::OnRep_SprintWeight(const FGameplayAttributeData& OldSprint
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, SprintWeight, OldSprintWeight);
 }
 
-void USKAttributeSet::OnRep_HitEffectAlpha(const FGameplayAttributeData& OldHitEffectAlpha)
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, HitEffectAlpha, OldHitEffectAlpha);
-}
 
 void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
