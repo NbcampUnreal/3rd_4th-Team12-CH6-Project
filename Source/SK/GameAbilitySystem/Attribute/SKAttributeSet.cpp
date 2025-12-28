@@ -102,6 +102,12 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 	//Sever
 	if (Attribute == GetHealthAttribute())
 	{
+		if (NewValue < OldValue)
+		{
+			const float Damage = OldValue - NewValue;
+			OnDamageTaken.Broadcast(Damage);
+		}
+		
 		UE_LOG(LogTemp, Log, TEXT("Health1 Changed: OldValue: %f | NewValue: %f"), OldValue, NewValue);
 		FString DebugMsg = FString::Printf(TEXT("Player Health: %.2f"), NewValue);
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMsg);
@@ -166,7 +172,7 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 		if (ASC)
 		{
 			FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(FName("State.Condition.Death"));
-			
+
 			if (ASC->HasMatchingGameplayTag(DeathTag))
 			{
 				return;
@@ -176,7 +182,6 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 
 			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(DeathTag));
 		}
-		
 	}
 }
 
@@ -207,6 +212,11 @@ void USKAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
 void USKAttributeSet::OnRep_SprintWeight(const FGameplayAttributeData& OldSprintWeight)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, SprintWeight, OldSprintWeight);
+}
+
+void USKAttributeSet::OnRep_HitEffectAlpha(const FGameplayAttributeData& OldHitEffectAlpha)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, HitEffectAlpha, OldHitEffectAlpha);
 }
 
 void USKAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
@@ -293,4 +303,11 @@ void USKAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor)
 void USKAttributeSet::OnRep_Poise(const FGameplayAttributeData& OldPoise)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USKAttributeSet, Poise, OldPoise);
+}
+
+void USKAttributeSet::HandleDamageTaken(
+	float Damage,
+	const FGameplayEffectModCallbackData& Data)
+{
+	OnDamageTaken.Broadcast(Damage);
 }
