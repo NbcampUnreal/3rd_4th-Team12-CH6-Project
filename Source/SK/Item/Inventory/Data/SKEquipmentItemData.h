@@ -19,7 +19,7 @@ enum class EEquipmentItemType : uint8
 UENUM(BlueprintType)
 enum class EEquipmentSlotType : uint8
 {
-	None UMETA(DisplayName = "None"),
+	None = 0 UMETA(DisplayName = "None"),
 
 	// 무기
 	Weapon UMETA(DisplayName = "Weapon"),
@@ -32,7 +32,9 @@ enum class EEquipmentSlotType : uint8
 
 	// 장신구
 	Accessory1 UMETA(DisplayName = "Accessory 1"),
-	Accessory2 UMETA(DisplayName = "Accessory 2")
+	Accessory2 UMETA(DisplayName = "Accessory 2"),
+
+	Count UMETA(Hidden)
 };
 
 UENUM(BlueprintType)
