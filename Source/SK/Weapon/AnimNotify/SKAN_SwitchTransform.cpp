@@ -3,10 +3,8 @@
 #include "Character/SKPlayerCharacter.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
-void USKAN_SwitchTransform::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void USKAN_SwitchTransform::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
-
 	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(MeshComp->GetOwner());
 	if (!Char)
 	{

@@ -25,7 +25,10 @@ GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
  * @param OldValue			The value of the attribute before it was changed
  * @param NewValue			The value after it was changed
 */
-DECLARE_MULTICAST_DELEGATE_SixParams(FSKAttributeEvent, AActor* /*EffectInstigator*/, AActor* /*EffectCauser*/, const FGameplayEffectSpec* /*EffectSpec*/, float /*EffectMagnitude*/, float /*OldValue*/, float /*NewValue*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDamageTaken, float);
+DECLARE_MULTICAST_DELEGATE_SixParams(FSKAttributeEvent, AActor* /*EffectInstigator*/, AActor* /*EffectCauser*/,
+                                     const FGameplayEffectSpec* /*EffectSpec*/, float /*EffectMagnitude*/,
+                                     float /*OldValue*/, float /*NewValue*/);
 /**
  * 
  */
@@ -52,7 +55,7 @@ public:
 #pragma region AttributeSet
 	// 모든 Attribute들의 이전값
 	//TMap<FGameplayAttribute, float> CachedAttributeValue;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Speed)
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, Speed)
@@ -117,7 +120,7 @@ public:
 	ATTRIBUTE_ACCESSORS(USKAttributeSet, SprintWeight)
 
 #pragma endregion
-	
+
 	mutable FSKAttributeEvent OnHealthChanged;
 
 	mutable FSKAttributeEvent OnMaxHealthChanged;
@@ -129,11 +132,18 @@ public:
 	mutable FSKAttributeEvent OnMaxHeatChanged;
 
 	mutable FSKAttributeEvent OnGoldChanged;
+
+	FOnDamageTaken OnDamageTaken;
+	
+	void HandleDamageTaken(
+		float Damage,
+		const FGameplayEffectModCallbackData& Data);
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	//attribute 값이 실제로 변경되기 직전
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)override;
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	//attribute 값이 실제로 변경되기 직후
 	void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	//GE가 실행된 직후에만 호출

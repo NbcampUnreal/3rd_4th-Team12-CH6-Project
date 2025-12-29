@@ -7,6 +7,7 @@
 #include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "Component/BattleComponent.h"
 #include "Component/SKCombatComponent.h"
 #include "GameData/WeaponDataRow.h"
@@ -46,13 +47,14 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 	bReplicates = true;
 
+
 	//틱활성화
 	PrimaryActorTick.bCanEverTick = true;
 
 	//모션워핑
 	MotionWarpingComp =
-	   CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
-	
+		CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
+
 	// 컴뱃컴포넌트 활성화
 	CombatComponent = CreateDefaultSubobject<USKCombatComponent>(TEXT("CombatComponent"));
 
@@ -70,6 +72,25 @@ void ASKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (FollowCamera)
+	{
+		HitPPMID =
+			UMaterialInstanceDynamic::Create(HitPostProcessMI, this);
+
+		FollowCamera->PostProcessSettings.WeightedBlendables.Array.Add(
+			FWeightedBlendable(1.f, HitPPMID)
+		);
+
+		ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+		if (!PS)
+			return;
+		AttributeSet = PS->GetAttributeSet();
+
+		AttributeSet->OnDamageTaken.AddUObject(
+			this,
+			&ASKPlayerCharacter::OnDamageTaken
+		);
+	}
 	//	SetPlayerStateTag();
 
 	if (AController* PC = GetController())
@@ -89,12 +110,38 @@ void ASKPlayerCharacter::BeginPlay()
 			}
 		}
 	}
+
+	ASKPlayerState* PS = GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	const FGameplayTag HitTag = TAG_State_Condition_Hit;
+
+	AbilitySystemComponent->RegisterGameplayTagEvent(
+		HitTag,
+		EGameplayTagEventType::NewOrRemoved
+	).AddUObject(
+		this,
+		&ASKPlayerCharacter::OnHitConditionTagChanged
+	);
 }
 
 void ASKPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!IsLocallyControlled() || !HitPPMID)
+		return;
+	
+	const float Speed = (CurrentHitAlpha < TargetHitAlpha)
+		? HitAlphaRiseSpeed     
+		: HitAlphaFallSpeed;    
+
+	CurrentHitAlpha = FMath::FInterpTo(CurrentHitAlpha, TargetHitAlpha, DeltaTime, Speed);
+
+	HitPPMID->SetScalarParameterValue(TEXT("Noise Strength"), CurrentHitAlpha);
 }
 
 void ASKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -205,7 +252,7 @@ void ASKPlayerCharacter::SetTraceSocket()
 
 	CombatComponent->InitializeWeaponSocket(Row);
 	BattleComponent->InitializeWeaponSocket(Row);
-	
+
 	const FWeaponDataRow* DataRow = PS->GetWeaponDataRow();
 	if (!DataRow)
 		return;
@@ -214,13 +261,11 @@ void ASKPlayerCharacter::SetTraceSocket()
 }
 
 
-
 void ASKPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
 	SetPlayerStateTag();
-
 }
 
 
@@ -228,6 +273,25 @@ void ASKPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, u
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 	UpdateMovementTag(); // Idle/Move 상태 갱신 함수
+}
+
+void ASKPlayerCharacter::OnHitConditionTagChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) return;
+
+	if (NewCount > 0)
+	{
+		// HitCondition 시작
+		PC->SetIgnoreMoveInput(true);
+		//PC->SetIgnoreLookInput(true); // 선택
+	}
+	else
+	{
+		// HitCondition 종료
+		PC->SetIgnoreMoveInput(false);
+		//PC->SetIgnoreLookInput(false);
+	}
 }
 
 void ASKPlayerCharacter::TryInitASC()
@@ -270,6 +334,25 @@ void ASKPlayerCharacter::TryInitASC()
 	GetWorld()->GetTimerManager().ClearTimer(InitASCTimerHandle);
 }
 
+void ASKPlayerCharacter::OnDamageTaken(float Damage)
+{
+	TargetHitAlpha = FMath::Clamp(Damage, 0.1f, 5.f);
+
+	GetWorldTimerManager().ClearTimer(HitEffectTimer);
+	GetWorldTimerManager().SetTimer(
+		HitEffectTimer,
+		this,
+		&ASKPlayerCharacter::ResetHitEffectTimer,
+		0.3f,
+		false
+	);
+}
+
+void ASKPlayerCharacter::ResetHitEffectTimer()
+{
+	TargetHitAlpha =0.f;
+}
+
 void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 {
 	if (!AbilitySystemComponent)
@@ -277,7 +360,7 @@ void ASKPlayerCharacter::SetLooseTag(const FGameplayTag& Tag, bool bEnable)
 		UE_LOG(LogTemp, Warning, TEXT("[SetLooseTag] ASC is null, skip: %s"), *Tag.ToString());
 		return;
 	}
-	
+
 	if (bEnable)
 	{
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(Tag))
@@ -299,38 +382,74 @@ void ASKPlayerCharacter::AdjustSpringArmDistance(float WheelValue)
 	if (!CameraBoom)
 		return;
 
-	const float ZoomStep = 50.f;   // 휠 감도
+	const float ZoomStep = 50.f; // 휠 감도
 	const float MinLength = 250.f; // 최소 거리
 	const float MaxLength = 600.f; // 최대 거리
 
 	float NewLength = CameraBoom->TargetArmLength - WheelValue * ZoomStep;
 	CameraBoom->TargetArmLength = FMath::Clamp(NewLength, MinLength, MaxLength);
-
 }
 
 void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 {
-	bUseControllerRotationYaw = true;
+	// bUseControllerRotationYaw = true;
+	//
+	// GetCharacterMovement()->bOrientRotationToMovement = false;
+	// GetCharacterMovement()->bUseControllerDesiredRotation = true;
 
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	
-	// if (bLockOn)
-	// {
-	// 	// Lock On: Movement 기반 회전 금지
-	// 	bUseControllerRotationYaw = true;
-	// 	GetCharacterMovement()->bOrientRotationToMovement = false;
-	// 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	// 	
-	// }
-	// else
-	// {
-	// 	// Lock Off: 다시 Movement 기반 회전 허용
-	// 	bUseControllerRotationYaw = false;
-	// 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	// 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	// }
+	if (bLockOn)
+	{
+		// Lock On: Movement 기반 회전 금지
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		
+	}
+	else
+	{
+		// Lock Off: 다시 Movement 기반 회전 허용
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
 }
+
+void ASKPlayerCharacter::OnRep_LockOn()
+{
+	if (USKPlayerAnimInstance* Anim =
+	Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance()))
+	{
+		Anim->bIsLockedOn = bIsLockedOn;
+	}
+
+	SetLockOnRotateMode(bIsLockedOn);
+	
+}
+
+void ASKPlayerCharacter::SetLockOnState(bool bNewState)
+{
+	if (!HasAuthority())
+		return;
+
+	if (bIsLockedOn == bNewState)
+		return;
+
+	bIsLockedOn = bNewState;
+	
+	ApplyLockOnState();
+}
+
+void ASKPlayerCharacter::ApplyLockOnState()
+{
+	if (USKPlayerAnimInstance* Anim =
+		Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance()))
+	{
+		Anim->bIsLockedOn = bIsLockedOn;
+	}
+
+	SetLockOnRotateMode(bIsLockedOn);
+}
+
 
 void ASKPlayerCharacter::SetPlayerStateTag()
 {
@@ -352,7 +471,7 @@ UBattleComponent* ASKPlayerCharacter::GetBattleComponent() const
 
 UMotionWarpingComponent* ASKPlayerCharacter::GetMotionWarpingComponent()
 {
-	return  MotionWarpingComp;
+	return MotionWarpingComp;
 }
 
 void ASKPlayerCharacter::OnAnimInitialized()

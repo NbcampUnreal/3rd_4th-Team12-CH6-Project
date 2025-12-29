@@ -5,9 +5,10 @@
 
 #include "AbilitySystemComponent.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 
-void UMonsterHealthWidget::SettingWidget(APawn* OwnerPawn)
+void UMonsterHealthWidget::SettingWidget(APawn* OwnerPawn, FName OwnerName)
 {
 	UE_LOG(LogTemp, Warning, TEXT("PossessPawnChanged O"));	
 	if (!OwnerPawn)
@@ -35,6 +36,12 @@ void UMonsterHealthWidget::SettingWidget(APawn* OwnerPawn)
 	}
 	
 	AttributeSet->OnCurrentHealthChanged.AddUObject(this, &UMonsterHealthWidget::HealthChanged);
+
+	if (MonsterNameTextBlock)
+	{
+		MonsterNameTextBlock->SetText(FText::FromName(OwnerName));
+	}
+	
 }
 
 void UMonsterHealthWidget::NativeConstruct()

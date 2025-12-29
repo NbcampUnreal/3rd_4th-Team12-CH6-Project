@@ -20,7 +20,10 @@ void UMonsterDamageWidget::SettingWidget(float Damage, const FVector2D RendPos, 
 	DamageText->SetText(
 		FText::AsNumber(FMath::RoundToInt(Damage))
 	);
-
+	
+	DamageText->SetColorAndOpacity(
+		GetDamageColor(AttackType)
+	);
 	SetRenderTranslation(RendPos);
 
 	if (Anim_TextMove)
@@ -51,4 +54,19 @@ void UMonsterDamageWidget::Deactivate()
 void UMonsterDamageWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+}
+
+FSlateColor UMonsterDamageWidget::GetDamageColor(int32 AttackType)
+{
+	switch (AttackType)
+	{
+	case 0: // Normal
+		return FSlateColor(FLinearColor::Black);
+	case 1: // Heavy
+		return FSlateColor(FLinearColor(0.4f, 0.0f, 0.0f));
+	case 2: // Unguardable
+		return FSlateColor(FLinearColor(0.5f, 0.f, 0.8f)); // 보라
+	default:
+		return FSlateColor(FLinearColor::Black);
+	}
 }

@@ -7,7 +7,7 @@
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
 #include "Interaction/Interface/SKInteractable.h"
 #include "Item/SKInteractableBase.h"
-#include "Item/Openable/SKOpenableBase.h"
+#include "Item/SKDetectableBase.h"
 
 USK_GA_InteractionBase::USK_GA_InteractionBase()
 	: CachedTargetActor(nullptr)
@@ -56,7 +56,7 @@ void USK_GA_InteractionBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	{
 		InteractionComponent->Client_ToggleInteractableWidget(InteractionWidget, false);
 	}
-	ASKOpenableBase* OpenableTarget = Cast<ASKOpenableBase>(TargetActor);
+	ASKDetectableBase* OpenableTarget = Cast<ASKDetectableBase>(TargetActor);
 	if (OpenableTarget)
 	{
 		UWidgetComponent* DetectWidget = OpenableTarget->DetectWidget;

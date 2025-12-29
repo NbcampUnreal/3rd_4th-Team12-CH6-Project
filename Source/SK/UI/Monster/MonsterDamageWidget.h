@@ -23,6 +23,8 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 	
+	static FSlateColor GetDamageColor(int32 AttackType);
+	
 	UPROPERTY()
 	bool bIsActive = false;
 	

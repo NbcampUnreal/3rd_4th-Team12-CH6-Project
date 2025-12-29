@@ -8,6 +8,8 @@
 #include "GameData/SKGameConstant.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Utility/HitReactUtils.h"
+#include "Character/SKPlayerCharacter.h"
 
 
 bool USKAIDamageExecution::IsFrontGuardable(
@@ -26,9 +28,6 @@ bool USKAIDamageExecution::IsFrontGuardable(
 		(Attacker->GetActorLocation() - Defender->GetActorLocation()).GetSafeNormal();
 
 	const float Dot = FVector::DotProduct(DefenderForward, AttackDir);
-
-	// 디버그용
-	UE_LOG(LogTemp, Warning, TEXT("[GuardCheck] Dot=%.2f"), Dot);
 
 	return Dot >= DotThreshold;
 }
@@ -83,6 +82,8 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 		if (const USKAttributeSet* TargetSet = TargetASC->GetSet<USKAttributeSet>())
 		{
 			ArmorPower = TargetSet->GetArmor();
+
+			if (TargetSet->GetHealth() <= 0.01f) return;
 		}
 	}
 	
@@ -127,7 +128,7 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	float StaminaCost = 0.f;
 
 	// 퍼펙트 가드 → 데미지 0
-	if (bIsPerfectGuard && bIsGuarding)
+	if (bIsPerfectGuard && bIsGuarding && bIsGuardRotator)
 	{
 		FinalDamage = 0.f;
 		StaminaCost = PerfectGuardCost;
@@ -147,11 +148,15 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 			StaminaCost = NormalAttackGuardCost;
 		}
 	}
+	//방어 실패로 히트 리액션 함수 호출
+	else
+	{
+		HandleHitReaction(Spec, TargetASC, TargetActor);
+	}
 
 	// ==============================
 	// 3. Guard 성공 이벤트 전송
 	// ==============================
-
 	if ((bIsGuarding || bIsPerfectGuard) && bIsGuardRotator && FinalDamage >= 0.f)
 	{
 		//AActor* TargetActor = TargetASC->GetAvatarActor();
@@ -184,4 +189,91 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 				EGameplayModOp::Additive,
 				-StaminaCost));
 	}
+}
+
+void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UAbilitySystemComponent* TargetASC,
+	AActor* TargetActor) const
+{
+	if (!TargetASC || !TargetActor)
+		return;
+
+	// 공격자 (AI)
+	AActor* InstigatorActor = Spec.GetContext().GetOriginalInstigator();
+	if (!InstigatorActor)
+		return;
+
+	// Player만 HitReact (필요시 조건 조절)
+	if (!TargetActor->IsA(ASKPlayerCharacter::StaticClass()))
+		return;
+
+	const FGameplayTag HitStateTag = TAG_State_Condition_Hit;
+
+	if (TargetASC->HasMatchingGameplayTag(HitStateTag))
+	{
+		return;
+	}
+
+	// 방향 판정
+	/*
+	const EHitReactAnim ReactType =
+		DetermineHitReactAnim(
+			InstigatorActor->GetActorLocation(),
+			TargetActor
+		);
+	*/
+
+	// 5️⃣ Hit 상태 부여 (Lock)
+	if (HitConditionEffect)
+	{
+		const UGameplayEffect* HitGE = HitConditionEffect->GetDefaultObject<UGameplayEffect>();
+		
+		TargetASC->ApplyGameplayEffectToSelf(
+			HitGE,
+			1.f,
+			TargetASC->MakeEffectContext()
+		);
+	}
+
+	EHitReactType HitType = EHitReactType::Normal;
+	
+	if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Normal))
+	{
+		HitType = EHitReactType::Normal;
+	}
+	else if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Heavy))
+	{
+		HitType = EHitReactType::Heavy;
+	}
+	else if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_UnGuardable))
+	{
+		HitType = EHitReactType::Unblockable;
+	}
+
+
+	// GameplayCue 선택
+	FGameplayTag CueTag;
+
+	switch (HitType)
+	{
+	case EHitReactType::Normal:
+		CueTag = TAG_GameplayCue_HitReact_Normal;
+		break;
+
+	case EHitReactType::Heavy:
+		CueTag = TAG_GameplayCue_HitReact_Heavy;
+		break;
+
+	case EHitReactType::Unblockable:
+		CueTag = TAG_GameplayCue_HitReact_Unblockable;
+		break;
+
+	default:
+		return;
+	}
+
+	// 서버에서 GameplayCue 실행
+	TargetASC->ExecuteGameplayCue(
+		CueTag,
+		FGameplayCueParameters{Spec.GetContext()}
+	);
 }

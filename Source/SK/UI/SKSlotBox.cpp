@@ -29,8 +29,7 @@ void USKSlotBox::SynchronizeProperties()
 	{
 		InitializeSlotBox(ParentWidget);
 	}
-
-	EntrySizeRule = ESlateSizeRule::Fill;
+	InitEntrySizeRule(ESlateSizeRule::Fill);
 }
 
 void USKSlotBox::OnSlotDataChanged()

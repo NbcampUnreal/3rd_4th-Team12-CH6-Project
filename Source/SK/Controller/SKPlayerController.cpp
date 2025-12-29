@@ -19,7 +19,7 @@
 #include "GameInstance/SKGameInstance.h"
 #include "GameMode/SKGameMode.h"
 #include "Interaction/ActorComponent/SKInteractionComponent.h"
-#include "Item/Openable/Bonfire/SKBonfire.h"
+#include "Item/Bonfire/SKBonfire.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -203,7 +203,12 @@ void ASKPlayerController::SetLockOnState(bool bNewState)
 	if (HasAuthority())
 	{
 		bIsLockedOn = bNewState;
-		OnRep_LockOnChanged();
+		// OnRep_LockOnChanged();
+
+		if (ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetPawn()))
+		{
+			Char->SetLockOnState(bNewState);
+		}
 	}
 	else
 	{
@@ -228,15 +233,15 @@ void ASKPlayerController::SetLockedTarget(AActor* NewTarget)
 void ASKPlayerController::OnRep_LockOnChanged()
 {
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetPawn());
-	if (!Player)
+	if (!SKPlayer)
 		return;
-
-	USKPlayerAnimInstance* Anim = Cast<USKPlayerAnimInstance>(SKPlayer->GetMesh()->GetAnimInstance());
-	if (Anim)
+	
+	if (USKPlayerAnimInstance* Anim =
+	Cast<USKPlayerAnimInstance>(SKPlayer->GetMesh()->GetAnimInstance()))
 	{
 		Anim->bIsLockedOn = bIsLockedOn;
 	}
-
+	
 	SKPlayer->SetLockOnRotateMode(bIsLockedOn);
 }
 
@@ -631,7 +636,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 	USKActionComponent* ActionComponent = SKPlayerCharacter->GetActionComponent();
 	if (ActionComponent)
 	{
-		ActionComponent->OnCombatStart();
+		ActionComponent->OnCombatAction(true);
 	}
 }
 

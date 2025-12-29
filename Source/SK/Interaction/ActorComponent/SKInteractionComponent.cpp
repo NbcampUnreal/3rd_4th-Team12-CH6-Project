@@ -6,7 +6,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/WidgetComponent.h"
-#include "Item/Openable/SKOpenableBase.h"
+#include "Item/SKDetectableBase.h"
 
 USKInteractionComponent::USKInteractionComponent()
 {
@@ -20,6 +20,8 @@ void USKInteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 	DOREPLIFETIME(USKInteractionComponent, CurrentInteractionData);
 	DOREPLIFETIME(USKInteractionComponent, CurrentTargetActor);
+	DOREPLIFETIME(USKInteractionComponent, ForceMoveMode);
+	DOREPLIFETIME(USKInteractionComponent, bForceMove);
 }
 
 
@@ -75,6 +77,7 @@ void USKInteractionComponent::UpdateTargetActor()
 		case EObjectType::Pickup:
 			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
+		case EObjectType::Obstacle:
 		case EObjectType::NPC:
 		case EObjectType::Stool:
 			if (FVector::DotProduct(Actor->GetActorRightVector(), ToOwner) > 0.3)
@@ -87,6 +90,9 @@ void USKInteractionComponent::UpdateTargetActor()
 			{
 				Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			}
+			break;
+		default:
+			Dot = FVector::DotProduct(ToActor, OwnerForwardVector);
 			break;
 		}
 		if (Dot > 0)
@@ -129,7 +135,7 @@ void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 		// 근접 UI 표시 해제
 		if (CurrentTargetActor->bCanInteract)
 		{
-			ASKOpenableBase* OpenableTarget = Cast<ASKOpenableBase>(CurrentTargetActor);
+			ASKDetectableBase* OpenableTarget = Cast<ASKDetectableBase>(CurrentTargetActor);
 			if (!OpenableTarget) return;
 	
 			UWidgetComponent* DetectWidget = OpenableTarget->DetectWidget;
@@ -176,6 +182,16 @@ void USKInteractionComponent::ActivateInteractionAbility(TSubclassOf<UGameplayAb
 	// ASC->TryActivateAbilitiesByTag(InteractionTag);
 	ASC->TryActivateAbilityByClass(Ability);
 }
+
+void USKInteractionComponent::Server_SetForceMove_Implementation(const bool NewForceMode)
+{
+	bForceMove = NewForceMode;
+};
+
+void USKInteractionComponent::Server_SetForceMoveMode_Implementation(const EForceMoveMode NewForceMoveMode)
+{
+	ForceMoveMode = NewForceMoveMode;
+};
 
 void USKInteractionComponent::Client_ToggleInteractableWidget_Implementation(UWidgetComponent* Widget, bool bIsVisible)
 {

@@ -52,7 +52,9 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	{
 		FTimerHandle RespawnTimer;
 		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, [PC](){PC->RequestRespawn();}, RespawnDelay, false);
-		
+	}
+	if (Char->IsLocallyControlled())
+	{
 		FTimerHandle DeathUITimer;
 		GetWorld()->GetTimerManager().SetTimer(DeathUITimer, this, &USK_GA_Death::ShowDeathUI, DeathUIDelay, false);
 	}

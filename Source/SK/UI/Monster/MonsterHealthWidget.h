@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MonsterHealthWidget.generated.h"
 
+class UTextBlock;
 class UProgressBar;
 struct FGameplayEffectSpec;
 class USKAIAttributeSet;
@@ -18,7 +19,7 @@ class SK_API UMonsterHealthWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-	void SettingWidget(APawn* OwnerPawn);
+	void SettingWidget(APawn* OwnerPawn, FName OwnerName);
 
 protected:
 	virtual void NativeConstruct() override;
@@ -32,6 +33,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthProgressBar;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MonsterNameTextBlock;
+	
 	UPROPERTY()
 	const USKAIAttributeSet* AttributeSet;
 
