@@ -12,7 +12,6 @@ class USphereComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
-class UMotionWarpingComponent;
 struct FOnAttributeChangeData;
 
 UCLASS()
@@ -22,10 +21,13 @@ class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterf
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
-	TObjectPtr<UBoxComponent> BoxComponent;
+	TObjectPtr<UBoxComponent> CombatArea;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
-	TObjectPtr<USphereComponent> SphereComponent;
+	TObjectPtr<USphereComponent> AttackArea;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
+	TObjectPtr<UCapsuleComponent> ContinuousOverlap;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;
@@ -37,6 +39,9 @@ public:
 	TSoftObjectPtr<USKAIDataAsset> AIDataAsset;
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
+	FName ContinuousOverlapSocketName;
+	
 	/** 몬스터 정적 ID (BP에서 고정 입력) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterID")
 	int32 MonsterID = -1;
@@ -129,7 +134,7 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	
 	UFUNCTION()
-	void OnBoxComponentBeginOverlap(
+	void OnCombatAreaBeginOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -139,7 +144,7 @@ protected:
 	);
 	
 	UFUNCTION()
-	void OnBoxComponentEndOverlap(
+	void OnCombatAreaEndOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -147,7 +152,7 @@ protected:
 	);	
 
 	UFUNCTION()
-	void OnSphereComponentBeginOverlap(
+	void OnAttackAreaBeginOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -157,7 +162,25 @@ protected:
 	);
 	
 	UFUNCTION()
-	void OnSphereComponentEndOverlap(
+	void OnAttackAreaEndOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);	
+
+	UFUNCTION()
+	void OnContinuousOverlapBeginOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+	
+	UFUNCTION()
+	void OnContinuousOverlapEndOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -165,4 +188,6 @@ protected:
 	);	
 	
 	void ApplyStaticMonsterStats();
+
+	virtual void BeginPlay() override;
 };
