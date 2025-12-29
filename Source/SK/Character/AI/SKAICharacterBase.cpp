@@ -20,18 +20,25 @@ ASKAICharacterBase::ASKAICharacterBase()
 
 	GetCapsuleComponent()->SetCollisionProfileName("AI");
 	
-	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp|CombatArea"));
-	BoxComponent->SetupAttachment(GetRootComponent());
-	BoxComponent->SetCollisionProfileName("CombatArea");
-	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentBeginOverlap);
-	BoxComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnBoxComponentEndOverlap);
+	CombatArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp|CombatArea"));
+	CombatArea->SetupAttachment(GetRootComponent());
+	CombatArea->SetCollisionProfileName("CombatArea");
+	CombatArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnCombatAreaBeginOverlap);
+	CombatArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnCombatAreaEndOverlap);
 
-	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp|CombatArea|Melee"));
-	SphereComponent->SetupAttachment(GetRootComponent());
-	SphereComponent->SetCollisionProfileName("CombatArea");
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnSphereComponentBeginOverlap);
-	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnSphereComponentEndOverlap);
-	
+	AttackArea = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp|AttackArea"));
+	AttackArea->SetupAttachment(GetRootComponent());
+	AttackArea->SetCollisionProfileName("CombatArea");
+	AttackArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnAttackAreaBeginOverlap);
+	AttackArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnAttackAreaEndOverlap);
+
+	ContinuousOverlap = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp|ContinuousOverlap"));
+	ContinuousOverlap->SetupAttachment(GetMesh());
+	ContinuousOverlap->SetCollisionProfileName("CombatArea");
+	ContinuousOverlap->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ContinuousOverlap->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnContinuousOverlapBeginOverlap);
+	ContinuousOverlap->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnContinuousOverlapEndOverlap);
+
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); // or Full
@@ -170,7 +177,7 @@ void ASKAICharacterBase::PossessedBy(AController* NewController)
 	StartLocation = GetActorLocation();
 }
 
-void ASKAICharacterBase::OnBoxComponentBeginOverlap(
+void ASKAICharacterBase::OnCombatAreaBeginOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -184,7 +191,7 @@ void ASKAICharacterBase::OnBoxComponentBeginOverlap(
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
-void ASKAICharacterBase::OnBoxComponentEndOverlap(
+void ASKAICharacterBase::OnCombatAreaEndOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -196,7 +203,7 @@ void ASKAICharacterBase::OnBoxComponentEndOverlap(
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
-void ASKAICharacterBase::OnSphereComponentBeginOverlap(
+void ASKAICharacterBase::OnAttackAreaBeginOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -210,7 +217,7 @@ void ASKAICharacterBase::OnSphereComponentBeginOverlap(
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
-void ASKAICharacterBase::OnSphereComponentEndOverlap(
+void ASKAICharacterBase::OnAttackAreaEndOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -220,6 +227,29 @@ void ASKAICharacterBase::OnSphereComponentEndOverlap(
 	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+}
+
+void ASKAICharacterBase::OnContinuousOverlapBeginOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+	)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "InBreath");
+}
+
+void ASKAICharacterBase::OnContinuousOverlapEndOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+	)
+{
+
+	
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -370,6 +400,11 @@ int32 ASKAICharacterBase::GetMaxJumpRushIndex() const
 	return MaxJumpRushIndex;
 }
 
+int32 ASKAICharacterBase::GetMaxFlyRushIndex() const
+{
+	return MaxFlyRushIndex;
+}
+
 FVector ASKAICharacterBase::GetStartLocation() const
 {
 	return StartLocation;
@@ -454,6 +489,7 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	MaxMeleeIndex = MonsterData->MaxMeleeIndex;
 	MaxRushIndex = MonsterData->MaxRushIndex;
 	MaxJumpRushIndex = MonsterData->MaxJumpRushIndex;
+	MaxFlyRushIndex = MonsterData->MaxFlyRushIndex;
 	BackstepDistance = MonsterData->BackstepDistance;
 	
 	// 예시: 이동 속도 적용
@@ -464,4 +500,14 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 
 	UE_LOG(LogTemp, Log, TEXT("[AI StaticData] %s : (HP=%f, Atk=%f, Def=%f)"),
 		*GetName(), MonsterData->MaxHealth, MonsterData->Attack, MonsterData->Armor);
+}
+
+void ASKAICharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (ContinuousOverlapSocketName != "")
+	{
+		ContinuousOverlap->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, ContinuousOverlapSocketName);
+	}
 }
