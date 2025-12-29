@@ -238,9 +238,7 @@ void ASKAICharacterBase::OnContinuousOverlapBeginOverlap(
 	const FHitResult& SweepResult
 	)
 {
-	AddTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
-	
-	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "InBreath");
 }
 
 void ASKAICharacterBase::OnContinuousOverlapEndOverlap(
@@ -250,9 +248,8 @@ void ASKAICharacterBase::OnContinuousOverlapEndOverlap(
 	int32 OtherBodyIndex
 	)
 {
-	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
+
 	
-	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -509,5 +506,8 @@ void ASKAICharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ContinuousOverlap->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "head_socket");
+	if (ContinuousOverlapSocketName != "")
+	{
+		ContinuousOverlap->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, ContinuousOverlapSocketName);
+	}
 }
