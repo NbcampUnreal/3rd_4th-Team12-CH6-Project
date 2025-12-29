@@ -23,7 +23,7 @@ public:
 	
 	// 줍기 이펙트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
-	TObjectPtr<UParticleSystem> PickedUpEffect;
+	TObjectPtr<UNiagaraSystem> PickupNiagara;
 	
 	// 줍기 파라미터
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Pickup")
