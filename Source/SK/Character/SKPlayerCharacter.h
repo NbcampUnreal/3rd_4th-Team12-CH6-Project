@@ -57,6 +57,11 @@ public:
 	UFUNCTION()
 	void SetLockOnRotateMode(bool bLockOn);
 
+	UFUNCTION()
+	void OnRep_LockOn();
+	void SetLockOnState(bool bNewState);
+	void ApplyLockOnState();
+
 protected:
 	virtual void OnRep_PlayerState() override;
 
@@ -101,6 +106,9 @@ private:
 	float CurrentHitAlpha = 0.f;
 	float HitAlphaRiseSpeed = 30.f;   // 올라갈 때
 	float HitAlphaFallSpeed = 8.f;    // 내려갈 때
+
+	UPROPERTY(ReplicatedUsing = OnRep_LockOn)
+	bool bIsLockedOn;
 
 #pragma region PlayerAnimState
 	bool bIsSprinting = false;

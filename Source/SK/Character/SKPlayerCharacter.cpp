@@ -7,6 +7,7 @@
 #include "Controller/SKPlayerController.h"
 #include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "AbilitySystemGlobals.h"
+#include "Animation/SKPlayerAnimInstance.h"
 #include "Component/BattleComponent.h"
 #include "Component/SKCombatComponent.h"
 #include "GameData/WeaponDataRow.h"
@@ -391,27 +392,64 @@ void ASKPlayerCharacter::AdjustSpringArmDistance(float WheelValue)
 
 void ASKPlayerCharacter::SetLockOnRotateMode(bool bLockOn)
 {
-	bUseControllerRotationYaw = true;
+	// bUseControllerRotationYaw = true;
+	//
+	// GetCharacterMovement()->bOrientRotationToMovement = false;
+	// GetCharacterMovement()->bUseControllerDesiredRotation = true;
 
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-
-	// if (bLockOn)
-	// {
-	// 	// Lock On: Movement 기반 회전 금지
-	// 	bUseControllerRotationYaw = true;
-	// 	GetCharacterMovement()->bOrientRotationToMovement = false;
-	// 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	// 	
-	// }
-	// else
-	// {
-	// 	// Lock Off: 다시 Movement 기반 회전 허용
-	// 	bUseControllerRotationYaw = false;
-	// 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	// 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	// }
+	if (bLockOn)
+	{
+		// Lock On: Movement 기반 회전 금지
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		
+	}
+	else
+	{
+		// Lock Off: 다시 Movement 기반 회전 허용
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
 }
+
+void ASKPlayerCharacter::OnRep_LockOn()
+{
+	if (USKPlayerAnimInstance* Anim =
+	Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance()))
+	{
+		Anim->bIsLockedOn = bIsLockedOn;
+	}
+
+	SetLockOnRotateMode(bIsLockedOn);
+	
+}
+
+void ASKPlayerCharacter::SetLockOnState(bool bNewState)
+{
+	if (!HasAuthority())
+		return;
+
+	if (bIsLockedOn == bNewState)
+		return;
+
+	bIsLockedOn = bNewState;
+	
+	ApplyLockOnState();
+}
+
+void ASKPlayerCharacter::ApplyLockOnState()
+{
+	if (USKPlayerAnimInstance* Anim =
+		Cast<USKPlayerAnimInstance>(GetMesh()->GetAnimInstance()))
+	{
+		Anim->bIsLockedOn = bIsLockedOn;
+	}
+
+	SetLockOnRotateMode(bIsLockedOn);
+}
+
 
 void ASKPlayerCharacter::SetPlayerStateTag()
 {
