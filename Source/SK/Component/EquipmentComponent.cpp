@@ -11,7 +11,6 @@
 #include "Object/EquipmentInstance.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Weapon/SKWeaponData.h"
-#include "Component/SKCombatComponent.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
 // Sets default values for this component's properties
@@ -251,14 +250,9 @@ void UEquipmentComponent::BeginPlay()
 
 	int32 Count = EnumPtr->NumEnums();
 
-	for (int32 i = 0; i < Count; i++)
+	for (uint8 i = 0; i < static_cast<uint8>(EEquipmentSlotType::Count); i++)
 	{
-		// 언리얼 내부용 _MAX 같은 값은 Hidden 처리됨 → 스킵
-		if (EnumPtr->HasMetaData(TEXT("Hidden"), i))
-			continue;
-
-		EEquipmentSlotType SlotType =
-			static_cast<EEquipmentSlotType>(EnumPtr->GetValueByIndex(i));
+		EEquipmentSlotType SlotType = static_cast<EEquipmentSlotType>(i);
 
 		if (SlotType == EEquipmentSlotType::None)
 			continue;
