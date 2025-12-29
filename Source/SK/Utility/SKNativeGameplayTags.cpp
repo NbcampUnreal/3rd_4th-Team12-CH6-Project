@@ -53,6 +53,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Blocked, "Ability.Blocked");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Groggy, "Ability.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Fly, "Ability.Fly");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_FlyRush, "Ability.FlyRush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Breath, "Ability.Breath");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_InteractBonfireEnd, "Ability.InteractBonfireEnd");
 
@@ -251,6 +252,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Blocked, "AI.Blocked");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Groggy, "AI.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Fly, "AI.Fly");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_FlyRush, "AI.FlyRush");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Breath, "AI.Breath");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
@@ -323,3 +325,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Back,"GameplayCue.HitReact.Back"
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Normal,"GameplayCue.HitReact.Normal");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Heavy,"GameplayCue.HitReact.Heavy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Unblockable,"GameplayCue.HitReact.Unblockable");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_AI_Breath,"GameplayCue.AI.Breath");
