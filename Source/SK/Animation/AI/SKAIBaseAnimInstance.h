@@ -23,6 +23,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsMoving;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool bIsFlying;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsFalling;
@@ -33,6 +36,8 @@ protected:
 public:
 	USKAIBaseAnimInstance();
 
+	void SetbIsFlying(bool NewValue);
+	
 protected:
 	virtual void NativeInitializeAnimation() override;
 

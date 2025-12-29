@@ -1,6 +1,7 @@
 #include "Character/AI/SKAICharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectExtension.h"
+#include "MotionWarpingComponent.h"
 #include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
@@ -370,6 +371,11 @@ int32 ASKAICharacterBase::GetMaxJumpRushIndex() const
 	return MaxJumpRushIndex;
 }
 
+int32 ASKAICharacterBase::GetMaxFlyRushIndex() const
+{
+	return MaxFlyRushIndex;
+}
+
 FVector ASKAICharacterBase::GetStartLocation() const
 {
 	return StartLocation;
@@ -454,6 +460,7 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	MaxMeleeIndex = MonsterData->MaxMeleeIndex;
 	MaxRushIndex = MonsterData->MaxRushIndex;
 	MaxJumpRushIndex = MonsterData->MaxJumpRushIndex;
+	MaxFlyRushIndex = MonsterData->MaxFlyRushIndex;
 	BackstepDistance = MonsterData->BackstepDistance;
 	
 	// 예시: 이동 속도 적용

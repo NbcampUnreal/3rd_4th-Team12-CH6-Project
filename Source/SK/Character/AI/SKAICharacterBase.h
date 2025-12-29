@@ -12,6 +12,7 @@ class USphereComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
 class UStateTree;
+class UMotionWarpingComponent;
 struct FOnAttributeChangeData;
 
 UCLASS()
@@ -64,6 +65,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttackIndex")
 	int32 MaxJumpRushIndex = 0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AttackIndex")
+	int32 MaxFlyRushIndex = 0;
+	
 private:
 	FVector StartLocation;
 
@@ -100,6 +104,8 @@ public:
 	int32 GetMaxRushIndex() const;
 	
 	int32 GetMaxJumpRushIndex() const;
+
+	int32 GetMaxFlyRushIndex() const;
 	
 	FVector GetStartLocation() const;
 
