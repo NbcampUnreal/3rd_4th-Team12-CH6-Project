@@ -17,7 +17,7 @@ ASKAICharacter::ASKAICharacter()
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
 	HealthWidgetComponent->SetupAttachment(RootComponent);
 	HealthWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); // 화면 고정형
-	HealthWidgetComponent->SetDrawSize(FVector2D(200.f, 10.f));
+	HealthWidgetComponent->SetDrawSize(FVector2D(200.f, 30.f));
 
 	DamageWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DamageWidget"));
 	DamageWidgetComponent->SetupAttachment(RootComponent);
@@ -78,7 +78,7 @@ void ASKAICharacter::BeginPlay()
 			UMonsterHealthWidget* MonsterHealth = Cast<UMonsterHealthWidget>(HealthWidget);
 			if (MonsterHealth)
 			{
-				MonsterHealth->SettingWidget(this);
+				MonsterHealth->SettingWidget(this, GetMonsterName());
 
 				HealthWidgetComponent->SetWorldLocation(NewLocation);
 			}
