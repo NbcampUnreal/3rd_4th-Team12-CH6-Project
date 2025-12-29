@@ -25,6 +25,15 @@ void ADungeonGameMode::BeginPlay()
 	if (!SpawnSubsystem) return;
 
 	SpawnSubsystem->SpawnAll();
+
+	//임시
+	FString LevelName =	UGameplayStatics::GetCurrentLevelName(this, true);
+	UE_LOG(LogTemp, Warning, TEXT("LevelName: %s"), *LevelName);
+	if (LevelName.Contains(TEXT("Test")) || LevelName.Contains(TEXT("Tutorial")))
+	{
+		bInitialSpawnFinished = true;
+		TryProgressState();
+	}
 }
 
 void ADungeonGameMode::PostSeamlessTravel()
@@ -170,12 +179,12 @@ void ADungeonGameMode::TryProgressState()
 
 	//UE_LOG(LogTemp, Warning, TEXT("ADungeonGameMode::TryProgressState() - bPCGFinished : %d,   bInitialSpawnFinished : %d,   bPlayersReady : %d"), bPCGFinished, bInitialSpawnFinished, bPlayersReady);
 	UE_LOG(LogTemp, Warning, TEXT("ADungeonGameMode::TryProgressState() - bInitialSpawnFinished : %d,   bPlayersReady : %d"), bInitialSpawnFinished, bPlayersReady);
-
-	//임시
-	bPlayersReady = true;
 	
 	// PCG 완료 + 초기 스폰 완료 → DungeonReady
 	//if (bPCGFinished && bInitialSpawnFinished && bPlayersReady)
+
+	//임시
+	bPlayersReady = true;
 
 	//초기 스폰 완료 → DungeonReady
 	if (bInitialSpawnFinished && bPlayersReady)
