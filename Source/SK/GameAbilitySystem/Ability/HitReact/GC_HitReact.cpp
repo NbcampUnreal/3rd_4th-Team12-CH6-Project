@@ -122,6 +122,9 @@ void UGC_HitReact::PlayHeavy(
 	FRotator LookAtRot = LookAtDir.Rotation();
 	LookAtRot.Pitch = 0.f;
 	LookAtRot.Roll  = 0.f;
+
+	uint32 CachebUseControllerRotationYaw = Character->bUseControllerRotationYaw;
+	uint8 CachebOrientRotationToMovement = Character->GetCharacterMovement()->bOrientRotationToMovement;
 	
 	Character->bUseControllerRotationYaw = false;
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -138,6 +141,9 @@ void UGC_HitReact::PlayHeavy(
 		//앞에서 맞았을 경우 밀려나는 몽타주 재생
 		Character->PlayAnimMontage(AnimData->HitReactMontages.Heavy);
 	}
+
+	Character->bUseControllerRotationYaw = CachebUseControllerRotationYaw;
+	Character->GetCharacterMovement()->bOrientRotationToMovement = CachebOrientRotationToMovement;
 	
 }
 
@@ -156,10 +162,16 @@ void UGC_HitReact::PlayUnblockable(
 	FRotator LookAtRot = LookAtDir.Rotation();
 	LookAtRot.Pitch = 0.f;
 	LookAtRot.Roll  = 0.f;
+
+	uint32 CachebUseControllerRotationYaw = Character->bUseControllerRotationYaw;
+	uint8 CachebOrientRotationToMovement = Character->GetCharacterMovement()->bOrientRotationToMovement;
 	
 	Character->bUseControllerRotationYaw = false;
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->SetActorRotation(LookAtRot);
 
 	Character->PlayAnimMontage(AnimData->HitReactMontages.Unblockable);
+
+	Character->bUseControllerRotationYaw = CachebUseControllerRotationYaw;
+	Character->GetCharacterMovement()->bOrientRotationToMovement = CachebOrientRotationToMovement;
 }

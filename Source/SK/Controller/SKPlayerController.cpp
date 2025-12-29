@@ -896,7 +896,7 @@ EMoveDirection ASKPlayerController::GetClosestMoveDirection(const FVector2D& Inp
 	const FVector2D Right(0.f, 1.f);
 	const FVector2D Left(0.f, -1.f);
 
-	float Dots[7];
+	float Dots[8];
 	Dots[0] = FVector2D::DotProduct(NormalizedInput, Forward);
 	Dots[1] = FVector2D::DotProduct(NormalizedInput, ForwardLeft.GetSafeNormal());
 	Dots[2] = FVector2D::DotProduct(NormalizedInput, ForwardRight.GetSafeNormal());

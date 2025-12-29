@@ -233,14 +233,26 @@ void UInventoryListSlotWidget::RefreshInventory()
         if (i < ItemCount)
         {
             USKInventoryItemData* CurrentItem = CachedInventory->GetItemDataByID(CachedInventoryArray[i].ItemID);
- 
-            FInventoryItemForWidget ItemData;
-            ItemData.ItemName = CurrentItem->ItemID;
-            ItemData.Quantity = CachedInventoryArray[i].Count;
-            ItemData.Icon = CurrentItem->ItemIcon;
-			ItemData.ItemID = CachedInventoryArray[i].ItemID;
-            ItemWidget->SetItem(ItemData);
-            ItemWidget->SetVisibility(ESlateVisibility::Visible);
+        	if (CurrentItem)
+        	{
+        		FInventoryItemForWidget ItemData;
+        		ItemData.ItemName = CurrentItem->ItemID;
+        		ItemData.Quantity = CachedInventoryArray[i].Count;
+        		ItemData.Icon = CurrentItem->ItemIcon;
+        		ItemData.ItemID = CachedInventoryArray[i].ItemID;
+        		ItemWidget->SetItem(ItemData);
+        	}
+        	else
+        	{
+        		UE_LOG(LogTemp, Warning, TEXT("GetItemDataByID returned nullptr for ItemID %d"), CachedInventoryArray[i].ItemID);
+        		FInventoryItemForWidget EmptyItem;
+        		EmptyItem.ItemName = "Invalid_Item";
+        		EmptyItem.Quantity = 0;
+        		EmptyItem.Icon = nullptr;
+        		EmptyItem.ItemID = -1;
+        		ItemWidget->SetItem(EmptyItem);
+        	}
+        	ItemWidget->SetVisibility(ESlateVisibility::Visible);
         }
         else
         {
