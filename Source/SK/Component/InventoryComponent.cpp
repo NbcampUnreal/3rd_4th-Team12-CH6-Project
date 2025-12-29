@@ -40,7 +40,7 @@ bool UInventoryComponent::AddItemByIDAndCount(const int32& ItemID, int32 Count)
 	USKInventoryItemData* ItemData = GetItemDataByID(ItemID);
 	if (!ItemData)
 	{
-		
+		UE_LOG(LogTemp, Warning, TEXT("ItemData None"));
 		return false;
 	}
 
@@ -490,12 +490,13 @@ void UInventoryComponent::BeginPlay()
 	else
 	{
 		ServerAddItem(1001, 1);
-		ServerAddItem(1001, 1);
-		ServerAddItem(1001, 1);
-		ServerAddItem(1001, 1);
-		ServerAddItem(1001, 1);
-		ServerAddItem(1001, 1);
-	}
+		ServerAddItem(1002, 1);
+		ServerAddItem(1003, 1);
+		ServerAddItem(1004, 1);
+		ServerAddItem(1005, 1);
+		ServerAddItem(1006, 1);
+		ServerAddItem(1007, 1);
+	} 
 }
 
 void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -524,16 +525,25 @@ USKInventoryItemData* UInventoryComponent::GetItemDataByID(const int32& ItemID) 
 		return nullptr;
 	}
 	
-	if (ItemData->InventoryItemDataAsset.IsValid())
+	if (ItemData->InventoryItemDataAsset.ToSoftObjectPath().IsNull())
 	{
-		return ItemData->InventoryItemDataAsset.Get();
+		return nullptr;
 	}
-	else if (!ItemData->InventoryItemDataAsset.ToSoftObjectPath().IsNull())
+		
+	if (ItemData->InventoryItemDataAsset.IsPending())
 	{
-		return ItemData->InventoryItemDataAsset.LoadSynchronous();
+		ItemData->InventoryItemDataAsset.LoadSynchronous();
 	}
-	
-	return nullptr;
+ 
+	USKInventoryItemData* ItemAsset = ItemData->InventoryItemDataAsset.Get();
+ 
+	if (!ItemAsset)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InventoryItemDataAsset is nullptr even after loading!"));
+		return nullptr;
+	}
+
+	return ItemAsset;
 }
 
 UEquipmentInstance* UInventoryComponent::GetEquipmentInstance(const FGuid& UniqueID) const
