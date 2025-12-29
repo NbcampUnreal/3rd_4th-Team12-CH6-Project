@@ -49,6 +49,7 @@ protected:
 	TObjectPtr<USKPickupItemData> PickupData;
 
 	USoundBase* GetPickupSound() const;
+	UNiagaraSystem* GetPickupNiagara() const;
 
 	int32 GetItemID() const;
 

@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "Interaction/UI/SKInteractableWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 
 ASKPickupItem::ASKPickupItem()
 {
@@ -70,6 +71,14 @@ void ASKPickupItem::Multicast_PlayPickupEffects_Implementation(AActor* Interacto
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, Interactor->GetActorLocation());
 	}
 
+	if (UNiagaraSystem* PickupNiagara = GetPickupNiagara())
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			PickupNiagara,
+			GetActorLocation());
+	}
+
 	if (ItemNiagara)
 	{
 		ItemNiagara->Deactivate();
@@ -85,6 +94,15 @@ USoundBase* ASKPickupItem::GetPickupSound() const
 	if (PickupData && PickupData->PickupSound)
 	{
 		return PickupData->PickupSound;
+	}
+	return nullptr;
+}
+
+UNiagaraSystem* ASKPickupItem::GetPickupNiagara() const
+{
+	if (PickupData && PickupData->PickupNiagara)
+	{
+		return PickupData->PickupNiagara;
 	}
 	return nullptr;
 }
