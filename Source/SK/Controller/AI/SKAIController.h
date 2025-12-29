@@ -13,6 +13,7 @@ class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 class UAISenseConfig_Damage;
 class UAbilitySystemComponent;
+class ASKAICharacter;
 
 UCLASS()
 class SK_API ASKAIController : public AAIController
@@ -76,6 +77,8 @@ public:
 	
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
+
+	virtual void OnUnPossess() override;
 	
 	virtual void BeginPlay() override;
 
@@ -87,4 +90,15 @@ protected:
 	void OnDungeonStateChanged(EDungeonMatchState NewState);
 
 	uint8 ConvertTeamTagToID(const FGameplayTagContainer& InTags) const;
+
+private:
+	UPROPERTY()
+	ASKAICharacter* CachedAICharacter = nullptr;
+
+	/** 최신 Dungeon 상태 (Pawn 없어도 유지됨) */
+	UPROPERTY()
+	EDungeonMatchState CurrentDungeonState = EDungeonMatchState::None;
+	
+	/** Pawn에 실제로 상태를 적용하는 함수 */
+	void ApplyDungeonState();
 };

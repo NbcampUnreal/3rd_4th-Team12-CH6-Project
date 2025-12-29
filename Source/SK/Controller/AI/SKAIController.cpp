@@ -241,27 +241,21 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	////// 테스트
-	if (!StateTreeAIComponent)
-	{
-		return;
-	}
+	CachedAICharacter = Cast<ASKAICharacter>(InPawn);
 
-	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(InPawn);
-	if (!IsValid(AICharacter))
-	{
-		return;
-	}
+	if (!CachedAICharacter)	return;
 
-	UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
-	if (!OwningStateTree)
+	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress)
 	{
-		return;
+		ApplyDungeonState();
 	}
-	
-	StateTreeAIComponent->SetStateTree(OwningStateTree);
-	//StateTreeAIComponent->StartLogic();
-	////// 테스트
+}
+
+void ASKAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+
+	CachedAICharacter = nullptr;
 }
 
 void ASKAIController::BeginPlay()
@@ -274,19 +268,21 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
-	/*
+	
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
 	// 상태 변경 이벤트 수신
 	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
 
+	CurrentDungeonState = GS->DungeonState;
+
 	// 이미 진행 중일 수도 있음
-	if (GS->DungeonState == EDungeonMatchState::Dungeon_InProgress)
+	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress)
 	{
-		OnDungeonStateChanged(EDungeonMatchState::Dungeon_InProgress);
+		ApplyDungeonState();
 	}
-	*/
+	
 	GetWorld()->GetTimerManager().SetTimer(
 	   FindClosestTargetTimerHandle,
 	   this,
@@ -337,26 +333,36 @@ void ASKAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimu
 
 void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 {
-	if (NewState == EDungeonMatchState::Dungeon_InProgress)
-	{
-		if (!StateTreeAIComponent)
-		{
-			return;
-		}
-
-		ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
-		if (!IsValid(AICharacter))
-		{
-			return;
-		}
-
-		UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
-		if (!OwningStateTree)
-		{
-			return;
-		}
+	CurrentDungeonState = NewState;
 	
-		StateTreeAIComponent->SetStateTree(OwningStateTree);
-		StateTreeAIComponent->StartLogic();
+	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress)
+	{
+		ApplyDungeonState();
 	}
+}
+
+void ASKAIController::ApplyDungeonState()
+{
+	if (!StateTreeAIComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not StateTreeAIComponent"));
+		return;
+	}
+
+	ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetCharacter());
+	if (!IsValid(AICharacter))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not AICharacter"));
+		return;
+	}
+
+	UStateTree* OwningStateTree = AICharacter->GetStateTreeAsset();
+	if (!OwningStateTree)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not OwningStateTree"));
+		return;
+	}
+	
+	StateTreeAIComponent->SetStateTree(OwningStateTree);
+	StateTreeAIComponent->StartLogic();
 }

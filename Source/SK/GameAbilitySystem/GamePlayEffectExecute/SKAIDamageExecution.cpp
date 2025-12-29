@@ -82,6 +82,8 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 		if (const USKAttributeSet* TargetSet = TargetASC->GetSet<USKAttributeSet>())
 		{
 			ArmorPower = TargetSet->GetArmor();
+
+			if (TargetSet->GetHealth() <= 0.01f) return;
 		}
 	}
 	

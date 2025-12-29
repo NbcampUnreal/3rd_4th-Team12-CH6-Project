@@ -128,8 +128,17 @@ void UGC_HitReact::PlayHeavy(
 	
 	Character->SetActorRotation(LookAtRot);
 
-	// RootMotion 몽타주
-	Character->PlayAnimMontage(AnimData->HitReactMontages.Heavy);
+	if (EHitReactAnim::Back == ReactType)
+	{
+		//뒤에서 맞았을 경우 날라가는 몽타주 재생
+		Character->PlayAnimMontage(AnimData->HitReactMontages.Unblockable);
+	}
+	else
+	{
+		//앞에서 맞았을 경우 밀려나는 몽타주 재생
+		Character->PlayAnimMontage(AnimData->HitReactMontages.Heavy);
+	}
+	
 }
 
 void UGC_HitReact::PlayUnblockable(
@@ -150,13 +159,7 @@ void UGC_HitReact::PlayUnblockable(
 	
 	Character->bUseControllerRotationYaw = false;
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
-	
 	Character->SetActorRotation(LookAtRot);
-	
-	UE_LOG(LogTemp, Warning, TEXT("PlayUnblockable: Enemy Roc : %s"), *Enemy->GetActorRotation().ToString());
-	UE_LOG(LogTemp, Warning, TEXT("PlayUnblockable: Player Roc : %s"), *LookAtRot.ToString());
 
-
-	// RootMotion 몽타주
 	Character->PlayAnimMontage(AnimData->HitReactMontages.Unblockable);
 }
