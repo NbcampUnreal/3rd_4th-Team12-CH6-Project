@@ -9,6 +9,7 @@ class UAbilityTask_PlayMontageAndWait;
 class UAbilityTask_WaitDelay;
 class UAbilityTask_ApplyRootMotionMoveToForce;
 class UAbilityTask_ApplyRootMotionJumpForce;
+class UAbilityTask_ApplyRootMotionMoveToActorForce;
 
 UCLASS()
 class SK_API USK_GA_AI_Base : public UGameplayAbility
@@ -43,7 +44,9 @@ protected:
 	UAbilityTask_ApplyRootMotionMoveToForce* OwnRushTask;
 	UPROPERTY()
 	UAbilityTask_ApplyRootMotionJumpForce* OwnJumpRushTask;
-
+	UPROPERTY()
+	UAbilityTask_ApplyRootMotionMoveToActorForce* OwnFlyRushTask;
+	
 
 public:
 	USK_GA_AI_Base();

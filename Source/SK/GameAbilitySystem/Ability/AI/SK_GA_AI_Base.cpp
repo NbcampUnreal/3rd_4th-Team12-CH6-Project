@@ -4,6 +4,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionJumpForce.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToActorForce.h"
 #include "Abilities/tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -201,6 +202,14 @@ void USK_GA_AI_Base::EndAbility(
 		}
 	}
 
+	if (OwnFlyRushTask)
+	{
+		if (OwnFlyRushTask->IsActive())
+		{
+			OwnFlyRushTask->EndTask();
+		}
+	}
+	
 	if (bWasCancelled)
 	{
 		ST->SendStateTreeEvent(FGameplayTag::RequestGameplayTag("Event.CancelAbility"));

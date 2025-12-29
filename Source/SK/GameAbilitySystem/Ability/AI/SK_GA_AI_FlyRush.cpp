@@ -1,23 +1,23 @@
-#include "GameAbilitySystem/Ability/AI/SK_GA_AI_Rush.h"
-#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
+#include "GameAbilitySystem/Ability/AI/SK_GA_AI_FlyRush.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToActorForce.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Animation/AI/SKAIBaseAnimInstance.h"
 #include "Character/AI/SKAICharacter.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/RootMotionSource.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
-USK_GA_AI_Rush::USK_GA_AI_Rush()
+USK_GA_AI_FlyRush::USK_GA_AI_FlyRush()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Rush")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.FlyRush")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
 	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Rush")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.FlyRush")));
 }
 
-void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> LocalAnimMontage)
+void USK_GA_AI_FlyRush::FlyRush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
 	/*
 	if (WarpDistance > MaxDistance)
@@ -31,6 +31,8 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 		);
 	}
 	*/
+	CachedCharacter->bUseControllerRotationPitch = true;
+	
 	SetFocus();
 	
 	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
@@ -40,9 +42,9 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 				true,
 				false
 				);
-	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Rush::OnAnimNotifyCompleted);
+	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_FlyRush::OnAnimNotifyCompleted);
 	OwnEventTask1->ReadyForActivation();
-
+	
 	OwnEventTask2 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 				this,
 				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
@@ -50,7 +52,7 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 				false,
 				false
 				);
-	OwnEventTask2->EventReceived.AddDynamic(this, &USK_GA_AI_Rush::OnHitCompleted);
+	OwnEventTask2->EventReceived.AddDynamic(this, &USK_GA_AI_FlyRush::OnHitCompleted);
 	OwnEventTask2->ReadyForActivation();
 	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -62,14 +64,14 @@ void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 				true,
 				1.0f
 				);
-	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Rush::OnRushCompleted);
-	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_Rush::OnMontageInterrupted);
-	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_Rush::OnMontageCancelled);
-	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_Rush::OnMontageBlendOut);
+	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_FlyRush::OnFlyRushCompleted);
+	//OwnMontageTask->OnInterrupted.AddDynamic(this, &USK_GA_AI_FlyRush::OnMontageInterrupted);
+	//OwnMontageTask->OnCancelled.AddDynamic(this, &USK_GA_AI_FlyRush::OnMontageCancelled);
+	//OwnMontageTask->OnBlendOut.AddDynamic(this, &USK_GA_AI_FlyRush::OnMontageBlendOut);
 	OwnMontageTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Rush::OnAnimNotifyCompleted(FGameplayEventData EventData)
+void USK_GA_AI_FlyRush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 {
 	if (!IsValid(AnimMontage))
 	{
@@ -78,27 +80,39 @@ void USK_GA_AI_Rush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 	}
 	
 	CurrentAttackType = EventData.EventTag;
+
+	AActor* TargetActor = GetTargetActor();
+	if (!IsValid(TargetActor))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
 	
-	float PredictionTime = GetRushTime(*AnimMontage);
-	FVector PredictedTargetLocation = GetPredictedTargetLocation(PredictionTime);
+	float RushTime = GetRushTime(*AnimMontage);
 	
-	OwnRushTask = UAbilityTask_ApplyRootMotionMoveToForce::ApplyRootMotionMoveToForce(
+	OwnFlyRushTask = UAbilityTask_ApplyRootMotionMoveToActorForce::ApplyRootMotionMoveToActorForce(
 				this,
-				"Rush",
-				PredictedTargetLocation,
-				PredictionTime,
+				"FlyRush",
+				TargetActor,
+				FVector::ZeroVector,
+				ERootMotionMoveToActorTargetOffsetType::AlignFromTargetToSource,
+				RushTime,
+				nullptr,
+				nullptr,
 				true,
 				MOVE_Flying,
 				true,
 				nullptr,
+				nullptr,
 				ERootMotionFinishVelocityMode::SetVelocity,
 				FVector::ZeroVector,
-				0.f
+				0.f,
+				false
 				);
-	OwnRushTask->ReadyForActivation();
+	OwnFlyRushTask->ReadyForActivation();
 }
 
-void USK_GA_AI_Rush::OnHitCompleted(FGameplayEventData EventData)
+void USK_GA_AI_FlyRush::OnHitCompleted(FGameplayEventData EventData)
 {
 	HitActor = EventData.Target.Get();
 	if (!HitActor.IsValid())
@@ -109,12 +123,12 @@ void USK_GA_AI_Rush::OnHitCompleted(FGameplayEventData EventData)
 	ApplyDamageToTarget(HitActor);
 }
 
-void USK_GA_AI_Rush::OnRushCompleted()
+void USK_GA_AI_FlyRush::OnFlyRushCompleted()
 {
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
 }
 
-void USK_GA_AI_Rush::ActivateAbility(
+void USK_GA_AI_FlyRush::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -131,18 +145,18 @@ void USK_GA_AI_Rush::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-
-	int32 MaxRushIndex = AICharacter->GetMaxRushIndex();
 	
-	if (MaxRushIndex > 1)
+	int32 MaxFlyRushIndex = AICharacter->GetMaxFlyRushIndex();
+	
+	if (MaxFlyRushIndex > 1)
 	{
-		int32 RushIndex = FMath::RandRange(1, MaxRushIndex);
-		FString AnimMontageName = FString::Printf(TEXT("Rush%d"), RushIndex);
+		int32 FlyRushIndex = FMath::RandRange(1, MaxFlyRushIndex);
+		FString AnimMontageName = FString::Printf(TEXT("FlyRush%d"), FlyRushIndex);
 		AnimMontage = GetAnimMontage(*AnimMontageName);
 	}
 	else
 	{
-		AnimMontage = GetAnimMontage("Rush1");
+		AnimMontage = GetAnimMontage("FlyRush1");
 	}
 	
 	if (!IsValid(AnimMontage))
@@ -151,10 +165,10 @@ void USK_GA_AI_Rush::ActivateAbility(
 		return;
 	}
 	
-	Rush(AnimMontage);
+	FlyRush(AnimMontage);
 }
 
-void USK_GA_AI_Rush::EndAbility(
+void USK_GA_AI_FlyRush::EndAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
@@ -162,7 +176,21 @@ void USK_GA_AI_Rush::EndAbility(
 	bool bWasCancelled
 	)
 {
+	CachedCharacter->bUseControllerRotationPitch = false;
+
 	ClearFocus();
+	
+	FRotator CurrentRot = CachedCharacter->GetActorRotation();
+	CurrentRot.Pitch = 0.f; 
+	CurrentRot.Roll = 0.f;
+	CachedCharacter->SetActorRotation(CurrentRot);
+
+	USKAIBaseAnimInstance* AIAnimInstance =  Cast<USKAIBaseAnimInstance>(CachedCharacter->GetMesh()->GetAnimInstance());
+	if (IsValid(AIAnimInstance))
+	{
+		AIAnimInstance->SetbIsFlying(false);
+		CachedCharacter->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

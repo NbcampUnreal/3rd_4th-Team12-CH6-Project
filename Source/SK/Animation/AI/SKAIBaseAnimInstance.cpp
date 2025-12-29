@@ -7,6 +7,11 @@ USKAIBaseAnimInstance::USKAIBaseAnimInstance()
 	
 }
 
+void USKAIBaseAnimInstance::SetbIsFlying(bool NewValue)
+{
+	bIsFlying = NewValue;
+}
+
 void USKAIBaseAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
