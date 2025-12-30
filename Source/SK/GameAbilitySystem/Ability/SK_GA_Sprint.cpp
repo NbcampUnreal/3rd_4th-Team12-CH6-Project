@@ -21,10 +21,7 @@ void USK_GA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return;
 
 
-	if (USKCombatComponent* Combat = Character->GetCombatComponent())
-	{
-		Combat->ResetComboState();
-	}
+	
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) 
 	{

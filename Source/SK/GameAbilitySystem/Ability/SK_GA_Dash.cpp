@@ -50,14 +50,7 @@ void USK_GA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 
 	ASKPlayerCharacter* SKCharacter = Cast<ASKPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	
-	if (SKCharacter)
-	{
-		if (USKCombatComponent* Combat = SKCharacter->GetCombatComponent())
-		{
-			Combat->ResetComboState();
-		}
-	}
+
 
 	if (Character)
 	{

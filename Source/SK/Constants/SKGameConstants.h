@@ -14,11 +14,11 @@ public:
 	~SKGameConstants();
 
 	//레벨 경로
-	static constexpr const TCHAR* TownLevel = TEXT("/Game/BluePrint/Level/TownLevel");
-	static constexpr const TCHAR* DungeonLevel = TEXT("/Game/BluePrint/Level/MVP");
+	static constexpr const TCHAR* TownLevel = TEXT("TownLevel");
+	static constexpr const TCHAR* Tutorial = TEXT("RuinsTutorial");
 
 	inline static const TMap<int32, FString> DungeonLevels = {
-		{ 1, TEXT("/Game/BluePrint/Level/MVP") },
-		{ 2, TEXT("/Game/BluePrint/Level/DungeonLevel02") },
+		{ 1, TEXT("MVP") },
+		{ 2, TEXT("RuinsRenuewal") },
 	};
 };
