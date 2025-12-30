@@ -488,8 +488,8 @@ void USKCombatComponent::PerformTrace(float DeltaTime)
 		Params
 	);
 
-
-	// DrawDebugCapsule(
+	
+	 //DrawDebugCapsule(
 	// 	GetWorld(),
 	// 	CapsuleCenter,
 	// 	HalfHeight,

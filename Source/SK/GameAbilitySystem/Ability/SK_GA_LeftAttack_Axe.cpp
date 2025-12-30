@@ -37,7 +37,6 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		return;
 
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-	USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
 
 	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
 
@@ -60,19 +59,6 @@ void USK_GA_LeftAttack_Axe::ActivateAbility(const FGameplayAbilitySpecHandle Han
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
-
-	CombatComponent->Server_IncreaseComboIndex(true);
-
-	int32 ComboIndex = CombatComponent->GetComboIndex();
-	int32 MaxIndex = LeftAttackDamageGE.Num() - 1;
-	int32 SafeIndex = FMath::Clamp(ComboIndex - 1, 0, MaxIndex);
-
-	UAnimMontage* Montage = CombatComponent->GetLeftAttackMontage(0);
-	FName SectionName = FName(*FString::Printf(TEXT("Combo_%02d"), SafeIndex + 1));
-
-	CombatComponent->Multicast_PlayLeftAttackMontage(Montage, SectionName);
-	
-	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, true);
 }
 
 void USK_GA_LeftAttack_Axe::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -114,8 +100,7 @@ bool USK_GA_LeftAttack_Axe::CheckCost(const FGameplayAbilitySpecHandle Handle,
 			return result;
 
 		ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-		USKCombatComponent* CombatComponent = PlayerCharacter->GetCombatComponent();
-		CombatComponent->ResetComboState();
+
 		PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, false);
 	}
 
@@ -144,28 +129,8 @@ void USK_GA_LeftAttack_Axe::ApplyDamageFromTrace()
 	ASKPlayerCharacter* PC = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	if (!PC)
 		return;
-	USKCombatComponent* CombatComponent = PC->GetCombatComponent();
-	int LeftATKIndex = CombatComponent->GetComboIndex();
-	int32 MaxIndex = LeftAttackDamageGE.Num() - 1;
-	int32 SafeIndex = FMath::Clamp(LeftATKIndex, 0, MaxIndex);
 
-	for (AActor* HitActor : CombatComponent->GetHitActors())
-	{
-		if (!HitActor)
-			continue;
-
-		TSubclassOf<UGameplayEffect> EffectClass = LeftAttackDamageGE[SafeIndex];
-
-		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(EffectClass, 1.f);
-
-		// Target의 AbilitySystemComponent 가져오기
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
-
-		if (SpecHandle.IsValid() && TargetASC)
-		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		}
-	}
+	
 }
 
 void USK_GA_LeftAttack_Axe::OnStopAttackTrace_Server()
