@@ -227,16 +227,16 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	);
 
 
-	DrawDebugCapsule(
-		GetWorld(),
-		CapsuleCenter,
-		HalfHeight,
-		Radius,
-		CapsuleRot, 
-		FColor::Green,
-		false,
-		0.05f
-	);
+	// DrawDebugCapsule(
+	// 	GetWorld(),
+	// 	CapsuleCenter,
+	// 	HalfHeight,
+	// 	Radius,
+	// 	CapsuleRot, 
+	// 	FColor::Green,
+	// 	false,
+	// 	0.05f
+	// );
 
 
 	if (bHit)
@@ -391,11 +391,11 @@ void UBattleComponent::InitializeWeaponData(const FWeaponDataRow* Row)
 
 	CurrentWeaponData = Row->WeaponData;
 
-	UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CombatComponent %p | Owner %s"),
-		   this,
-		   *GetOwner()->GetName());
-
-	UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CurrentWeaponData = %p"), CurrentWeaponData.Get());
+	// UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CombatComponent %p | Owner %s"),
+	// 	   this,
+	// 	   *GetOwner()->GetName());
+	//
+	// UE_LOG(LogTemp, Error, TEXT("[DEBUG_00] CurrentWeaponData = %p"), CurrentWeaponData.Get());
 }
 
 FString UBattleComponent::FindWeaponTagName()
