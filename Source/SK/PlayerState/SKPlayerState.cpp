@@ -512,9 +512,48 @@ void ASKPlayerState::TryLevelUp()
 	Level++;
 	OnRep_Level();
 
-	// AbilityPoint 지급
+	ApplyLevelUpStat(Level);
+
+	/*
+	 *나중에 어빌리티 포인트로 바꿀때 주석 해제
+	// AbilityPoint 지급 
 	AbilityPoint += Rule->AbilityPointReward;
 	OnRep_AbilityPoint();
-
+	*/
+	
 	UE_LOG(LogTemp, Log, TEXT("[LevelUp] 성공! New Level=%d, AbilityPoint=%d"), Level, AbilityPoint);
+}
+
+void ASKPlayerState::ApplyLevelUpStat(int32 NewLevel)
+{
+	if (!AbilitySystemComponent || !GE_LevelUpStat)	return;
+
+	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
+	if (!Rule)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] No level data found for Level %d"), Level);
+		return;
+	}
+
+
+	FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+	FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(GE_LevelUpStat, 1.f, Context);
+	if (!Spec.IsValid()) return;
+
+	Spec.Data->SetSetByCallerMagnitude(
+		FGameplayTag::RequestGameplayTag(TEXT("Data.MaxHP")),
+		Rule->MaxHP
+	);
+
+	Spec.Data->SetSetByCallerMagnitude(
+		FGameplayTag::RequestGameplayTag(TEXT("Data.Attack")),
+		Rule->Attack
+	);
+
+	Spec.Data->SetSetByCallerMagnitude(
+		FGameplayTag::RequestGameplayTag(TEXT("Data.Armor")),
+		Rule->Armor
+	);
+	
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 }
