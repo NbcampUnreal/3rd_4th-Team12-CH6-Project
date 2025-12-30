@@ -32,6 +32,10 @@ struct FDropItemData
 	// 어떤 아이템을 드랍할지 (ItemID는 PickupData 내부에 존재)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<USKPickupItemData> PickupData;
+
+	/** 아이템 설명 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText Description;
 };
 
 /**
