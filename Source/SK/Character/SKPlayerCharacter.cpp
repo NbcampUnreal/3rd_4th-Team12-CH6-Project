@@ -56,8 +56,7 @@ ASKPlayerCharacter::ASKPlayerCharacter()
 		CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComp"));
 
 	// 컴뱃컴포넌트 활성화
-	CombatComponent = CreateDefaultSubobject<USKCombatComponent>(TEXT("CombatComponent"));
-
+	
 	BattleComponent = CreateDefaultSubobject<UBattleComponent>(TEXT("BattleComponent"));
 
 
@@ -250,13 +249,11 @@ void ASKPlayerCharacter::SetTraceSocket()
 	if (!Row)
 		return;
 
-	CombatComponent->InitializeWeaponSocket(Row);
 	BattleComponent->InitializeWeaponSocket(Row);
 
 	const FWeaponDataRow* DataRow = PS->GetWeaponDataRow();
 	if (!DataRow)
 		return;
-	CombatComponent->InitializeWeaponData(DataRow);
 	BattleComponent->InitializeWeaponData(DataRow);
 }
 
@@ -459,10 +456,6 @@ void ASKPlayerCharacter::SetPlayerStateTag()
 	SetLooseTag(TAG_State_Movement_Idle, true);
 }
 
-USKCombatComponent* ASKPlayerCharacter::GetCombatComponent() const
-{
-	return CombatComponent;
-}
 
 UBattleComponent* ASKPlayerCharacter::GetBattleComponent() const
 {
