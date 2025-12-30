@@ -11,7 +11,6 @@
 class USKActionComponent;
 class USKInteractionComponent;
 struct FSKRepComboState;
-class USKCombatComponent;
 class UBattleComponent;
 
 UCLASS()
@@ -39,9 +38,7 @@ public:
 	void UpdateMovementTag_ATK(FGameplayTag ATKTag, bool Enable = true);
 
 	void SetPlayerStateTag();
-
-	UFUNCTION(BlueprintPure)
-	USKCombatComponent* GetCombatComponent() const;
+	
 
 	UBattleComponent* GetBattleComponent() const;
 
@@ -82,9 +79,7 @@ protected:
 
 	UPROPERTY()
 	UMaterialInstanceDynamic* HitPPMID;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat")
-	TObjectPtr<USKCombatComponent> CombatComponent;
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TObjectPtr<UBattleComponent> BattleComponent;

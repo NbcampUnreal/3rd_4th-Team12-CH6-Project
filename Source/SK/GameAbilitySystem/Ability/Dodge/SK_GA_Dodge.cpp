@@ -89,12 +89,7 @@ void USK_GA_Dodge::OnCanceled()
 
 void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (USKCombatComponent* Combat = Char->GetCombatComponent())
-	{
-		Combat->ResetComboState();
-	}
-	
+
 }
 
 FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKActionComponent* ActionComponent)
