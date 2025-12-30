@@ -96,41 +96,43 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 		}
 	}
 
-	if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
+	if (!FMath::IsNearlyZero(Data.NewValue))
 	{
-		
-		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("AI Received Attack Type : " + PlayerAttackType.ToString()));
-		// 보스인 경우, 가드불가 공격인 경우, Blocked, Groggy인 경우도 발동하지 않게 수정 필요.
-		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))))
+		if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
 		{
-			if (PlayerAttackType == "UnGuardable")
+			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))))
 			{
-				AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+				if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction"))))
+				{
+					AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 			
-				AbilitySystemComponent->CancelAllAbilities();
+					AbilitySystemComponent->CancelAllAbilities();
+				}
 			}
-		}
-		else
-		{
-			if (PlayerAttackType == "UnGuardable")
+			else
 			{
-				AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+				if (PlayerAttackType == "UnGuardable")
+				{
+					if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction"))))
+					{
+						AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 			
-				AbilitySystemComponent->CancelAllAbilities();
+						AbilitySystemComponent->CancelAllAbilities();
+					}
+				}
 			}
-		}
 		
-		UAISense_Damage::ReportDamageEvent(
-		VictimActor,
-		VictimActor,        
-		InstigatorActor,   
-		Damage,       
-		VictimActor->GetActorLocation(),            
-		VictimActor->GetActorLocation()
-		);
+			UAISense_Damage::ReportDamageEvent(
+			VictimActor,
+			VictimActor,        
+			InstigatorActor,   
+			Damage,       
+			VictimActor->GetActorLocation(),            
+			VictimActor->GetActorLocation()
+			);
+		}
 	}
-		
-	if (FMath::IsNearlyZero(Data.NewValue))
+	else
 	{
 		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death"))))
 		{
