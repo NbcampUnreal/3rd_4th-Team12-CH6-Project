@@ -252,15 +252,8 @@ protected:
 	UFUNCTION()
 	void OnRep_AbilityPoint();
 
-	UFUNCTION()
-	void ApplyLevelUpStat(int32 NewLevel);
-
 	// StaticDataSubsystem 캐싱용
 	UStaticDataSubsystem* SDS;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UGameplayEffect> GE_LevelUpStat;
-
 #pragma endregion LevelSystem
 	
 public:

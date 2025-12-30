@@ -18,15 +18,6 @@ public:
 	// 레벨업에 필요한 Gold
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 RequiredGold = 0;
-	
-	UPROPERTY(EditAnywhere)
-	float MaxHP;
-
-	UPROPERTY(EditAnywhere)
-	float Attack;
-
-	UPROPERTY(EditAnywhere)
-	float Armor;
 
 	// 지급할 AbilityPoint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
