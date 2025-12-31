@@ -12,8 +12,6 @@
 #include "Component/EquipmentComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
-#include "Component/SKCombatComponent.h"
-#include "Utility/SKNativeGameplayTags.h"
 #include "Utility/SKUIManagerSubSystem.h"
 #include "Utility/StaticDataSubsystem.h"
 #include "GameData/StaticData/LevelUpData.h"
