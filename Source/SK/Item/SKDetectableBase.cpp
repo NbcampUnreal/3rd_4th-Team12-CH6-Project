@@ -64,13 +64,15 @@ void ASKDetectableBase::OnDetectBeginOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (!bCanInteract) return;
 	
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(OtherActor);
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!Character) return;
 
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent || ActionComponent->InteractedStool) return;
 	
-	if (!Char->IsLocallyControlled()) return;
+	if (!Character->IsLocallyControlled()) return;
+
+	OverlappedCharacter.Add(Character);
 	
 	DetectWidget->SetVisibility(true);
 
@@ -82,10 +84,12 @@ void ASKDetectableBase::OnDetectEndOverlap(UPrimitiveComponent* OverlappedComp, 
 {
 	if (!bCanInteract) return;
 	
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(OtherActor);
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(OtherActor);
+	if (!Character) return;
 
-	if (!Char->IsLocallyControlled()) return;
+	if (!Character->IsLocallyControlled()) return;
+	
+	OverlappedCharacter.Remove(Character);
 	
 	DetectWidget->SetVisibility(false);
 	

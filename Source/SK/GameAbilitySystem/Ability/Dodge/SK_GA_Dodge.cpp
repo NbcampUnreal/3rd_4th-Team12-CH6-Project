@@ -25,17 +25,17 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		return;
 	}
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Active %s Ability, %s"), *GetName(),
-	       Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
+	       Character->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -47,7 +47,7 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	// 회피 별 값 세팅
 	PreActivateDodge(ActionComponent);
 
-	const FName SectionName = SetDodgeDirection(Char, ActionComponent);
+	const FName SectionName = SetDodgeDirection(Character, ActionComponent);
 
 	// 몽타주 재생
 	if (DodgeMontage)

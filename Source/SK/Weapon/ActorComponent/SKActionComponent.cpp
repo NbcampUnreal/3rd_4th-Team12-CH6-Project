@@ -48,22 +48,22 @@ void USKActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void USKActionComponent::Multicast_SetWeaponData_Implementation(USKWeaponData* NewWeaponData)
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
-	UBattleComponent* BattleComponent = Char->GetBattleComponent();
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return;
+	UBattleComponent* BattleComponent = Character->GetBattleComponent();
 	if (!BattleComponent) return;
 	BattleComponent->CurrentWeaponData = NewWeaponData;
 }
 
 void USKActionComponent::CheckAutoUnEquipped()
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char || !Char->HasAuthority()) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character || !Character->HasAuthority()) return;
 	
-	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
 
-	UAnimInstance* AnimInstance = Char->GetMesh()->GetAnimInstance();
+	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
 	if (!AnimInstance) return;
 
 	if (AnimInstance->IsAnyMontagePlaying())
@@ -120,10 +120,10 @@ void USKActionComponent::OnRep_IgnoreCollision()
 
 void USKActionComponent::ApplyCollisionSetting()
 {
-	ACharacter* Char = Cast<ACharacter>(GetOwner());
-	if (!Char) return;
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (!Character) return;
 	
-	UCapsuleComponent* Capsule = Char->GetCapsuleComponent();
+	UCapsuleComponent* Capsule = Character->GetCapsuleComponent();
 	
 	Capsule->SetCollisionResponseToChannel(
 		SKConstant::ECC_Interactable,
@@ -133,10 +133,10 @@ void USKActionComponent::ApplyCollisionSetting()
 
 void USKActionComponent::OnOwnerPossessed()
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char || !Char->HasAuthority()) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character || !Character->HasAuthority()) return;
 
-	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Char->GetPlayerState());
+	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Character->GetPlayerState());
 	if (IsValid(PlayerState))
 	{
 		if (!PlayerState->bIsFirstSpawned)
@@ -154,7 +154,7 @@ void USKActionComponent::OnOwnerPossessed()
 
 	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
 	
-	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
 	// 초기 태그 설정
 	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
@@ -169,17 +169,17 @@ void USKActionComponent::OnOwnerPossessed()
 	
 	CurrentWeaponAnimData = WeaponDataRow->WeaponAnimData;
 	
-	Char->GetMesh()->SetAnimInstanceClass(CurrentWeaponAnimData->AnimInstance);
+	Character->GetMesh()->SetAnimInstanceClass(CurrentWeaponAnimData->AnimInstance);
 }
 
 void USKActionComponent::AttachWeapon(const TArray<FName> SocketNames)
 {
 	if (WeaponActors.IsEmpty() || SocketNames.IsEmpty()) return;
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return;
 
-	USkeletalMeshComponent* Mesh = Char->GetMesh();
+	USkeletalMeshComponent* Mesh = Character->GetMesh();
 	if (!Mesh) return;
 
 	const int32 Count = FMath::Min(WeaponActors.Num(), SocketNames.Num());
@@ -238,10 +238,10 @@ void USKActionComponent::ApplyEquipGE(bool bIsEquip)
 void USKActionComponent::Multicast_SetWeaponAnimData_Implementation(USKWeaponAnimData* NewWeaponAnimData)
 {
 	CurrentWeaponAnimData = NewWeaponAnimData;
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return;
 	
-	Char->GetMesh()->SetAnimInstanceClass(CurrentWeaponAnimData->AnimInstance);
+	Character->GetMesh()->SetAnimInstanceClass(CurrentWeaponAnimData->AnimInstance);
 	
 }
 
@@ -260,10 +260,10 @@ void USKActionComponent::OnRep_OnMoveDirectionChange()
 
 void USKActionComponent::SetMoveDirection()
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return;
 	
-	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(Char->GetMesh()->GetAnimInstance());
+	USKPlayerAnimInstance* PlayerAnimInstance = Cast<USKPlayerAnimInstance>(Character->GetMesh()->GetAnimInstance());
 	if (PlayerAnimInstance)
 	{
 		PlayerAnimInstance->CurrentMoveDirection = CurrentMoveDirection;
@@ -273,10 +273,10 @@ void USKActionComponent::SetMoveDirection()
 
 FRotator USKActionComponent::GetDodgeRotator() const
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return FRotator();
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return FRotator();
 	
-	ASKPlayerController* PC = Cast<ASKPlayerController>(Char->GetController());
+	ASKPlayerController* PC = Cast<ASKPlayerController>(Character->GetController());
 	if (!PC) return FRotator();
 
 	const FRotator ControllerRot = PC->GetControlRotation();
@@ -324,10 +324,10 @@ void USKActionComponent::CloseGate()
 
 void USKActionComponent::Server_ExecuteDodge_Implementation(FName DodgeTag)
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return;
 
-	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
 
 	FGameplayTagContainer StepTag;
