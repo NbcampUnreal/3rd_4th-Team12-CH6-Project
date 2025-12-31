@@ -24,13 +24,13 @@ void USK_GA_Unequip::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}
 	
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -73,13 +73,13 @@ void USK_GA_Unequip::OnCanceled()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}
 		
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (ActionComponent)
 	{
 		ActionComponent->OnCombatAction(false);

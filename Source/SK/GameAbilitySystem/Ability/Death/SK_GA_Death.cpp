@@ -19,17 +19,17 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Active %s Ability, %s"), *GetName(),
-		   Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
+		   Character->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -46,14 +46,14 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	UE_LOG(LogTemp, Warning, TEXT("WeaponData, %s"), *WeaponAnimData->GetName())
 	
 	UAnimMontage* DeathMontage = WeaponAnimData->DeathMontages;
-	ASKPlayerController* PC = Cast<ASKPlayerController>(Char->GetController());
+	ASKPlayerController* PC = Cast<ASKPlayerController>(Character->GetController());
 	
-	if (Char->HasAuthority())
+	if (Character->HasAuthority())
 	{
 		FTimerHandle RespawnTimer;
 		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, [PC](){PC->RequestRespawn();}, RespawnDelay, false);
 	}
-	if (Char->IsLocallyControlled())
+	if (Character->IsLocallyControlled())
 	{
 		FTimerHandle DeathUITimer;
 		GetWorld()->GetTimerManager().SetTimer(DeathUITimer, this, &USK_GA_Death::ShowDeathUI, DeathUIDelay, false);
@@ -61,7 +61,7 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	
 	if (DeathMontage)
 	{
-		Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		Character->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 		UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Death"), DeathMontage);
 		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
@@ -80,10 +80,10 @@ void USK_GA_Death::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
 	
 	UE_LOG(LogTemp, Warning, TEXT("End %s Ability, %s"), *GetName(),
-		   Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
+		   Character->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 	
 	// Char->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
