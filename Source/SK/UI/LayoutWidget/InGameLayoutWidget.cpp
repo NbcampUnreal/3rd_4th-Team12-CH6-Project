@@ -17,6 +17,7 @@ void UInGameLayoutWidget::NativeConstruct()
 	InGameMenuHandle = RegisterUIActionBinding(FBindUIActionArgs(InGameInputActionData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInGameAction)));
 	InGameToInventoryHandle = RegisterUIActionBinding(FBindUIActionArgs(InGameToInventoryData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInGameToInventoryAction)));
 	InGameToEquipMainHandle = RegisterUIActionBinding(FBindUIActionArgs(InGameToEquipMainData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInGameToEquipMainAction)));
+	InputInfoHandle = RegisterUIActionBinding(FBindUIActionArgs(InputInfoActionData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleInputInfoAction)));
 }
 
 void UInGameLayoutWidget::HandleInGameAction()
@@ -66,6 +67,35 @@ void UInGameLayoutWidget::HandleInGameToEquipMainAction()
 			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
 
 			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
+		}
+	}
+}
+
+void UInGameLayoutWidget::HandleInputInfoAction()
+{
+	if (!bCanToggleInputInfo)
+		return;
+	
+	if (UWorld* World = GetWorld())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
+		{
+			bInputInfoVisible = !bInputInfoVisible;
+			// 전송할 메시지 생성
+			FSlotVisibilityMessage Message(TAG_UI_Layout_InGame, FGameplayTagContainer(TAG_UI_Slot_InputInfo), bInputInfoVisible);
+			
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, Message);
+
+			// 토글 불가 상태로 변경
+			bCanToggleInputInfo = false;
+
+			// 쿨다운 타이머 시작
+			FTimerHandle TimerHandle;
+			World->GetTimerManager().SetTimer(TimerHandle, [this]()
+			{
+				bCanToggleInputInfo = true;
+			}, InputInfoCooldown, false);
 		}
 	}
 }
