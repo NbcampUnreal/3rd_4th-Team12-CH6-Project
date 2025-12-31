@@ -75,8 +75,9 @@ public:
 		return OutArray;
 	}
 
-private:
+public:
 	/** 데이터 테이블 세팅 */
+	UFUNCTION(BlueprintCallable)
 	void AutoRegisterDataTables();
 
 private:
