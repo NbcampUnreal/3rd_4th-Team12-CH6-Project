@@ -81,9 +81,9 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 			PC->SetLockOnState(false);
 		}
 	}
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetEquipPawn());
-	if (!Char) return false;
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetEquipPawn());
+	if (!Character) return false;
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ActionComponent is null"));
@@ -133,10 +133,10 @@ bool UEquipmentComponent::UnequipItem(EEquipmentSlotType Slot)
 	ASC->RemoveLooseGameplayTag(WeaponTag);
 	ASC->AddLooseGameplayTag(UnarmedTag);
 	
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetEquipPawn());
-	if (!Char) return false;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetEquipPawn());
+	if (!Character) return false;
 	
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent) return false;
 
 	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());

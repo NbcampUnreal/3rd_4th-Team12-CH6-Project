@@ -205,9 +205,9 @@ void ASKPlayerController::SetLockOnState(bool bNewState)
 		bIsLockedOn = bNewState;
 		// OnRep_LockOnChanged();
 
-		if (ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetPawn()))
+		if (ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetPawn()))
 		{
-			Char->SetLockOnState(bNewState);
+			Character->SetLockOnState(bNewState);
 		}
 	}
 	else
@@ -425,10 +425,10 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
 
 
-		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(ControlledPawn);
-		if (Char)
+		ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(ControlledPawn);
+		if (Character)
 		{
-			USKActionComponent* ActionComponent = Char->GetActionComponent();
+			USKActionComponent* ActionComponent = Character->GetActionComponent();
 			if (ActionComponent)
 			{
 				const EMoveDirection MoveDirection = GetClosestMoveDirection(InMoveVector);
@@ -440,10 +440,10 @@ void ASKPlayerController::Move(const FInputActionValue& Value)
 
 void ASKPlayerController::OnMoveRepleased()
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetPawn());
-	if (Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetPawn());
+	if (Character)
 	{
-		USKActionComponent* ActionComponent = Char->GetActionComponent();
+		USKActionComponent* ActionComponent = Character->GetActionComponent();
 		if (ActionComponent)
 		{
 			ActionComponent->Server_SetMovementInfo(FVector2D::ZeroVector,
