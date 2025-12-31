@@ -137,6 +137,8 @@ void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 		{
 			ASKDetectableBase* OpenableTarget = Cast<ASKDetectableBase>(CurrentTargetActor);
 			if (!OpenableTarget) return;
+
+			if (!OpenableTarget->OverlappedCharacter.Find(GetOwner())) return;
 	
 			UWidgetComponent* DetectWidget = OpenableTarget->DetectWidget;
 			if (DetectWidget)

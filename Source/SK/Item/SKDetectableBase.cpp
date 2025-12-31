@@ -71,6 +71,8 @@ void ASKDetectableBase::OnDetectBeginOverlap(UPrimitiveComponent* OverlappedComp
 	if (!ActionComponent || ActionComponent->InteractedStool) return;
 	
 	if (!Char->IsLocallyControlled()) return;
+
+	OverlappedCharacter.Add(Char);
 	
 	DetectWidget->SetVisibility(true);
 
@@ -86,6 +88,8 @@ void ASKDetectableBase::OnDetectEndOverlap(UPrimitiveComponent* OverlappedComp, 
 	if (!Char) return;
 
 	if (!Char->IsLocallyControlled()) return;
+	
+	OverlappedCharacter.Remove(Char);
 	
 	DetectWidget->SetVisibility(false);
 	
