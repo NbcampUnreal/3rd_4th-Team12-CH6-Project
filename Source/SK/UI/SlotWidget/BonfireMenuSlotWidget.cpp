@@ -101,6 +101,14 @@ void UBonfireMenuSlotWidget::OnLevelUpClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("LevelUp 버튼 클릭"));
 	// TODO : 레벨업 UI 호출
+
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC) return;
+	
+	ASKPlayerState* PS = PC->GetPlayerState<ASKPlayerState>();
+	if (!PS) return;
+
+	PS->Server_RequestLevelUp();
 }
 
 void UBonfireMenuSlotWidget::OnRestClicked()
