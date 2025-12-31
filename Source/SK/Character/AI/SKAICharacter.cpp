@@ -65,6 +65,8 @@ void ASKAICharacter::PossessedBy(AController* NewController)
 void ASKAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	InitializeAttributeSetAndAbilitiesFromDataAsset();
 
 	float Z = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	FVector NewLocation = GetActorLocation();
