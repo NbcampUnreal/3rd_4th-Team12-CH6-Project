@@ -137,6 +137,8 @@ void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 		{
 			ASKDetectableBase* OpenableTarget = Cast<ASKDetectableBase>(CurrentTargetActor);
 			if (!OpenableTarget) return;
+
+			if (!OpenableTarget->OverlappedCharacter.Find(GetOwner())) return;
 	
 			UWidgetComponent* DetectWidget = OpenableTarget->DetectWidget;
 			if (DetectWidget)
@@ -149,10 +151,10 @@ void USKInteractionComponent::SetInteractionUI(const bool bIsVisible)
 
 void USKInteractionComponent::OnRep_CurrentInteractionData()
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return;
 
-	if (Char->IsLocallyControlled())
+	if (Character->IsLocallyControlled())
 	{
 		Server_ActivateInteractionAbility(CurrentInteractionData.GrantedAbility);
 	}
@@ -171,10 +173,10 @@ void USKInteractionComponent::Server_ActivateInteractionAbility_Implementation(T
 
 void USKInteractionComponent::ActivateInteractionAbility(TSubclassOf<UGameplayAbility> Ability) const
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+	if (!Character) return;
 
-	UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
 
 	// FGameplayTagContainer InteractionTag;
@@ -217,8 +219,8 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	// Openable은 어빌리티 발동
 	else
 	{
-		ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetOwner());
-		if (!Char) return;
+		ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
+		if (!Character) return;
 
 		ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, CurrentInteractionData);
 		
@@ -226,7 +228,7 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 	
 		// if (!GetOwner()->HasAuthority()) return;
 
-		if (!Char->IsLocallyControlled()) return;
+		if (!Character->IsLocallyControlled()) return;
 
 		// APlayerController* PC = Cast<APlayerController>(Char->GetController());
 		// if (!PC || !PC->IsLocalController()) return;

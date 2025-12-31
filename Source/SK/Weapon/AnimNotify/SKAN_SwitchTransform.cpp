@@ -5,13 +5,13 @@
 
 void USKAN_SwitchTransform::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(MeshComp->GetOwner());
-	if (!Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(MeshComp->GetOwner());
+	if (!Character)
 	{
 		return;
 	}
 
-	USKActionComponent* ActionComponent = Char->GetActionComponent();
+	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent)
 	{
 		return;

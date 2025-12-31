@@ -23,16 +23,16 @@ void USK_GA_InteractionBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 			
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Char)
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Active Interaction Ability, %s"), Char->HasAuthority() ? TEXT("Server") : TEXT("Client"));
+	UE_LOG(LogTemp, Warning, TEXT("Active Interaction Ability, %s"), Character->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 
-	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
+	USKInteractionComponent* InteractionComponent = Character->GetInteractionComponent();
 	if (!InteractionComponent)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -48,7 +48,7 @@ void USK_GA_InteractionBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	CachedTargetActor = TargetActor;
 	CachedInteractionData = InteractionComponent->GetInteractionData();
 
-	TargetActor->PreExecuteInteraction(Char);
+	TargetActor->PreExecuteInteraction(Character);
 	
 	// UI 처리
 	UWidgetComponent* InteractionWidget = TargetActor->InteractionWidget;
@@ -76,10 +76,10 @@ void USK_GA_InteractionBase::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	UE_LOG(LogTemp, Warning, TEXT("End Interaction Ability"));
 
-	ASKPlayerCharacter* Char = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Char) return;
+	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (!Character) return;
 	
-	USKInteractionComponent* InteractionComponent = Char->GetInteractionComponent();
+	USKInteractionComponent* InteractionComponent = Character->GetInteractionComponent();
 	if (!InteractionComponent) return;
 	
 

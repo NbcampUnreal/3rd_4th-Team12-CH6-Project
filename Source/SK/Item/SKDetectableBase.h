@@ -46,6 +46,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SK|Data|UI")
 	TObjectPtr<UUserWidget> DetectWidgetClass;
+
+	UPROPERTY()
+	TSet<AActor*> OverlappedCharacter;
 	
 #pragma endregion
 };
