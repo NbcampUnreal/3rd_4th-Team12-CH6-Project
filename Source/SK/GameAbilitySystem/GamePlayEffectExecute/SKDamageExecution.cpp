@@ -12,30 +12,30 @@
 USKDamageExecution::USKDamageExecution()
 {
 	AttackDef = FGameplayEffectAttributeCaptureDefinition(
-	  USKAttributeSet::GetAttackAttribute(),
-	  EGameplayEffectAttributeCaptureSource::Source,
-	  true
-  );
+		USKAttributeSet::GetAttackAttribute(),
+		EGameplayEffectAttributeCaptureSource::Source,
+		true
+	);
 
 	ArmorDef = FGameplayEffectAttributeCaptureDefinition(
 		USKAIAttributeSet::GetArmorAttribute(),
 		EGameplayEffectAttributeCaptureSource::Target,
 		true
 	);
-	
+
 	RelevantAttributesToCapture.Add(AttackDef);
 	RelevantAttributesToCapture.Add(ArmorDef);
 }
 
 void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
-	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+                                                FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	Super::Execute_Implementation(ExecutionParams, OutExecutionOutput);
 
 	UE_LOG(LogGameplayTags, Log, TEXT("[SKDamageExecution] start"));
-	
+
 	//GE가 적용될 스펙
-	const  FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 
 	// 공격자/피격자 ASC
 	UAbilitySystemComponent* SourceASC = Spec.GetContext().GetOriginalInstigatorAbilitySystemComponent();
@@ -43,7 +43,7 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 
 	float AttackPower = 0.f;
 	float ArmorPower = 0.f;
-	
+
 	//계산 조건 파라미터
 	FAggregatorEvaluateParameters EvaluateParams;
 
@@ -63,12 +63,12 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 			ArmorPower = TargetSet->GetArmor();
 		}
 	}
-	
+
 	if (NonASCAttackPower > 0.f)
 	{
 		AttackPower = NonASCAttackPower;
 	}
-	
+
 
 	// 기본값 보정
 	AttackPower = FMath::Max(AttackPower, 0.f);
@@ -80,19 +80,33 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 		CallerValue = 1.0f;
 	}
 	UE_LOG(LogTemp, Warning,
-		TEXT("[DamageExecution] SetByCaller DamageMultiplier = %f"),
-		CallerValue
+	       TEXT("[DamageExecution] SetByCaller DamageMultiplier = %f"),
+	       CallerValue
 	);
 
 	// 데미지 감소율
-	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
-	
+	constexpr float ArmorCurveFactor = 0.6f;
+	constexpr float MinDamageRatio = 0.25f;
+
+	float DamageMultiplier =
+		SKConstant::ArmorDamageDeclineRate /
+		(ArmorPower * ArmorCurveFactor + SKConstant::ArmorDamageDeclineRate);
+
+	DamageMultiplier = FMath::Clamp(
+		DamageMultiplier,
+		MinDamageRatio,
+		1.f
+	);
+
+	//	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
+
 	const float FinalDamage = AttackPower * CallerValue * DamageMultiplier * GEDamageCoefficient;
+
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
 		USKAIAttributeSet::GetHealthAttribute(),
 		EGameplayModOp::Additive,
 		-FinalDamage));
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("Damage: %f"), FinalDamage);
 
 	if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Heavy))
@@ -100,8 +114,8 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 		UE_LOG(LogTemp, Warning, TEXT("USKDamageExecution: Heavy Attack"));
 
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
-		USKAIAttributeSet::GetStaminaAttribute(),
-		EGameplayModOp::Additive,
-		-StaminaLossToStrongAttacks));
+			USKAIAttributeSet::GetStaminaAttribute(),
+			EGameplayModOp::Additive,
+			-StaminaLossToStrongAttacks));
 	}
 }

@@ -95,8 +95,21 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	//기본값 보정
 	AttackPower = FMath::Max(AttackPower,0.f);
 	ArmorPower = FMath::Clamp(ArmorPower,0.f,SKConstant::MaxArmorValue);
+
+
+	constexpr float ArmorCurveFactor = 0.6f; // 0.5 ~ 0.7 추천
+	constexpr float MinDamageRatio = 0.25f; // 최소 25% 데미지 보장
+	float RawReduction =
+		SKConstant::ArmorDamageDeclineRate /
+		(ArmorPower * ArmorCurveFactor + SKConstant::ArmorDamageDeclineRate);
+	// 데미지 감소율
+	float DamageMultiplier = FMath::Clamp(
+		RawReduction,
+		MinDamageRatio,
+		1.f
+	);
 	
-	const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
+	//const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
 	float FinalDamage  = AttackPower* DamageMultiplier;
 
 	// ==============================
