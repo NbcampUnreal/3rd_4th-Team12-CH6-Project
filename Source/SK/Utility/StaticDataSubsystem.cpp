@@ -17,10 +17,10 @@ void UStaticDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 
 	// 모든 에셋 로딩이 끝난 이후 호출됨
-	AssetRegistryModule.Get().OnFilesLoaded().AddUObject(
-		this, &UStaticDataSubsystem::AutoRegisterDataTables);
+	// AssetRegistryModule.Get().OnFilesLoaded().AddUObject(
+	// 	this, &UStaticDataSubsystem::AutoRegisterDataTables);
 
-	AutoRegisterDataTables();
+	// AutoRegisterDataTables();
 }
 
 void UStaticDataSubsystem::Deinitialize()

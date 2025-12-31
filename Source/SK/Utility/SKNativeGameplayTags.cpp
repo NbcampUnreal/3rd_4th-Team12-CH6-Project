@@ -288,6 +288,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.Atta
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_DamageMultiplier, "Data.DamageMultiplier");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Data_MaxHP, "Data.MaxHP");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Data_Attack, "Data.Attack");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Data_Armor, "Data.Armor");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake, "GameplayCue.Shake");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_01, "GameplayCue.Shake.01");
