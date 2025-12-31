@@ -22,7 +22,6 @@ UBattleComponent::UBattleComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
-
 }
 
 
@@ -32,7 +31,6 @@ void UBattleComponent::BeginPlay()
 	Super::BeginPlay();
 
 	SetWeaponMesh_Init();
-	
 }
 
 void UBattleComponent::Server_Input_Skill_01_Implementation()
@@ -40,7 +38,7 @@ void UBattleComponent::Server_Input_Skill_01_Implementation()
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
 
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
-	
+
 	FGameplayTagContainer Container;
 	Container.AddTag(TAG_Ability_Skill_01);
 	ASC->TryActivateAbilitiesByTag(Container);
@@ -51,7 +49,7 @@ void UBattleComponent::Server_Input_Skill_02_Implementation()
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
 
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
-	
+
 	FGameplayTagContainer Container;
 	Container.AddTag(TAG_Ability_Skill_02);
 	ASC->TryActivateAbilitiesByTag(Container);
@@ -62,7 +60,7 @@ void UBattleComponent::Server_Input_Skill_03_Implementation()
 	ASKPlayerCharacter* SKPlayer = Cast<ASKPlayerCharacter>(GetOwner());
 
 	UAbilitySystemComponent* ASC = SKPlayer->GetAbilitySystemComponent();
-	
+
 	FGameplayTagContainer Container;
 	Container.AddTag(TAG_Ability_Skill_03);
 	ASC->TryActivateAbilitiesByTag(Container);
@@ -145,7 +143,8 @@ UAnimMontage* UBattleComponent::GetRightATKMontage(int32 Index)
 
 
 // Called every frame
-void UBattleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UBattleComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                     FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -197,6 +196,8 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 		return;
 	}
 
+	bool bHasPrev = bPrevValid;
+
 	FVector CurrStart = WeaponMesh->GetSocketLocation(WeaponStartSocket);
 	FVector CurrEnd = WeaponMesh->GetSocketLocation(WeaponEndSocket);
 
@@ -204,53 +205,71 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	float Radius = CapsuleRadius;
 	float HalfHeight = CapsultHalfHeight;
 
-	// Start→End 방향 벡터
 	FVector TraceDir = CurrEnd - CurrStart;
-
-	// 캡슐 회전 (Start→End 방향으로 캡슐 축을 회전시킴)
-	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceDir).ToQuat();
-	FVector CapsuleCenter = (CurrStart + CurrEnd) * 0.5f;
+	FQuat CapsuleRot = FQuat::Identity;
+	if (!TraceDir.IsNearlyZero())
+	{
+		CapsuleRot = FQuat::FindBetweenNormals(
+			FVector::UpVector,
+			TraceDir.GetSafeNormal()
+		);
+	}
+	
+//	FVector CapsuleCenter = (CurrStart + CurrEnd) * 0.5f;
 
 	FHitResult Hit;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(GetOwner());
 
 
-	bool bHit = GetWorld()->SweepSingleByChannel(
-		Hit,
-		PrevStart,
-		CurrStart,
-		CapsuleRot,
-		ECC_Pawn,
-		FCollisionShape::MakeCapsule(Radius, HalfHeight),
-		Params
-	);
 
-
-	// DrawDebugCapsule(
-	// 	GetWorld(),
-	// 	CapsuleCenter,
-	// 	HalfHeight,
-	// 	Radius,
-	// 	CapsuleRot, 
-	// 	FColor::Green,
-	// 	false,
-	// 	0.05f
-	// );
-
-
-	if (bHit)
+	if (bHasPrev)
 	{
-		AActor* HitActor = Hit.GetActor();
+		FVector StartDelta = CurrStart - PrevStart;
+		FVector EndDelta   = CurrEnd   - PrevEnd;
 
-		if (HitActor && !HitActors.Contains(HitActor))
+		FQuat StartRot = StartDelta.IsNearlyZero()
+			? FQuat::Identity
+			: FQuat::FindBetweenNormals(FVector::UpVector, StartDelta.GetSafeNormal());
+
+		FQuat EndRot = EndDelta.IsNearlyZero()
+			? FQuat::Identity
+			: FQuat::FindBetweenNormals(FVector::UpVector, EndDelta.GetSafeNormal());
+
+		FHitResult HitStart;
+		FHitResult HitEnd;
+
+		bool bHitStart = SweepWeapon(PrevStart, CurrStart, StartRot, HitStart);
+		bool bHitEnd   = SweepWeapon(PrevEnd,   CurrEnd,   EndRot,   HitEnd);
+
+		if (bHitStart)
 		{
-			AddHitResult(Hit);
+			AActor* HitActor = HitStart.GetActor();
+			if (HitActor && !HitActors.Contains(HitActor))
+			{
+				AddHitResult(HitStart);
+			}
+		}
+
+		if (bHitEnd)
+		{
+			AActor* HitActor = HitEnd.GetActor();
+			if (HitActor && !HitActors.Contains(HitActor))
+			{
+				AddHitResult(HitEnd);
+			}
 		}
 	}
 
+
+	DrawDebugLine(GetWorld(), PrevStart, CurrStart, FColor::Red, false, 0.05f);
+	DrawDebugLine(GetWorld(), PrevEnd,   CurrEnd,   FColor::Blue, false, 0.05f);
+
+
 	PrevStart = CurrStart;
 	PrevEnd = CurrEnd;
+
+	bPrevValid = true;
 }
 
 
@@ -335,7 +354,6 @@ void UBattleComponent::Server_ATKTYPE_ApplyDamage_Implementation(const FGameplay
 			return;
 		}
 	}
-	
 }
 
 void UBattleComponent::SetWeaponMesh(USkeletalMeshComponent* InWeaponMesh)
@@ -381,7 +399,6 @@ void UBattleComponent::InitializeWeaponSocket(const FSKWeaponDataRow* Row)
 	ComboState.WeaponTag = FGameplayTag::RequestGameplayTag(Row->WeaponTag.GetTagName());
 
 	TraceSockets = Row->TraceSockets;
-
 }
 
 void UBattleComponent::InitializeWeaponData(const FWeaponDataRow* Row)
@@ -444,6 +461,21 @@ FString UBattleComponent::FindWeaponTagName()
 void UBattleComponent::OnRep_ComboState()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_ComboState: %s"),
-	   *ComboState.WeaponTag.ToString());
+	       *ComboState.WeaponTag.ToString());
 }
 
+bool UBattleComponent::SweepWeapon(const FVector& From, const FVector& To, const FQuat& Rot, FHitResult& OutHit)
+{
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwner());
+
+	return GetWorld()->SweepSingleByChannel(
+		OutHit,
+		From,
+		To,
+		Rot,
+		ECC_Pawn,
+		FCollisionShape::MakeCapsule(CapsuleRadius, CapsultHalfHeight),
+		Params
+	);
+}
