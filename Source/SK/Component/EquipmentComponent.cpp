@@ -97,6 +97,7 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 		return false;
 	}
 	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	ActionComponent->Multicast_SetWeaponData(WeaponDataRow->WeaponData);
 	ActionComponent->WeaponActors = SlotData.EquipmentInstance->GetSpawnedActors();
 
 	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
