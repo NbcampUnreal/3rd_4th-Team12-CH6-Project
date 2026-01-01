@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Stat")
 	UTextBlock* LevelText;
 
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Stat")
+	UTextBlock* LevelStringText;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stat")
 	const USKAttributeSet* CharacterStat;
 	

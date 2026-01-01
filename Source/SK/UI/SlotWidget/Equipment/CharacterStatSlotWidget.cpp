@@ -119,12 +119,33 @@ void UCharacterStatSlotWidget::RetryLater(const TCHAR* Reason)
 
 void UCharacterStatSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message)
 {
-	if (Message.LayoutTag != TAG_UI_Layout_EquipmentMain)
+	if (Message.LayoutTag == TAG_UI_Layout_EquipmentMain)
 	{
-		UE_LOG(LogTemp, Log, TEXT("UInventoryListSlotWidget No Layout Inventory"));
-		return;
+		ReflashStat();
+		
+		if (LevelText)
+		{
+			LevelText->SetVisibility(ESlateVisibility::Visible);
+		}
+		if (LevelStringText)
+		{
+			LevelStringText->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
-	ReflashStat();
+	else if (Message.LayoutTag == TAG_UI_Layout_BonfireMenu)
+	{
+		ReflashStat();
+		
+		if (LevelText)
+		{
+			LevelText->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		if (LevelStringText)
+		{
+			LevelStringText->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	
 }
 
 void UCharacterStatSlotWidget::ReflashStat()

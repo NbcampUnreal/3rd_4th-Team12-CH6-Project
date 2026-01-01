@@ -163,6 +163,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_DungeonSelect, "UI.Slot.DungeonSelect");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_BonfireMenu, "UI.Slot.BonfireMenu");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Option, "UI.Slot.Option");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Dialogue, "UI.Slot.Dialogue");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InputInfo, "UI.Slot.InputInfo");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_LevelUpInfo, "UI.Slot.LevelInfo");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState, "PlayerState");
