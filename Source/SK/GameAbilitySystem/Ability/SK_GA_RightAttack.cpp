@@ -46,12 +46,16 @@ void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
 	
-	ApplyMotionWarp(CachedCharacter);
+	// ApplyMotionWarp(CachedCharacter);
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_RightMelee, true);
 
 	CurrentComboIndex = CheckCombo(ActorInfo);
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
+	
+	TraceDist = *TraceDistMap.Find(CurrentComboIndex);
+	SnapDist = *SnapDistMap.Find(CurrentComboIndex);
+	SnapToTarget(CachedCharacter);
 
 	FName SectionName = GetComboMontageSection(CurrentComboIndex);
 	

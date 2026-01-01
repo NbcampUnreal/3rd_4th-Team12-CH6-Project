@@ -97,6 +97,7 @@ public:
 	FGenericTeamId PlayerTeamID = FGenericTeamId::NoTeam;
 
 	void SetCurWeaponTag(FGameplayTag NewTag);
+	FGameplayTag GetWeaponTag() { return CurrentWeaponTag; };
 
 	void EquipmentComponentSetting();
 
