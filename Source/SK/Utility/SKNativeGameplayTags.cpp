@@ -305,30 +305,83 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_07, "GameplayCue.Shake.07");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_08, "GameplayCue.Shake.08");
 
 
-
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound, "GameplayCue.Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman, "GameplayCue.Sound.Woman");
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK,"GameplayCue.Sound.Woman"); // 공격사운드
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_01,"GameplayCue.Sound.Woman.ATK.01"); //    
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_02,"GameplayCue.Sound.Woman.ATK.02"); //   
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_03,"GameplayCue.Sound.Woman.ATK.03"); //
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_04,"GameplayCue.Sound.Woman.ATK.04"); //
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_05,"GameplayCue.Sound.Woman.ATK.05"); //
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_06,"GameplayCue.Sound.Woman.ATK.06"); //   
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_07,"GameplayCue.Sound.Woman.ATK.07"); //
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_08,"GameplayCue.Sound.Woman.ATK.08"); //
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_09,"GameplayCue.Sound.Woman.ATK.09"); //
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit,"GameplayCue.Sound.Woman.Hit"); // 피격사운드
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_01,"GameplayCue.Sound.Woman.Hit.01"); // 피격사운드
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_02,"GameplayCue.Sound.Woman.Hit.02"); // 피격사운드
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death,"GameplayCue.Sound.Woman.Death"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK, "GameplayCue.Sound.Woman"); // 공격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_01, "GameplayCue.Sound.Woman.ATK.01"); //    
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_02, "GameplayCue.Sound.Woman.ATK.02"); //   
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_03, "GameplayCue.Sound.Woman.ATK.03"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_04, "GameplayCue.Sound.Woman.ATK.04"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_05, "GameplayCue.Sound.Woman.ATK.05"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_06, "GameplayCue.Sound.Woman.ATK.06"); //   
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_07, "GameplayCue.Sound.Woman.ATK.07"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_08, "GameplayCue.Sound.Woman.ATK.08"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_09, "GameplayCue.Sound.Woman.ATK.09"); //
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit, "GameplayCue.Sound.Woman.Hit"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_01, "GameplayCue.Sound.Woman.Hit.01"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_02, "GameplayCue.Sound.Woman.Hit.02"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death, "GameplayCue.Sound.Woman.Death"); // 피격사운드
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontLeft,"GameplayCue.HitReact.FrontLeft");
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontRight,"GameplayCue.HitReact.FrontRight");
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Back,"GameplayCue.HitReact.Back");
+// Monster (Root)
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster,
+                       "GameplayCue.Sound.Monster");
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Normal,"GameplayCue.HitReact.Normal");
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Heavy,"GameplayCue.HitReact.Heavy");
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Unblockable,"GameplayCue.HitReact.Unblockable");
+// Monster_LW
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW,
+                       "GameplayCue.Sound.Monster.LW");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_Hit,
+                       "GameplayCue.Sound.Monster.LW.Hit");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_Death,
+                       "GameplayCue.Sound.Monster.LW.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_ATK_01,
+                       "GameplayCue.Sound.Monster.LW.ATK.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_ATK_02,
+                       "GameplayCue.Sound.Monster.LW.ATK.02");
 
-UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_AI_Breath,"GameplayCue.AI.Breath");
+// Monster_LCD
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LCD,
+                       "GameplayCue.Sound.Monster.LCD");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LCD_Hit,
+                       "GameplayCue.Sound.Monster.LCD.Hit");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LCD_Death,
+                       "GameplayCue.Sound.Monster.LCD.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LCD_ATK_01,
+                       "GameplayCue.Sound.Monster.LCD.ATK.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LCD_ATK_02,
+                       "GameplayCue.Sound.Monster.LCD.ATK.02");
+
+// Monster_DG
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_DG,
+                       "GameplayCue.Sound.Monster.DG");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_DG_Hit,
+                       "GameplayCue.Sound.Monster.DG.Hit");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_DG_Death,
+                       "GameplayCue.Sound.Monster.DG.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_DG_ATK_01,
+                       "GameplayCue.Sound.Monster.DG.ATK.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_DG_ATK_02,
+                       "GameplayCue.Sound.Monster.DG.ATK.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_DG_ATK_03,
+                       "GameplayCue.Sound.Monster.DG.ATK.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_DG_ATK_04,
+                       "GameplayCue.Sound.Monster.DG.ATK.04");
+
+// Monster_MD
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD,
+                       "GameplayCue.Sound.Monster.MD");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Hit,
+                       "GameplayCue.Sound.Monster.MD.Hit");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Death,
+                       "GameplayCue.Sound.Monster.MD.Death");
+
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontLeft, "GameplayCue.HitReact.FrontLeft");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontRight, "GameplayCue.HitReact.FrontRight");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Back, "GameplayCue.HitReact.Back");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Normal, "GameplayCue.HitReact.Normal");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Heavy, "GameplayCue.HitReact.Heavy");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Unblockable, "GameplayCue.HitReact.Unblockable");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_AI_Breath, "GameplayCue.AI.Breath");
