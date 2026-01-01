@@ -70,7 +70,7 @@ public:
 
 protected:
 	UFUNCTION(Server, Reliable)
-	void Server_ExecuteDodge(FName DodgeType);
+	void Server_ExecuteDodge(bool bIsEvade);
 	
 	bool CheckDoubleTap();
 
@@ -92,7 +92,7 @@ public:
 
 	void ApplyEquipGE(bool bIsEquip);
 
-	UPROPERTY(Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	TArray<AActor*> WeaponActors;
 	
 	UPROPERTY()

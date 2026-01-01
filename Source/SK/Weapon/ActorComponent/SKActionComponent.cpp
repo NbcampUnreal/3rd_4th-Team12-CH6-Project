@@ -14,6 +14,7 @@
 #include "Item/Bonfire/SKStool.h"
 #include "Item/Bonfire/SKBonfire.h"
 #include "Components/WidgetComponent.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USKActionComponent::USKActionComponent()
 	: CurrentWeaponAnimData(nullptr)
@@ -322,7 +323,7 @@ void USKActionComponent::CloseGate()
 	bIsGateOpen = false;
 }
 
-void USKActionComponent::Server_ExecuteDodge_Implementation(FName DodgeTag)
+void USKActionComponent::Server_ExecuteDodge_Implementation(bool bIsEvade)
 {
 	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Character) return;
@@ -330,23 +331,41 @@ void USKActionComponent::Server_ExecuteDodge_Implementation(FName DodgeTag)
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
 
-	FGameplayTagContainer StepTag;
-	StepTag.AddTag(FGameplayTag::RequestGameplayTag(DodgeTag));
-	ASC->TryActivateAbilitiesByTag(StepTag);
+	FGameplayTagContainer StepTags;
+	StepTags.AddTag(TAG_State_Action_Dodge_Step);
+
+	FGameplayTagContainer EvadeTags;
+	EvadeTags.AddTag(TAG_State_Action_Dodge_Evade);
+	
+	if (!bIsEvade)
+	{
+		if (ASC->HasMatchingGameplayTag(TAG_State_Condition_StepBlocked))
+		{
+			return;
+		}
+
+		ASC->TryActivateAbilitiesByTag(StepTags);
+	}
+	else
+	{
+		if (ASC->HasMatchingGameplayTag(TAG_State_Condition_EvadeBlocked))
+		{
+			return;
+		}
+		
+		if (ASC->HasMatchingGameplayTag(TAG_State_Condition_StepBlocked))
+		{
+			ASC->CancelAbilities(&StepTags, nullptr);
+			ASC->TryActivateAbilitiesByTag(EvadeTags);
+		}
+		
+		ASC->CancelAbilities(&EvadeTags, nullptr);
+		ASC->TryActivateAbilitiesByTag(EvadeTags);
+	}
 }
 
 void USKActionComponent::TryDodge()
 {
 	bool bIsEvade = CheckDoubleTap();
-	FName DodgeTag;
-	if (!bIsEvade)
-	{
-		DodgeTag = FName("State.Action.Dodge.Step");
-	}
-	else
-	{
-		DodgeTag = FName("State.Action.Dodge.Evade");
-	}
-	
-	Server_ExecuteDodge(DodgeTag);
+	Server_ExecuteDodge(bIsEvade);
 }

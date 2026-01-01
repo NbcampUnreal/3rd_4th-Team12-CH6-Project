@@ -234,6 +234,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
 // 무기 장착
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Equip, "State.Condition.Equip");
 
+// 회피 블락
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_StepBlocked, "State.Condition.StepBlocked");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_EvadeBlocked, "State.Condition.EvadeBlocked");
+
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
