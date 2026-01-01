@@ -374,6 +374,47 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Hit,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Death,
                        "GameplayCue.Sound.Monster.MD.Death");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon,
+					   "GameplayCue.Sound.Weapon");
+
+// Medium
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_01,
+					   "GameplayCue.Sound.Weapon.Med.01");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_02,
+					   "GameplayCue.Sound.Weapon.Med.02");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_03,
+					   "GameplayCue.Sound.Weapon.Med.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_04,
+					   "GameplayCue.Sound.Weapon.Med.04");
+
+// Light
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Light_01,
+					   "GameplayCue.Sound.Weapon.Light.01");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Light_02,
+					   "GameplayCue.Sound.Weapon.Light.02");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Light_03,
+					   "GameplayCue.Sound.Weapon.Light.03");
+
+// Heavy
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Heavy_01,
+					   "GameplayCue.Sound.Weapon.Heavy.01");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Heavy_02,
+					   "GameplayCue.Sound.Weapon.Heavy.02");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Heavy_03,
+					   "GameplayCue.Sound.Weapon.Heavy.03");
+
+// Generic / Etc
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_01,
+					   "GameplayCue.Sound.Weapon.01");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Draw,
+					   "GameplayCue.Sound.Weapon.Draw");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontLeft, "GameplayCue.HitReact.FrontLeft");
