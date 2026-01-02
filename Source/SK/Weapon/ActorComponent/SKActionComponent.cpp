@@ -136,6 +136,8 @@ void USKActionComponent::OnOwnerPossessed()
 {
 	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetOwner());
 	if (!Character || !Character->HasAuthority()) return;
+	
+	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
 
 	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Character->GetPlayerState());
 	if (IsValid(PlayerState))
@@ -152,8 +154,6 @@ void USKActionComponent::OnOwnerPossessed()
 		}
 		PlayerState->bIsFirstSpawned = false;
 	}
-
-	GetWorld()->GetTimerManager().SetTimer(AutoUnEquippedTimerHandle, this, &USKActionComponent::CheckAutoUnEquipped, 0.33f, true);
 	
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
