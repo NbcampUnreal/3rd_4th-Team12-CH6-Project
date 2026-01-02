@@ -171,7 +171,7 @@ const TObjectPtr<USKSoundDataAsset>& USKGameInstance::GetSoundDataAsset()
 
 void USKGameInstance::SetMasterVolume(float InVolume)
 {
-	MasterVolume = FMath::Clamp(InVolume, 0.001f, 1.0f);
+	MasterVolume = FMath::Clamp(InVolume, 0.0f, 1.0f);
 
 	if (USKBGMSubSystem* BGM = this->GetSubsystem<USKBGMSubSystem>())
 	{
@@ -181,7 +181,7 @@ void USKGameInstance::SetMasterVolume(float InVolume)
 
 void USKGameInstance::SetBGMVolume(float InVolume)
 {
-	BGMVolume = FMath::Clamp(InVolume, 0.001f, 1.0f);
+	BGMVolume = FMath::Clamp(InVolume, 0.0f, 1.0f);
 
 	if (USKBGMSubSystem* BGM = this->GetSubsystem<USKBGMSubSystem>())
 	{
@@ -191,7 +191,7 @@ void USKGameInstance::SetBGMVolume(float InVolume)
 
 void USKGameInstance::SetSFXVolume(float InVolume)
 {
-	SFXVolume = FMath::Clamp(InVolume, 0.001f, 1.0f);
+	SFXVolume = FMath::Clamp(InVolume, 0.0f, 1.0f);
 	
 }
 

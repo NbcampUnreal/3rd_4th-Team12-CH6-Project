@@ -2,6 +2,9 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
+#include "Character/AI/SKAICharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "TimerManager.h"
 
 USK_GA_AI_HitReaction::USK_GA_AI_HitReaction()
 {
@@ -48,6 +51,21 @@ void USK_GA_AI_HitReaction::ActivateAbility(
 	
 	CommonEventTask->EndTask();
 
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	if (!Avatar)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		return;
+	}
+
+	// 피격 방향 계산
+	const FVector HitDirection = CalculateHitDirection(TriggerEventData);
+
+	// 자연스러운 Knockback 시작
+	StartSmoothKnockback(HitDirection);
+
+	
+
 	AnimMontage = GetAnimMontage("HitReaction");
 	if (!IsValid(AnimMontage))
 	{
@@ -73,4 +91,123 @@ void USK_GA_AI_HitReaction::EndAbility(
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+
+// ======================================================
+// Smooth Knockback (Curve 없이)
+// ======================================================
+
+void USK_GA_AI_HitReaction::StartSmoothKnockback(const FVector& InDirection)
+{
+    AActor* Avatar = GetAvatarActorFromActorInfo();
+    if (!Avatar)
+        return;
+
+    ASKAICharacter* Character = Cast<ASKAICharacter>(Avatar);
+    if (Character)
+    {
+        UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+        if (MoveComp && !MoveComp->IsMovingOnGround())
+        {
+            // 공중에서는 Knockback 적용 안 함
+            return;
+        }
+    }
+
+    KnockbackDirection = InDirection;
+    KnockbackDirection.Z = 0.f;
+    KnockbackDirection.Normalize();
+
+    ElapsedTime = 0.f;
+    PrevAlpha = 0.f;
+
+    UWorld* World = GetWorld();
+    if (!World)
+        return;
+
+    World->GetTimerManager().SetTimer(
+        KnockbackTimerHandle,
+        this,
+        &USK_GA_AI_HitReaction::TickSmoothKnockback,
+        0.016f, // 약 60fps
+        true
+    );
+}
+
+void USK_GA_AI_HitReaction::TickSmoothKnockback()
+{
+    AActor* Avatar = GetAvatarActorFromActorInfo();
+    if (!Avatar)
+    {
+        StopSmoothKnockback();
+        return;
+    }
+
+    ElapsedTime += 0.016f;
+
+    // 시간 비율 (0~1)
+    float T = FMath::Clamp(
+        ElapsedTime / KnockbackDuration,
+        0.f,
+        1.f
+    );
+
+    // Ease-Out (Quadratic)
+    // Alpha = 1 - (1 - T)^2
+    float Alpha = 1.f - FMath::Square(1.f - T);
+
+    float DeltaAlpha = Alpha - PrevAlpha;
+    PrevAlpha = Alpha;
+
+    FVector Offset =
+        KnockbackDirection * (KnockbackDistance * DeltaAlpha);
+
+    FHitResult Hit;
+    Avatar->AddActorWorldOffset(Offset, true, &Hit);
+
+    if (Hit.bBlockingHit || T >= 1.f)
+    {
+        StopSmoothKnockback();
+    }
+}
+
+void USK_GA_AI_HitReaction::StopSmoothKnockback()
+{
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(KnockbackTimerHandle);
+    }
+}
+
+// ======================================================
+// Utility
+// ======================================================
+
+FVector USK_GA_AI_HitReaction::CalculateHitDirection(
+    const FGameplayEventData* TriggerEventData
+) const
+{
+    AActor* Avatar = GetAvatarActorFromActorInfo();
+    if (!Avatar)
+        return FVector::ZeroVector;
+
+    // 기본값: 캐릭터 정면 반대
+    FVector Direction = -Avatar->GetActorForwardVector();
+
+    if (TriggerEventData && TriggerEventData->Instigator)
+    {
+        FVector Dir =
+            Avatar->GetActorLocation() -
+            TriggerEventData->Instigator->GetActorLocation();
+
+        Dir.Z = 0.f;
+
+        if (!Dir.IsNearlyZero())
+        {
+            Direction = Dir.GetSafeNormal();
+        }
+    }
+
+    return Direction;
 }

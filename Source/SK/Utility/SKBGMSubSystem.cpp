@@ -67,6 +67,10 @@ void USKBGMSubSystem::PlaySoundByTag(FGameplayTag& Tag, const FVector& Location)
 	if (!SKGI)
 		return;
 
+	const float MasterVolume = SKGI->GetMasterVolume();
+	const float SFXVolume    = SKGI->GetSFXVolume();
+	const float FinalVolume  = MasterVolume * SFXVolume;
+	
 	const TObjectPtr<USKSoundDataAsset>& SoundDataAsset = SKGI->GetSoundDataAsset();
 	if (!SoundDataAsset)
 		return;
@@ -110,6 +114,9 @@ void USKBGMSubSystem::PlaySoundByTag(FGameplayTag& Tag, const FVector& Location)
 	{
 		AvailableComp->SetWorldLocation(Location);
 		AvailableComp->SetSound(FoundSound->Sound);
+
+		AvailableComp->SetVolumeMultiplier(FinalVolume);
+		
 		AvailableComp->Play();
 	}
 }
@@ -118,7 +125,7 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 {
 	UGameInstance* GI = GetGameInstance();
 	USKGameInstance* SKGameInstance = Cast<USKGameInstance>(GI);
-	
+
 	if (!SKGameInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Invalid GameInstance in SoundSubsystem"));

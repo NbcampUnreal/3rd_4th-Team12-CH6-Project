@@ -28,6 +28,11 @@ public:
 	FDataTableRowHandle InGameToEquipMainData;
 	
 	FUIActionBindingHandle InGameToEquipMainHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FDataTableRowHandle InputInfoActionData;
+	
+	FUIActionBindingHandle InputInfoHandle;
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -40,4 +45,15 @@ protected:
 
 	UFUNCTION()
 	void HandleInGameToEquipMainAction();
+
+	UFUNCTION()
+	void HandleInputInfoAction();
+
+	bool bInputInfoVisible = false;
+	
+	UPROPERTY()
+	bool bCanToggleInputInfo = true;
+
+	UPROPERTY()
+	float InputInfoCooldown = 0.5f;
 };

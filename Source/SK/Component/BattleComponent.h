@@ -51,10 +51,10 @@ public:
 
 	UFUNCTION()
 	void NotifyUseSkill(int32 SkillNum, bool bSuccess);
-	
+
 	UFUNCTION(Client, Reliable)
 	void Client_SendSkillUIMessage(int32 SkillNum, bool bSuccess);
-	
+
 #pragma region Montage
 
 	UAnimMontage* GetLeftATKMontage(int32 Index);
@@ -66,7 +66,7 @@ public:
 	void StartTrace();
 	void StopTrace();
 	void PerformTrace(float DeltaTime);
-	
+
 	void ClearHitResult();
 	void AddHitResult(const FHitResult& Hit);
 	void SetIsTraced(bool ArgIsTracing);
@@ -116,6 +116,14 @@ private:
 	void OnRep_ComboState();
 
 
+	bool bPrevValid = false;
+
+	bool SweepWeapon(
+		const FVector& From,
+		const FVector& To,
+		const FQuat& Rot,
+		FHitResult& OutHit
+	);
 #pragma region TraceVariable
 	bool bIsTracing = false;
 
