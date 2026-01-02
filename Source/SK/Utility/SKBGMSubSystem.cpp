@@ -61,16 +61,16 @@ void USKBGMSubSystem::UpdateVolume()
 	}
 }
 
-void USKBGMSubSystem::PlaySoundByTag(FGameplayTag& Tag, const FVector& Location)
+void USKBGMSubSystem::PlaySoundByTag(const FGameplayTag& Tag, const FVector& Location)
 {
 	USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
 	if (!SKGI)
 		return;
 
 	const float MasterVolume = SKGI->GetMasterVolume();
-	const float SFXVolume    = SKGI->GetSFXVolume();
-	const float FinalVolume  = MasterVolume * SFXVolume;
-	
+	const float SFXVolume = SKGI->GetSFXVolume();
+	const float FinalVolume = MasterVolume * SFXVolume;
+
 	const TObjectPtr<USKSoundDataAsset>& SoundDataAsset = SKGI->GetSoundDataAsset();
 	if (!SoundDataAsset)
 		return;
@@ -86,7 +86,7 @@ void USKBGMSubSystem::PlaySoundByTag(FGameplayTag& Tag, const FVector& Location)
 		UE_LOG(LogTemp, Warning, TEXT("No sound found for tag %s"), *Tag.ToString());
 		return;
 	}
-	
+
 	UAudioComponent* AvailableComp = nullptr;
 	for (UAudioComponent* Comp : SFXSoundPool)
 	{
@@ -116,7 +116,73 @@ void USKBGMSubSystem::PlaySoundByTag(FGameplayTag& Tag, const FVector& Location)
 		AvailableComp->SetSound(FoundSound->Sound);
 
 		AvailableComp->SetVolumeMultiplier(FinalVolume);
+
+		AvailableComp->Play();
+	}
+}
+
+void USKBGMSubSystem::PlayUISoundByTag(const FGameplayTag& Tag)
+{
+	USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
+	if (!SKGI)
+		return;
+
+	const float MasterVolume = SKGI->GetMasterVolume();
+	const float SFXVolume = SKGI->GetSFXVolume();
+	const float FinalVolume = MasterVolume * SFXVolume;
+
+	const TObjectPtr<USKSoundDataAsset>& SoundDataAsset = SKGI->GetSoundDataAsset();
+	if (!SoundDataAsset)
+		return;
+
+	const FSKSoundData* FoundSound = SoundDataAsset->SoundList.FindByPredicate(
+		[&](const FSKSoundData& Data)
+		{
+			return Data.SoundTag.MatchesTagExact(Tag);
+		});
+
+	if (!FoundSound || !FoundSound->Sound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No sound found for tag %s"), *Tag.ToString());
+		return;
+	}
+
+	UAudioComponent* AvailableComp = nullptr;
+	for (UAudioComponent* Comp : SFXSoundPool)
+	{
+		if (IsValid(Comp) && !Comp->IsPlaying())
+		{
+			AvailableComp = Comp;
+			break;
+		}
+	}
+
+	// 🔹 없으면 새 컴포넌트 생성
+	if (!AvailableComp)
+	{
+		AvailableComp = NewObject<UAudioComponent>(GetWorld());
+		if (AvailableComp)
+		{
+			AvailableComp->bAutoActivate = false;
+			AvailableComp->RegisterComponentWithWorld(GetWorld());
+			SFXSoundPool.Add(AvailableComp);
+		}
+	}
+
+	// 🔹 사운드 세팅 및 재생
+	if (AvailableComp)
+	{
+		AvailableComp->Stop();
 		
+		AvailableComp->SetSound(FoundSound->Sound);
+
+		AvailableComp->bAllowSpatialization = false;
+		AvailableComp->SetUISound(true);
+
+		AvailableComp->AttenuationSettings = nullptr;
+
+		AvailableComp->SetVolumeMultiplier(FinalVolume);
+
 		AvailableComp->Play();
 	}
 }
@@ -169,7 +235,7 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 
 	// 새 BGM 재생
 	float FinalVolume = SKGameInstance->MasterVolume * SKGameInstance->BGMVolume;
-	
+
 	GetWorld()->GetTimerManager().SetTimerForNextTick([this, FoundSound, FinalVolume]()
 	{
 		BGMComponent = UGameplayStatics::SpawnSound2D(GetWorld(), FoundSound->Sound, FinalVolume, 1.0f, 0.0f, nullptr,
@@ -179,7 +245,6 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 			// BGMComponent->SetLoop(FoundSound->bLoop);
 			BGMComponent->bIsUISound = true;
 			BGMComponent->Play();
-
 		}
 	});
 }
