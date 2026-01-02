@@ -111,10 +111,4 @@ protected:
 
 	UPROPERTY()
 	int32 CurrentComboIndex = 0;
-
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	TMap<int32, float> TraceDistMap;
-	
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	TMap<int32, float> SnapDistMap;
 };

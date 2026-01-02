@@ -46,6 +46,10 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	CurrentComboIndex = CheckCombo(ActorInfo);
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
+
+	USKWeaponData* WeaponData = CurrentBattleComponent->CurrentWeaponData;
+	TMap<int32, float> TraceDistMap = WeaponData->LeftTraceDistMap;
+	TMap<int32, float> SnapDistMap = WeaponData->LeftSnapDistMap;
 	
 	TraceDist = *TraceDistMap.Find(CurrentComboIndex);
 	SnapDist = *SnapDistMap.Find(CurrentComboIndex);
