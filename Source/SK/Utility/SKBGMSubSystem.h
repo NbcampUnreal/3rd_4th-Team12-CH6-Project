@@ -22,7 +22,12 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	void PlaySoundByTag(FGameplayTag& Tag, const FVector& Location);
+	UFUNCTION(BlueprintCallable, Category = "SK|Sound" ,meta = (DisplayName = "PlaySoundByTag"))
+	void PlaySoundByTag(const FGameplayTag& Tag, const FVector& Location);
+
+	UFUNCTION(BlueprintCallable, Category = "SK|Sound" ,meta = (DisplayName = "PlayUISoundByTag"))
+	void PlayUISoundByTag(const FGameplayTag& Tag);
+	
 	void PlayBgmByTag(FGameplayTag& Tag);
 	void StopBGM();
 	void UpdateVolume();
