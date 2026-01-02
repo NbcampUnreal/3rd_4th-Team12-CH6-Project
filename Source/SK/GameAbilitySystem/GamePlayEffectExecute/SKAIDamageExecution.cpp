@@ -164,7 +164,24 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	//방어 실패로 히트 리액션 함수 호출
 	else
 	{
-		HandleHitReaction(Spec, TargetASC, TargetActor);
+		//HandleHitReaction(Spec, TargetASC, TargetActor);
+		FGameplayEventData EventData;
+		EventData.EventTag = TAG_Event_HitReact;
+		EventData.Instigator =
+			Spec.GetContext().GetOriginalInstigator();
+		EventData.Target = TargetActor;
+		
+		// 공격 타입 태그 전달
+		EventData.InstigatorTags = Spec.DynamicGrantedTags;
+
+		// EffectContext 전달 (GameplayCue용)
+		EventData.ContextHandle = Spec.GetContext();
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			TargetActor,
+			TAG_Event_HitReact,
+			EventData
+		);
 	}
 
 	// ==============================
@@ -204,6 +221,7 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	}
 }
 
+/*
 void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UAbilitySystemComponent* TargetASC,
 	AActor* TargetActor) const
 {
@@ -227,13 +245,13 @@ void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UA
 	}
 
 	// 방향 판정
-	/*
-	const EHitReactAnim ReactType =
-		DetermineHitReactAnim(
-			InstigatorActor->GetActorLocation(),
-			TargetActor
-		);
-	*/
+	
+	//const EHitReactAnim ReactType =
+	//	DetermineHitReactAnim(
+	//		InstigatorActor->GetActorLocation(),
+	//		TargetActor
+	//	);
+	
 
 	// 5️⃣ Hit 상태 부여 (Lock)
 	if (HitConditionEffect)
@@ -290,3 +308,4 @@ void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UA
 		FGameplayCueParameters{Spec.GetContext()}
 	);
 }
+*/
