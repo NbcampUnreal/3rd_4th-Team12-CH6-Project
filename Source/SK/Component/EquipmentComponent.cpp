@@ -99,6 +99,7 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 	ActionComponent->Multicast_SetWeaponData(WeaponDataRow->WeaponData);
 	ActionComponent->WeaponActors = SlotData.EquipmentInstance->GetSpawnedActors();
+	ActionComponent->ApplyEquipGE(false);
 
 	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
 	if (ASC)

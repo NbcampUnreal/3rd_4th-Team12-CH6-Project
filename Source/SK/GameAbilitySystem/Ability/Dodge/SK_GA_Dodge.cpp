@@ -2,9 +2,9 @@
 
 #include "Weapon/ActorComponent/SKActionComponent.h"
 #include "Character/SKPlayerCharacter.h"
-#include "Component/SKCombatComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "Manager/SKCameraManager.h"
+#include "AbilitySystemComponent.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USK_GA_Dodge::USK_GA_Dodge()
 	: DodgeMontage(nullptr)
@@ -56,6 +56,7 @@ void USK_GA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 			this, TEXT("Dodge"), DodgeMontage, 1.f, SectionName);
 		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
+		PlayAnimTask->OnCancelled.AddDynamic(this, &ThisClass::OnCanceled);
 		PlayAnimTask->ReadyForActivation();
 	}
 	else
@@ -75,6 +76,26 @@ void USK_GA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	UE_LOG(LogTemp, Warning, TEXT("End Ability, %s"), *GetName());
+	
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC)
+	{
+		ASC->RemoveLooseGameplayTag(TAG_State_Condition_StepBlocked);
+		ASC->RemoveLooseGameplayTag(TAG_State_Condition_EvadeBlocked);
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(InvincibleStartTimer);
+		World->GetTimerManager().ClearTimer(InvincibleEndTimer);
+	}
+	RemoveInvincibleTag();
+}
+
+void USK_GA_Dodge::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void USK_GA_Dodge::OnCompleted()
@@ -84,12 +105,43 @@ void USK_GA_Dodge::OnCompleted()
 
 void USK_GA_Dodge::OnCanceled()
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
 void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
 {
+	// 무적 시작
+	GetWorld()->GetTimerManager().SetTimer(
+		InvincibleStartTimer,
+		this,
+		&USK_GA_Dodge::AddInvincibleTag,
+		DodgeStartTime);
 
+	// 무적 종료
+	GetWorld()->GetTimerManager().SetTimer(
+		InvincibleEndTimer,
+		this,
+		&USK_GA_Dodge::RemoveInvincibleTag,
+		DodgeEndTime);
+	
+}
+
+void USK_GA_Dodge::AddInvincibleTag()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC)
+	{
+		ASC->AddLooseGameplayTag(TAG_State_invincibility);
+	}
+}
+
+void USK_GA_Dodge::RemoveInvincibleTag()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC)
+	{
+		ASC->RemoveLooseGameplayTag(TAG_State_invincibility);
+	}
 }
 
 FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKActionComponent* ActionComponent)
@@ -104,6 +156,12 @@ FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKAc
 	// 락온 일 때
 	if (SK_PC->GetIsLockedOn())
 	{
+		// 입력 없을 시 뒤로
+		if (ActionComponent->CurrentInputVector.IsNearlyZero())
+		{
+			Direction = "Backward";
+			return Direction;
+		}
 		EMoveDirection MoveDirection = ActionComponent->CurrentMoveDirection;
 		switch (MoveDirection)
 		{
