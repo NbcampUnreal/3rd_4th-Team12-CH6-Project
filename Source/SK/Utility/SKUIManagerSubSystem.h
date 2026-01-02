@@ -6,6 +6,7 @@
 #include "SKGameplayMessageSubsystem.h"
 #include "SKGameplayMessageTypes.h"
 #include "Subsystems/LocalPlayerSubsystem.h"
+#include "UI/SlotWidget/GoldStatSlotWidget.h"
 #include "SKUIManagerSubSystem.generated.h"
 
 class UAbilitySystemComponent;
@@ -27,6 +28,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="UI")
 	void RemoveLayout();
+	
+	static USKUIManagerSubSystem* Get(const UObject* WorldContextObject);
+
+	FGameplayTag GetCurrentLayoutTag() { return CurrentLayoutTag; }
 protected:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
