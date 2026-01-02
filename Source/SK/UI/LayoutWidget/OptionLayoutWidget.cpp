@@ -30,7 +30,7 @@ void UOptionLayoutWidget::HandleToEscapeMenu()
 			FSwitchLayoutMessage Message(TAG_UI_Layout_EscapeMenu, true);
 
 			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+				MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
 		}
 	}
 }
