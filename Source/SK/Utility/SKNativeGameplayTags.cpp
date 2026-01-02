@@ -16,6 +16,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_AnimNotify, "Event.AnimNotify");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Success, "Event.Guard.Success");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Perfect, "Event.Guard.Perfect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_HitReact, "Event.HitReact");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object_SpikeTrap, "Object.SpikeTrap");
@@ -37,6 +38,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_03, "Ability.Skill.03");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GuardCounter, "Ability.GuardCounter");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReact, "Ability.HitReact");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
