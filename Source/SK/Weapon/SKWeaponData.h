@@ -62,4 +62,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ComboTable")
 	TObjectPtr<UDataTable> ComboTable;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TMap<int32, float> LeftTraceDistMap;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TMap<int32, float> LeftSnapDistMap;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TMap<int32, float> RightTraceDistMap;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TMap<int32, float> RightSnapDistMap;
 };

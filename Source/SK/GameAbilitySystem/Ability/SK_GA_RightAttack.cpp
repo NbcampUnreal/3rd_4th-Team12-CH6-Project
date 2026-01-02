@@ -53,6 +53,10 @@ void USK_GA_RightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
 	
+	USKWeaponData* WeaponData = CurrentBattleComponent->CurrentWeaponData;
+	TMap<int32, float> TraceDistMap = WeaponData->RightTraceDistMap;
+	TMap<int32, float> SnapDistMap = WeaponData->RightSnapDistMap;
+	
 	TraceDist = *TraceDistMap.Find(CurrentComboIndex);
 	SnapDist = *SnapDistMap.Find(CurrentComboIndex);
 	SnapToTarget(CachedCharacter);
