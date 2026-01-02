@@ -416,6 +416,30 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_01,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Draw,
 					   "GameplayCue.Sound.Weapon.Draw");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC,
+					   "GameplayCue.Sound.ETC");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_MonsterHit,
+					   "GameplayCue.Sound.ETC.MonsterHit");
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI,
+					   "GameplayCue.Sound.UI");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_ClickSound,
+					   "GameplayCue.Sound.UI.ClickSound");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_HoverSound,
+					   "GameplayCue.Sound.UI.HoverSound");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_AppearSound,
+					   "GameplayCue.Sound.UI.AppearSound");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_SelectSound,
+					   "GameplayCue.Sound.UI.SelectSound");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_UnSelectSound,
+					   "GameplayCue.Sound.UI.UnSelectSound");
+
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontLeft, "GameplayCue.HitReact.FrontLeft");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontRight, "GameplayCue.HitReact.FrontRight");
