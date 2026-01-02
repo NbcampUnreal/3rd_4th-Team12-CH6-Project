@@ -279,6 +279,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UIInteraction, "Message.Channel.UIInt
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SkillUse, "Message.Channel.SkillUse");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogue, "Message.Channel.NPCDialogue");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogueSkip, "Message.Channel.NPCDialogueSkip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_PlayerLevelUpResult, "Message.Channel.PlayerLevelUpResult");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");

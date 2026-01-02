@@ -32,7 +32,10 @@ public:
 	FSKGameplayMessageListenerHandle LayoutSwitchHandle;
 
 	void OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message);
-		
+	
+	FSKGameplayMessageListenerHandle LevelUpResultHandle;
+
+	void OnLevelUpResultMessageReceived(FGameplayTag Channel, const FPlayerLevelUpResultMessage& Message);
 protected:
 	/** 최대 생명력 */
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Stat")

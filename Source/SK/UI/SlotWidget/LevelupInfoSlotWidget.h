@@ -7,6 +7,7 @@
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "LevelupInfoSlotWidget.generated.h"
 
+struct FPlayerLevelUpResultMessage;
 class ASKPlayerState;
 class UOverlay;
 class UTextBlock;
@@ -22,6 +23,10 @@ public:
 	FSKGameplayMessageListenerHandle LayoutSwitchHandle;
 
 	void OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message);
+
+	FSKGameplayMessageListenerHandle LevelUpResultHandle;
+
+	void OnLevelUpResultMessageReceived(FGameplayTag Channel, const FPlayerLevelUpResultMessage& Message);
 
 	void TryBind();
 	void RetryLater(const TCHAR* Reason);
@@ -44,6 +49,12 @@ protected:
 	UTextBlock* RequireGold;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Level")
+	UTextBlock* PlayerGold;
+
+	UPROPERTY(Meta = (BindWidget), BlueprintReadOnly, Category="Level")
+	UTextBlock* ResultGold;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Level")
 	UTextBlock* UpStatMaxHealth;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Level")
@@ -54,10 +65,14 @@ protected:
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Level")
 	UTextBlock* UpStatArmor;
-
+	
 	UPROPERTY()
 	ASKPlayerState* CurrentPS;
 	
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* LevelUpFailAnim;
 	
 	void SettingLevelUpDataByLevel(int32 Level);
+
+	void LevelUpFailPlayAnim();
 };
