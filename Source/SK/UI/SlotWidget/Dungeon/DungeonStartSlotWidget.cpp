@@ -4,7 +4,9 @@
 #include "UI/SlotWidget/Dungeon/DungeonStartSlotWidget.h"
 
 #include "Components/TextBlock.h"
+#include "GameInstance/SKGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/SKBGMSubSystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -35,7 +37,22 @@ void UDungeonStartSlotWidget::PlayAppearSound()
 {
 	if (AppearSound)
 	{
-		UGameplayStatics::PlaySound2D(this, AppearSound);
+	//	UGameplayStatics::PlaySound2D(this, AppearSound);
+
+		UWorld* World = GetWorld();
+		if (!World)
+			return;
+
+		USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+		if (!SKGI)
+			return;
+
+		if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+		{
+			BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_AppearSound);
+		}
+		
+		
 		if (MapText)
 		{
 			const FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld(), true); 

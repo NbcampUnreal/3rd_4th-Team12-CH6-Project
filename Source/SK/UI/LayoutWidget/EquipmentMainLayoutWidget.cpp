@@ -4,21 +4,37 @@
 #include "UI/LayoutWidget/EquipmentMainLayoutWidget.h"
 
 #include "Components/Button.h"
+#include "GameInstance/SKGameInstance.h"
 #include "Input/CommonUIInputTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/SKBGMSubSystem.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 void UEquipmentMainLayoutWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
- 
-	EquipMainToInGameHandle = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
-	EquipMainToInGameHandle2 = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData2, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
-	MoveUpHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveUpData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleMoveUpAction)));
-	MoveDownHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveDownData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleMoveDownAction)));
-	MoveLeftHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveLeftData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleMoveLeftAction)));
-	MoveRightHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveRightData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleMoveRightAction)));
-	SelectionHandle = RegisterUIActionBinding(FBindUIActionArgs(SelectionData, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleSelectionAction)));
+
+	EquipMainToInGameHandle = RegisterUIActionBinding(FBindUIActionArgs(EquipMainToInGameData, true,
+	                                                                    FSimpleDelegate::CreateUObject(
+		                                                                    this,
+		                                                                    &ThisClass::HandleEquipMainToInGameAction)));
+	EquipMainToInGameHandle2 = RegisterUIActionBinding(FBindUIActionArgs(
+		EquipMainToInGameData2, true, FSimpleDelegate::CreateUObject(this, &ThisClass::HandleEquipMainToInGameAction)));
+	MoveUpHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveUpData, true,
+	                                                         FSimpleDelegate::CreateUObject(
+		                                                         this, &ThisClass::HandleMoveUpAction)));
+	MoveDownHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveDownData, true,
+	                                                           FSimpleDelegate::CreateUObject(
+		                                                           this, &ThisClass::HandleMoveDownAction)));
+	MoveLeftHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveLeftData, true,
+	                                                           FSimpleDelegate::CreateUObject(
+		                                                           this, &ThisClass::HandleMoveLeftAction)));
+	MoveRightHandle = RegisterUIActionBinding(FBindUIActionArgs(MoveRightData, true,
+	                                                            FSimpleDelegate::CreateUObject(
+		                                                            this, &ThisClass::HandleMoveRightAction)));
+	SelectionHandle = RegisterUIActionBinding(FBindUIActionArgs(SelectionData, true,
+	                                                            FSimpleDelegate::CreateUObject(
+		                                                            this, &ThisClass::HandleSelectionAction)));
 
 	if (CloseButton)
 	{
@@ -29,12 +45,24 @@ void UEquipmentMainLayoutWidget::NativeConstruct()
 
 void UEquipmentMainLayoutWidget::HandleEquipMainToInGameAction()
 {
-
 	if (ClickSound)
 	{
-		UGameplayStatics::PlaySound2D(this, ClickSound);
+	//	UGameplayStatics::PlaySound2D(this, ClickSound);
+
+		UWorld* World = GetWorld();
+		if (!World)
+			return;
+
+		USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+		if (!SKGI)
+			return;
+
+		if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+		{
+			BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_ClickSound);
+		}
 	}
-	
+
 	if (UWorld* World = GetWorld())
 	{
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))

@@ -10,8 +10,10 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
+#include "GameInstance/SKGameInstance.h"
 #include "Item/Inventory/Data/SKInventoryItemData.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/SKBGMSubSystem.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -79,10 +81,23 @@ void UEquipSelectItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, con
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
 	SendHoverMessage(true);
-	PlayUISound(HoverSound);
 	HoverImageVisible(true);
 
 	ParentWidget->NotifyIndex(WidgetIndex);
+	// PlayUISound(HoverSound);
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+
+	USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+	if (!SKGI)
+		return;
+
+	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+	{
+		BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
+	}
+	
 }
 
 void UEquipSelectItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -99,7 +114,16 @@ FReply UEquipSelectItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 	{
 		// BlueprintCallable로 열어둔 함수 호출도 가능
 		OnItemLeftClicked();
-		PlayUISound(SelectSound);
+		//PlayUISound(SelectSound);
+
+		UWorld* World = GetWorld();
+		USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+
+		if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+		{
+			BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_SelectSound);
+		}
+		
 		return FReply::Handled();
 	}
 
@@ -107,7 +131,14 @@ FReply UEquipSelectItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 	{
 		// BlueprintCallable로 열어둔 함수 호출도 가능
 		OnItemRightClicked();
-		PlayUISound(UnSelectSound);
+		// PlayUISound(UnSelectSound);
+		UWorld* World = GetWorld();
+		USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+
+		if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+		{
+			BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_UnSelectSound);
+		}
 		return FReply::Handled();
 	}
 	

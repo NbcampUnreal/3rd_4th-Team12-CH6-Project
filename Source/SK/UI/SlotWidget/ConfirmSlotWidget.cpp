@@ -147,6 +147,7 @@ void UConfirmSlotWidget::SimulateButtonUnHover(UButton* Button)
 		UE_LOG(LogTemp, Warning, TEXT("SlateWidget is invalid!"));
 		return;
 	}
+
  
 	TSharedPtr<SButton> SlateButton = StaticCastSharedPtr<SButton>(SlateWidget);
 	if (!SlateButton.IsValid())
