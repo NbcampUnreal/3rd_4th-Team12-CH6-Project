@@ -5,6 +5,8 @@
 
 #include "Components/TextBlock.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Utility/SKNativeGameplayTags.h"
+#include "Utility/SKUIManagerSubSystem.h"
 
 void UGoldStatSlotWidget::NativeConstruct()
 {
@@ -54,6 +56,18 @@ void UGoldStatSlotWidget::TryBind()
 
 void UGoldStatSlotWidget::GoldChanged(int32 NewGold, int32 OldGold)
 {
+	USKUIManagerSubSystem* Manager = USKUIManagerSubSystem::Get(this);
+	if (!Manager)
+	{
+		return;
+	}
+
+	if (Manager->GetCurrentLayoutTag() != TAG_UI_Layout_InGame)
+	{
+		OnGoldAddAnimationFinished();
+		return;
+	}
+	
 	int32 Delta = NewGold - OldGold; // 증가한 골드량
 
 	// 애니매이션 재생 중이면 → 증가량 누적 후 다시 표시만 업데이트
