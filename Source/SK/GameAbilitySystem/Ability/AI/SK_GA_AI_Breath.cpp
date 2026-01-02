@@ -45,7 +45,9 @@ void USK_GA_AI_Breath::Breath(TObjectPtr<UAnimMontage> LocalAnimMontage)
 
 void USK_GA_AI_Breath::OnAnimNotifyCompleted(FGameplayEventData EventData)
 {
+	const FGameplayCueParameters CueParameters;
 	
+	K2_AddGameplayCueWithParams(FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.AI.Breath")), CueParameters);
 }
 
 void USK_GA_AI_Breath::OnBreathCompleted()
@@ -83,6 +85,8 @@ void USK_GA_AI_Breath::EndAbility(
 	)
 {
 	ClearFocus();
+
+	K2_RemoveGameplayCue(FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.AI.Breath")));
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

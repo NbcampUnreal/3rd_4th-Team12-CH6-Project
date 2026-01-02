@@ -25,7 +25,7 @@ void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> LocalAnimMontag
 				LocalAnimMontage,
 				1.0f,
 				NAME_None,
-				false,
+				true,
 				1.0f
 				);
 	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_HitReaction::OnHitReactionCompleted);
@@ -50,14 +50,14 @@ void USK_GA_AI_HitReaction::ActivateAbility(
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	CommonEventTask->EndTask();
-
+	/*
 	AActor* Avatar = GetAvatarActorFromActorInfo();
 	if (!Avatar)
 	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-
+	*/
 	// 피격 방향 계산
 	const FVector HitDirection = CalculateHitDirection(TriggerEventData);
 
