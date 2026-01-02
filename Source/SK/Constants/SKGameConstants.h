@@ -18,7 +18,7 @@ public:
 	static constexpr const TCHAR* Tutorial = TEXT("RuinsTutorial");
 
 	inline static const TMap<int32, FString> DungeonLevels = {
-		{ 1, TEXT("MVP") },
-		{ 2, TEXT("RuinsRenuewal") },
+		{ 1, TEXT("RuinsRenuewal") },
+		{ 2, TEXT("MVP") },
 	};
 };
