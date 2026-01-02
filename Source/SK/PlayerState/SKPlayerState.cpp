@@ -15,6 +15,7 @@
 #include "Utility/SKUIManagerSubSystem.h"
 #include "Utility/StaticDataSubsystem.h"
 #include "GameData/StaticData/LevelUpData.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 ASKPlayerState::ASKPlayerState()
 {
@@ -487,7 +488,11 @@ void ASKPlayerState::TryLevelUp()
 	{
 		SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
 	}
-
+	
+	USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this);
+	if (!MessageSubsystem)
+		return;
+	
 	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
 	if (!Rule)
 	{
@@ -499,6 +504,10 @@ void ASKPlayerState::TryLevelUp()
 	if (Gold < Rule->RequiredGold)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] Gold 부족! 필요:%d, 현재:%d"), Rule->RequiredGold, Gold);
+		
+		FPlayerLevelUpResultMessage Message(false);
+
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_PlayerLevelUpResult, Message);
 		return;
 	}
 
@@ -518,6 +527,9 @@ void ASKPlayerState::TryLevelUp()
 	AbilityPoint += Rule->AbilityPointReward;
 	OnRep_AbilityPoint();
 	*/
+	FPlayerLevelUpResultMessage Message(true);
+
+	MessageSubsystem->BroadcastMessage(TAG_Message_Channel_PlayerLevelUpResult, Message);
 	
 	UE_LOG(LogTemp, Log, TEXT("[LevelUp] 성공! New Level=%d, AbilityPoint=%d"), Level, AbilityPoint);
 }

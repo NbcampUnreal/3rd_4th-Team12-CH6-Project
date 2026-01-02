@@ -246,3 +246,12 @@ struct FDialogSkipMessage
 	UPROPERTY(BlueprintReadWrite)
 	int32 TempNum;
 };
+
+USTRUCT(BlueprintType)
+struct FPlayerLevelUpResultMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bResult;
+};

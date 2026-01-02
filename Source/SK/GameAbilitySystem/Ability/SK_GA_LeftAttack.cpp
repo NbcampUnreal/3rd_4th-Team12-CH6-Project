@@ -11,7 +11,6 @@
 #include "Component/SKCombatComponent.h"
 #include "Controller/SKPlayerController.h"
 #include "GameData/StaticData/ComboTableRow.h"
-#include "PlayerState/SKPlayerState.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 USK_GA_LeftAttack::USK_GA_LeftAttack()
@@ -40,13 +39,21 @@ void USK_GA_LeftAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	CachedCharacter = Cast<ASKPlayerCharacter>(Character);
 	UBattleComponent* CurrentBattleComponent = CachedCharacter->GetBattleComponent();
 
-	ApplyMotionWarp(CachedCharacter);
+	// ApplyMotionWarp(CachedCharacter);
 
 	CachedCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_LeftMelee, true);
 
 	CurrentComboIndex = CheckCombo(ActorInfo);
 	PrepareComboCache(CurrentBattleComponent->CurrentWeaponData);
 	BindComboCache();
+
+	USKWeaponData* WeaponData = CurrentBattleComponent->CurrentWeaponData;
+	TMap<int32, float> TraceDistMap = WeaponData->LeftTraceDistMap;
+	TMap<int32, float> SnapDistMap = WeaponData->LeftSnapDistMap;
+	
+	TraceDist = *TraceDistMap.Find(CurrentComboIndex);
+	SnapDist = *SnapDistMap.Find(CurrentComboIndex);
+	SnapToTarget(CachedCharacter);
 
 	FName SectionName = GetComboMontageSection(CurrentComboIndex);
 

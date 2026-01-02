@@ -16,6 +16,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_AnimNotify, "Event.AnimNotify");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Success, "Event.Guard.Success");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Perfect, "Event.Guard.Perfect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_HitReact, "Event.HitReact");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object_SpikeTrap, "Object.SpikeTrap");
@@ -37,6 +38,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_03, "Ability.Skill.03");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GuardCounter, "Ability.GuardCounter");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReact, "Ability.HitReact");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
@@ -236,6 +238,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
 // 무기 장착
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Equip, "State.Condition.Equip");
 
+// 회피 블락
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_StepBlocked, "State.Condition.StepBlocked");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_EvadeBlocked, "State.Condition.EvadeBlocked");
+
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
@@ -275,6 +281,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UIInteraction, "Message.Channel.UIInt
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SkillUse, "Message.Channel.SkillUse");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogue, "Message.Channel.NPCDialogue");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogueSkip, "Message.Channel.NPCDialogueSkip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_PlayerLevelUpResult, "Message.Channel.PlayerLevelUpResult");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");

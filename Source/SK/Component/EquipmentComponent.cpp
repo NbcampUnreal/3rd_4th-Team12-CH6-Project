@@ -99,6 +99,7 @@ bool UEquipmentComponent::EquipItem(const FGuid& UniqueID, const int32 ItemID)
 	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 	ActionComponent->Multicast_SetWeaponData(WeaponDataRow->WeaponData);
 	ActionComponent->WeaponActors = SlotData.EquipmentInstance->GetSpawnedActors();
+	ActionComponent->ApplyEquipGE(false);
 
 	UAbilitySystemComponent* ASC = GetOwner()->FindComponentByClass<UAbilitySystemComponent>();
 	if (ASC)
@@ -128,27 +129,30 @@ bool UEquipmentComponent::UnequipItem(EEquipmentSlotType Slot)
 	if (!ASC) return false;
 	
 	if (!SlotData.EquipmentInstance) return false;
-	
-	FGameplayTag WeaponTag = SlotData.EquipmentInstance->EquipTag;
-	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
-	ASC->RemoveLooseGameplayTag(WeaponTag);
-	ASC->AddLooseGameplayTag(UnarmedTag);
-	
-	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetEquipPawn());
-	if (!Character) return false;
-	
-	USKActionComponent* ActionComponent = Character->GetActionComponent();
-	if (!ActionComponent) return false;
 
-	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());
-	if (IsValid(PlayerState))
+	if (Slot == EEquipmentSlotType::Weapon)
 	{
-		PlayerState->SetCurWeaponTag(WeaponTag);
-	}
-	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
-	if (!WeaponDataRow) return false;
+		FGameplayTag WeaponTag = SlotData.EquipmentInstance->EquipTag;
+		FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
+		ASC->RemoveLooseGameplayTag(WeaponTag);
+		ASC->AddLooseGameplayTag(UnarmedTag);
 	
-	ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+		ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(GetEquipPawn());
+		if (!Character) return false;
+	
+		USKActionComponent* ActionComponent = Character->GetActionComponent();
+		if (!ActionComponent) return false;
+
+		ASKPlayerState* PlayerState = Cast<ASKPlayerState>(GetOwner());
+		if (IsValid(PlayerState))
+		{
+			PlayerState->SetCurWeaponTag(WeaponTag);
+		}
+		const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+		if (!WeaponDataRow) return false;
+	
+		ActionComponent->Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+	}
 
 	if (SlotData.EquipmentInstance)
 	{

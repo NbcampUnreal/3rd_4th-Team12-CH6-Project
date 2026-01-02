@@ -3,6 +3,7 @@
 
 #include "UI/SlotWidget/LevelupInfoSlotWidget.h"
 
+#include "Components/Overlay.h"
 #include "Components/TextBlock.h"
 #include "GameData/StaticData/LevelUpData.h"
 #include "PlayerState/SKPlayerState.h"
@@ -17,6 +18,20 @@ void ULevelupInfoSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel,
 
 	int32 PlayerLevel = CurrentPS->GetPlayerLevel();
 	SettingLevelUpDataByLevel(PlayerLevel);
+}
+
+void ULevelupInfoSlotWidget::OnLevelUpResultMessageReceived(FGameplayTag Channel,
+	const FPlayerLevelUpResultMessage& Message)
+{
+	if (Message.bResult)
+	{
+		int32 PlayerLevel = CurrentPS->GetPlayerLevel();
+		SettingLevelUpDataByLevel(PlayerLevel);
+	}
+	else
+	{
+		LevelUpFailPlayAnim();
+	}
 }
 
 void ULevelupInfoSlotWidget::TryBind()
@@ -93,6 +108,12 @@ void ULevelupInfoSlotWidget::NativeConstruct()
 		this,
 		&ULevelupInfoSlotWidget::OnSwitchLayoutMessageReceived
 	);
+
+	LevelUpResultHandle = MessageSubsystem->RegisterListener<FPlayerLevelUpResultMessage>(
+		TAG_Message_Channel_PlayerLevelUpResult,
+		this,
+		&ULevelupInfoSlotWidget::OnLevelUpResultMessageReceived
+	);
 }
 
 void ULevelupInfoSlotWidget::NativeDestruct()
@@ -105,6 +126,13 @@ void ULevelupInfoSlotWidget::NativeDestruct()
 		}
 	}
 	
+	if (LevelUpResultHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(LevelUpResultHandle);
+		}
+	}
 	Super::NativeDestruct();
 }
 
@@ -131,7 +159,7 @@ void ULevelupInfoSlotWidget::SettingLevelUpDataByLevel(int32 Level)
 		return;
 	}
     
-	const FLevelUpData* LevelData = SDS->GetData<FLevelUpData>(Level+1);
+	const FLevelUpData* LevelData = SDS->GetData<FLevelUpData>(Level);
 	if (!LevelData)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GetLevelUpDataByLevel: LevelData is nullptr for Level %d"), Level);
@@ -156,12 +184,36 @@ void ULevelupInfoSlotWidget::SettingLevelUpDataByLevel(int32 Level)
 	{
 		NextLevelText->SetText(FText::AsNumber(Level+1));
 	}
+
+	const int32 CurrentGold = CurrentPS->GetGold();
+	const int32 RequiredGold = LevelData->RequiredGold;
 	
 	if (RequireGold)
 	{
-		RequireGold->SetText(FText::AsNumber(LevelData->RequiredGold));
+		RequireGold->SetText(FText::AsNumber(RequiredGold));
 	}
 
+	if (PlayerGold)
+	{
+		PlayerGold->SetText(FText::AsNumber(CurrentGold));
+	}
+
+	const int32 LackGold = CurrentGold - RequiredGold;
+
+	if (ResultGold)
+	{
+		ResultGold->SetText(FText::AsNumber(LackGold));
+		if (LackGold > 0)
+		{
+			ResultGold->SetColorAndOpacity(FLinearColor::Green);
+		}
+		else if (LackGold < 0)
+		{
+			ResultGold->SetColorAndOpacity(FLinearColor::Red);
+		}
+	}
+	
+	
 	if (UpStatMaxHealth)
 	{
 		UpStatMaxHealth->SetText(FText::AsNumber(LevelData->MaxHP));
@@ -182,4 +234,21 @@ void ULevelupInfoSlotWidget::SettingLevelUpDataByLevel(int32 Level)
 	{
 		UpStatArmor->SetText(FText::AsNumber(LevelData->Armor));
 	}
+}
+
+void ULevelupInfoSlotWidget::LevelUpFailPlayAnim()
+{
+	if (!LevelUpFailAnim)
+	{
+		return;
+	}
+
+	// 재생 중이면 중지
+	if (IsAnimationPlaying(LevelUpFailAnim))
+	{
+		StopAnimation(LevelUpFailAnim);
+	}
+
+	// 처음부터 다시 재생
+	PlayAnimation(LevelUpFailAnim, 0.f, 1);
 }
