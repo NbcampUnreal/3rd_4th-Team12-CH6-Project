@@ -83,6 +83,13 @@ void USK_GA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 		ASC->RemoveLooseGameplayTag(TAG_State_Condition_StepBlocked);
 		ASC->RemoveLooseGameplayTag(TAG_State_Condition_EvadeBlocked);
 	}
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(InvincibleStartTimer);
+		World->GetTimerManager().ClearTimer(InvincibleEndTimer);
+	}
+	RemoveInvincibleTag();
 }
 
 void USK_GA_Dodge::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -103,6 +110,38 @@ void USK_GA_Dodge::OnCanceled()
 
 void USK_GA_Dodge::PreActivateDodge(USKActionComponent* ActionComponent)
 {
+	// 무적 시작
+	GetWorld()->GetTimerManager().SetTimer(
+		InvincibleStartTimer,
+		this,
+		&USK_GA_Dodge::AddInvincibleTag,
+		DodgeStartTime);
+
+	// 무적 종료
+	GetWorld()->GetTimerManager().SetTimer(
+		InvincibleEndTimer,
+		this,
+		&USK_GA_Dodge::RemoveInvincibleTag,
+		DodgeEndTime);
+	
+}
+
+void USK_GA_Dodge::AddInvincibleTag()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC)
+	{
+		ASC->AddLooseGameplayTag(TAG_State_invincibility);
+	}
+}
+
+void USK_GA_Dodge::RemoveInvincibleTag()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (ASC)
+	{
+		ASC->RemoveLooseGameplayTag(TAG_State_invincibility);
+	}
 }
 
 FName USK_GA_Dodge::SetDodgeDirection(ASKPlayerCharacter* PlayerCharacter, USKActionComponent* ActionComponent)

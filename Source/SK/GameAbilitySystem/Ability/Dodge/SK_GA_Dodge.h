@@ -47,4 +47,24 @@ protected:
 	
 	UPROPERTY()
 	UAnimMontage* DodgeMontage;
+
+#pragma region Invincible
+	UFUNCTION()
+	void AddInvincibleTag();
+
+	UFUNCTION()
+	void RemoveInvincibleTag();
+	
+	UPROPERTY()
+	FTimerHandle InvincibleStartTimer;
+	
+	UPROPERTY()
+	FTimerHandle InvincibleEndTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeStartTime;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeEndTime;
+#pragma endregion
 };
