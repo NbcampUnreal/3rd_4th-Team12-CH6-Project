@@ -139,6 +139,7 @@ void USKActionComponent::OnOwnerPossessed()
 	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Character->GetPlayerState());
 	if (IsValid(PlayerState))
 	{
+		// 죽었을 때 리스폰
 		if (!PlayerState->bIsFirstSpawned)
 		{
 			// 무기 데이터 설정
@@ -148,8 +149,6 @@ void USKActionComponent::OnOwnerPossessed()
 			Multicast_SetWeaponData(WeaponDataRow->WeaponData);
 			// 장착 태그 부여
 			ApplyEquipGE(false);
-			
-			WeaponActors = PlayerState->WeaponActors;
 			return;
 		}
 		PlayerState->bIsFirstSpawned = false;
@@ -170,6 +169,7 @@ void USKActionComponent::OnOwnerPossessed()
 	}
 	else
 	{
+		// 무기 장착한 채 레벨 전환 시에만
 		UE_LOG(LogTemp, Warning, TEXT("First Spawn and Equipped, Weapon Name : %s"), *PlayerState->WeaponActors[0]->GetName())
 		UE_LOG(LogTemp, Warning, TEXT("Player State Weapon Tag: %s"), *PlayerState->GetWeaponTag().GetTagName().ToString());
 		const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
