@@ -2,8 +2,10 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Anim/AI/SK_AnimNotify_AI_SendEventToASC.h"
+#include "Character/AI/SKAICharacterBase.h"
 #include "Controller/AI/SKAIController.h"
 #include "GameFramework/Character.h"
+#include "Projectile/SKBaseProjectile.h"
 
 USK_GA_AI_BaseCombat::USK_GA_AI_BaseCombat()
 {
@@ -151,6 +153,22 @@ float USK_GA_AI_BaseCombat::GetRushTime(const UAnimMontage& LocalAnimMontage) co
 	return 0.f;	
 }
 
+TSubclassOf<ASKBaseProjectile> USK_GA_AI_BaseCombat::GetProjectileClass(FName ProjectileClassName)
+{
+	TSubclassOf<ASKBaseProjectile>* MapProjectileClass = ProjectileClasses.Find(ProjectileClassName);
+	if (!MapProjectileClass)
+	{
+		return nullptr;
+	}
+	
+	if (!IsValid(*MapProjectileClass))
+	{
+		return nullptr;
+	}
+
+	return *MapProjectileClass;
+}
+
 void USK_GA_AI_BaseCombat::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo,
@@ -159,6 +177,15 @@ void USK_GA_AI_BaseCombat::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	ASKAICharacterBase* BaseAI = Cast<ASKAICharacterBase>(CachedCharacter);
+	if (!IsValid(BaseAI))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	ProjectileClasses = BaseAI->GetProjectileClasses();
 }
 
 void USK_GA_AI_BaseCombat::EndAbility(

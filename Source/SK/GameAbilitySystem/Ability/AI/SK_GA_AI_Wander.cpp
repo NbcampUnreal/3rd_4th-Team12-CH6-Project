@@ -12,8 +12,8 @@ USK_GA_AI_Wander::USK_GA_AI_Wander()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Wander")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action.Melee")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Wander")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Wander")));
 }
 
 void USK_GA_AI_Wander::Wander()
@@ -98,7 +98,7 @@ void USK_GA_AI_Wander::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Wander Start");
 	Wander();
 }
 
@@ -110,5 +110,6 @@ void USK_GA_AI_Wander::EndAbility(
 	bool bWasCancelled
 	)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Wander End");
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

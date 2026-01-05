@@ -13,7 +13,7 @@ USK_GA_AI_FlyRush::USK_GA_AI_FlyRush()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.FlyRush")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.FlyRush")));
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.FlyRush")));
 }
 
@@ -87,14 +87,15 @@ void USK_GA_AI_FlyRush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
 		return;
 	}
-	
+
+	FVector Offset = FVector(34.f, 0.f, 0.f);
 	float RushTime = GetRushTime(*AnimMontage);
 	
 	OwnFlyRushTask = UAbilityTask_ApplyRootMotionMoveToActorForce::ApplyRootMotionMoveToActorForce(
 				this,
 				"FlyRush",
 				TargetActor,
-				FVector::ZeroVector,
+				Offset,
 				ERootMotionMoveToActorTargetOffsetType::AlignFromTargetToSource,
 				RushTime,
 				nullptr,

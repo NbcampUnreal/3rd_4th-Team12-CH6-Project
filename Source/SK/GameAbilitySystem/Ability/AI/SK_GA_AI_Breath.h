@@ -8,7 +8,13 @@ UCLASS()
 class SK_API USK_GA_AI_Breath : public USK_GA_AI_BaseCombat
 {
 	GENERATED_BODY()
-
+	
+protected:
+	UPROPERTY()
+	TObjectPtr<ASKBaseProjectile> Projectile;
+	
+	FTimerHandle ProjectileTimerHandle;
+	
 public:
 	USK_GA_AI_Breath();
 
@@ -16,6 +22,11 @@ public:
 
 	UFUNCTION()
 	void OnAnimNotifyCompleted(FGameplayEventData EventData);
+
+	void SpawnAndLaunchProjectile();
+
+	UFUNCTION()
+	void OnWaitHitCompleted(FGameplayEventData EventData);
 	
 	UFUNCTION()
 	void OnBreathCompleted();
