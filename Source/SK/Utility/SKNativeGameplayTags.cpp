@@ -79,6 +79,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestRight, "Input.TestRight");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_ArmorPotion, "Ability.Item.ArmorPotion");
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);
@@ -93,6 +94,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability, "Cooldown.Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_HealPotion, "Cooldown.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_AttackPotion, "Cooldown.Item.AttackPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_ArmorPotion, "Cooldown.Item.ArmorPotion");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon, "Weapon");
@@ -289,12 +291,15 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Armor, "Item.Armor");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Stamina, "Item.Stamina");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Speed, "Item.Speed");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Heat, "Item.Heat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Gold, "Item.Gold");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Duration, "Item.Duration");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Cooldown, "Item.Cooldown");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_HealPotion, "GameplayCue.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_AttackPotion, "GameplayCue.Item.AttackPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Item_ArmorPotion, "GameplayCue.Item.ArmorPotion");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Guard_Block, "GameplayCue.Guard.Block");
 

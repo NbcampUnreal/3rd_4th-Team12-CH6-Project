@@ -128,7 +128,12 @@ void UInventoryItemToolTipSlotWidget::UpdateAdditionalStats(USKInventoryItemData
 			case EEquipmentStat::Stamina:
 				StatName = TEXT("스테미나");
 				break;
-				// 필요한 만큼 추가
+			case EEquipmentStat::Speed:
+				StatName = TEXT("속도");
+				break;
+			case EEquipmentStat::Heat:
+				StatName = TEXT("히트(스킬코스트)");
+				break;
 			default:
 				StatName = TEXT("알 수 없음");
 				break;
