@@ -9,7 +9,7 @@ USK_GA_AI_Recovery::USK_GA_AI_Recovery()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Recovery")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Recovery")));
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Recovery")));
 }
 

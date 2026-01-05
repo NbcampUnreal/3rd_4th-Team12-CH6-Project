@@ -14,7 +14,7 @@ USK_GA_AI_Fly::USK_GA_AI_Fly()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Fly")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Fly")));
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Fly")));
 }
 

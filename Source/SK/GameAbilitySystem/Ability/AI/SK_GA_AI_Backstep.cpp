@@ -11,7 +11,7 @@ USK_GA_AI_Backstep::USK_GA_AI_Backstep()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Backstep")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Backstep")));
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Backstep")));
 }
 

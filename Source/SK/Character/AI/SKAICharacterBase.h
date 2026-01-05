@@ -8,9 +8,9 @@
 #include "SKAICharacterBase.generated.h"
 
 class UBoxComponent;
-class USphereComponent;
 class USKAIAttributeSet;
 class USKAIDataAsset;
+class ASKBaseProjectile;
 class UStateTree;
 struct FOnAttributeChangeData;
 
@@ -24,10 +24,7 @@ public:
 	TObjectPtr<UBoxComponent> CombatArea;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
-	TObjectPtr<USphereComponent> AttackArea;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
-	TObjectPtr<UCapsuleComponent> ContinuousOverlap;
+	TObjectPtr<UBoxComponent> MeleeOrRushArea;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;
@@ -39,9 +36,6 @@ public:
 	TSoftObjectPtr<USKAIDataAsset> AIDataAsset;
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Socket")
-	FName ContinuousOverlapSocketName;
-	
 	/** 몬스터 정적 ID (BP에서 고정 입력) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterID")
 	int32 MonsterID = -1;
@@ -57,6 +51,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation|Montages")
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectiles")
+	TMap<FName, TSubclassOf<ASKBaseProjectile>> ProjectileClasses;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;
@@ -101,6 +98,8 @@ public:
 	FName GetMonsterName() const;
 	
 	TMap<FName, TObjectPtr<UAnimMontage>> GetMontages() const;
+
+	TMap<FName, TSubclassOf<ASKBaseProjectile>> GetProjectileClasses() const;
 	
 	TObjectPtr<UStateTree> GetStateTreeAsset() const;
 
@@ -152,7 +151,7 @@ protected:
 	);	
 
 	UFUNCTION()
-	void OnAttackAreaBeginOverlap(
+	void OnMeleeOrRushAreaBeginOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -162,25 +161,7 @@ protected:
 	);
 	
 	UFUNCTION()
-	void OnAttackAreaEndOverlap(
-		UPrimitiveComponent* OverlappedComp,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);	
-
-	UFUNCTION()
-	void OnContinuousOverlapBeginOverlap(
-		UPrimitiveComponent* OverlappedComp,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
-	
-	UFUNCTION()
-	void OnContinuousOverlapEndOverlap(
+	void OnMeleeOrRushAreaEndOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -188,6 +169,4 @@ protected:
 	);	
 	
 	void ApplyStaticMonsterStats();
-
-	virtual void BeginPlay() override;
 };
