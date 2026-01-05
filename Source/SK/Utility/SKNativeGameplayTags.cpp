@@ -435,12 +435,20 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_01,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Draw,
 					   "GameplayCue.Sound.Weapon.Draw");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Guard_Katana,
+					   "GameplayCue.Sound.Weapon.Guard.Katana");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Guard_Duel,
+					   "GameplayCue.Sound.Weapon.Guard.Duel");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC,
 					   "GameplayCue.Sound.ETC");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_MonsterHit,
 					   "GameplayCue.Sound.ETC.MonsterHit");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_FootStep,
+					   "GameplayCue.Sound.ETC.FootStep");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_BigMonster,
+					   "GameplayCue.Sound.ETC.BigMonster");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI,
 					   "GameplayCue.Sound.UI");
