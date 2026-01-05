@@ -1,6 +1,5 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Chase.h"
 #include "AbilitySystemComponent.h"
-#include "SK_GA_AI_Wander.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Controller/AI/SKAIController.h"
 #include "GameFramework/Character.h"
@@ -13,8 +12,8 @@ USK_GA_AI_Chase::USK_GA_AI_Chase()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Chase")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Action.Melee")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Chase")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Chase")));
 }
 
 void USK_GA_AI_Chase::Chase()

@@ -239,6 +239,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Equip, "State.Condition.Equip");
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Wander, "AI.Wander");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Chase, "AI.Chase");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Combat, "AI.Combat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Ready, "AI.Ready");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Death, "AI.Death");

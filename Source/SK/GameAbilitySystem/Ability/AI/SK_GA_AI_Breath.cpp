@@ -1,6 +1,8 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Breath.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Character/AI/SKAICharacter.h"
+#include "Projectile/SKBaseProjectile.h"
 
 USK_GA_AI_Breath::USK_GA_AI_Breath()
 {
@@ -9,7 +11,7 @@ USK_GA_AI_Breath::USK_GA_AI_Breath()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Breath")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Breath")));
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Breath")));
 }
 
@@ -27,6 +29,16 @@ void USK_GA_AI_Breath::Breath(TObjectPtr<UAnimMontage> LocalAnimMontage)
 	OwnEventTask1->EventReceived.AddDynamic(this, &USK_GA_AI_Breath::OnAnimNotifyCompleted);
 	OwnEventTask1->ReadyForActivation();
 
+	OwnEventTask2 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag(TEXT("Event.Hit")),
+				nullptr,
+				false,
+				false
+				);
+	OwnEventTask2->EventReceived.AddDynamic(this, &USK_GA_AI_Breath::OnWaitHitCompleted);
+	OwnEventTask2->ReadyForActivation();
+	
 	OwnMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
 				NAME_None,
@@ -45,9 +57,65 @@ void USK_GA_AI_Breath::Breath(TObjectPtr<UAnimMontage> LocalAnimMontage)
 
 void USK_GA_AI_Breath::OnAnimNotifyCompleted(FGameplayEventData EventData)
 {
+	CurrentAttackType = EventData.EventTag;
+	
 	const FGameplayCueParameters CueParameters;
 	
 	K2_AddGameplayCueWithParams(FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.AI.Breath")), CueParameters);
+
+	UWorld* World = GetAvatarActorFromActorInfo()->GetWorld();
+	if (!IsValid(World))
+	{
+		return;
+	}
+	
+	if (ProjectileTimerHandle.IsValid())
+	{
+		return;
+	}
+	
+	World->GetTimerManager().SetTimer(
+		ProjectileTimerHandle,      
+		this,            
+		&USK_GA_AI_Breath::SpawnAndLaunchProjectile, 
+		0.1f,              
+		true
+	);		
+}
+
+void USK_GA_AI_Breath::SpawnAndLaunchProjectile()
+{
+	if (!IsValid(ProjectileClass))
+	{
+		return;
+	}
+
+	FVector SpawnLocation = CachedCharacter->GetMesh()->GetSocketLocation("head_socket");
+	FRotator SpawnRotation = CachedCharacter->GetMesh()->GetSocketRotation("head_socket");
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = CachedCharacter;
+	SpawnParams.Owner = CachedCharacter;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	Projectile = GetWorld()->SpawnActor<ASKBaseProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+	if (!IsValid(Projectile))
+	{
+		return;
+	}
+
+	Projectile->LaunchProjectile(SpawnRotation.Vector());
+}
+
+void USK_GA_AI_Breath::OnWaitHitCompleted(FGameplayEventData EventData)
+{
+	HitActor = EventData.Target.Get();
+	if (!HitActor.IsValid())
+	{
+		return;
+	}
+	
+	ApplyDamageToTarget(HitActor);
 }
 
 void USK_GA_AI_Breath::OnBreathCompleted()
@@ -63,7 +131,7 @@ void USK_GA_AI_Breath::ActivateAbility(
 	)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
+
 	CommonEventTask->EndTask();
 	
 	AnimMontage = GetAnimMontage("Breath");
@@ -72,6 +140,8 @@ void USK_GA_AI_Breath::ActivateAbility(
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	ProjectileClass = GetProjectileClass("Breath");
 	
 	Breath(AnimMontage);
 }
@@ -86,6 +156,13 @@ void USK_GA_AI_Breath::EndAbility(
 {
 	ClearFocus();
 
+	UWorld* World = GetAvatarActorFromActorInfo()->GetWorld();
+	if (IsValid(World))
+	{
+		World->GetTimerManager().ClearTimer(ProjectileTimerHandle);
+		ProjectileTimerHandle.Invalidate();
+	}
+	
 	K2_RemoveGameplayCue(FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.AI.Breath")));
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

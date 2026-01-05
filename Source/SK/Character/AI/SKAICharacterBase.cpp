@@ -5,7 +5,6 @@
 #include "SKAIDataAsset.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Utility/StaticDataSubsystem.h"
@@ -26,18 +25,11 @@ ASKAICharacterBase::ASKAICharacterBase()
 	CombatArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnCombatAreaBeginOverlap);
 	CombatArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnCombatAreaEndOverlap);
 
-	AttackArea = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp|AttackArea"));
-	AttackArea->SetupAttachment(GetRootComponent());
-	AttackArea->SetCollisionProfileName("CombatArea");
-	AttackArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnAttackAreaBeginOverlap);
-	AttackArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnAttackAreaEndOverlap);
-
-	ContinuousOverlap = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp|ContinuousOverlap"));
-	ContinuousOverlap->SetupAttachment(GetMesh());
-	ContinuousOverlap->SetCollisionProfileName("CombatArea");
-	ContinuousOverlap->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ContinuousOverlap->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnContinuousOverlapBeginOverlap);
-	ContinuousOverlap->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnContinuousOverlapEndOverlap);
+	MeleeOrRushArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp|MeleeOrRushArea"));
+	MeleeOrRushArea->SetupAttachment(GetRootComponent());
+	MeleeOrRushArea->SetCollisionProfileName("CombatArea");
+	MeleeOrRushArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnMeleeOrRushAreaBeginOverlap);
+	MeleeOrRushArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnMeleeOrRushAreaEndOverlap);
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -205,7 +197,7 @@ void ASKAICharacterBase::OnCombatAreaEndOverlap(
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
-void ASKAICharacterBase::OnAttackAreaBeginOverlap(
+void ASKAICharacterBase::OnMeleeOrRushAreaBeginOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -219,7 +211,7 @@ void ASKAICharacterBase::OnAttackAreaBeginOverlap(
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
-void ASKAICharacterBase::OnAttackAreaEndOverlap(
+void ASKAICharacterBase::OnMeleeOrRushAreaEndOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -229,29 +221,6 @@ void ASKAICharacterBase::OnAttackAreaEndOverlap(
 	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
-}
-
-void ASKAICharacterBase::OnContinuousOverlapBeginOverlap(
-	UPrimitiveComponent* OverlappedComp,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult
-	)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "InBreath");
-}
-
-void ASKAICharacterBase::OnContinuousOverlapEndOverlap(
-	UPrimitiveComponent* OverlappedComp,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex
-	)
-{
-
-	
 }
 
 void ASKAICharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -335,6 +304,11 @@ void ASKAICharacterBase::InitializeAttributeSetAndAbilitiesFromDataAsset()
 		Montages = AIDataAsset->Montages;
 	}
 
+	if (!AIDataAsset->ProjectileClasses.IsEmpty())
+	{
+		ProjectileClasses = AIDataAsset->ProjectileClasses;
+	}
+	
 	if (AIDataAsset->StateTreeAsset)
 	{
 		StateTreeAsset = AIDataAsset->StateTreeAsset;
@@ -380,6 +354,11 @@ FName ASKAICharacterBase::GetMonsterName() const
 TMap<FName, TObjectPtr<UAnimMontage>> ASKAICharacterBase::GetMontages() const
 {
 	return Montages;
+}
+
+TMap<FName, TSubclassOf<ASKBaseProjectile>> ASKAICharacterBase::GetProjectileClasses() const
+{
+	return ProjectileClasses;
 }
 
 TObjectPtr<UStateTree> ASKAICharacterBase::GetStateTreeAsset() const
@@ -502,14 +481,4 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 
 	UE_LOG(LogTemp, Log, TEXT("[AI StaticData] %s : (HP=%f, Atk=%f, Def=%f)"),
 		*GetName(), MonsterData->MaxHealth, MonsterData->Attack, MonsterData->Armor);
-}
-
-void ASKAICharacterBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (ContinuousOverlapSocketName != "")
-	{
-		ContinuousOverlap->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, ContinuousOverlapSocketName);
-	}
 }

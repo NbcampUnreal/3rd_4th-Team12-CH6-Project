@@ -13,8 +13,8 @@ USK_GA_AI_HitReaction::USK_GA_AI_HitReaction()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.HitReaction")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
-	//ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
 }
 
 void USK_GA_AI_HitReaction::HitReaction(TObjectPtr<UAnimMontage> LocalAnimMontage)

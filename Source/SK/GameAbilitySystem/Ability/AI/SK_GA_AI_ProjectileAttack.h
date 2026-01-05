@@ -11,14 +11,9 @@ class SK_API USK_GA_AI_ProjectileAttack : public USK_GA_AI_BaseCombat
 {
 	GENERATED_BODY()
 
-private:
+protected:
 	UPROPERTY()
 	TObjectPtr<ASKBaseProjectile> Projectile;
-	
-protected:
-	//데이터에셋에 넣어 몬스터마다 각자 거 쓸 수 있게 수정 필요.
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	TSubclassOf<ASKBaseProjectile> ProjectileClass;
 
 	
 public:

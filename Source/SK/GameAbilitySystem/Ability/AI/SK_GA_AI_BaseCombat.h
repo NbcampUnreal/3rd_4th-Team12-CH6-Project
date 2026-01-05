@@ -4,6 +4,8 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Base.h"
 #include "SK_GA_AI_BaseCombat.generated.h"
 
+class ASKBaseProjectile;
+
 UCLASS()
 class SK_API USK_GA_AI_BaseCombat : public USK_GA_AI_Base
 {
@@ -18,7 +20,13 @@ protected:
 
 	FGameplayTag CurrentAttackType;
 	
+	UPROPERTY()
+	TMap<FName, TSubclassOf<ASKBaseProjectile>> ProjectileClasses;
+	
+	UPROPERTY()
+	TSubclassOf<ASKBaseProjectile> ProjectileClass;
 
+	
 public:
 	USK_GA_AI_BaseCombat();
 
@@ -31,6 +39,8 @@ public:
 	FVector GetPredictedToTargetDirection(const FVector& PredictedLocation) const;
 
 	float GetRushTime(const UAnimMontage& LocalAnimMontage) const;
+
+	TSubclassOf<ASKBaseProjectile> GetProjectileClass(FName ProjectileClassName);
 
 protected:
 	virtual void ActivateAbility(
