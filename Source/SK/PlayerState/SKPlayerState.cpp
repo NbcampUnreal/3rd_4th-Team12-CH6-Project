@@ -15,6 +15,8 @@
 #include "Utility/SKUIManagerSubSystem.h"
 #include "Utility/StaticDataSubsystem.h"
 #include "GameData/StaticData/LevelUpData.h"
+#include "Kismet/GameplayStatics.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 ASKPlayerState::ASKPlayerState()
 {
@@ -59,17 +61,7 @@ void ASKPlayerState::BeginPlay()
 		OnRep_CurrentWeaponTag();
 		SetDAPlayerStat();
 	}
-
-	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
-	APlayerController* PC = GetPlayerController();
-	if (!PC)
-		return;
 	
-	USKUIManagerSubSystem* UISubSystem = ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(PC->GetLocalPlayer());
-	if (!UISubSystem) return;
-
-	UISubSystem->SettingLayout();
-
 	if (AbilitySystemComponent)
 	{
 		// ASC Delegate 바인딩
@@ -78,6 +70,32 @@ void ASKPlayerState::BeginPlay()
 	}
 
 	SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+
+	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
+	APlayerController* PC = GetPlayerController();
+	if (!PC)
+		return;
+
+	UWorld* World = PC->GetWorld();
+	if (!World)
+		return;
+
+	// 현재 레벨 이름 가져오기
+	const FName CurrentLevelName =
+		FName(*UGameplayStatics::GetCurrentLevelName(World, true));
+
+	// 타이틀 레벨이면 패스
+	if (CurrentLevelName == FName("Title"))
+	{
+		return;
+	}
+
+	USKUIManagerSubSystem* UISubSystem =
+		ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(PC->GetLocalPlayer());
+	if (!UISubSystem)
+		return;
+
+	UISubSystem->SettingLayout();
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
@@ -487,7 +505,11 @@ void ASKPlayerState::TryLevelUp()
 	{
 		SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
 	}
-
+	
+	USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this);
+	if (!MessageSubsystem)
+		return;
+	
 	const FLevelUpData* Rule = SDS->GetData<FLevelUpData>(Level);
 	if (!Rule)
 	{
@@ -499,6 +521,10 @@ void ASKPlayerState::TryLevelUp()
 	if (Gold < Rule->RequiredGold)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[LevelUp] Gold 부족! 필요:%d, 현재:%d"), Rule->RequiredGold, Gold);
+		
+		FPlayerLevelUpResultMessage Message(false);
+
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_PlayerLevelUpResult, Message);
 		return;
 	}
 
@@ -518,6 +544,9 @@ void ASKPlayerState::TryLevelUp()
 	AbilityPoint += Rule->AbilityPointReward;
 	OnRep_AbilityPoint();
 	*/
+	FPlayerLevelUpResultMessage Message(true);
+
+	MessageSubsystem->BroadcastMessage(TAG_Message_Channel_PlayerLevelUpResult, Message);
 	
 	UE_LOG(LogTemp, Log, TEXT("[LevelUp] 성공! New Level=%d, AbilityPoint=%d"), Level, AbilityPoint);
 }

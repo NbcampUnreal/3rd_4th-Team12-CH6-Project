@@ -26,6 +26,11 @@ public:
 		bool bReplicateEndAbility,
 		bool bWasCancelled) override;
 
+	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateCancelAbility) override;
+
 protected:
 	
 	UFUNCTION()
@@ -42,4 +47,24 @@ protected:
 	
 	UPROPERTY()
 	UAnimMontage* DodgeMontage;
+
+#pragma region Invincible
+	UFUNCTION()
+	void AddInvincibleTag();
+
+	UFUNCTION()
+	void RemoveInvincibleTag();
+	
+	UPROPERTY()
+	FTimerHandle InvincibleStartTimer;
+	
+	UPROPERTY()
+	FTimerHandle InvincibleEndTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeStartTime;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dodge")
+	float DodgeEndTime;
+#pragma endregion
 };

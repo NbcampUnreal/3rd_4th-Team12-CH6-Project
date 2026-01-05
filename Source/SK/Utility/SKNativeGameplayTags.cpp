@@ -16,6 +16,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_MoveComplete, "Event.MoveComplete");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_AnimNotify, "Event.AnimNotify");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Success, "Event.Guard.Success");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Guard_Perfect, "Event.Guard.Perfect");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_HitReact, "Event.HitReact");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object, "Object");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Object_SpikeTrap, "Object.SpikeTrap");
@@ -37,6 +38,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Skill_03, "Ability.Skill.03");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Guard, "Ability.Guard");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_GuardCounter, "Ability.GuardCounter");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HitReact, "Ability.HitReact");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Melee, "Ability.Melee");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Die, "Ability.Die");
@@ -115,6 +117,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss_00, "Sound.BGM.Boss.00");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss_01, "Sound.BGM.Boss.01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title, "Sound.BGM.Title");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby, "Sound.BGM.Lobby");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsRenuewal, "Sound.BGM.RuinsRenuewal");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsTutorial, "Sound.BGM.RuinsTutorial");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
@@ -236,6 +240,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Hit, "State.Condition.Hit");
 // 무기 장착
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_Equip, "State.Condition.Equip");
 
+// 회피 블락
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_StepBlocked, "State.Condition.StepBlocked");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_EvadeBlocked, "State.Condition.EvadeBlocked");
+
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
@@ -277,6 +285,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_UIInteraction, "Message.Channel.UIInt
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SkillUse, "Message.Channel.SkillUse");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogue, "Message.Channel.NPCDialogue");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogueSkip, "Message.Channel.NPCDialogueSkip");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_PlayerLevelUpResult, "Message.Channel.PlayerLevelUpResult");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
@@ -309,6 +318,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_08, "GameplayCue.Shake.08");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound, "GameplayCue.Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman, "GameplayCue.Sound.Woman");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Land, "GameplayCue.Sound.Woman.Land");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Jump, "GameplayCue.Sound.Woman.Jump");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK, "GameplayCue.Sound.Woman"); // 공격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_01, "GameplayCue.Sound.Woman.ATK.01"); //    
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_02, "GameplayCue.Sound.Woman.ATK.02"); //   
@@ -417,6 +429,30 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_01,
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Draw,
 					   "GameplayCue.Sound.Weapon.Draw");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC,
+					   "GameplayCue.Sound.ETC");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_MonsterHit,
+					   "GameplayCue.Sound.ETC.MonsterHit");
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI,
+					   "GameplayCue.Sound.UI");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_ClickSound,
+					   "GameplayCue.Sound.UI.ClickSound");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_HoverSound,
+					   "GameplayCue.Sound.UI.HoverSound");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_AppearSound,
+					   "GameplayCue.Sound.UI.AppearSound");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_SelectSound,
+					   "GameplayCue.Sound.UI.SelectSound");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_UnSelectSound,
+					   "GameplayCue.Sound.UI.UnSelectSound");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_FrontLeft, "GameplayCue.HitReact.FrontLeft");

@@ -5,7 +5,9 @@
 
 #include "EquipMainListSlotWidget.h"
 #include "Components/Image.h"
+#include "GameInstance/SKGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/SKBGMSubSystem.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -29,9 +31,21 @@ void UEquipmentItemBaseWidget::NativeOnMouseEnter(const FGeometry& InGeometry, c
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 	SendHoverMessage(true);
-	PlayUISound(HoverSound);
 
 	ParentWidget->NotifyIndex(CurrentIndex);
+	// PlayUISound(HoverSound);
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+
+	USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+	if (!SKGI)
+		return;
+
+	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+	{
+		BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
+	}
 }
 
 void UEquipmentItemBaseWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -61,7 +75,16 @@ void UEquipmentItemBaseWidget::HoverImageVisible(bool bVisible)
 FReply UEquipmentItemBaseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	OnClicked();
-	PlayUISound(ClickSound);
+	// PlayUISound(ClickSound);
+
+	UWorld* World = GetWorld();
+	USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+
+	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+	{
+		BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_ClickSound);
+	}
+	
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 

@@ -97,6 +97,7 @@ public:
 	FGenericTeamId PlayerTeamID = FGenericTeamId::NoTeam;
 
 	void SetCurWeaponTag(FGameplayTag NewTag);
+	FGameplayTag GetWeaponTag() { return CurrentWeaponTag; };
 
 	void EquipmentComponentSetting();
 
@@ -269,4 +270,7 @@ public:
 
 	UPROPERTY()
 	bool bIsFirstSpawned = true;
+
+	UPROPERTY()
+	TArray<AActor*> WeaponActors;
 };

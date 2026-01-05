@@ -21,11 +21,14 @@ public:
 	                                    FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 
 protected:
+	//삭제해야함
+	/*
 	void HandleHitReaction(
 		const FGameplayEffectSpec& Spec,
 		UAbilitySystemComponent* TargetASC,
 		AActor* TargetActor
 	) const;
+	*/
 	
 protected:
 	//ASC 비참조 데미지

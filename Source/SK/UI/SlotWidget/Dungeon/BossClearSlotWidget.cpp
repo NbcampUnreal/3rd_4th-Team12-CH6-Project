@@ -3,7 +3,9 @@
 
 #include "UI/SlotWidget/Dungeon/BossClearSlotWidget.h"
 
+#include "GameInstance/SKGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/SKBGMSubSystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 
@@ -72,6 +74,18 @@ void UBossClearSlotWidget::PlayAppearSound()
 {
 	if (AppearSound)
 	{
-		UGameplayStatics::PlaySound2D(this, AppearSound);
+		// UGameplayStatics::PlaySound2D(this, AppearSound);
+		UWorld* World = GetWorld();
+		if (!World)
+			return;
+
+		USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+		if (!SKGI)
+			return;
+
+		if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+		{
+			BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_AppearSound);
+		}
 	}
 }

@@ -6,7 +6,9 @@
 #include "InventoryListSlotWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "GameInstance/SKGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/SKBGMSubSystem.h"
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -78,10 +80,22 @@ void UInventoryItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 	
 	OnItemHovered();
-	PlayUISound(HoverSound);
 	HoverImageVisible(true);
 	
 	ParentWidget->NotifyIndex(WidgetIndex);
+	// PlayUISound(HoverSound);
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+
+	USKGameInstance* SKGI = Cast<USKGameInstance>(World->GetGameInstance());
+	if (!SKGI)
+		return;
+
+	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+	{
+		BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
+	}
 }
 
 void UInventoryItemWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)

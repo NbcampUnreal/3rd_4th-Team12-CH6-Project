@@ -178,6 +178,24 @@ void USKUIManagerSubSystem::RemoveLayout()
 	ConfirmLayoutWidgets.Empty();
 }
 
+USKUIManagerSubSystem* USKUIManagerSubSystem::Get(const UObject* WorldContextObject)
+{
+	if (!WorldContextObject)
+	{
+		return nullptr;
+	}
+
+	if (const UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject))
+	{
+		if (ULocalPlayer* LocalPlayer = World->GetFirstLocalPlayerFromController())
+		{
+			return LocalPlayer->GetSubsystem<USKUIManagerSubSystem>();
+		}
+	}
+
+	return nullptr;
+}
+
 void USKUIManagerSubSystem::CreateLayoutFromData(UUILayoutDataAsset* CreateData, APlayerController* OwningPC)
 {
 	for (const FLayoutWithSlots& LayoutWithSlots : CreateData->Layouts)

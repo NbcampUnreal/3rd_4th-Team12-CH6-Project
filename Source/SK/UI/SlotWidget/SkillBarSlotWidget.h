@@ -8,6 +8,8 @@
 
 #include "SkillBarSlotWidget.generated.h"
 
+struct FGameplayEffectSpec;
+class USKAttributeSet;
 class ASKPlayerCharacter;
 class USKWeaponData;
 struct FSkillUIMessage;
@@ -47,6 +49,11 @@ protected:
 	
 	UPROPERTY()
 	ASKPlayerCharacter* Character;
+
+	UPROPERTY()
+	USKAttributeSet* Attribute;
+	
+	void HeatChanged(AActor* EffectInstigator, AActor* EffectCauser, const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue);
 	
 	UPROPERTY()
 	const USKWeaponData* CurrentWeaponData;
@@ -64,6 +71,8 @@ protected:
 	void Skill2AnimPlay(bool bSuccess);
 
 	void Skill3AnimPlay(bool bSuccess);
+
+	void UpdateSkillIcon();
 	
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* Anim_Skill1Success;

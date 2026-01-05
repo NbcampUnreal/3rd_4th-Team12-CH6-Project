@@ -35,6 +35,12 @@ void UCharacterStatSlotWidget::NativeConstruct()
 		this,
 		&UCharacterStatSlotWidget::OnSwitchLayoutMessageReceived
 	);
+
+	LevelUpResultHandle = MessageSubsystem->RegisterListener<FPlayerLevelUpResultMessage>(
+		TAG_Message_Channel_PlayerLevelUpResult,
+		this,
+		&UCharacterStatSlotWidget::OnLevelUpResultMessageReceived
+	);
 }
 
 void UCharacterStatSlotWidget::NativeDestruct()
@@ -44,6 +50,14 @@ void UCharacterStatSlotWidget::NativeDestruct()
 		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
 		{
 			MessageSubsystem->UnregisterListener(LayoutSwitchHandle);
+		}
+	}
+
+	if (LevelUpResultHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(LevelUpResultHandle);
 		}
 	}
 	
@@ -146,6 +160,15 @@ void UCharacterStatSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channe
 		}
 	}
 	
+}
+
+void UCharacterStatSlotWidget::OnLevelUpResultMessageReceived(FGameplayTag Channel,
+	const FPlayerLevelUpResultMessage& Message)
+{
+	if (Message.bResult)
+	{
+		ReflashStat();
+	}
 }
 
 void UCharacterStatSlotWidget::ReflashStat()
