@@ -24,13 +24,12 @@ TObjectPtr<UAnimMontage> USK_GA_AI_Base::GetAnimMontage(FName MontageName)
 		return nullptr;
 	}
 	
-	AnimMontage = *MapAnimMontage;
-	if (!IsValid(AnimMontage))
+	if (!IsValid(*MapAnimMontage))
 	{
 		return nullptr;
 	}
 
-	return AnimMontage;
+	return *MapAnimMontage;
 }
 
 void USK_GA_AI_Base::WaitEndAbility()

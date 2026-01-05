@@ -7,6 +7,7 @@
 #include "Component/BattleComponent.h"
 #include "Component/SKCombatComponent.h"
 #include "Components/Image.h"
+#include "GameAbilitySystem/Attribute/SKAttributeSet.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
@@ -49,6 +50,24 @@ void USkillBarSlotWidget::NativeConstruct()
 		return;
 	
 	CurrentWeaponData = Character->GetBattleComponent()->GetCurrentWeaponData();
+
+	APlayerState* Temp = GetOwningPlayerState();
+	if (!Temp)
+		return;
+
+	ASKPlayerState* PS = Cast<ASKPlayerState>(Temp);
+	if (!PS)
+		return;
+	
+	if (Attribute)
+	{
+		Attribute->OnHeatChanged.RemoveAll(this);
+		Attribute = nullptr;
+	}
+	
+	Attribute = PS->GetAttributeSet();
+
+	Attribute->OnHeatChanged.AddUObject(this, &USkillBarSlotWidget::HeatChanged);
 }
 
 void USkillBarSlotWidget::NativeDestruct()
@@ -69,7 +88,18 @@ void USkillBarSlotWidget::NativeDestruct()
 		}
 	}
 	
+	if (Attribute)
+	{
+		Attribute->OnHeatChanged.RemoveAll(this);
+	}
+	
 	Super::NativeDestruct();
+}
+
+void USkillBarSlotWidget::HeatChanged(AActor* EffectInstigator, AActor* EffectCauser,
+	const FGameplayEffectSpec* EffectSpec, float EffectMagnitude, float OldValue, float NewValue)
+{
+	UpdateSkillIcon();
 }
 
 void USkillBarSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel, const FSwitchLayoutMessage& Message)
@@ -211,5 +241,24 @@ void USkillBarSlotWidget::Skill3AnimPlay(bool bSuccess)
 			EUMGSequencePlayMode::Forward,
 			1.0f
 		);
+	}
+}
+
+void USkillBarSlotWidget::UpdateSkillIcon()
+{
+	if (!Attribute)
+		return;
+
+	if (Attribute->GetHeat() <= 0.f)
+	{
+		SkillImage1->SetRenderOpacity(0.5f);
+		SkillImage2->SetRenderOpacity(0.5f);
+		SkillImage3->SetRenderOpacity(0.5f);
+	}
+	else if (Attribute->GetHeat() >= 1.f)
+	{
+		SkillImage1->SetRenderOpacity(1.0f);
+		SkillImage2->SetRenderOpacity(1.0f);
+		SkillImage3->SetRenderOpacity(1.0f);
 	}
 }

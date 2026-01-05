@@ -1,5 +1,6 @@
 #include "GameInstance/SKGameInstance.h"
 
+#include "CommonActivatableWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Utility/SKBGMSubSystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -258,4 +259,41 @@ void USKGameInstance::OnLoadingUIVisibleMessageReceived(FGameplayTag Channel, co
 			}
 		}
 	}
+}
+
+void USKGameInstance::ShowTitleUI()
+{
+	ULocalPlayer* LP = GetFirstGamePlayer();
+	if (!LP) return;
+
+	APlayerController* PC = LP->GetPlayerController(GetWorld());
+	if (!PC) return;
+
+	if (!TitleWidgetClass)
+		return;
+
+	TitleWidgetInstance = CreateWidget<UCommonActivatableWidget>(
+		PC,
+		TitleWidgetClass
+	);
+
+	if (!TitleWidgetInstance)
+		return;
+
+	TitleWidgetInstance->AddToViewport(1000); // HUD보다 위
+	TitleWidgetInstance->ActivateWidget();
+}
+
+void USKGameInstance::StartGameFromTitle()
+{
+	UE_LOG(LogTemp, Log, TEXT("[GameInstance] StartGameFromTitle"));
+
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+
+	World->ServerTravel(
+	TEXT("/Game/BluePrint/Level/RuinsTutorial?listen"),
+	true
+);
 }

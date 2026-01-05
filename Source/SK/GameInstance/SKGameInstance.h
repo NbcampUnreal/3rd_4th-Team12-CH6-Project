@@ -8,6 +8,7 @@
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "SKGameInstance.generated.h"
 
+class UCommonActivatableWidget;
 struct FLoadingUIVisible;
 class UPrimaryDataAsset;
 /**
@@ -103,4 +104,16 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UPrimaryDataAsset> TestConfirmData;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UCommonActivatableWidget> TitleWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UCommonActivatableWidget> TitleWidgetInstance;
+
+	UFUNCTION(BlueprintCallable)
+	void ShowTitleUI();
+
+	
+	void StartGameFromTitle();
 };

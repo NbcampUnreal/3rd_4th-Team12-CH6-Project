@@ -15,6 +15,7 @@
 #include "Utility/SKUIManagerSubSystem.h"
 #include "Utility/StaticDataSubsystem.h"
 #include "GameData/StaticData/LevelUpData.h"
+#include "Kismet/GameplayStatics.h"
 #include "Utility/SKNativeGameplayTags.h"
 
 ASKPlayerState::ASKPlayerState()
@@ -60,17 +61,7 @@ void ASKPlayerState::BeginPlay()
 		OnRep_CurrentWeaponTag();
 		SetDAPlayerStat();
 	}
-
-	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
-	APlayerController* PC = GetPlayerController();
-	if (!PC)
-		return;
 	
-	USKUIManagerSubSystem* UISubSystem = ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(PC->GetLocalPlayer());
-	if (!UISubSystem) return;
-
-	UISubSystem->SettingLayout();
-
 	if (AbilitySystemComponent)
 	{
 		// ASC Delegate 바인딩
@@ -79,6 +70,32 @@ void ASKPlayerState::BeginPlay()
 	}
 
 	SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+
+	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
+	APlayerController* PC = GetPlayerController();
+	if (!PC)
+		return;
+
+	UWorld* World = PC->GetWorld();
+	if (!World)
+		return;
+
+	// 현재 레벨 이름 가져오기
+	const FName CurrentLevelName =
+		FName(*UGameplayStatics::GetCurrentLevelName(World, true));
+
+	// 타이틀 레벨이면 패스
+	if (CurrentLevelName == FName("Title"))
+	{
+		return;
+	}
+
+	USKUIManagerSubSystem* UISubSystem =
+		ULocalPlayer::GetSubsystem<USKUIManagerSubSystem>(PC->GetLocalPlayer());
+	if (!UISubSystem)
+		return;
+
+	UISubSystem->SettingLayout();
 }
 
 void ASKPlayerState::Tick(float DeltaTime)

@@ -67,7 +67,7 @@ public:
 
 	EObjectType ObjectType;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CanInteract)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CanInteract)
 	bool bCanInteract;
 	
 protected:
