@@ -398,6 +398,16 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_03,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_04,
 					   "GameplayCue.Sound.Weapon.Whoosh.04");
 
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_01,
+					   "GameplayCue.Sound.Weapon.Slash.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_02,
+					   "GameplayCue.Sound.Weapon.Slash.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_03,
+					   "GameplayCue.Sound.Weapon.Slash.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_04,
+					   "GameplayCue.Sound.Weapon.Slash.04");
+
 // Medium
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_01,
 					   "GameplayCue.Sound.Weapon.Med.01");
