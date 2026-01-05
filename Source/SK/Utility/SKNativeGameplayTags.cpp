@@ -332,6 +332,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_09, "GameplayCue.Sound.Wo
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit, "GameplayCue.Sound.Woman.Hit"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_01, "GameplayCue.Sound.Woman.Hit.01"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_02, "GameplayCue.Sound.Woman.Hit.02"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_03, "GameplayCue.Sound.Woman.Hit.03"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death, "GameplayCue.Sound.Woman.Death"); // 피격사운드
 
 // Monster (Root)
@@ -388,14 +389,20 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Death,
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon,
 					   "GameplayCue.Sound.Weapon");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_01,
+					   "GameplayCue.Sound.Weapon.Whoosh.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_02,
+					   "GameplayCue.Sound.Weapon.Whoosh.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_03,
+					   "GameplayCue.Sound.Weapon.Whoosh.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_04,
+					   "GameplayCue.Sound.Weapon.Whoosh.04");
 
 // Medium
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_01,
 					   "GameplayCue.Sound.Weapon.Med.01");
-
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_02,
 					   "GameplayCue.Sound.Weapon.Med.02");
-
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_03,
 					   "GameplayCue.Sound.Weapon.Med.03");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_04,

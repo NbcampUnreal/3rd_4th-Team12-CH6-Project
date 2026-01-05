@@ -331,6 +331,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_ATK_09); //
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Hit); // 피격사운드
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Hit_01); // 피격사운드
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Hit_02); // 피격사운드
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Hit_03); // 피격사운드
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Woman_Death); // 사망
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound);
@@ -365,6 +366,11 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Med_01);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Med_02);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Med_03);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Med_04);
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Whoosh_01);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Whoosh_02);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Whoosh_03);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Whoosh_04);
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Light_01);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_Sound_Weapon_Light_02);
