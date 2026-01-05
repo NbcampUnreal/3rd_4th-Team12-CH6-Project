@@ -136,6 +136,21 @@ void UBonfireMenuSlotWidget::OnRestClicked()
 
 void UBonfireMenuSlotWidget::OnLeaveClicked()
 {
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC) return;
+	
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(PC->GetPawn());
+	if (!PlayerCharacter) return;
+
+	UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
+	if (!AnimInstance) return;
+
+	// 무기 장착 해제 중 다른 행동 제어
+	if (AnimInstance->IsAnyMontagePlaying())
+	{
+		return;
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("Leave 버튼 클릭"));
 	if (UWorld* World = GetWorld())
 	{
@@ -150,17 +165,13 @@ void UBonfireMenuSlotWidget::OnLeaveClicked()
 			UE_LOG(LogTemp, Log, TEXT("Broadcast SwitchLayout Message: %s"), *Message.LayoutTag.ToString());
 		}
 	}
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC) return;
-	
-	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(PC->GetPawn());
-	if (!PlayerCharacter) return;
+
 	
 	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
 	if (!ASC) return;
 
 	FGameplayTagContainer BonfireEndTag;
-	BonfireEndTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.InteractBonfireEnd")));
+	BonfireEndTag.AddTag(TAG_Ability_InteractBonfireEnd);
 
 	ASC->TryActivateAbilitiesByTag(BonfireEndTag);
 
