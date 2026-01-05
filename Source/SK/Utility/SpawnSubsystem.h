@@ -49,8 +49,5 @@ private:
 	/** 정적 데이터에서 룰 가져오기 */
 	const struct FMonsterSpawnRule* GetRule(int32 RuleID) const;
 
-	/** 가중치 랜덤 선택 */
-	int32 PickMonsterID(const struct FMonsterSpawnRule* Rule) const;
-	
 	float SpawnScatterRadius = 500.f;
 };
