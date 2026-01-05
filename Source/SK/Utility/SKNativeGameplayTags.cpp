@@ -117,6 +117,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss_00, "Sound.BGM.Boss.00");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss_01, "Sound.BGM.Boss.01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title, "Sound.BGM.Title");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby, "Sound.BGM.Lobby");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsRenuewal, "Sound.BGM.RuinsRenuewal");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsTutorial, "Sound.BGM.RuinsTutorial");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
@@ -314,6 +316,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_08, "GameplayCue.Shake.08");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound, "GameplayCue.Sound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman, "GameplayCue.Sound.Woman");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Land, "GameplayCue.Sound.Woman.Land");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Jump, "GameplayCue.Sound.Woman.Jump");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK, "GameplayCue.Sound.Woman"); // 공격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_01, "GameplayCue.Sound.Woman.ATK.01"); //    
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_02, "GameplayCue.Sound.Woman.ATK.02"); //   
