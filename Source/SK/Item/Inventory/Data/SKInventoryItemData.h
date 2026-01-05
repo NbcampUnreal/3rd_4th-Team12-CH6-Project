@@ -44,7 +44,7 @@ public:
 	FText ItemName;
 
 	// 아이템 설명
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Inventory", meta = (MultiLine = true))
 	FText ItemDescription;
 
 	// 인벤토리 타입

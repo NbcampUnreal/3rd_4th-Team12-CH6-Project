@@ -44,6 +44,8 @@ enum class EEquipmentStat : uint8
 	Defense,
 	Stamina,
 	Health,
+	Speed,
+	Heat
 	// 필요에 따라 계속 추가
 };
 

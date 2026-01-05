@@ -24,10 +24,6 @@ public:
 	// 방/구역 단위로 리스폰하려면 그룹이 필요
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
 	int32 GroupID = 0;
-	
-	// 이 포인트에서 허용되는 최대 마릿수
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
-	int32 MaxSpawnCount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
 	bool bSpawnOnBeginPlay = true;
