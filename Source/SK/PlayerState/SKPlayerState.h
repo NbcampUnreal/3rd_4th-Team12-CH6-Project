@@ -270,4 +270,7 @@ public:
 
 	UPROPERTY()
 	bool bIsFirstSpawned = true;
+
+	UPROPERTY()
+	TArray<AActor*> WeaponActors;
 };

@@ -72,12 +72,9 @@ void USKActionComponent::CheckAutoUnEquipped()
 		return;
 	}
 
-	const FGameplayTag EquipTag =
-		FGameplayTag::RequestGameplayTag(TEXT("State.Condition.Equip"));
-
 	float Now = GetWorld()->GetTimeSeconds();
 
-	if (ASC->HasMatchingGameplayTag(EquipTag))
+	if (ASC->HasMatchingGameplayTag(TAG_State_Condition_Equip))
 	{
 		if (Now - LastCombatTime > AutoUnequipDelay)
 		{
@@ -142,9 +139,11 @@ void USKActionComponent::OnOwnerPossessed()
 	ASKPlayerState* PlayerState = Cast<ASKPlayerState>(Character->GetPlayerState());
 	if (IsValid(PlayerState))
 	{
+		// 죽었을 때 리스폰
 		if (!PlayerState->bIsFirstSpawned)
 		{
 			// 무기 데이터 설정
+			UE_LOG(LogTemp, Warning, TEXT("Respawn or Level Change"))
 			const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
 			Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 			Multicast_SetWeaponData(WeaponDataRow->WeaponData);
@@ -154,17 +153,31 @@ void USKActionComponent::OnOwnerPossessed()
 		}
 		PlayerState->bIsFirstSpawned = false;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("First Spawn"))
 	
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
 	// 초기 태그 설정
-	FGameplayTag UnarmedTag = FGameplayTag::RequestGameplayTag(TEXT("Weapon.Unarmed"));
-	ASC->AddLooseGameplayTag(UnarmedTag);
-	
-	if (IsValid(PlayerState))
+	if (!ASC->HasMatchingGameplayTag(TAG_Weapon))
 	{
-		PlayerState->SetCurWeaponTag(UnarmedTag);
+		UE_LOG(LogTemp, Warning, TEXT("First Spawn and Not Equipped"))
+		ASC->AddLooseGameplayTag(TAG_Weapon_Unarmed);
+		if (IsValid(PlayerState))
+		{
+			PlayerState->SetCurWeaponTag(TAG_Weapon_Unarmed);
+		}
 	}
+	else
+	{
+		// 무기 장착한 채 레벨 전환 시에만
+		UE_LOG(LogTemp, Warning, TEXT("First Spawn and Equipped, Weapon Name : %s"), *PlayerState->WeaponActors[0]->GetName())
+		UE_LOG(LogTemp, Warning, TEXT("Player State Weapon Tag: %s"), *PlayerState->GetWeaponTag().GetTagName().ToString());
+		const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+		Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
+		Multicast_SetWeaponData(WeaponDataRow->WeaponData);
+		WeaponActors = PlayerState->WeaponActors;
+	}
+
 	const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
 	if (!WeaponDataRow) return;
 	
