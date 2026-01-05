@@ -64,15 +64,15 @@ public:
 
 	//종합 크기
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SK|Audio|Volume")
-	float MasterVolume = 1.f;
+	float MasterVolume = 0.5f;
 
 	//브금 크기
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SK|Audio|Volume")
-	float BGMVolume = 1.f;
+	float BGMVolume = 0.5f;
 
 	//UI 사운드 & 상호작용,이펙트 크기
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SK|Audio|Volume")
-	float SFXVolume = 1.f;
+	float SFXVolume = 0.5f;
 
 #pragma endregion
 
