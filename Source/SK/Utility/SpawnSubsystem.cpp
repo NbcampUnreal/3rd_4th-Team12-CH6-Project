@@ -7,6 +7,9 @@
 #include "GameData/StaticData/MonsterSpawnRule.h"
 #include "GameFramework/Actor.h"
 #include "GameMode/DungeonGameMode.h"
+#include "Character/AI/SKAICharacter.h"
+#include "Components/CapsuleComponent.h"
+
 
 void USpawnSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -38,27 +41,50 @@ AActor* USpawnSubsystem::SpawnMonsterByID(int32 MonsterID, const FVector& InLoca
 {
     if (GetWorldChecked()->GetNetMode() == NM_Client) return nullptr;
 
-    FVector SpawnLocation = InLocation;
-
-    FHitResult Hit;
-    FVector Start = InLocation + FVector(0, 0, 300.f);
-    FVector End   = InLocation - FVector(0, 0, 2000.f);
-    
-    if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_WorldStatic))
-    {
-        SpawnLocation = Hit.Location;
-    }
-
-    // 2) 정적 데이터에서 몬스터 데이터 가져오기
+    // 1) 정적 데이터에서 몬스터 데이터 가져오기
     auto* SDS = GetWorld()->GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
     const FMonsterData* Data = SDS->GetData<FMonsterData>(MonsterID);
     if (!Data) return nullptr;
 
-    // 3) 스폰 클래스 로드
+    // 2) 스폰 클래스 로드
     TSubclassOf<AActor> ClassToSpawn = Data->MonsterClass.LoadSynchronous();
-    if (!ClassToSpawn) return nullptr;
+    if (!ClassToSpawn)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SpawnSubSystem] Not TSubclassOf MonsterClass"));
+        return nullptr;
+    }
 
-    // 4) 스폰 파라미터 설정 후 SpawnActor
+
+    ASKAICharacter* CDO = Cast<ASKAICharacter>(ClassToSpawn->GetDefaultObject());
+    if (!CDO)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SpawnSubSystem] Not Cast ASKAICharacter Monster"));
+        return nullptr;
+    }
+
+    // 3) 스폰 몬스터 캡슐 크기 가져오기
+    UCapsuleComponent* Capsule = CDO->GetCapsuleComponent();
+    if (!Capsule)
+    {
+        UE_LOG(LogTemp, Error, TEXT("[SpawnSubSystem] Not Monster Capsule"));
+        return nullptr;
+    }
+
+    float CapsuleRadius = Capsule->GetUnscaledCapsuleRadius();
+    float CapsuleHalfHeight = Capsule->GetUnscaledCapsuleHalfHeight();
+
+    // 4) 바닥 보정 + 캡슐 높이 반영
+    FVector SpawnLocation = InLocation;
+    FHitResult Hit;
+    FVector Start = InLocation + FVector(0, 0, 1000.f);
+    FVector End   = InLocation - FVector(0, 0, 2000.f);
+    
+    if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_WorldStatic))
+    {
+        SpawnLocation.Z = Hit.Location.Z  + CapsuleHalfHeight;
+    }
+
+    // 5) 스폰 파라미터 설정 후 SpawnActor
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride =
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
