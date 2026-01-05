@@ -27,6 +27,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float InitialSpeed = 3000.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "LifeSpan")
+	float LifeSpan = 0.5f;
 	
 public:	
 	ASKBaseProjectile();

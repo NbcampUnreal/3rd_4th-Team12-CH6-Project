@@ -262,8 +262,8 @@ void UBattleComponent::PerformTrace(float DeltaTime)
 	}
 
 
-	DrawDebugLine(GetWorld(), PrevStart, CurrStart, FColor::Red, false, 0.05f);
-	DrawDebugLine(GetWorld(), PrevEnd,   CurrEnd,   FColor::Blue, false, 0.05f);
+	// DrawDebugLine(GetWorld(), PrevStart, CurrStart, FColor::Red, false, 0.05f);
+	// DrawDebugLine(GetWorld(), PrevEnd,   CurrEnd,   FColor::Blue, false, 0.05f);
 
 
 	PrevStart = CurrStart;

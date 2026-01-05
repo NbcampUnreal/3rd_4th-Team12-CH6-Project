@@ -19,8 +19,8 @@ ASKAIController::ASKAIController()
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComp"));
 	
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	SightConfig->SightRadius = 1500.0f; // 시야 범위
-	SightConfig->LoseSightRadius = 2000.0f; // 시야 상실 범위
+	SightConfig->SightRadius = 2000.0f; // 시야 범위
+	SightConfig->LoseSightRadius = 2500.0f; // 시야 상실 범위
 	SightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
 	SightConfig->SetMaxAge(5.0f); // 자극 최대 기억 시간
 	// 감지 주기 설정은?

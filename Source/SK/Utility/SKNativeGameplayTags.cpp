@@ -249,6 +249,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_EvadeBlocked, "State.Condition.EvadeB
 //AI 행동 제어
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI, "AI");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Perception, "AI.Perception");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Wander, "AI.Wander");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Chase, "AI.Chase");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Combat, "AI.Combat");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Ready, "AI.Ready");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Death, "AI.Death");
@@ -337,6 +339,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_ATK_09, "GameplayCue.Sound.Wo
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit, "GameplayCue.Sound.Woman.Hit"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_01, "GameplayCue.Sound.Woman.Hit.01"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_02, "GameplayCue.Sound.Woman.Hit.02"); // 피격사운드
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Hit_03, "GameplayCue.Sound.Woman.Hit.03"); // 피격사운드
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Woman_Death, "GameplayCue.Sound.Woman.Death"); // 피격사운드
 
 // Monster (Root)
@@ -393,14 +396,30 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Death,
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon,
 					   "GameplayCue.Sound.Weapon");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_01,
+					   "GameplayCue.Sound.Weapon.Whoosh.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_02,
+					   "GameplayCue.Sound.Weapon.Whoosh.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_03,
+					   "GameplayCue.Sound.Weapon.Whoosh.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_04,
+					   "GameplayCue.Sound.Weapon.Whoosh.04");
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_01,
+					   "GameplayCue.Sound.Weapon.Slash.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_02,
+					   "GameplayCue.Sound.Weapon.Slash.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_03,
+					   "GameplayCue.Sound.Weapon.Slash.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Slash_04,
+					   "GameplayCue.Sound.Weapon.Slash.04");
 
 // Medium
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_01,
 					   "GameplayCue.Sound.Weapon.Med.01");
-
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_02,
 					   "GameplayCue.Sound.Weapon.Med.02");
-
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_03,
 					   "GameplayCue.Sound.Weapon.Med.03");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Med_04,
@@ -433,12 +452,20 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_01,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Draw,
 					   "GameplayCue.Sound.Weapon.Draw");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Guard_Katana,
+					   "GameplayCue.Sound.Weapon.Guard.Katana");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Guard_Duel,
+					   "GameplayCue.Sound.Weapon.Guard.Duel");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC,
 					   "GameplayCue.Sound.ETC");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_MonsterHit,
 					   "GameplayCue.Sound.ETC.MonsterHit");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_FootStep,
+					   "GameplayCue.Sound.ETC.FootStep");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_ETC_BigMonster,
+					   "GameplayCue.Sound.ETC.BigMonster");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI,
 					   "GameplayCue.Sound.UI");

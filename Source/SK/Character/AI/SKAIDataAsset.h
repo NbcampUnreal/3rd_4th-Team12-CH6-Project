@@ -6,6 +6,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "SKAIDataAsset.generated.h"
 
+class ASKBaseProjectile;
 class UStateTree;
 
 UCLASS()
@@ -70,6 +71,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
 	TMap<FName, TObjectPtr<UAnimMontage>> Montages;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+	TMap<FName, TSubclassOf<ASKBaseProjectile>> ProjectileClasses;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AI")
 	TObjectPtr<UStateTree> StateTreeAsset;

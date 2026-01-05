@@ -13,7 +13,7 @@ USK_GA_AI_Rush::USK_GA_AI_Rush()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Rush")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	//ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Status.Stunned")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Rush")));
 	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Rush")));
 }
 
@@ -88,7 +88,7 @@ void USK_GA_AI_Rush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 				PredictedTargetLocation,
 				PredictionTime,
 				true,
-				MOVE_Flying,
+				MOVE_Walking,
 				true,
 				nullptr,
 				ERootMotionFinishVelocityMode::SetVelocity,

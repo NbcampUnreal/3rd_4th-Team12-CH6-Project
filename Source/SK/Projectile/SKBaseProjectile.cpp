@@ -3,6 +3,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Character/SKCharacterBase.h"
 
 ASKBaseProjectile::ASKBaseProjectile()
 {
@@ -11,7 +12,7 @@ ASKBaseProjectile::ASKBaseProjectile()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	RootComponent = SphereComponent;
 	SphereComponent->InitSphereRadius(15.0f);
-	SphereComponent->SetCollisionProfileName(TEXT("Projectile")); // 아직 안 만듬
+	SphereComponent->SetCollisionProfileName(TEXT("Projectile"));
 	SphereComponent->OnComponentHit.AddDynamic(this, &ASKBaseProjectile::OnHit);
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
@@ -21,12 +22,12 @@ ASKBaseProjectile::ASKBaseProjectile()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->UpdatedComponent = SphereComponent; 
 	ProjectileMovementComponent->bShouldBounce = false; 
-	ProjectileMovementComponent->ProjectileGravityScale = 1.0f; // 중력 영향력 (0.0f이면 직선 이동)
+	ProjectileMovementComponent->ProjectileGravityScale = 0.f; // 중력 영향력 (0.0f이면 직선 이동)
 	ProjectileMovementComponent->InitialSpeed = InitialSpeed; 
 	ProjectileMovementComponent->MaxSpeed = InitialSpeed; 
 	ProjectileMovementComponent->SetAutoActivate(false);
 
-	InitialLifeSpan = 3.0f; // 3초 후 자동 소멸 (네트워크 환경에서 유용)
+	InitialLifeSpan = 3.f; // 일정 시간 후 자동 소멸 (네트워크 환경에서 유용)
 	SetReplicates(true);
 	SetReplicateMovement(true);
 }
@@ -53,34 +54,45 @@ void ASKBaseProjectile::OnHit(
 	// 투사체를 발사한 주체가 자기 자신이라면 (혹은 무시할 액터라면) 처리하지 않습니다.
 	if (OtherActor && (OtherActor != this) && GetInstigator() != OtherActor)
 	{
-		ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetInstigator());
-		if (!IsValid(AICharacter))
+		ASKCharacterBase* Player = Cast<ASKCharacterBase>(OtherActor);
+		if (!IsValid(Player))
 		{
 			Destroy();
 		}
-
-		UAbilitySystemComponent* OwnerASC = AICharacter->GetAbilitySystemComponent();
-		if (!OwnerASC)
+		else
 		{
-			Destroy();
-		}
+			ASKAICharacter* AICharacter = Cast<ASKAICharacter>(GetInstigator());
+			if (!IsValid(AICharacter))
+			{
+				Destroy();
+				return;
+			}
 
-		FGameplayEventData EventData;
-		EventData.Instigator = AICharacter;
-		EventData.Target = OtherActor;
-		EventData.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Hit"));
-		EventData.OptionalObject = nullptr;
+			UAbilitySystemComponent* OwnerASC = AICharacter->GetAbilitySystemComponent();
+			if (!OwnerASC)
+			{
+				Destroy();
+				return;
+			}
+			
+			FGameplayEventData EventData;
+			EventData.Instigator = AICharacter;
+			EventData.Target = OtherActor;
+			EventData.EventTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Hit"));
+			EventData.OptionalObject = nullptr;
 
-		OwnerASC->HandleGameplayEvent(EventData.EventTag, &EventData);
+			OwnerASC->HandleGameplayEvent(EventData.EventTag, &EventData);
 		
-		Destroy();
+			Destroy();
+		}
 	}
 }
 
 void ASKBaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	SetLifeSpan(LifeSpan);
 }
 
 void ASKBaseProjectile::Tick(float DeltaTime)
