@@ -10,8 +10,8 @@ USK_GA_AI_Blocked::USK_GA_AI_Blocked()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Blocked")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Blocked")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.ShortGroggy")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.ShortGroggy")));
 }
 
 void USK_GA_AI_Blocked::Blocked(TObjectPtr<UAnimMontage> LocalAnimMontage)

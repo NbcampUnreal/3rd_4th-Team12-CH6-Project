@@ -19,17 +19,17 @@ ASKAICharacterBase::ASKAICharacterBase()
 
 	GetCapsuleComponent()->SetCollisionProfileName("AI");
 	
-	CombatArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp|CombatArea"));
+	CombatArea = CreateDefaultSubobject<UBoxComponent>(TEXT("CombatArea"));
 	CombatArea->SetupAttachment(GetRootComponent());
 	CombatArea->SetCollisionProfileName("CombatArea");
 	CombatArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnCombatAreaBeginOverlap);
 	CombatArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnCombatAreaEndOverlap);
 
-	MeleeOrRushArea = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp|MeleeOrRushArea"));
-	MeleeOrRushArea->SetupAttachment(GetRootComponent());
-	MeleeOrRushArea->SetCollisionProfileName("CombatArea");
-	MeleeOrRushArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnMeleeOrRushAreaBeginOverlap);
-	MeleeOrRushArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnMeleeOrRushAreaEndOverlap);
+	AttackArea = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackArea"));
+	AttackArea->SetupAttachment(GetRootComponent());
+	AttackArea->SetCollisionProfileName("CombatArea");
+	AttackArea->OnComponentBeginOverlap.AddDynamic(this, &ASKAICharacterBase::OnAttackAreaBeginOverlap);
+	AttackArea->OnComponentEndOverlap.AddDynamic(this, &ASKAICharacterBase::OnAttackAreaEndOverlap);
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -94,9 +94,9 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 		{
 			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))))
 			{
-				if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction"))))
+				if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
 				{
-					AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+					AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit")));
 			
 					AbilitySystemComponent->CancelAllAbilities();
 				}
@@ -105,9 +105,9 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 			{
 				if (PlayerAttackType == "UnGuardable")
 				{
-					if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction"))))
+					if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
 					{
-						AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+						AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit")));
 			
 						AbilitySystemComponent->CancelAllAbilities();
 					}
@@ -197,7 +197,7 @@ void ASKAICharacterBase::OnCombatAreaEndOverlap(
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
-void ASKAICharacterBase::OnMeleeOrRushAreaBeginOverlap(
+void ASKAICharacterBase::OnAttackAreaBeginOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -206,19 +206,19 @@ void ASKAICharacterBase::OnMeleeOrRushAreaBeginOverlap(
 	const FHitResult& SweepResult
 	)
 {
-	AddTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
+	AddTag(FGameplayTag::RequestGameplayTag("AI.Attack"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
 
-void ASKAICharacterBase::OnMeleeOrRushAreaEndOverlap(
+void ASKAICharacterBase::OnAttackAreaEndOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex
 	)
 {
-	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
+	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Attack"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
