@@ -94,9 +94,9 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 		{
 			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))))
 			{
-				if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction"))))
+				if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
 				{
-					AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+					AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit")));
 			
 					AbilitySystemComponent->CancelAllAbilities();
 				}
@@ -105,9 +105,9 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 			{
 				if (PlayerAttackType == "UnGuardable")
 				{
-					if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction"))))
+					if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
 					{
-						AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+						AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit")));
 			
 						AbilitySystemComponent->CancelAllAbilities();
 					}
@@ -206,7 +206,7 @@ void ASKAICharacterBase::OnAttackAreaBeginOverlap(
 	const FHitResult& SweepResult
 	)
 {
-	AddTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
+	AddTag(FGameplayTag::RequestGameplayTag("AI.Attack"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
@@ -218,7 +218,7 @@ void ASKAICharacterBase::OnAttackAreaEndOverlap(
 	int32 OtherBodyIndex
 	)
 {
-	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Melee"));
+	RemoveTag(FGameplayTag::RequestGameplayTag("AI.Attack"));
 	
 	SendEventToASC(nullptr, nullptr, FGameplayTag::RequestGameplayTag("Event.EndAbility"));
 }
