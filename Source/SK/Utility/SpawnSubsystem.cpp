@@ -104,32 +104,11 @@ const FMonsterSpawnRule* USpawnSubsystem::GetRule(int32 RuleID) const
     return SDS->GetData<FMonsterSpawnRule>(RuleID);
 }
 
-/** 가중치 랜덤으로 MonsterID 선택 */
-int32 USpawnSubsystem::PickMonsterID(const FMonsterSpawnRule* Rule) const
-{
-    if (!Rule || Rule->MonsterIDs.Num() == 0) return -1;
-
-    int32 TotalWeight = 0;
-    for (int32 W : Rule->SpawnWeights) TotalWeight += W;
-
-    int32 R = FMath::RandRange(1, TotalWeight);
-    int32 Accum = 0;
-
-    for (int32 i = 0; i < Rule->MonsterIDs.Num(); i++)
-    {
-        Accum += Rule->SpawnWeights[i];
-        if (R <= Accum)
-            return Rule->MonsterIDs[i];
-    }
-
-    return Rule->MonsterIDs.Last();
-}
-
 /** RuleID 기반 스폰 (몬스터 종류 + 개수 모두 처리) */
 void USpawnSubsystem::SpawnByRuleID(int32 RuleID)
 {
     const FMonsterSpawnRule* Rule = GetRule(RuleID);
-    if (!Rule) return;
+    if (!Rule || Rule->SpawnEntries.Num() == 0) return;
 
     UE_LOG(LogTemp, Warning, TEXT("SpawnPoints Num : %d" ), SpawnPoints.Num());
 
@@ -139,17 +118,13 @@ void USpawnSubsystem::SpawnByRuleID(int32 RuleID)
             continue;
 
         // 몬스터 후보들 전체 순회
-        for (int32 i = 0; i < Rule->MonsterIDs.Num(); i++)
+        for (const FMonsterSpawnEntry& Entry : Rule->SpawnEntries)
         {
-            UE_LOG(LogTemp, Warning, TEXT("MonsterIDs Num : %d" ), Rule->MonsterIDs.Num());
-            int32 MonsterID = Rule->MonsterIDs[i];
-
-            // 이 몬스터가 스폰될 개수 결정
-            int32 Count = FMath::RandRange(Rule->MinCount[i], Rule->MaxCount[i]);
-            Count = FMath::Clamp(Count, 1, P.MaxSpawnCount);
+            UE_LOG(LogTemp, Warning, TEXT("Spawn MonsterID : %d" ), Entry.MonsterID);
+            const int32 SpawnCount = FMath::RandRange(Entry.MinCount, Entry.MaxCount);
 
             // 개수만큼 스폰
-            for (int32 c = 0; c < Count; c++)
+            for (int32 i = 0; i < SpawnCount; i++)
             {
                 float R = FMath::RandRange(0.f, SpawnScatterRadius);
                 float Theta = FMath::RandRange(0.f, PI * 2);
@@ -163,7 +138,7 @@ void USpawnSubsystem::SpawnByRuleID(int32 RuleID)
                 FVector SpawnLocation = P.Location + Offset;
 
                 // ② 지면 보정 (SpawnMonsterByID 안에서 다시 보정됨)
-                AActor* Spawned = SpawnMonsterByID(MonsterID, SpawnLocation);
+                AActor* Spawned = SpawnMonsterByID(Entry.MonsterID, SpawnLocation);
 
                 if (Spawned)
                     P.SpawnedActors.Add(Spawned);

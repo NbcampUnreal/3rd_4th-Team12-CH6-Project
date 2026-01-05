@@ -7,7 +7,29 @@
 #include "MonsterSpawnRule.generated.h"
 
 /**
+ *  몬스터 스폰 구조체
  * 
+ */
+USTRUCT(BlueprintType)
+struct FMonsterSpawnEntry
+{
+	GENERATED_BODY()
+
+	// 어떤 몬스터인가
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MonsterID = -1;
+
+	// 이 몬스터의 스폰 최소 개수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MinCount = 1;
+
+	// 이 몬스터의 스폰 최대 개수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MaxCount = 1;
+};
+
+/**
+ * 실제
  */
 USTRUCT(BlueprintType)
 struct FMonsterSpawnRule : public FStaticDataBase
@@ -15,26 +37,11 @@ struct FMonsterSpawnRule : public FStaticDataBase
 	GENERATED_BODY();
 
 public:
-
-	// PCG의 SpawnRuleID와 연결
+	
+	// 몬스터 스폰 목록
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 SpawnRuleID = -1;
-
-	// 등장 가능한 MonsterID들
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<int32> MonsterIDs;
-
-	// 랜덤 가중치 (MonsterIDs와 인덱스 1:1 대응)
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<int32> SpawnWeights;
-
-	// 최소~최대 스폰 개수
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<int32> MinCount;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<int32> MaxCount;
-
+	TArray<FMonsterSpawnEntry> SpawnEntries;
+	
 	//설명
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FText Description;
