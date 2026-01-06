@@ -67,10 +67,8 @@ void UGameDirectionSlotWidget::TryBind()
 		}
 		return;
 	}
-
-	Direction = CurrentPS->GetGameDirection();
-
-	UpdateDirectionText(Direction);
+	
+	UpdateDirectionText(CurrentPS->GetGameDirection());
 }
 
 void UGameDirectionSlotWidget::UpdateDirectionText(int32 NewDirection)
