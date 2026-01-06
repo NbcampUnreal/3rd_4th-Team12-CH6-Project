@@ -8,8 +8,10 @@
 #include "GameData/WeaponDataRow.h"
 #include "GameplayEffectTypes.h"
 #include "GenericTeamAgentInterface.h"
+#include "Utility/SKGameplayMessageSubsystem.h"
 #include "SKPlayerState.generated.h"
 
+struct FGameDirectionMessage;
 class ASKBonfire;
 class UInventoryComponent;
 class UQuickSlotComponent;
@@ -84,6 +86,7 @@ public:
 	ASKPlayerState();
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 	//SeamlessTravel로 인해 PlayerState가 재성성되기 때문에 이전PS에서 데이터를 가져오기 위해 사용
 	virtual void CopyProperties(APlayerState* NewPlayerState) override;
@@ -101,6 +104,7 @@ public:
 
 	void EquipmentComponentSetting();
 
+	int32 GetGameDirection() const { return GameDirection; }
 #pragma region LevelSystem
 	
 	/** Gold 지급 */
@@ -263,7 +267,13 @@ protected:
 	TSubclassOf<UGameplayEffect> GE_LevelUpStat;
 
 #pragma endregion LevelSystem
-	
+
+	FSKGameplayMessageListenerHandle GameDirectionHandle;
+
+	void OnGameDirectionMessageReceived(FGameplayTag Channel, const FGameDirectionMessage& Message);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	int32 GameDirection = 0;
 public:
 	UPROPERTY()
 	ASKBonfire* CurrentBonfire;
