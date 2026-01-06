@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SK|Sound|Volume")
 	void SetSFXVolume(float InVolume);
 	float GetSFXVolume() const { return SFXVolume; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetSFXFinalVolume() const { return SFXVolume * MasterVolume ; }
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SK|Audio")
 	TObjectPtr<USKSoundDataAsset> SoundDataAsset;

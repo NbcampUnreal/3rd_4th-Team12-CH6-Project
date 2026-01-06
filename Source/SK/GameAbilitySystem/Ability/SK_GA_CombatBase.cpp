@@ -93,6 +93,7 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 		Params
 	);
 
+	/*
 #if WITH_EDITOR
 	DrawDebugSphere(
 		GetWorld(),
@@ -104,6 +105,7 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 		1.f                 
 	);
 #endif
+*/
 	
 	if (bHit && Hit.bBlockingHit)
 	{
