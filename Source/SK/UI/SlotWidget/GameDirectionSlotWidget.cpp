@@ -92,8 +92,6 @@ void UGameDirectionSlotWidget::UpdateDirectionText(int32 NewDirection)
 
 	Direction = NewDirection;
 	
-	PlayAnimation(ChangeDirectionAnim, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
-	
 	for (const auto& Mapping : DirectionTextMappings)
 	{
 		if (Mapping.Value == Direction)
