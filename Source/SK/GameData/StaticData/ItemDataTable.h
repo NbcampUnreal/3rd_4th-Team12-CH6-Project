@@ -24,14 +24,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
 	TSoftObjectPtr<USKInventoryItemData> InventoryItemDataAsset;
 	
-	/** 아이템 액터 클래스 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
-	TSoftClassPtr<AActor> ItemClass;
-
-	/** 아이템 아이콘 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
-	TSoftObjectPtr<UTexture2D> Icon;
-	
 	/** 아이템 설명 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
 	FText Description;

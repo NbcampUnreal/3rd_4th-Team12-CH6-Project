@@ -19,8 +19,8 @@ USK_GA_AI_Die::USK_GA_AI_Die()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Die")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Death")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Die")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Die")));
 }
 
 void USK_GA_AI_Die::Die(TObjectPtr<UAnimMontage> LocalAnimMontage)

@@ -10,8 +10,8 @@ USK_GA_AI_Groggy::USK_GA_AI_Groggy()
 	
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Ability.Groggy")));
 	//ActivationRequiredTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("State.Alive")));
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
+	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.FullGroggy")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.FullGroggy")));
 }
 
 void USK_GA_AI_Groggy::Groggy(TObjectPtr<UAnimMontage> LocalAnimMontage)

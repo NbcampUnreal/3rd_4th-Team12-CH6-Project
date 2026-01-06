@@ -25,7 +25,6 @@ void ASpawnPointActor::BuildSpawnPointData(FSpawnPointData& OutData) const
 	Data[0].Location = GetActorLocation();
 	Data[0].SpawnRuleID = SpawnRuleID;
 	Data[0].GroupID = GroupID;
-	Data[0].MaxSpawnCount = MaxSpawnCount;
 
 	SpawnSubsystem->RegisterSpawnPoints(Data);
 }
@@ -48,7 +47,6 @@ void ASpawnPointActor::BeginPlay()
 	Data.Location = GetActorLocation();
 	Data.SpawnRuleID = SpawnRuleID;
 	Data.GroupID = GroupID;
-	Data.MaxSpawnCount = MaxSpawnCount;
 
 	TArray<FSpawnPointData> DataArray;
 	DataArray.Add(Data);

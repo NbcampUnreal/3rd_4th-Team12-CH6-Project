@@ -20,11 +20,11 @@ class SK_API ASKAICharacterBase : public ACharacter, public IAbilitySystemInterf
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UBoxComponent> CombatArea;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component|Combat")
-	TObjectPtr<UBoxComponent> MeleeOrRushArea;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UBoxComponent> AttackArea;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;
@@ -151,7 +151,7 @@ protected:
 	);	
 
 	UFUNCTION()
-	void OnMeleeOrRushAreaBeginOverlap(
+	void OnAttackAreaBeginOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -161,7 +161,7 @@ protected:
 	);
 	
 	UFUNCTION()
-	void OnMeleeOrRushAreaEndOverlap(
+	void OnAttackAreaEndOverlap(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

@@ -87,7 +87,7 @@ void USK_GA_AI_HitReaction::EndAbility(
 	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
 	if (IsValid(OwnerASC))
 	{
-		OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.HitReaction")));
+		OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit")));
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
