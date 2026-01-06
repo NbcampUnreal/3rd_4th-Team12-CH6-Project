@@ -171,6 +171,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Option, "UI.Slot.Option");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_Dialogue, "UI.Slot.Dialogue");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_InputInfo, "UI.Slot.InputInfo");
 UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_LevelUpInfo, "UI.Slot.LevelInfo");
+UE_DEFINE_GAMEPLAY_TAG(TAG_UI_Slot_GameDirection, "UI.Slot.GameDirection");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState, "PlayerState");
@@ -293,6 +294,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_SkillUse, "Message.Channel.SkillUse")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogue, "Message.Channel.NPCDialogue");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogueSkip, "Message.Channel.NPCDialogueSkip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_PlayerLevelUpResult, "Message.Channel.PlayerLevelUpResult");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_GameDirection, "Message.Channel.GameDirection");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");

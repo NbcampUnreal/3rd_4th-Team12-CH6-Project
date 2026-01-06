@@ -68,7 +68,6 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	//계산 조건 파라미터
 	FAggregatorEvaluateParameters EvaluateParams;
 
-
 	if (SourceASC)
 	{
 		if (const USKAIAttributeSet* SourceSet = SourceASC->GetSet<USKAIAttributeSet>())
@@ -96,6 +95,15 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	AttackPower = FMath::Max(AttackPower,0.f);
 	ArmorPower = FMath::Clamp(ArmorPower,0.f,SKConstant::MaxArmorValue);
 
+	float CallerValue = Spec.GetSetByCallerMagnitude(TAG_Data_DamageMultiplier, false, -1.f);
+	if (CallerValue < 0.0f)
+	{
+		CallerValue = 1.0f;
+	}
+	UE_LOG(LogTemp, Warning,
+		   TEXT("[AIDamageExecution] SetByCaller DamageMultiplier = %f"),
+		   CallerValue
+	);
 
 	constexpr float ArmorCurveFactor = 0.6f; // 0.5 ~ 0.7 추천
 	constexpr float MinDamageRatio = 0.25f; // 최소 25% 데미지 보장
@@ -110,7 +118,7 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	);
 	
 	//const float DamageMultiplier = 1.f - (ArmorPower / (ArmorPower + SKConstant::ArmorDamageDeclineRate));
-	float FinalDamage  = AttackPower* DamageMultiplier;
+	float FinalDamage  = AttackPower * CallerValue * DamageMultiplier;
 
 	// ==============================
 	// 1. 플레이어 무적 판정
@@ -220,92 +228,3 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 				-StaminaCost));
 	}
 }
-
-/*
-void USKAIDamageExecution::HandleHitReaction(const FGameplayEffectSpec& Spec, UAbilitySystemComponent* TargetASC,
-	AActor* TargetActor) const
-{
-	if (!TargetASC || !TargetActor)
-		return;
-
-	// 공격자 (AI)
-	AActor* InstigatorActor = Spec.GetContext().GetOriginalInstigator();
-	if (!InstigatorActor)
-		return;
-
-	// Player만 HitReact (필요시 조건 조절)
-	if (!TargetActor->IsA(ASKPlayerCharacter::StaticClass()))
-		return;
-
-	const FGameplayTag HitStateTag = TAG_State_Condition_Hit;
-
-	if (TargetASC->HasMatchingGameplayTag(HitStateTag))
-	{
-		return;
-	}
-
-	// 방향 판정
-	
-	//const EHitReactAnim ReactType =
-	//	DetermineHitReactAnim(
-	//		InstigatorActor->GetActorLocation(),
-	//		TargetActor
-	//	);
-	
-
-	// 5️⃣ Hit 상태 부여 (Lock)
-	if (HitConditionEffect)
-	{
-		const UGameplayEffect* HitGE = HitConditionEffect->GetDefaultObject<UGameplayEffect>();
-		
-		TargetASC->ApplyGameplayEffectToSelf(
-			HitGE,
-			1.f,
-			TargetASC->MakeEffectContext()
-		);
-	}
-
-	EHitReactType HitType = EHitReactType::Normal;
-	
-	if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Normal))
-	{
-		HitType = EHitReactType::Normal;
-	}
-	else if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Heavy))
-	{
-		HitType = EHitReactType::Heavy;
-	}
-	else if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_UnGuardable))
-	{
-		HitType = EHitReactType::Unblockable;
-	}
-
-
-	// GameplayCue 선택
-	FGameplayTag CueTag;
-
-	switch (HitType)
-	{
-	case EHitReactType::Normal:
-		CueTag = TAG_GameplayCue_HitReact_Normal;
-		break;
-
-	case EHitReactType::Heavy:
-		CueTag = TAG_GameplayCue_HitReact_Heavy;
-		break;
-
-	case EHitReactType::Unblockable:
-		CueTag = TAG_GameplayCue_HitReact_Unblockable;
-		break;
-
-	default:
-		return;
-	}
-
-	// 서버에서 GameplayCue 실행
-	TargetASC->ExecuteGameplayCue(
-		CueTag,
-		FGameplayCueParameters{Spec.GetContext()}
-	);
-}
-*/

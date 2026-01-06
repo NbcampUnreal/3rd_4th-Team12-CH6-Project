@@ -178,10 +178,7 @@ void USKInteractionComponent::ActivateInteractionAbility(TSubclassOf<UGameplayAb
 
 	UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
 	if (!ASC) return;
-
-	// FGameplayTagContainer InteractionTag;
-	// InteractionTag.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.SimpleInteract")));
-	// ASC->TryActivateAbilitiesByTag(InteractionTag);
+	
 	ASC->TryActivateAbilityByClass(Ability);
 }
 
@@ -223,15 +220,8 @@ void USKInteractionComponent::Server_TryInteract_Implementation()
 		if (!Character) return;
 
 		ISKInteractable::Execute_GetInteractionData(CurrentTargetActor, CurrentInteractionData);
-		
-		// 서버는 바로 실행 서버에 복제 된 클라는 클라에 도착하면 서버 RPC로 실행
-	
-		// if (!GetOwner()->HasAuthority()) return;
 
 		if (!Character->IsLocallyControlled()) return;
-
-		// APlayerController* PC = Cast<APlayerController>(Char->GetController());
-		// if (!PC || !PC->IsLocalController()) return;
 
 		ActivateInteractionAbility(CurrentInteractionData.GrantedAbility);
 	}
