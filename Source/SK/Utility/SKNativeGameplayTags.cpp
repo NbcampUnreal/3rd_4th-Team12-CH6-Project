@@ -399,6 +399,15 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Hit,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_Death,
                        "GameplayCue.Sound.Monster.MD.Death");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_ATK_01,
+					   "GameplayCue.Sound.Monster.MD.ATK.01");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_ATK_02,
+					   "GameplayCue.Sound.Monster.MD.ATK.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_ATK_03,
+					   "GameplayCue.Sound.Monster.MD.ATK.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_MD_ATK_04,
+					   "GameplayCue.Sound.Monster.MD.ATK.04");
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon,
 					   "GameplayCue.Sound.Weapon");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Weapon_Whoosh_01,
