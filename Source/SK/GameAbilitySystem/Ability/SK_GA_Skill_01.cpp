@@ -74,21 +74,20 @@ void USK_GA_Skill_01::EndAbility(const FGameplayAbilitySpecHandle Handle, const 
                                  const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility,
                                  bool bWasCancelled)
 {
-	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
-	if (!IsValid(Character))
-		return;
-
+	ACharacter* Character = ActorInfo ? Cast<ACharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
 	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(Character);
-	
-	PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
-	PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
-
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->UpdateMovementTag_ATK(TAG_State_Action_ATK_Skill, false);
+		PlayerCharacter->SetLooseTag(TAG_State_Action_ATK, false);
+	}
 
 	//방어코드 추가
 	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
-	if (!MoveComp)
-		return;
-	MoveComp->SetMovementMode(MOVE_Walking);
+	if (MoveComp)
+	{
+		MoveComp->SetMovementMode(MOVE_Walking);
+	}
 
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
