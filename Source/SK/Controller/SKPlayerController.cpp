@@ -972,8 +972,8 @@ void ASKPlayerController::RequestRespawn()
 	// 죽음 태그 제거
 	UAbilitySystemComponent* ASC = PS->FindComponentByClass<UAbilitySystemComponent>();
 	if (!ASC) return;
-	FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(FName("State.Condition.Death"));
-	ASC->RemoveLooseGameplayTag(DeathTag);
+
+	ASC->RemoveLooseGameplayTag(TAG_State_Condition_Death);
 	// 락온 해제
 	if (bIsLockedOn)
 	{
