@@ -7,6 +7,8 @@
 #include "Interaction/UI/SKInteractableWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Constants/SKGameConstants.h"
+#include "GameInstance/SKGameInstance.h"
 
 ASKPickupItem::ASKPickupItem()
 {
@@ -18,7 +20,7 @@ ASKPickupItem::ASKPickupItem()
 	InteractionCollision->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 
 	InteractionWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 120.0f));
-	
+
 	ObjectType = EObjectType::Pickup;
 }
 
@@ -68,7 +70,9 @@ void ASKPickupItem::Multicast_PlayPickupEffects_Implementation(AActor* Interacto
 {
 	if (USoundBase* PickupSound = GetPickupSound())
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, Interactor->GetActorLocation());
+		USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
+		float FinalVolume = SKGI->GetSFXFinalVolume();
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PickupSound, Interactor->GetActorLocation(), FinalVolume);
 	}
 
 	if (UNiagaraSystem* PickupNiagara = GetPickupNiagara())
@@ -122,10 +126,10 @@ void ASKPickupItem::ExecuteInteraction_Implementation(AActor* Interactor)
 	if (!HasAuthority()) return;
 
 	PreExecuteInteraction(Interactor);
-	
+
 	AddToInventory(Interactor, ItemInfo.ItemID, ItemInfo.ItemCount);
 
 	Multicast_PlayPickupEffects(Interactor);
-	
+
 	Destroy();
 }
