@@ -255,3 +255,12 @@ struct FPlayerLevelUpResultMessage
 	UPROPERTY(BlueprintReadWrite)
 	bool bResult;
 };
+
+USTRUCT(BlueprintType)
+struct FGameDirectionMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 Direction;
+};
