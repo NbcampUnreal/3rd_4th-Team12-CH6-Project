@@ -35,6 +35,10 @@ public:
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TSoftObjectPtr<USKAIDataAsset> AIDataAsset;
 	
+	/** 스테이트트리 활성화 조건 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI")
+	EAIActivationPolicy ActivationPolicy = EAIActivationPolicy::Immediate;
+	
 protected:
 	/** 몬스터 정적 ID (BP에서 고정 입력) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "MonsterID")
@@ -122,6 +126,9 @@ public:
 	//오버레이머티리얼 Set함수-이준식
 	void SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration = 10.f);
 	void ClearOverlayMaterial();
+
+	//스테이트활성화 등록 처리
+	void SetActivationPolicy(EAIActivationPolicy InPolicy);
 	
 protected:
 	virtual void PostInitializeComponents() override;

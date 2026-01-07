@@ -435,6 +435,11 @@ void ASKAICharacterBase::ClearOverlayMaterial()
 	GetMesh()->SetOverlayMaterial(nullptr);
 }
 
+void ASKAICharacterBase::SetActivationPolicy(EAIActivationPolicy InPolicy)
+{
+	ActivationPolicy = InPolicy;
+}
+
 void ASKAICharacterBase::ApplyStaticMonsterStats()
 {
 	if (MonsterID < 0)

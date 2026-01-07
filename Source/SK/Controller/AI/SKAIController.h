@@ -6,6 +6,7 @@
 #include "GameMode/MatchState/DungeonMatchState.h"
 #include "Perception/AIPerceptionTypes.h"
 #include "GenericTeamAgentInterface.h"
+#include "GameData/StaticData/MonsterDataTable.h"
 #include "SKAIController.generated.h"
 
 class UStateTreeAIComponent;
@@ -14,6 +15,7 @@ class UAISenseConfig_Sight;
 class UAISenseConfig_Damage;
 class UAbilitySystemComponent;
 class ASKAICharacter;
+class ABossTriggerActor;
 
 UCLASS()
 class SK_API ASKAIController : public AAIController
@@ -91,6 +93,8 @@ protected:
 
 	uint8 ConvertTeamTagToID(const FGameplayTagContainer& InTags) const;
 
+	void OnActivationTriggered();
+
 private:
 	UPROPERTY()
 	ASKAICharacter* CachedAICharacter = nullptr;
@@ -98,6 +102,12 @@ private:
 	/** 최신 Dungeon 상태 (Pawn 없어도 유지됨) */
 	UPROPERTY()
 	EDungeonMatchState CurrentDungeonState = EDungeonMatchState::None;
+
+	UPROPERTY()
+	EAIActivationPolicy ActivationPolicy = EAIActivationPolicy::Immediate;
+
+	UPROPERTY(EditAnywhere, Category="AI", meta=(EditCondition="ActivationPolicy==EAIActivationPolicy::Triggered"))
+	TObjectPtr<ABossTriggerActor> ActivationTrigger;
 	
 	/** Pawn에 실제로 상태를 적용하는 함수 */
 	void ApplyDungeonState();
