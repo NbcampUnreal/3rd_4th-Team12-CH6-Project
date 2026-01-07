@@ -83,18 +83,23 @@ AActor* USpawnSubsystem::SpawnMonsterByID(int32 MonsterID, const FVector& InLoca
     {
         SpawnLocation.Z = Hit.Location.Z  + CapsuleHalfHeight;
     }
-
-    // 5) 스폰 파라미터 설정 후 SpawnActor
-    FActorSpawnParameters Params;
-    Params.SpawnCollisionHandlingOverride =
-        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-    return GetWorld()->SpawnActor<AActor>(
+    
+    AActor* SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(
         ClassToSpawn,
-        SpawnLocation,
-        FRotator::ZeroRotator,
-        Params
+        FTransform(SpawnLocation),
+        nullptr,
+        nullptr,
+        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn
     );
+
+    if (ASKAICharacter* AIChar = Cast<ASKAICharacter>(SpawnedActor))
+    {
+        AIChar->SetActivationPolicy(Data->ActivationPolicy);
+    }
+
+    SpawnedActor->FinishSpawning(FTransform(SpawnLocation));
+
+    return SpawnedActor;
 }
 
 /** 룰 데이터 가져오기 */

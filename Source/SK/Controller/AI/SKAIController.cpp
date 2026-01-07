@@ -11,6 +11,8 @@
 #include "GameState/DungeonGameState.h"
 #include "Perception/AISenseConfig_Damage.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Utility/ETC/BossTriggerActor.h"
+#include "EngineUtils.h"
 
 ASKAIController::ASKAIController()
 {
@@ -241,11 +243,39 @@ void ASKAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Log, TEXT("AI TeamID Set: %d"), TeamValue);
 	}
 
-	CachedAICharacter = Cast<ASKAICharacter>(InPawn);
+	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
+	if (!GS) return;
 
+	// 상태 변경 이벤트 수신
+	GS->OnDungeonMatchStateChanged.AddUObject(this, &ASKAIController::OnDungeonStateChanged);
+
+	CurrentDungeonState = GS->DungeonState;
+	
+	CachedAICharacter = Cast<ASKAICharacter>(InPawn);
 	if (!CachedAICharacter)	return;
 
-	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress)
+	ActivationPolicy = CachedAICharacter->ActivationPolicy;
+
+	if (ActivationPolicy == EAIActivationPolicy::Triggered)
+	{
+		for (TActorIterator<ABossTriggerActor> It(GetWorld()); It; ++It)
+		{
+			It->OnAITriggered.AddUObject(
+				this,
+				&ASKAIController::OnActivationTriggered
+			);
+		}
+	}
+
+	for (TActorIterator<ABossTriggerActor> It(GetWorld()); It; ++It)
+	{
+		It->OnAITriggered.AddUObject(
+			this,
+			&ASKAIController::OnActivationTriggered
+		);
+	}
+
+	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress && ActivationPolicy == EAIActivationPolicy::Immediate)
 	{
 		ApplyDungeonState();
 	}
@@ -268,7 +298,8 @@ void ASKAIController::BeginPlay()
 	}
 	
 	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASKAIController::OnTargetPerceptionUpdated);
-	
+
+	/*
 	auto* GS = GetWorld()->GetGameState<ADungeonGameState>();
 	if (!GS) return;
 
@@ -280,8 +311,8 @@ void ASKAIController::BeginPlay()
 	// 이미 진행 중일 수도 있음
 	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress)
 	{
-		ApplyDungeonState();
-	}
+		//ApplyDungeonState();
+	}*/
 	
 	GetWorld()->GetTimerManager().SetTimer(
 	   FindClosestTargetTimerHandle,
@@ -335,7 +366,16 @@ void ASKAIController::OnDungeonStateChanged(EDungeonMatchState NewState)
 {
 	CurrentDungeonState = NewState;
 	
-	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress)
+	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress && ActivationPolicy == EAIActivationPolicy::Immediate)
+	{
+		ApplyDungeonState();
+	}
+}
+
+void ASKAIController::OnActivationTriggered()
+{
+	UE_LOG(LogTemp, Display, TEXT("OnActivationTriggered() Start"));
+	if (CurrentDungeonState == EDungeonMatchState::Dungeon_InProgress && ActivationPolicy == EAIActivationPolicy::Triggered)
 	{
 		ApplyDungeonState();
 	}
