@@ -108,6 +108,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void CopyTo(UInventoryComponent* Target);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void CheckEstusCount();
 	
 protected:
 	// Called when the game starts
@@ -120,4 +123,7 @@ protected:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
 	TArray<FEquipmentInstanceSlot> EquipmentInstances;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 EstusMaxCount = 3;
 };

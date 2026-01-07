@@ -56,6 +56,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Groggy, "Ability.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Fly, "Ability.Fly");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_FlyRush, "Ability.FlyRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Breath, "Ability.Breath");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Teleport, "Ability.Teleport");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_InteractBonfireEnd, "Ability.InteractBonfireEnd");
 
@@ -80,6 +81,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestRight, "Input.TestRight");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_ArmorPotion, "Ability.Item.ArmorPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_EstusFlask, "Ability.Item.EstusFlask");
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);
@@ -95,6 +97,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_HealPotion, "Cooldown.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_AttackPotion, "Cooldown.Item.AttackPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_ArmorPotion, "Cooldown.Item.ArmorPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_EstusFlask, "Cooldown.Item.EstusFlask");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon, "Weapon");
@@ -273,6 +276,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_FullGroggy, "AI.FullGroggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Fly, "AI.Fly");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_FlyRush, "AI.FlyRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Breath, "AI.Breath");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Teleport, "AI.Teleport");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
@@ -510,3 +514,4 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Heavy, "GameplayCue.HitReact.Hea
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Unblockable, "GameplayCue.HitReact.Unblockable");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_AI_Breath, "GameplayCue.AI.Breath");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_AI_Teleport, "GameplayCue.AI.Teleport");

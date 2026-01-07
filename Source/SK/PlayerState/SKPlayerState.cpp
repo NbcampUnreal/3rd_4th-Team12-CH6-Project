@@ -71,6 +71,8 @@ void ASKPlayerState::BeginPlay()
 
 	SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
 
+	QuickSlotComponent->RefreshQuickSlots();
+	
 	//다른 방법 있으면 추후 변경 예정 현재는 기능 테스트 용으로 추가
 	APlayerController* PC = GetPlayerController();
 	if (!PC)
