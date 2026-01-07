@@ -126,7 +126,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsRenuewal, "Sound.BGM.RuinsRenuewal");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsTutorial, "Sound.BGM.RuinsTutorial");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TownEnding, "Sound.BGM.TownEnding");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss, "Sound.BGM.Boss");
-UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title, "Sound.BGM.Title");
 
 
 
