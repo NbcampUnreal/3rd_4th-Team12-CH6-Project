@@ -80,7 +80,9 @@ void USK_GA_AI_FlyRush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 	}
 	
 	CurrentAttackType = EventData.EventTag;
-
+	AddDamageMultiplierByAttackType();
+	DamageMultiplier += 0.4f;
+	
 	AActor* TargetActor = GetTargetActor();
 	if (!IsValid(TargetActor))
 	{
