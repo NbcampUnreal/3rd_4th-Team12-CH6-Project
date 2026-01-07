@@ -19,6 +19,8 @@ protected:
 	TWeakObjectPtr<const AActor> HitActor;
 
 	FGameplayTag CurrentAttackType;
+
+	float Damage;
 	
 	UPROPERTY()
 	TMap<FName, TSubclassOf<ASKBaseProjectile>> ProjectileClasses;

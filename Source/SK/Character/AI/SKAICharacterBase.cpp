@@ -403,7 +403,21 @@ int32 ASKAICharacterBase::GetDropTableID() const
 
 FMonsterData ASKAICharacterBase::GetMonsterData() const
 {
-	return *MonsterData;
+	UStaticDataSubsystem* SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+	if (!SDS)
+	{
+		UE_LOG(LogTemp, Error, TEXT("StaticDataSubsystem Missing!"));
+		return FMonsterData();
+	}
+
+	FMonsterData LocalMonsterData = *SDS->GetData<FMonsterData>(MonsterID);
+	if (LocalMonsterData.MonsterName.IsNone())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Monster StaticData Not Found: ID = %d"), MonsterID);
+		return FMonsterData();
+	}
+	
+	return LocalMonsterData;
 }
 
 void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration)
