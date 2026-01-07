@@ -6,6 +6,9 @@
 #include "AbilitySystemComponent.h"
 #include "NavModifierComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Component/InventoryComponent.h"
+#include "Component/QuickSlotComponent.h"
+#include "PlayerState/SKPlayerState.h"
 #include "Utility/SpawnSubsystem.h"
 
 ASKBonfire::ASKBonfire()
@@ -70,4 +73,36 @@ void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
 	if (!IsValid(SpawnSubSystem)) return;
 
 	SpawnSubSystem->RespawnAll();
+
+	APlayerState* PS = PlayerCharacter->GetPlayerState();
+	if (!PS)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[EstusCheck] PlayerState is null"));
+		return;
+	}
+
+	ASKPlayerState* SKPS = Cast<ASKPlayerState>(PS);
+	if (!SKPS)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[EstusCheck] PlayerState cast failed"));
+		return;
+	}
+
+	UInventoryComponent* Inventory = SKPS->GetInventoryComponent();
+	if (!Inventory)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[EstusCheck] InventoryComponent is null"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[EstusCheck] Call CheckEstusCount | Authority: %s"),
+		PS->HasAuthority() ? TEXT("Server") : TEXT("Client"));
+
+	Inventory->CheckEstusCount();
+
+	UQuickSlotComponent* QuickSlotComponent = SKPS->GetQuickSlotComponent();
+	if (!QuickSlotComponent)
+		return;
+
+	QuickSlotComponent->RefreshQuickSlots();
 }
