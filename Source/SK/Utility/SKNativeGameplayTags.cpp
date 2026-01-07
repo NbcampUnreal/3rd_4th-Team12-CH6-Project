@@ -503,6 +503,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_ClickSound,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_HoverSound,
 					   "GameplayCue.Sound.UI.HoverSound");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_HoverSound_02,
+					   "GameplayCue.Sound.UI.HoverSound.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_DoorMetal,
+					   "GameplayCue.Sound.UI.DoorMetal");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_AppearSound,
 					   "GameplayCue.Sound.UI.AppearSound");
 
