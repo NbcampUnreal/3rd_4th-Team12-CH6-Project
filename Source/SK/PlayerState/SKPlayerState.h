@@ -105,6 +105,9 @@ public:
 	void EquipmentComponentSetting();
 
 	int32 GetGameDirection() const { return GameDirection; }
+
+	UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
+	UQuickSlotComponent* GetQuickSlotComponent() const { return QuickSlotComponent; }
 #pragma region LevelSystem
 	
 	/** Gold 지급 */

@@ -80,6 +80,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Input_TestRight, "Input.TestRight");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_HealPotion, "Ability.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_AttackPotion, "Ability.Item.AttackPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_ArmorPotion, "Ability.Item.ArmorPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Item_EstusFlask, "Ability.Item.EstusFlask");
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK);
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Ability_LeftATK_Axe);
@@ -95,6 +96,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Ability_Dash, "Cooldown.Ability.Dash");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_HealPotion, "Cooldown.Item.HealPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_AttackPotion, "Cooldown.Item.AttackPotion");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_ArmorPotion, "Cooldown.Item.ArmorPotion");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Item_EstusFlask, "Cooldown.Item.EstusFlask");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Weapon, "Weapon");
