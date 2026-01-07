@@ -77,6 +77,8 @@ void USK_GA_AI_JumpRush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 	}
 	
 	CurrentAttackType = EventData.EventTag;
+	AddDamageMultiplierByAttackType();
+	DamageMultiplier += 0.3f;
 	
 	float PredictionTime = GetRushTime(*AnimMontage);
 	FVector PredictedTargetLocation = GetPredictedTargetLocation(PredictionTime);

@@ -58,6 +58,8 @@ void USK_GA_AI_Breath::Breath(TObjectPtr<UAnimMontage> LocalAnimMontage)
 void USK_GA_AI_Breath::OnAnimNotifyCompleted(FGameplayEventData EventData)
 {
 	CurrentAttackType = EventData.EventTag;
+	AddDamageMultiplierByAttackType();
+	DamageMultiplier += 0.4f;
 	
 	const FGameplayCueParameters CueParameters;
 	
