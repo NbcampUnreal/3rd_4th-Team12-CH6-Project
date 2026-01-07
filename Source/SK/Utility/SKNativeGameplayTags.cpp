@@ -124,7 +124,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title, "Sound.BGM.Title");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby, "Sound.BGM.Lobby");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsRenuewal, "Sound.BGM.RuinsRenuewal");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsTutorial, "Sound.BGM.RuinsTutorial");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TownEnding, "Sound.BGM.TownEnding");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss, "Sound.BGM.Boss");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_00, "Sound.SFX.ATK_00");
@@ -368,6 +369,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_ATK_01,
                        "GameplayCue.Sound.Monster.LW.ATK.01");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_ATK_02,
                        "GameplayCue.Sound.Monster.LW.ATK.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_ATK_03,
+					   "GameplayCue.Sound.Monster.LW.ATK.03");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LW_ATK_04,
+					   "GameplayCue.Sound.Monster.LW.ATK.04");
 
 // Monster_LCD
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_Monster_LCD,

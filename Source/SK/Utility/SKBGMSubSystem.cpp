@@ -187,8 +187,16 @@ void USKBGMSubSystem::PlayUISoundByTag(const FGameplayTag& Tag)
 	}
 }
 
-void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
+void USKBGMSubSystem::PlayBgmByTag(const FGameplayTag& Tag)
 {
+
+	if (CurrentBGMTag.IsValid() && CurrentBGMTag.MatchesTagExact(Tag))
+	{
+		UE_LOG(LogTemp, Verbose, TEXT("BGM '%s' already playing, skip"), *Tag.ToString());
+		return;
+	}
+	
+
 	UGameInstance* GI = GetGameInstance();
 	USKGameInstance* SKGameInstance = Cast<USKGameInstance>(GI);
 
@@ -232,6 +240,7 @@ void USKBGMSubSystem::PlayBgmByTag(FGameplayTag& Tag)
 	{
 		BGMComponent->Stop();
 	}
+	CurrentBGMTag = Tag;
 
 	// 새 BGM 재생
 	float FinalVolume = SKGameInstance->MasterVolume * SKGameInstance->BGMVolume;
