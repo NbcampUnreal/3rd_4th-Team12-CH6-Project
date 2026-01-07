@@ -22,6 +22,7 @@
 #include "Item/Bonfire/SKBonfire.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Utility/SKBGMSubSystem.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Weapon/ActorComponent/SKActionComponent.h"
 
@@ -991,6 +992,13 @@ void ASKPlayerController::RequestRespawn()
 		SetLockedTarget(nullptr);
 		SetLockOnState(false);
 	}
+
+	USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
+	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
+	{
+		BGM->PlayBGM_MapNow();
+	}
+	
 }
 
 

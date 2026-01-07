@@ -61,6 +61,21 @@ void USKBGMSubSystem::UpdateVolume()
 	}
 }
 
+FGameplayTag USKBGMSubSystem::GetRecentlyMapTag()
+{
+	FName MapTagName = FName(*UGameplayStatics::GetCurrentLevelName(GetWorld(), true));
+
+	FString TagName = FString::Printf(TEXT("Sound.BGM.%s"), *MapTagName.ToString());
+	FGameplayTag MapTag = FGameplayTag::RequestGameplayTag(*TagName, /*bErrorIfNotFound=*/false);
+
+	return MapTag;
+}
+
+void USKBGMSubSystem::PlayBGM_MapNow()
+{
+	PlayBgmByTag(GetRecentlyMapTag());
+}
+
 void USKBGMSubSystem::PlaySoundByTag(const FGameplayTag& Tag, const FVector& Location)
 {
 	USKGameInstance* SKGI = Cast<USKGameInstance>(GetGameInstance());
@@ -173,7 +188,7 @@ void USKBGMSubSystem::PlayUISoundByTag(const FGameplayTag& Tag)
 	if (AvailableComp)
 	{
 		AvailableComp->Stop();
-		
+
 		AvailableComp->SetSound(FoundSound->Sound);
 
 		AvailableComp->bAllowSpatialization = false;
@@ -189,13 +204,12 @@ void USKBGMSubSystem::PlayUISoundByTag(const FGameplayTag& Tag)
 
 void USKBGMSubSystem::PlayBgmByTag(const FGameplayTag& Tag)
 {
-
 	if (CurrentBGMTag.IsValid() && CurrentBGMTag.MatchesTagExact(Tag))
 	{
 		UE_LOG(LogTemp, Verbose, TEXT("BGM '%s' already playing, skip"), *Tag.ToString());
 		return;
 	}
-	
+
 
 	UGameInstance* GI = GetGameInstance();
 	USKGameInstance* SKGameInstance = Cast<USKGameInstance>(GI);
@@ -274,13 +288,13 @@ void USKBGMSubSystem::OnPostLoadMap(UWorld* LoadedWorld)
 	}
 
 	// 현재 맵 이름 확인
-	FName MapTagName = FName(*UGameplayStatics::GetCurrentLevelName(LoadedWorld, true));
-
-	FString TagName = FString::Printf(TEXT("Sound.BGM.%s"), *MapTagName.ToString());
-	FGameplayTag Tag = FGameplayTag::RequestGameplayTag(*TagName, /*bErrorIfNotFound=*/false);
+	// FName MapTagName = FName(*UGameplayStatics::GetCurrentLevelName(LoadedWorld, true));
+	// FString TagName = FString::Printf(TEXT("Sound.BGM.%s"), *MapTagName.ToString());
+	// FGameplayTag Tag = FGameplayTag::RequestGameplayTag(*TagName, /*bErrorIfNotFound=*/false);
+	FGameplayTag Tag = GetRecentlyMapTag();
 	if (!Tag.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayTag not found: %s"), *TagName);
+		// UE_LOG(LogTemp, Warning, TEXT("GameplayTag not found: %s"), *TagName);
 		StopBGM();
 		return;
 	}
