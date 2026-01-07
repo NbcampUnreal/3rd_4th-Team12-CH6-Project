@@ -469,12 +469,15 @@ bool UBattleComponent::SweepWeapon(const FVector& From, const FVector& To, const
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(GetOwner());
 
-	return GetWorld()->SweepSingleByChannel(
+	FCollisionObjectQueryParams ObjectParams;
+	ObjectParams.AddObjectTypesToQuery(ECC_GameTraceChannel4);
+
+	return GetWorld()->SweepSingleByObjectType(
 		OutHit,
 		From,
 		To,
 		Rot,
-		ECC_Pawn,
+		ObjectParams,
 		FCollisionShape::MakeCapsule(CapsuleRadius, CapsultHalfHeight),
 		Params
 	);

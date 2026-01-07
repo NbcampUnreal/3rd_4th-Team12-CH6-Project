@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-// #include "GameplayTagContainer.h"
+#include "GameplayTagContainer.h"
 #include "SKBGMSubSystem.generated.h"
 
-struct FGameplayTag;
+//struct FGameplayTag;
 /**
  * 
  */
@@ -27,8 +27,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "SK|Sound" ,meta = (DisplayName = "PlayUISoundByTag"))
 	void PlayUISoundByTag(const FGameplayTag& Tag);
-	
-	void PlayBgmByTag(FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintCallable, Category = "SK|Sound" ,meta = (DisplayName = "PlayBGMByTag"))
+	void PlayBgmByTag(const FGameplayTag& Tag);
 	void StopBGM();
 	void UpdateVolume();
 
@@ -44,5 +45,8 @@ private:
 
 	// 최대 풀 크기
 	UPROPERTY(EditAnywhere, Category="Sound Pool")
-	int32 MaxPoolSize = 20;
+	int32 MaxPoolSize = 80;
+
+
+	FGameplayTag CurrentBGMTag;
 };

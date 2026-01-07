@@ -67,8 +67,10 @@ void USK_GA_AI_Die::OnDieCompleted()
 	}
 	
 	DropSubsystem->ProcessDropTable(AICharacter->GetDropTableID(), AICharacter->GetActorLocation());
+
+	FMonsterData MonsterData = AICharacter->GetMonsterData();
 	
-	int32 GoldToGive = FMath::RandRange(AICharacter->GetMonsterData().RewardMinGold, AICharacter->GetMonsterData().RewardMaxGold);
+	int32 GoldToGive = FMath::RandRange(MonsterData.RewardMinGold, MonsterData.RewardMaxGold);
 	ADungeonGameMode* GM = GetWorld()->GetAuthGameMode<ADungeonGameMode>();
 	if (!IsValid(GM))
 	{
@@ -77,7 +79,7 @@ void USK_GA_AI_Die::OnDieCompleted()
 	}
 	
 	GM->AddGoldToPlayers(GoldToGive);
-
+	
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC)
 	{

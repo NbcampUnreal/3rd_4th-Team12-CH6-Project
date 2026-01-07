@@ -6,6 +6,13 @@
 #include "StaticDataBase.h"
 #include "MonsterDataTable.generated.h"
 
+UENUM(BlueprintType)
+enum class EAIActivationPolicy : uint8
+{
+	Immediate,  //기본
+	Triggered   //트리거
+};
+
 /**
  * 몬스터 데이터 테이블 구조
  * 고유 ID, 능력치, 스폰될 클래스, 드롭테이블 연결 등 포함
@@ -76,6 +83,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Reward")
 	int32 RewardMaxGold = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI")
+	EAIActivationPolicy ActivationPolicy = EAIActivationPolicy::Immediate;
 
 	/** 몬스터 설명 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Monster")
