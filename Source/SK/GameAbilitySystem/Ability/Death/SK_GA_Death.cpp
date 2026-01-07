@@ -47,6 +47,13 @@ void USK_GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	
 	UAnimMontage* DeathMontage = WeaponAnimData->DeathMontages;
 	ASKPlayerController* PC = Cast<ASKPlayerController>(Character->GetController());
+
+	// 락온 해제
+	if (PC->bIsLockedOn)
+	{
+		PC->SetLockedTarget(nullptr);
+		PC->SetLockOnState(false);
+	}
 	
 	if (Character->HasAuthority())
 	{

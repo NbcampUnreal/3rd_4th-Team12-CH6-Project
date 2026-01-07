@@ -80,20 +80,22 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 	FHitResult Hit;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(SKPlayer);
+
+	FCollisionObjectQueryParams ObjectParams;
+	ObjectParams.AddObjectTypesToQuery(ECC_GameTraceChannel4);
 	
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(TraceRadius);
 	
-	bool bHit = GetWorld()->SweepSingleByChannel(
+	bool bHit = GetWorld()->SweepSingleByObjectType(
 		Hit,
 		Start,
 		End,
 		FQuat::Identity,
-		ECC_Pawn,
+		ObjectParams,
 		Sphere,
 		Params
 	);
 
-	/*
 #if WITH_EDITOR
 	DrawDebugSphere(
 		GetWorld(),
@@ -105,7 +107,6 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 		1.f                 
 	);
 #endif
-*/
 	
 	if (bHit && Hit.bBlockingHit)
 	{
@@ -116,7 +117,7 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 			ASKAICharacter* AICharacter = Cast<ASKAICharacter>(HitActor);
 			if (AICharacter)
 			{
-				FVector MonsterLoc = AICharacter->GetActorLocation();
+				FVector MonsterLoc = HitActor->GetActorLocation();
 				FVector CharacterLoc = SKPlayer->GetActorLocation();
 
 				float CurrentDistance = FVector::Dist(CharacterLoc, MonsterLoc);
