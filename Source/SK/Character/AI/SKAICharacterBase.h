@@ -48,7 +48,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MonsterID")
 	int32 DropTableID = -1;
 
-	/** 몬스터 정적 ID */
+	/** 몬스터 정적 데이터 테이블 */
 	const FMonsterData* MonsterData;
 
 	FName MonsterName;
