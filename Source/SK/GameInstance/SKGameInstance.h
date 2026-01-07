@@ -72,7 +72,7 @@ public:
 
 	//브금 크기
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SK|Audio|Volume")
-	float BGMVolume = 0.5f;
+	float BGMVolume = 0.3f;
 
 	//UI 사운드 & 상호작용,이펙트 크기
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "SK|Audio|Volume")
