@@ -1,6 +1,8 @@
 #include "GameAbilitySystem/Ability/AI/SK_GA_AI_Teleport.h"
+#include "AbilitySystemComponent.h"
 #include "NavigationSystem.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/AI/SKAICharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -88,7 +90,17 @@ FVector USK_GA_AI_Teleport::GetTeleportLocation() const
 
 void USK_GA_AI_Teleport::Teleport(FVector Location)
 {
-	//큐 적용
+	SetFocus();
+	
+	FVector SpawnLocation = CachedCharacter->GetActorLocation();
+	float AICapsuleHalfHeight = CachedCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	SpawnLocation.Z -= AICapsuleHalfHeight;
+	
+	FGameplayCueParameters Params;
+	Params.Location = SpawnLocation;
+
+	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.AI.Teleport"), Params);
+	
 	CachedCharacter->SetActorHiddenInGame(true);
 	CachedCharacter->SetActorLocation(Location);
 
@@ -107,7 +119,15 @@ void USK_GA_AI_Teleport::Delay(float DelayDuration)
 
 void USK_GA_AI_Teleport::OnDelayCompleted()
 {
-	//큐적용
+	FVector SpawnLocation = CachedCharacter->GetActorLocation();
+	float AICapsuleHalfHeight = CachedCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	SpawnLocation.Z -= AICapsuleHalfHeight;
+	
+	FGameplayCueParameters Params;
+	Params.Location = SpawnLocation;
+	
+	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.AI.Teleport"), Params);
+	
 	CachedCharacter->SetActorHiddenInGame(false);
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
@@ -122,6 +142,8 @@ void USK_GA_AI_Teleport::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	CommonEventTask->EndTask();
+	
 	FVector TeleportLocation = GetTeleportLocation();
 
 	if (TeleportLocation == FVector::ZeroVector)
@@ -141,5 +163,7 @@ void USK_GA_AI_Teleport::EndAbility(
 	bool bWasCancelled
 	)
 {
+	ClearFocus();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

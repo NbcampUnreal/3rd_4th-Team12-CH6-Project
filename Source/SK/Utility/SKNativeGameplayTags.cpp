@@ -501,3 +501,4 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Heavy, "GameplayCue.HitReact.Hea
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_HitReact_Unblockable, "GameplayCue.HitReact.Unblockable");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_AI_Breath, "GameplayCue.AI.Breath");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_AI_Teleport, "GameplayCue.AI.Teleport");
