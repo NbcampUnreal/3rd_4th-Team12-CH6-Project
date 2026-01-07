@@ -80,6 +80,9 @@ public:
 	
 	UPROPERTY()
 	TSet<ASKInteractableBase*> CandidateActors;
+	
+	UPROPERTY()
+	TSet<UWidgetComponent*> DetectedWidgets;
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentInteractionData)
