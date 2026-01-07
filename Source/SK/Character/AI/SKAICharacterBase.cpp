@@ -403,7 +403,21 @@ int32 ASKAICharacterBase::GetDropTableID() const
 
 FMonsterData ASKAICharacterBase::GetMonsterData() const
 {
-	return MonsterData;
+	UStaticDataSubsystem* SDS = GetGameInstance()->GetSubsystem<UStaticDataSubsystem>();
+	if (!SDS)
+	{
+		UE_LOG(LogTemp, Error, TEXT("StaticDataSubsystem Missing!"));
+		return FMonsterData();
+	}
+
+	FMonsterData LocalMonsterData = *SDS->GetData<FMonsterData>(MonsterID);
+	if (LocalMonsterData.MonsterName.IsNone())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Monster StaticData Not Found: ID = %d"), MonsterID);
+		return FMonsterData();
+	}
+	
+	return LocalMonsterData;
 }
 
 void ASKAICharacterBase::SetOverlayMaterial(UMaterialInterface* OverlayMat, float Duration)
@@ -455,35 +469,35 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 		return;
 	}
 
-	MonsterData = *SDS->GetData<FMonsterData>(MonsterID);
-	if (MonsterData.MonsterName.IsNone())
+	MonsterData = SDS->GetData<FMonsterData>(MonsterID);
+	if (!MonsterData)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Monster StaticData Not Found: ID = %d"), MonsterID);
 		return;
 	}
 
 	// ---- 실제 스탯 적용 (AttributeSet or 내부 변수) ----
-	AttributeSet->SetHealth(MonsterData.MaxHealth);
-	AttributeSet->SetMaxHealth(MonsterData.MaxHealth);
-	AttributeSet->SetStamina(MonsterData.MaxStamina);
-	AttributeSet->SetMaxStamina(MonsterData.MaxStamina);
-	AttributeSet->SetAttack(MonsterData.Attack);
-	AttributeSet->SetArmor(MonsterData.Armor);
-	AttributeSet->SetPoise(MonsterData.Poise);
-	AttributeSet->SetSpeed(MonsterData.Speed);
-	MonsterName = MonsterData.MonsterName;
-	MaxMeleeIndex = MonsterData.MaxMeleeIndex;
-	MaxRushIndex = MonsterData.MaxRushIndex;
-	MaxJumpRushIndex = MonsterData.MaxJumpRushIndex;
-	MaxFlyRushIndex = MonsterData.MaxFlyRushIndex;
-	BackstepDistance = MonsterData.BackstepDistance;
+	AttributeSet->SetHealth(MonsterData->MaxHealth);
+	AttributeSet->SetMaxHealth(MonsterData->MaxHealth);
+	AttributeSet->SetStamina(MonsterData->MaxStamina);
+	AttributeSet->SetMaxStamina(MonsterData->MaxStamina);
+	AttributeSet->SetAttack(MonsterData->Attack);
+	AttributeSet->SetArmor(MonsterData->Armor);
+	AttributeSet->SetPoise(MonsterData->Poise);
+	AttributeSet->SetSpeed(MonsterData->Speed);
+	MonsterName = MonsterData->MonsterName;
+	MaxMeleeIndex = MonsterData->MaxMeleeIndex;
+	MaxRushIndex = MonsterData->MaxRushIndex;
+	MaxJumpRushIndex = MonsterData->MaxJumpRushIndex;
+	MaxFlyRushIndex = MonsterData->MaxFlyRushIndex;
+	BackstepDistance = MonsterData->BackstepDistance;
 	
 	// 예시: 이동 속도 적용
-	GetCharacterMovement()->MaxWalkSpeed = MonsterData.Speed;
+	GetCharacterMovement()->MaxWalkSpeed = MonsterData->Speed;
 
 	// DropTableID 설정 필요 시 저장
-	DropTableID = MonsterData.DropTableID;
+	DropTableID = MonsterData->DropTableID;
 
 	UE_LOG(LogTemp, Log, TEXT("[AI StaticData] %s : (HP=%f, Atk=%f, Def=%f)"),
-		*GetName(), MonsterData.MaxHealth, MonsterData.Attack, MonsterData.Armor);
+		*GetName(), MonsterData->MaxHealth, MonsterData->Attack, MonsterData->Armor);
 }

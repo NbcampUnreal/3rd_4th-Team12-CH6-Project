@@ -49,7 +49,7 @@ protected:
 	int32 DropTableID = -1;
 
 	/** 몬스터 정적 데이터 테이블 */
-	FMonsterData MonsterData;
+	const FMonsterData* MonsterData;
 
 	FName MonsterName;
 	
