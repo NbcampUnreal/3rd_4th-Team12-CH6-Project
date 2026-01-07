@@ -10,7 +10,7 @@
 #include "PlayerState/SKPlayerState.h"
 
 USK_GA_CombatBase::USK_GA_CombatBase()
-	: BaseDistance(20.f), DualOffset(60.f), KatanaOffset(100.f), TraceDist(0.f), TraceRadius(60.0f), SnapDist(0.f)
+	: BaseDistance(100.f), DualOffset(30.f), KatanaOffset(70.f), TraceDist(0.f), TraceRadius(60.0f), SnapDist(0.f)
 {
 }
 
@@ -96,7 +96,6 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 		Params
 	);
 
-	/*
 #if WITH_EDITOR
 	DrawDebugSphere(
 		GetWorld(),
@@ -108,7 +107,6 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 		1.f                 
 	);
 #endif
-*/
 	
 	if (bHit && Hit.bBlockingHit)
 	{
@@ -119,7 +117,7 @@ FVector USK_GA_CombatBase::GetSnapLocation(ASKPlayerCharacter* SKPlayer)
 			ASKAICharacter* AICharacter = Cast<ASKAICharacter>(HitActor);
 			if (AICharacter)
 			{
-				FVector MonsterLoc = Hit.ImpactPoint;
+				FVector MonsterLoc = HitActor->GetActorLocation();
 				FVector CharacterLoc = SKPlayer->GetActorLocation();
 
 				float CurrentDistance = FVector::Dist(CharacterLoc, MonsterLoc);
