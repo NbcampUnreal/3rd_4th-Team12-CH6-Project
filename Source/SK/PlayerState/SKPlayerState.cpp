@@ -96,6 +96,29 @@ void ASKPlayerState::BeginPlay()
 		return;
 
 	UISubSystem->SettingLayout();
+
+	USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this);
+	if (!MessageSubsystem)
+		return;
+
+	GameDirectionHandle = MessageSubsystem->RegisterListener<FGameDirectionMessage>(
+		TAG_Message_Channel_GameDirection,
+		this,
+		&ASKPlayerState::OnGameDirectionMessageReceived
+	);
+}
+
+void ASKPlayerState::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (GameDirectionHandle.IsValid())
+	{
+		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+		{
+			MessageSubsystem->UnregisterListener(GameDirectionHandle);
+		}
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 void ASKPlayerState::Tick(float DeltaTime)
@@ -132,6 +155,7 @@ void ASKPlayerState::CopyProperties(APlayerState* NewPlayerState)
 	NewPS->OldGold = OldGold;
 	NewPS->Level = Level;
 	NewPS->AbilityPoint = AbilityPoint;
+	NewPS->GameDirection = GameDirection;
 }
 
 void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -145,6 +169,7 @@ void ASKPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ASKPlayerState, OldGold);
 	DOREPLIFETIME(ASKPlayerState, Level);
 	DOREPLIFETIME(ASKPlayerState, AbilityPoint);
+	DOREPLIFETIME(ASKPlayerState, GameDirection);
 }
 
 void ASKPlayerState::SetTeamFromTag(const FGameplayTag& TeamTag)
@@ -583,4 +608,22 @@ void ASKPlayerState::ApplyLevelUpStat(int32 NewLevel)
 	);
 	
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+}
+
+void ASKPlayerState::OnGameDirectionMessageReceived(FGameplayTag Channel, const FGameDirectionMessage& Message)
+{
+	if (GameDirection < Message.Direction)
+	{
+		GameDirection = Message.Direction;
+
+		// 로그 추가
+		UE_LOG(LogTemp, Log, TEXT("GameDirection updated! New Value: %d (Channel: %s)"), 
+			   GameDirection, *Channel.ToString());
+	}
+	else
+	{
+		// 혹시 값 안 바뀔 때도 확인하고 싶으면
+		UE_LOG(LogTemp, Log, TEXT("GameDirection NOT updated. Current: %d, Incoming: %d (Channel: %s)"), 
+			   GameDirection, Message.Direction, *Channel.ToString());
+	}
 }
