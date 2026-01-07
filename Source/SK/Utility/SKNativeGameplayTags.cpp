@@ -121,7 +121,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Title, "Sound.BGM.Title");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Lobby, "Sound.BGM.Lobby");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsRenuewal, "Sound.BGM.RuinsRenuewal");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsTutorial, "Sound.BGM.RuinsTutorial");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TownEnd, "Sound.BGM.TownEnd");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss, "Sound.BGM.Boss");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_00, "Sound.SFX.ATK_00");
