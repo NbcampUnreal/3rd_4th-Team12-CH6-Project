@@ -956,6 +956,17 @@ void ASKPlayerController::RequestRespawn()
 
 	if (APawn* P = GetPawn())
 	{
+		// UI 클리어
+		USKInteractionComponent* InteractionComponent = Cast<ASKPlayerCharacter>(P)->GetInteractionComponent();
+		if (InteractionComponent)
+		{
+			for (auto* Widget : InteractionComponent->DetectedWidgets)
+			{
+				InteractionComponent->Client_ToggleInteractableWidget(Widget, false);
+			}
+			InteractionComponent->DetectedWidgets.Empty();
+		}
+			
 		P->Destroy();
 	}
 
