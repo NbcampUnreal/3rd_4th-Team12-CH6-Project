@@ -5,7 +5,7 @@
 
 ASK_GC_AI_Beam::ASK_GC_AI_Beam()
 {
-	
+	// 이 클래스도 BaseActor로 바꾸면 좋긴 한데 이젠 리팩토링 할 시간이 없음.
 }
 
 bool ASK_GC_AI_Beam::OnActive_Implementation(AActor* TargetActor, const FGameplayCueParameters& Parameters)

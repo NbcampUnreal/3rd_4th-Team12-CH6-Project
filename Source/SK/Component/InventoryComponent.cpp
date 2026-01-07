@@ -411,6 +411,48 @@ void UInventoryComponent::CopyTo(UInventoryComponent* Target)
 	}
 }
 
+void UInventoryComponent::CheckEstusCount()
+{
+	const int32 EstusItemID = 50;
+
+	const bool bIsServer = GetOwner() && GetOwner()->HasAuthority();
+
+	// 현재 에스트 개수
+	const int32 CurrentCount = GetItemCountByID(EstusItemID);
+
+	UE_LOG(LogTemp, Log,
+		TEXT("[CheckEstusCount] Authority: %s | Current: %d / Max: %d"),
+		bIsServer ? TEXT("Server") : TEXT("Client"),
+		CurrentCount,
+		EstusMaxCount
+	);
+
+	// 이미 최대치 이상이면 아무것도 안 함
+	if (CurrentCount >= EstusMaxCount)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[CheckEstusCount] Already full. Skip"));
+		return;
+	}
+
+	const int32 NeedCount = EstusMaxCount - CurrentCount;
+
+	UE_LOG(LogTemp, Log,
+		TEXT("[CheckEstusCount] NeedCount: %d | Action: %s"),
+		NeedCount,
+		bIsServer ? TEXT("AddItemByIDAndCount") : TEXT("ServerAddItem")
+	);
+
+	// 서버 / 클라 분기
+	if (bIsServer)
+	{
+		AddItemByIDAndCount(EstusItemID, NeedCount);
+	}
+	else
+	{
+		ServerAddItem(EstusItemID, NeedCount);
+	}
+}
+
 void UInventoryComponent::ServerAddItem_Implementation(const int32& ItemID, int32 Count)
 {
 	if (AddItemByIDAndCount(ItemID, Count))
@@ -471,32 +513,7 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	if (!InventorySlots.IsEmpty())
-	{
-		return;
-	}
-	
-	if (GetOwner()->HasAuthority())
-	{
-		AddItemByIDAndCount(1001, 1);
-		AddItemByIDAndCount(1002, 1);
-		AddItemByIDAndCount(1003, 1);
-		AddItemByIDAndCount(1004, 1);
-		AddItemByIDAndCount(1005, 1);
-		AddItemByIDAndCount(1006, 1);
-		AddItemByIDAndCount(1007, 1);
-	}
-	else
-	{
-		ServerAddItem(1001, 1);
-		ServerAddItem(1002, 1);
-		ServerAddItem(1003, 1);
-		ServerAddItem(1004, 1);
-		ServerAddItem(1005, 1);
-		ServerAddItem(1006, 1);
-		ServerAddItem(1007, 1);
-	} 
+	CheckEstusCount();
 }
 
 void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

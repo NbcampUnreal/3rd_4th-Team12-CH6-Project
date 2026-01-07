@@ -69,6 +69,11 @@ void ASKDetectableBase::OnDetectBeginOverlap(UPrimitiveComponent* OverlappedComp
 
 	USKActionComponent* ActionComponent = Character->GetActionComponent();
 	if (!ActionComponent || ActionComponent->InteractedStool) return;
+
+	USKInteractionComponent* InteractionComponent = Character->GetInteractionComponent();
+	if (!InteractionComponent) return;
+	
+	InteractionComponent->DetectedWidgets.Add(DetectWidget);
 	
 	if (!Character->IsLocallyControlled()) return;
 
@@ -86,6 +91,11 @@ void ASKDetectableBase::OnDetectEndOverlap(UPrimitiveComponent* OverlappedComp, 
 	
 	ASKPlayerCharacter* Character = Cast<ASKPlayerCharacter>(OtherActor);
 	if (!Character) return;
+	
+	USKInteractionComponent* InteractionComponent = Character->GetInteractionComponent();
+	if (!InteractionComponent) return;
+	
+	InteractionComponent->DetectedWidgets.Remove(DetectWidget);
 
 	if (!Character->IsLocallyControlled()) return;
 	
