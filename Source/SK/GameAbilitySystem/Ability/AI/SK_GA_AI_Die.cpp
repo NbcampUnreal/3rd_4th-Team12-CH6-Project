@@ -77,7 +77,7 @@ void USK_GA_AI_Die::OnDieCompleted()
 	}
 	
 	GM->AddGoldToPlayers(GoldToGive);
-
+	
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC)
 	{
