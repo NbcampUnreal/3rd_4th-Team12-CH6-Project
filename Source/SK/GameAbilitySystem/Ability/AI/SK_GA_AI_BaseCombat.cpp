@@ -6,10 +6,23 @@
 #include "Controller/AI/SKAIController.h"
 #include "GameFramework/Character.h"
 #include "Projectile/SKBaseProjectile.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USK_GA_AI_BaseCombat::USK_GA_AI_BaseCombat()
 {
 	
+}
+
+void USK_GA_AI_BaseCombat::AddDamageMultiplierByAttackType()
+{
+	if (CurrentAttackType == TAG_Attack_Heavy)
+	{
+		DamageMultiplier += 0.2f;
+	}
+	else if (CurrentAttackType == TAG_Attack_UnGuardable)
+	{
+		DamageMultiplier += 0.4f;
+	}
 }
 
 void USK_GA_AI_BaseCombat::ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor)
@@ -55,21 +68,18 @@ void USK_GA_AI_BaseCombat::ApplyDamageToTarget(TWeakObjectPtr<const AActor> Targ
 	{
 		return;
 	}
-	/*
+	
 	DamageSpecHandle.Data->SetSetByCallerMagnitude(
-			GASProjectTags::SetByCaller_Damage,
-			-BaseDamage
-		);
-	*/
-
-	//추가
+			TAG_Data_DamageMultiplier,
+			DamageMultiplier
+			);	
+	
 	FGameplayEffectSpec* Spec = DamageSpecHandle.Data.Get();
 	if (!Spec)
 	{
 		return;
 	}
-
-	// 공격 타입 태그 전달
+	
 	if (CurrentAttackType.IsValid())
 	{
 		Spec->DynamicGrantedTags.AddTag(CurrentAttackType);

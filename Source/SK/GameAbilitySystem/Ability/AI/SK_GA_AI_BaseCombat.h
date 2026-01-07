@@ -20,7 +20,7 @@ protected:
 
 	FGameplayTag CurrentAttackType;
 
-	float Damage;
+	float DamageMultiplier = 1.f;
 	
 	UPROPERTY()
 	TMap<FName, TSubclassOf<ASKBaseProjectile>> ProjectileClasses;
@@ -32,8 +32,10 @@ protected:
 public:
 	USK_GA_AI_BaseCombat();
 
+	void AddDamageMultiplierByAttackType();
+	
 	void ApplyDamageToTarget(TWeakObjectPtr<const AActor> TargetActor);
-
+	
 	TObjectPtr<AActor> GetTargetActor() const;
 
 	FVector GetPredictedTargetLocation(float PredictionTime) const;
