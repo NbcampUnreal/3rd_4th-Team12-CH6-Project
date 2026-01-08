@@ -15,6 +15,8 @@ USK_GA_AI_BaseCombat::USK_GA_AI_BaseCombat()
 
 void USK_GA_AI_BaseCombat::AddDamageMultiplierByAttackType()
 {
+	DamageMultiplier = 1.f;
+	
 	if (CurrentAttackType == TAG_Attack_Heavy)
 	{
 		DamageMultiplier += 0.2f;

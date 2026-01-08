@@ -100,7 +100,7 @@ void UInventoryItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const
 
 	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
 	{
-		BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
+		//BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
 	}
 }
 
