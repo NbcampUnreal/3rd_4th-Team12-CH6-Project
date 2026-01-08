@@ -38,6 +38,24 @@ protected:
 	UProgressBar* HealthProgressBar;
 
 	UPROPERTY(meta = (BindWidget))
+	UProgressBar* TargetHealthProgressBar;
+	
+	UPROPERTY()
+	float DisplayHealthPercent = 1.0f;
+
+	UPROPERTY()
+	float TargetHealthPercent = 1.0f;
+	
+	UPROPERTY(EditAnywhere, Category="Health")
+	float HealthInterpSpeed = 8.0f;
+	
+	FTimerHandle HealthAnimTimerHandle;
+
+	void StartHealthAnimation();
+	void AnimateHealth();
+	void StopHealthAnimation();
+	
+	UPROPERTY(meta = (BindWidget))
 	UProgressBar* PoiseProgressBar;
 
 	UPROPERTY(meta = (BindWidget))
