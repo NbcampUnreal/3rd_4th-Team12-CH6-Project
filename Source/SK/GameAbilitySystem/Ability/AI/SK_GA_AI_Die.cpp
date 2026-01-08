@@ -11,6 +11,7 @@
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameInstance/SKGameInstance.h"
 
 USK_GA_AI_Die::USK_GA_AI_Die()
 {
@@ -102,6 +103,14 @@ void USK_GA_AI_Die::OnDieCompleted()
 		Message.bVisible = false;
 	
 		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, Message);
+
+		USKGameInstance* SKGI = Cast<USKGameInstance>(AIController->GetGameInstance());
+		if (!SKGI)
+		{
+			EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+			return;
+		}
+		SKGI->OpenTownEnding();
 	}
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);

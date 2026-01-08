@@ -127,6 +127,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_RuinsTutorial, "Sound.BGM.RuinsTutorial");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_TownEnding, "Sound.BGM.TownEnding");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_BGM_Boss, "Sound.BGM.Boss");
 
+
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX, "Sound.SFX");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_00, "Sound.SFX.ATK_00");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Sound_SFX_ATK_01, "Sound.SFX.ATK_01");
@@ -501,6 +503,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_ClickSound,
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_HoverSound,
 					   "GameplayCue.Sound.UI.HoverSound");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_HoverSound_02,
+					   "GameplayCue.Sound.UI.HoverSound.02");
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_DoorMetal,
+					   "GameplayCue.Sound.UI.DoorMetal");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Sound_UI_AppearSound,
 					   "GameplayCue.Sound.UI.AppearSound");
 
