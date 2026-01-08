@@ -31,7 +31,7 @@ protected:
 
 	//강공격일때 몬스터의 스테미너 감소량
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SK|Damage")
-	float StaminaLossToStrongAttacks = 5.f;
+	float StaminaLossToStrongAttacks = 10.f;
 
 	//계산용 attribute
 	FGameplayEffectAttributeCaptureDefinition AttackDef;
