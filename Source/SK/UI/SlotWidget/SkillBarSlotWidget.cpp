@@ -68,6 +68,8 @@ void USkillBarSlotWidget::NativeConstruct()
 	Attribute = PS->GetAttributeSet();
 
 	Attribute->OnHeatChanged.AddUObject(this, &USkillBarSlotWidget::HeatChanged);
+	
+	CheckSkillIcon();
 }
 
 void USkillBarSlotWidget::NativeDestruct()
@@ -109,47 +111,7 @@ void USkillBarSlotWidget::OnSwitchLayoutMessageReceived(FGameplayTag Channel, co
 		return;
 	}
 	
-	if (!Character)
-	{
-		APawn* Pawn = GetOwningPlayerPawn();
-		if (!Pawn)
-			return;
-
-		Character = Cast<ASKPlayerCharacter>(Pawn);
-		if (!Character)
-			return;
-	}
-
-	const USKWeaponData* NewWeaponData =
-	Character->GetBattleComponent()->GetCurrentWeaponData();
-
-	if (!NewWeaponData || CurrentWeaponData == NewWeaponData)
-	{
-		return;
-	}
-
-	CurrentWeaponData = NewWeaponData;
-
-	const TArray<TObjectPtr<UTexture2D>>& Icons = CurrentWeaponData->SkillImages;
-
-	auto SetSkillIcon = [](UImage* Image, UTexture2D* Texture)
-	{
-		if (!Image) return;
-
-		if (Texture)
-		{
-			Image->SetBrushFromTexture(Texture);
-			Image->SetVisibility(ESlateVisibility::Visible);
-		}
-		else
-		{
-			Image->SetVisibility(ESlateVisibility::Hidden);
-		}
-	};
-
-	SetSkillIcon(SkillImage1, Icons.IsValidIndex(0) ? Icons[0] : nullptr);
-	SetSkillIcon(SkillImage2, Icons.IsValidIndex(1) ? Icons[1] : nullptr);
-	SetSkillIcon(SkillImage3, Icons.IsValidIndex(2) ? Icons[2] : nullptr);
+	CheckSkillIcon();
 }
 
 void USkillBarSlotWidget::OnSkillUseMessageReceived(FGameplayTag Channel, const FSkillUIMessage& Message)
@@ -172,6 +134,46 @@ void USkillBarSlotWidget::OnSkillUseMessageReceived(FGameplayTag Channel, const 
 	}
 }
 
+void USkillBarSlotWidget::CheckSkillIcon()
+{
+	if (!Character)
+	{
+		if (APawn* Pawn = GetOwningPlayerPawn())
+		{
+			Character = Cast<ASKPlayerCharacter>(Pawn);
+		}
+	}
+
+	if (!Character)
+		return;
+
+	const USKWeaponData* WeaponData =
+		Character->GetBattleComponent()->GetCurrentWeaponData();
+
+	if (!WeaponData)
+		return;
+
+	const TArray<TObjectPtr<UTexture2D>>& Icons = WeaponData->SkillImages;
+
+	auto SetSkillIcon = [](UImage* Image, UTexture2D* Texture)
+	{
+		if (!Image) return;
+
+		if (Texture)
+		{
+			Image->SetBrushFromTexture(Texture);
+			Image->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			Image->SetVisibility(ESlateVisibility::Hidden);
+		}
+	};
+
+	SetSkillIcon(SkillImage1, Icons.IsValidIndex(0) ? Icons[0] : nullptr);
+	SetSkillIcon(SkillImage2, Icons.IsValidIndex(1) ? Icons[1] : nullptr);
+	SetSkillIcon(SkillImage3, Icons.IsValidIndex(2) ? Icons[2] : nullptr);
+}
 void USkillBarSlotWidget::Skill1AnimPlay(bool bSuccess)
 {
 	if (bSuccess)

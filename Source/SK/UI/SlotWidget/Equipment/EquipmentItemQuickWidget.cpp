@@ -18,7 +18,21 @@ void UEquipmentItemQuickWidget::SettingItem(int32 ItemID, int32 ItemQuantity)
 	CurrentItemQuantity = ItemQuantity;
 	if (ItemID == -1 || !CurrentInventoryComponent)
 	{
-		ItemIcon->SetBrush(FSlateBrush());
+		if (ItemIcon)
+		{
+			if (EmptyItemTexture)
+			{
+				ItemIcon->SetBrushFromTexture(EmptyItemTexture);
+			}
+			else
+			{
+				ItemIcon->SetBrush(FSlateBrush());
+			}
+		}
+		if (ItemQuantityText)
+		{
+			ItemQuantityText->SetText(FText::GetEmpty());	
+		}
 		return;
 	}
 

@@ -66,7 +66,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
 	USoundBase* HoverSound;
-		
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="EquipmentItemSlotWidget")
+	UTexture2D* EmptyItemTexture;
+	
 	FInventoryItemForWidget CurrentItem;
  
 	// Blueprint에서 바인딩할 수 있는 이벤트 함수도 선언 가능

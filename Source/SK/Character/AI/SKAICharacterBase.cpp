@@ -92,7 +92,7 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 	{
 		if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
 		{
-			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))))
+			if (!(AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))) || AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Named")))))
 			{
 				if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
 				{
