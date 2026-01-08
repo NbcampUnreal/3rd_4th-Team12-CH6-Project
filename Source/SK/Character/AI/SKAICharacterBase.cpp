@@ -101,9 +101,9 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 					AbilitySystemComponent->CancelAllAbilities();
 				}
 			}
-			else
+			else if (AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Named"))))
 			{
-				if (PlayerAttackType == "UnGuardable")
+				if (PlayerAttackType == "Heavy")
 				{
 					if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
 					{
