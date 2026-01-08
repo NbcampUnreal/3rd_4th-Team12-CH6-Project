@@ -457,6 +457,18 @@ void ASKAICharacterBase::SetActivationPolicy(EAIActivationPolicy InPolicy)
 	ActivationPolicy = InPolicy;
 }
 
+void ASKAICharacterBase::PreDestroyGAS()
+{
+	if (!AbilitySystemComponent) return;
+
+	// 모든 어빌리티 강제 종료
+	AbilitySystemComponent->CancelAllAbilities();
+
+	// 모든 GameplayEffect 제거
+	AbilitySystemComponent->RemoveAllGameplayCues();
+	AbilitySystemComponent->RemoveActiveEffectsWithTags(FGameplayTagContainer());
+}
+
 void ASKAICharacterBase::ApplyStaticMonsterStats()
 {
 	if (MonsterID < 0)

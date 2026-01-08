@@ -983,7 +983,12 @@ void ASKPlayerController::RequestRespawn()
 			}
 			InteractionComponent->DetectedWidgets.Empty();
 		}
-			
+
+		if (ASKCharacterBase* PlayerCharacter = Cast<ASKCharacterBase>(P))
+		{
+			PlayerCharacter->PreDestroyGAS();
+		}
+		
 		P->Destroy();
 	}
 

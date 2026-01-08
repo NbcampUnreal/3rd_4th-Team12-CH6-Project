@@ -84,7 +84,7 @@ private:
 	
 public:
 	ASKAICharacterBase();
-	
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -129,6 +129,9 @@ public:
 
 	//스테이트활성화 등록 처리
 	void SetActivationPolicy(EAIActivationPolicy InPolicy);
+
+	UFUNCTION()
+	void PreDestroyGAS();
 	
 protected:
 	virtual void PostInitializeComponents() override;

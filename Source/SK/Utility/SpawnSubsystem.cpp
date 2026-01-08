@@ -219,6 +219,10 @@ void USpawnSubsystem::RespawnAll()
         {
             if (AActor* A = ActorPtr.Get())
             {
+                if (ASKAICharacterBase* AI = Cast<ASKAICharacterBase>(A))
+                {
+                    AI->PreDestroyGAS();
+                }
                 A->Destroy();
             }
         }

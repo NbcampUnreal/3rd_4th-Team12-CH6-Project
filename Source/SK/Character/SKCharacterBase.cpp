@@ -96,6 +96,15 @@ UAbilitySystemComponent* ASKCharacterBase::GetAbilitySystemComponent() const
 	return PS ? PS->GetAbilitySystemComponent() : nullptr;
 }
 
+void ASKCharacterBase::PreDestroyGAS()
+{
+	if (!AbilitySystemComponent) return;
+
+	AbilitySystemComponent->CancelAllAbilities();
+	AbilitySystemComponent->RemoveAllGameplayCues();
+	AbilitySystemComponent->RemoveActiveEffectsWithTags(FGameplayTagContainer());
+}
+
 
 // Called when the game starts or when spawned
 void ASKCharacterBase::BeginPlay()
