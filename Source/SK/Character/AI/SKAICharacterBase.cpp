@@ -92,18 +92,18 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 	{
 		if (Damage > 0.f && IsValid(VictimActor) && IsValid(InstigatorActor))
 		{
-			if (!(AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))) || AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Named")))))
+			UAISense_Damage::ReportDamageEvent(
+				VictimActor,
+				VictimActor,        
+				InstigatorActor,   
+				Damage,       
+				VictimActor->GetActorLocation(),            
+				VictimActor->GetActorLocation()
+			);
+
+			if (PlayerAttackType != "UnGuardable")
 			{
-				if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
-				{
-					AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit")));
-			
-					AbilitySystemComponent->CancelAllAbilities();
-				}
-			}
-			else
-			{
-				if (PlayerAttackType == "UnGuardable")
+				if (!(AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))) || AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Named")))))
 				{
 					if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
 					{
@@ -112,16 +112,19 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 						AbilitySystemComponent->CancelAllAbilities();
 					}
 				}
+				else if (AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Named"))))
+				{
+					if (PlayerAttackType == "Heavy")
+					{
+						if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit"))))
+						{
+							AddTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Hit")));
+			
+							AbilitySystemComponent->CancelAllAbilities();
+						}
+					}
+				}
 			}
-		
-			UAISense_Damage::ReportDamageEvent(
-			VictimActor,
-			VictimActor,        
-			InstigatorActor,   
-			Damage,       
-			VictimActor->GetActorLocation(),            
-			VictimActor->GetActorLocation()
-			);
 		}
 	}
 	else

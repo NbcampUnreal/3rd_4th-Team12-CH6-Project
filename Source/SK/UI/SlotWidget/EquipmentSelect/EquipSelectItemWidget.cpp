@@ -38,8 +38,14 @@ void UEquipSelectItemWidget::SetItem(FInventorySlot SettingInventorySlot)
 		}
 		if (ItemIcon)
 		{
-			// 아이콘 없으면 브러시 초기화 (없앰)
-			ItemIcon->SetBrush(FSlateBrush());
+			if (EmptyItemTexture)
+			{
+				ItemIcon->SetBrushFromTexture(EmptyItemTexture);
+			}
+			else
+			{
+				ItemIcon->SetBrush(FSlateBrush());
+			}
 		}
 	}
 	else
@@ -54,7 +60,6 @@ void UEquipSelectItemWidget::SetItem(FInventorySlot SettingInventorySlot)
 		}
 		if (ItemIcon)
 		{
-			// 아이콘 없으면 브러시 초기화 (없앰)
 			ItemIcon->SetBrushFromTexture(CurrentItemData->ItemIcon);
 		}
 	}
@@ -95,7 +100,7 @@ void UEquipSelectItemWidget::NativeOnMouseEnter(const FGeometry& InGeometry, con
 
 	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
 	{
-		BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
+		//BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
 	}
 	
 }

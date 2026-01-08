@@ -80,6 +80,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Sound")
 	USoundBase* UnSelectSound;
+
+UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="EquipmentItemSlotWidget")
+	UTexture2D* EmptyItemTexture;
 	
 	UPROPERTY()
 	UInventoryComponent* CachedInventory;
