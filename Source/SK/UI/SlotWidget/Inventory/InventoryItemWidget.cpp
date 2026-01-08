@@ -51,8 +51,14 @@ void UInventoryItemWidget::SetItem(const FInventoryItemForWidget& NewItem)
 		}
 		else
 		{
-			// 아이콘 없으면 브러시 초기화 (없앰)
-			ItemIcon->SetBrush(FSlateBrush());
+			if (EmptyItemTexture)
+			{
+				ItemIcon->SetBrushFromTexture(EmptyItemTexture);
+			}
+			else
+			{
+				ItemIcon->SetBrush(FSlateBrush());
+			}
 		}
 	}
 }

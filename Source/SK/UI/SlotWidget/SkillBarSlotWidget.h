@@ -66,6 +66,8 @@ protected:
 
 	void OnSkillUseMessageReceived(FGameplayTag Channel, const FSkillUIMessage& Message);
 
+	void CheckSkillIcon();
+	
 	void Skill1AnimPlay(bool bSuccess);
 
 	void Skill2AnimPlay(bool bSuccess);

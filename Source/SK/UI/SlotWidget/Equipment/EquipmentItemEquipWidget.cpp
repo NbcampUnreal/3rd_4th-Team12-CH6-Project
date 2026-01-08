@@ -18,7 +18,17 @@ void UEquipmentItemEquipWidget::SettingItem(int32 ItemID, UEquipmentInstance* It
 
 	if (ItemID == -1 || !CurrentInventoryComponent)
 	{
-		ItemIcon->SetBrush(FSlateBrush());
+		if (ItemIcon)
+		{
+			if (EmptyItemTexture)
+			{
+				ItemIcon->SetBrushFromTexture(EmptyItemTexture);
+			}
+			else
+			{
+				ItemIcon->SetBrush(FSlateBrush());
+			}
+		}
 		return;
 	}
 
