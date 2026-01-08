@@ -41,6 +41,12 @@ public:
 	//세션 종료 후 로컬 마을 복귀
 	UFUNCTION(BlueprintCallable)
 	void LeaveSession();
+
+	UFUNCTION(BlueprintCallable)
+	void OpenTownEnding();
+
+	UFUNCTION(BlueprintCallable)
+	void TravelToEnding();
 	
 #pragma endregion Multi_Single_LevelTransition
 

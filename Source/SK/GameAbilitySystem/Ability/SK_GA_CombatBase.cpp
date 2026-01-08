@@ -10,7 +10,7 @@
 #include "PlayerState/SKPlayerState.h"
 
 USK_GA_CombatBase::USK_GA_CombatBase()
-	: BaseDistance(100.f), DualOffset(30.f), KatanaOffset(70.f), TraceDist(0.f), TraceRadius(60.0f), SnapDist(0.f)
+	: BaseDistance(100.f), DualOffset(30.f), KatanaOffset(70.f), TraceDist(0.f), SnapDist(0.f), TraceRadius(60.0f)
 {
 }
 

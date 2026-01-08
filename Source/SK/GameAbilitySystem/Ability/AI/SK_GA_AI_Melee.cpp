@@ -59,6 +59,7 @@ void USK_GA_AI_Melee::Melee(TObjectPtr<UAnimMontage> LocalAnimMontage)
 void USK_GA_AI_Melee::OnAnimNotifyCompleted(FGameplayEventData EventData)
 {
 	CurrentAttackType = EventData.EventTag;
+	AddDamageMultiplierByAttackType();
 }
 
 void USK_GA_AI_Melee::OnHitCompleted(FGameplayEventData EventData)

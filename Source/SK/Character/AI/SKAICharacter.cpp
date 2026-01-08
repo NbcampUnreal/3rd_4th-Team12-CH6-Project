@@ -68,12 +68,13 @@ void ASKAICharacter::BeginPlay()
 	
 	InitializeAttributeSetAndAbilitiesFromDataAsset();
 
-	float Z = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-	FVector NewLocation = GetActorLocation();
-	NewLocation.Z += Z;
+	FBoxSphereBounds MeshBounds = GetMesh()->GetLocalBounds();
+	float MeshHeight = (MeshBounds.BoxExtent.Z) * GetMesh()->GetComponentScale().Z;
 	
 	if (HealthWidgetComponent)
 	{
+		HealthWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, MeshHeight + 20.f));
+		
 		UUserWidget* HealthWidget = HealthWidgetComponent->GetUserWidgetObject();
 		if (HealthWidget)
 		{
@@ -81,8 +82,6 @@ void ASKAICharacter::BeginPlay()
 			if (MonsterHealth)
 			{
 				MonsterHealth->SettingWidget(this, GetMonsterName());
-
-				HealthWidgetComponent->SetWorldLocation(NewLocation);
 			}
 		}
 	}
