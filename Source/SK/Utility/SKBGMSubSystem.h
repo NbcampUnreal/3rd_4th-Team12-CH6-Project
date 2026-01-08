@@ -33,6 +33,8 @@ public:
 	void StopBGM();
 	void UpdateVolume();
 
+	FGameplayTag GetRecentlyMapTag();
+	void PlayBGM_MapNow();
 private:
 	bool IsRunningListenServer() const;
 	void OnPostLoadMap(UWorld* LoadedWorld); // 레벨이 로드 될 때마다 해당 함수 호출(Bind)

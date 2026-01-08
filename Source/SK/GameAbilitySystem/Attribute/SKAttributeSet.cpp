@@ -52,6 +52,13 @@ void USKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	//Health
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
+		const float Delta = Data.EvaluatedData.Magnitude;
+
+		if (Delta < 0.f)
+		{
+			OnDamageTaken.Broadcast(-Delta);
+		}
+		
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 	}
 	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())

@@ -333,6 +333,9 @@ void ASKPlayerCharacter::TryInitASC()
 
 void ASKPlayerCharacter::OnDamageTaken(float Damage)
 {
+	if (Damage <= 0.f)
+		return;
+	
 	TargetHitAlpha = FMath::Clamp(Damage, 0.1f, 5.f);
 
 	GetWorldTimerManager().ClearTimer(HitEffectTimer);
