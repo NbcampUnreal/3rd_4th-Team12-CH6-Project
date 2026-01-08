@@ -16,6 +16,7 @@ public:
 	//레벨 경로
 	static constexpr const TCHAR* TownLevel = TEXT("TownLevel");
 	static constexpr const TCHAR* Tutorial = TEXT("RuinsTutorial");
+	static constexpr const TCHAR* TownEnding = TEXT("TownEnding");
 
 	inline static const TMap<int32, FString> DungeonLevels = {
 		{ 1, TEXT("RuinsRenuewal") },

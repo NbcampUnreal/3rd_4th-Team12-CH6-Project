@@ -163,6 +163,60 @@ void USKGameInstance::LeaveSession()
 	UGameplayStatics::OpenLevel(GetWorld(), FName(TravelCmd));
 }
 
+void USKGameInstance::OpenTownEnding()
+{
+	UE_LOG(LogTemp, Log, TEXT("[GameInstance] Ending Multiplayer Session"));
+	FTimerHandle Handle;
+	GetWorld()->GetTimerManager().SetTimer(
+		Handle,
+		this,
+		&USKGameInstance::TravelToEnding,
+		5.0f,
+		false
+	);
+}
+
+void USKGameInstance::TravelToEnding()
+{
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	if (World->GetNetMode() == NM_Client)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[GameInstance] TravelToTown() called on Client — Ignored."));
+		return;
+	}
+	
+	FString TravelCmd = FString::Printf(TEXT("%s?listen"), SKGameConstants::TownEnding);
+	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → TownMap : %s"), *TravelCmd);
+		
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (APlayerController* PC = It->Get())
+		{
+			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
+			if (SKPC)
+			{
+				SKPC->ClientShowLoadingScreen(true);
+			}
+		}
+	}
+	
+	FTimerHandle TimerHandle;
+	World->GetTimerManager().SetTimer(
+		TimerHandle,
+		FTimerDelegate::CreateLambda([World, TravelCmd]()
+		{
+			if (World)
+			{
+				UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel executing → TownMap : %s"), *TravelCmd);
+				World->ServerTravel(TravelCmd, true);
+			}
+		}),
+		1.0f,  // 1초 지연
+		false
+	);
+}
 
 
 const TObjectPtr<USKSoundDataAsset>& USKGameInstance::GetSoundDataAsset()
