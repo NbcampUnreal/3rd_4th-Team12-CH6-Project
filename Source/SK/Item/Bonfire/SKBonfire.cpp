@@ -9,6 +9,8 @@
 #include "Component/InventoryComponent.h"
 #include "Component/QuickSlotComponent.h"
 #include "PlayerState/SKPlayerState.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Utility/SpawnSubsystem.h"
 
 ASKBonfire::ASKBonfire()
@@ -77,26 +79,20 @@ void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
 	APlayerState* PS = PlayerCharacter->GetPlayerState();
 	if (!PS)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[EstusCheck] PlayerState is null"));
 		return;
 	}
 
 	ASKPlayerState* SKPS = Cast<ASKPlayerState>(PS);
 	if (!SKPS)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[EstusCheck] PlayerState cast failed"));
 		return;
 	}
 
 	UInventoryComponent* Inventory = SKPS->GetInventoryComponent();
 	if (!Inventory)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[EstusCheck] InventoryComponent is null"));
 		return;
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("[EstusCheck] Call CheckEstusCount | Authority: %s"),
-		PS->HasAuthority() ? TEXT("Server") : TEXT("Client"));
 
 	Inventory->CheckEstusCount();
 
@@ -105,4 +101,11 @@ void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
 		return;
 
 	QuickSlotComponent->RefreshQuickSlots();
+
+	if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
+	{
+		FSwitchLayoutMessage Message(TAG_UI_Layout_InGame, true);
+
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+	}
 }

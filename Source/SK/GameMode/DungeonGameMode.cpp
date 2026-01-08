@@ -5,6 +5,8 @@
 #include "Item/Bonfire/SKBonfire.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/PlayerStart.h"
+#include "Utility/SKGameplayMessageTypes.h"
+#include "Utility/SKNativeGameplayTags.h"
 #include "Utility/SpawnSubsystem.h"
 
 ADungeonGameMode::ADungeonGameMode()
@@ -151,12 +153,6 @@ void ADungeonGameMode::ChangeDungeonState(EDungeonMatchState NewState)
 	if (!GS) return;
 
 	GS->SetDungeonState(NewState);
-
-	if (NewState == EDungeonMatchState::Dungeon_InProgress)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[DungeonGameMode] Dungeon Started!"));
-		OnDungeonStarted.Broadcast();
-	}
 }
 
 void ADungeonGameMode::NotifyPCGFinished()
