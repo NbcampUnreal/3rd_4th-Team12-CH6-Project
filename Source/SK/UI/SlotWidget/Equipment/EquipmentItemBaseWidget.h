@@ -48,6 +48,9 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	UImage* HoverImage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="EquipmentItemSlotWidget")
+	UTexture2D* EmptyItemTexture;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "EquipmentItemSlotWidget")
 	int32 CurrentItemID = -1;
