@@ -195,7 +195,8 @@ private:
 	void StopGuard(const FInputActionValue& Value);
 
 	AActor* FindNearestTarget();
-
+	AActor* FindVisibleTarget();
+	
 private:
 #pragma	endregion
 
