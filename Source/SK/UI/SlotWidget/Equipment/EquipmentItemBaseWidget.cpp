@@ -44,7 +44,7 @@ void UEquipmentItemBaseWidget::NativeOnMouseEnter(const FGeometry& InGeometry, c
 
 	if (USKBGMSubSystem* BGM = SKGI->GetSubsystem<USKBGMSubSystem>())
 	{
-		BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
+		//BGM->PlayUISoundByTag(TAG_GameplayCue_Sound_UI_HoverSound);
 	}
 }
 

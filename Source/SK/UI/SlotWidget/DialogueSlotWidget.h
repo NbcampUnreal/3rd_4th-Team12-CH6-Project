@@ -44,7 +44,7 @@ protected:
 
 	FTimerHandle TypingTimerHandle;
 
-	float TypingInterval = 0.3f; // 글자 속도
+	float TypingInterval = 0.07f; // 글자 속도
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bTyping = false;
