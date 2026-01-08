@@ -61,6 +61,8 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 		if (const USKAIAttributeSet* TargetSet = TargetASC->GetSet<USKAIAttributeSet>())
 		{
 			ArmorPower = TargetSet->GetArmor();
+
+			if (TargetSet->GetHealth() <= 0.01f) return;
 		}
 	}
 
@@ -109,9 +111,9 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 
 	UE_LOG(LogTemp, Warning, TEXT("Damage: %f"), FinalDamage);
 
-	if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_Heavy))
+	if (Spec.DynamicGrantedTags.HasTag(TAG_Attack_UnGuardable))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("USKDamageExecution: Heavy Attack"));
+		UE_LOG(LogTemp, Warning, TEXT("USKDamageExecution: UnGuardable Attack"));
 
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
 			USKAIAttributeSet::GetStaminaAttribute(),

@@ -463,6 +463,22 @@ void ASKPlayerController::Look(const FInputActionValue& Value)
 
 void ASKPlayerController::Jump(const FInputActionValue& Value)
 {
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+		return;
+	
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter))
+		return;
+
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+		return;
+
+	if (ASC->HasMatchingGameplayTag(TAG_State_Condition_Equip))
+	{
+		return;
+	}
 	if (ACharacter* pCharacter = Cast<ACharacter>(GetPawn()))
 	{
 		pCharacter->Jump();

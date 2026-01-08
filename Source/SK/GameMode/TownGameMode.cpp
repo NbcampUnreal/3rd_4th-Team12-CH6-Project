@@ -60,17 +60,6 @@ void ATownGameMode::HandleMatchHasStarted()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("❌ NetDriver is NULL — no socket listening"));
 	}
-	if (UWorld* World = GetWorld())
-	{
-		if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
-		{
-			// 전송할 메시지 생성
-			FLoadingUIVisible LoadingUIMessage(false);
-
-			// 메시지 브로드캐스트 (UI 전환용 채널로)
-			MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
-		}
-	}
 }
 
 void ATownGameMode::HandleMatchHasEnded()

@@ -264,3 +264,16 @@ struct FGameDirectionMessage
 	UPROPERTY(BlueprintReadWrite)
 	int32 Direction;
 };
+
+
+USTRUCT(BlueprintType)
+struct FLoadingStateMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	float Progress;
+
+	UPROPERTY(BlueprintReadWrite)
+	FText MessageText;
+};

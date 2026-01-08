@@ -303,6 +303,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogue, "Message.Channel.NPCDial
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_NPCDialogueSkip, "Message.Channel.NPCDialogueSkip");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_PlayerLevelUpResult, "Message.Channel.PlayerLevelUpResult");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_GameDirection, "Message.Channel.GameDirection");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Message_Channel_LoadingInfo, "Message.Channel.LoadingInfo");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Health, "Item.Health");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Item_Attack, "Item.Attack");
