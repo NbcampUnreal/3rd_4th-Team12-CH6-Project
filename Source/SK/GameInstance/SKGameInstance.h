@@ -105,6 +105,10 @@ public:
 	FSKGameplayMessageListenerHandle LoadingUIVisibleHandle;
 
 	void OnLoadingUIVisibleMessageReceived(FGameplayTag Channel, const FLoadingUIVisible& Message);
+
+	UPROPERTY()
+	int32 RandomNormal;
+	
 #pragma endregion Loading_UI
 	
 	//임시. 추후 데이터 에셋 매니저 나오면 변경
