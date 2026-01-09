@@ -40,6 +40,8 @@ void UBossHPSlotWidget::SettingWidget(APawn* OwnerPawn)
 	
 	AttributeSet->OnCurrentHealthChanged.AddUObject(this, &UBossHPSlotWidget::HealthChanged);
 	AttributeSet->OnCurrentPoiseChanged.AddUObject(this, &UBossHPSlotWidget::PoiseChanged);
+
+	HealthChanged(nullptr, nullptr, nullptr, 0, AttributeSet->GetHealth(), AttributeSet->GetHealth());
 }
 
 void UBossHPSlotWidget::NativeConstruct()
