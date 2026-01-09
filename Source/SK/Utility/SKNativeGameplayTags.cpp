@@ -57,6 +57,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Fly, "Ability.Fly");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_FlyRush, "Ability.FlyRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Breath, "Ability.Breath");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Teleport, "Ability.Teleport");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_HideRush, "Ability.HideRush");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_InteractBonfireEnd, "Ability.InteractBonfireEnd");
 
@@ -190,6 +191,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Groggy, "PlayerState.Groggy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PlayerState_Dead, "PlayerState.Dead");
 
 //공격속성
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attack, "Attack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attack_Normal, "Attack.Normal");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attack_Heavy, "Attack.Heavy");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attack_UnGuardable, "Attack.UnGuardable");
@@ -282,6 +284,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_FlyRush, "AI.FlyRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Breath, "AI.Breath");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Teleport, "AI.Teleport");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Hide, "AI.Hide");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_StartHide, "AI.StartHide");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_EndHide, "AI.EndHide");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_HideRush, "AI.HideRush");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");

@@ -18,18 +18,6 @@ USK_GA_AI_JumpRush::USK_GA_AI_JumpRush()
 
 void USK_GA_AI_JumpRush::JumpRush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
-	/*
-	if (WarpDistance > MaxDistance)
-	{
-		PredictedHorizontalVector = PredictedHorizontalVector.GetSafeNormal() * MaxDistance;
-   
-		PredictedLocation = AILocation + FVector(
-						PredictedHorizontalVector.X, 
-						PredictedHorizontalVector.Y, 
-						PredictedVector.Z 
-		);
-	}
-	*/
 	SetFocus();
 	
 	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(

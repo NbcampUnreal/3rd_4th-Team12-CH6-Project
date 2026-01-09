@@ -35,6 +35,10 @@ protected:
 	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* OwnEventTask2;
 	UPROPERTY()
+	UAbilityTask_WaitGameplayEvent* OwnEventTask3;
+	UPROPERTY()
+	UAbilityTask_WaitGameplayEvent* OwnEventTask4;
+	UPROPERTY()
 	UAbilityTask_WaitGameplayEvent* CommonEventTask;
 	UPROPERTY()
 	UAbilityTask_PlayMontageAndWait* OwnMontageTask;
