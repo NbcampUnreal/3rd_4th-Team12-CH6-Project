@@ -105,7 +105,12 @@ void ASKBonfire::ResetBonfire(ASKPlayerCharacter* PlayerCharacter)
 	if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(this))
 	{
 		FSwitchLayoutMessage Message(TAG_UI_Layout_InGame, true);
-
 		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SwitchLayout, Message);
+
+		FSlotVisibilityMessage SlotMessage;
+		SlotMessage.LayoutTag = TAG_UI_Layout_InGame;
+		SlotMessage.SlotTags.AddTag(TAG_UI_Slot_BossHP);
+		SlotMessage.bVisible = false;
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, SlotMessage);
 	}
 }

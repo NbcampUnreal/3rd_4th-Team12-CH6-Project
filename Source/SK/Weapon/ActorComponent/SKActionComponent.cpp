@@ -145,6 +145,11 @@ void USKActionComponent::OnOwnerPossessed()
 			// 무기 데이터 설정
 			UE_LOG(LogTemp, Warning, TEXT("Respawn or Level Change"))
 			const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+			if (!WeaponDataRow)
+			{
+				UE_LOG(LogTemp, Error, TEXT("WeaponDataRow is null (PossessedBy timing)"));
+				return;
+			}
 			Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 			Multicast_SetWeaponData(WeaponDataRow->WeaponData);
 			// 장착 태그 부여
@@ -173,6 +178,11 @@ void USKActionComponent::OnOwnerPossessed()
 		UE_LOG(LogTemp, Warning, TEXT("First Spawn and Equipped, Weapon Name : %s"), *PlayerState->WeaponActors[0]->GetName())
 		UE_LOG(LogTemp, Warning, TEXT("Player State Weapon Tag: %s"), *PlayerState->GetWeaponTag().GetTagName().ToString());
 		const FWeaponDataRow* WeaponDataRow = PlayerState->GetWeaponDataRow();
+		if (!WeaponDataRow)
+		{
+			UE_LOG(LogTemp, Error, TEXT("WeaponDataRow is null (PossessedBy timing)"));
+			return;
+		}
 		Multicast_SetWeaponAnimData(WeaponDataRow->WeaponAnimData);
 		Multicast_SetWeaponData(WeaponDataRow->WeaponData);
 		WeaponActors = PlayerState->WeaponActors;

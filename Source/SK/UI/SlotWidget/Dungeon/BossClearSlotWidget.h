@@ -7,6 +7,7 @@
 #include "Utility/SKGameplayMessageSubsystem.h"
 #include "BossClearSlotWidget.generated.h"
 
+struct FBossClearMessage;
 class UImage;
 class UTextBlock;
 struct FSlotVisibilityMessage;
@@ -27,7 +28,7 @@ public:
 	
 	FSKGameplayMessageListenerHandle BossClearHandle;
 
-	void OnBossClearMessageReceived(FGameplayTag Channel, const FSlotVisibilityMessage& Message);
+	void OnBossClearMessageReceived(FGameplayTag Channel, const FBossClearMessage& Message);
 	
 protected:
 
