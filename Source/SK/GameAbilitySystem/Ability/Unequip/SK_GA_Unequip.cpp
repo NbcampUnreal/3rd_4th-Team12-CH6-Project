@@ -54,6 +54,7 @@ void USK_GA_Unequip::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Unequip"), UnequipMontage);
 		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
+		PlayAnimTask->OnCancelled.AddDynamic(this, &ThisClass::OnCanceled);
 		PlayAnimTask->ReadyForActivation();
 	}
 }

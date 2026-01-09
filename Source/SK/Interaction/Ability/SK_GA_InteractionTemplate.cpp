@@ -50,6 +50,7 @@ void USK_GA_InteractionTemplate::PlayAnimMontage(UAnimMontage* InteractMontage)
 		UAbilityTask_PlayMontageAndWait* PlayAnimTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("Interact"), InteractMontage);
 		PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
 		PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageCanceled);
+		PlayAnimTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageCanceled);
 		PlayAnimTask->ReadyForActivation();
 	}
 }
