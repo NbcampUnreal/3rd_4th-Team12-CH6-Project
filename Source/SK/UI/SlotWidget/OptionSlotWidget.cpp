@@ -3,7 +3,9 @@
 
 #include "UI/SlotWidget/OptionSlotWidget.h"
 
+#include "Components/Button.h"
 #include "Components/Slider.h"
+#include "Components/VerticalBox.h"
 #include "GameInstance/SKGameInstance.h"
 
 void UOptionSlotWidget::NativeConstruct()
@@ -30,6 +32,19 @@ void UOptionSlotWidget::NativeConstruct()
 		SFXVolumeSlider->OnValueChanged.AddDynamic(
 			this, &UOptionSlotWidget::OnSFXVolumeChanged);
 	}
+
+	if (SoundOptionButton)
+	{
+		SoundOptionButton->OnClicked.AddDynamic(this, &UOptionSlotWidget::OnSoundOptionClicked);
+	}
+
+	if (GraphicOptionButton)
+	{
+		GraphicOptionButton->OnClicked.AddDynamic(this, &UOptionSlotWidget::OnGraphicOptionClicked);
+	}
+
+	// 기본 상태 (사운드 먼저 보여주고 싶다면)
+	SetOptionBoxVisibility(SoundOptionBox);
 }
 
 void UOptionSlotWidget::OnMasterVolumeChanged(float Value)
@@ -53,6 +68,37 @@ void UOptionSlotWidget::OnSFXVolumeChanged(float Value)
 	if (USKGameInstance* GI = GetGameInstance<USKGameInstance>())
 	{
 		GI->SetSFXVolume(Value);
+	}
+}
+
+void UOptionSlotWidget::OnSoundOptionClicked()
+{
+	SetOptionBoxVisibility(SoundOptionBox);
+}
+
+void UOptionSlotWidget::OnGraphicOptionClicked()
+{
+	SetOptionBoxVisibility(GraphicOptionBox);
+}
+
+void UOptionSlotWidget::SetOptionBoxVisibility(UVerticalBox* TargetBox)
+{
+	if (SoundOptionBox)
+	{
+		SoundOptionBox->SetVisibility(
+			TargetBox == SoundOptionBox
+				? ESlateVisibility::Visible
+				: ESlateVisibility::Collapsed
+		);
+	}
+
+	if (GraphicOptionBox)
+	{
+		GraphicOptionBox->SetVisibility(
+			TargetBox == GraphicOptionBox
+				? ESlateVisibility::Visible
+				: ESlateVisibility::Collapsed
+		);
 	}
 }
 
