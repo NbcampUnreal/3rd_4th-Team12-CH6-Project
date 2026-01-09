@@ -277,3 +277,12 @@ struct FLoadingStateMessage
 	UPROPERTY(BlueprintReadWrite)
 	FText MessageText;
 };
+
+USTRUCT(BlueprintType)
+struct FBossClearMessage
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadWrite)
+	bool bResult;
+};

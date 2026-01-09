@@ -25,8 +25,8 @@ void UBossClearSlotWidget::NativeConstruct()
 		return;
 
 	// 메시지 구독
-	BossClearHandle = MessageSubsystem->RegisterListener<FSlotVisibilityMessage>(
-		TAG_Message_Channel_SlotVisible,
+	BossClearHandle = MessageSubsystem->RegisterListener<FBossClearMessage>(
+		TAG_Message_Channel_BossClear,
 		this,
 		&UBossClearSlotWidget::OnBossClearMessageReceived
 	);
@@ -62,9 +62,9 @@ void UBossClearSlotWidget::PlayAppearAnimation()
 	}
 }
 
-void UBossClearSlotWidget::OnBossClearMessageReceived(FGameplayTag Channel, const FSlotVisibilityMessage& Message)
+void UBossClearSlotWidget::OnBossClearMessageReceived(FGameplayTag Channel, const FBossClearMessage& Message)
 {
-	if (Message.SlotTags.HasTag(TAG_UI_Slot_BossHP) && !Message.bVisible)
+	if (Message.bResult)
 	{
 		PlayAppearAnimation();
 	}
