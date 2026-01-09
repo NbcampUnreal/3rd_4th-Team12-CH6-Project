@@ -101,6 +101,11 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 				VictimActor->GetActorLocation()
 			);
 
+			if (AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy"))))
+			{
+				return;
+			}
+			
 			if (PlayerAttackType != "UnGuardable")
 			{
 				if (!(AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))) || AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Named")))))
