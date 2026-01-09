@@ -188,7 +188,7 @@ void UGameExitRequestSlotWidget::OnConfirmResponseMessageReceived(FGameplayTag C
 			{
 				const ENetMode NetMode = World->GetNetMode();
 
-				if (NetMode == NM_Standalone || NetMode == NM_Client)
+				if (NetMode == NM_Client)
 				{
 					// 클라이언트라면 세션 종료 후 로컬 레벨로 이동
 					if (USKGameInstance* GI = Cast<USKGameInstance>(UGameplayStatics::GetGameInstance(World)))
@@ -196,7 +196,7 @@ void UGameExitRequestSlotWidget::OnConfirmResponseMessageReceived(FGameplayTag C
 						GI->LeaveSession();
 					}
 				}
-				else if (NetMode == NM_ListenServer || NetMode == NM_DedicatedServer)
+				else if (NetMode == NM_ListenServer || NetMode == NM_DedicatedServer || NetMode == NM_Standalone)
 				{
 					// 호스트라면 ServerTravel 호출
 					if (USKGameInstance* GI = Cast<USKGameInstance>(UGameplayStatics::GetGameInstance(World)))
