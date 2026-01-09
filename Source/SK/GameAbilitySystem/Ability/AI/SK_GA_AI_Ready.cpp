@@ -23,7 +23,7 @@ void USK_GA_AI_Ready::Ready(TObjectPtr<UAnimMontage> LocalAnimMontage)
 				LocalAnimMontage,
 				1.0f,
 				NAME_None,
-				false,
+				true,
 				1.0f
 				);
 	OwnMontageTask->OnCompleted.AddDynamic(this, &USK_GA_AI_Ready::OnReadyCompleted);
