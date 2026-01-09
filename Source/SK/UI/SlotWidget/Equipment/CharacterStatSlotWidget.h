@@ -53,10 +53,6 @@ protected:
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Stat")
 	UTextBlock* DefensePowerText;
 
-	/** 피해 감소율 */
-	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Stat")
-	UTextBlock* DamageReductionText;
-
 	/** 레벨 */
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Stat")
 	UTextBlock* LevelText;

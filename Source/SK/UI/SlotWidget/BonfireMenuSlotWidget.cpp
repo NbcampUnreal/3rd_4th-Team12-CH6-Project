@@ -4,7 +4,6 @@
 #include "UI/SlotWidget/BonfireMenuSlotWidget.h"
 
 #include "Character/SKPlayerCharacter.h"
-#include "Component/QuickSlotComponent.h"
 #include "Components/Button.h"
 #include "PlayerState/SKPlayerState.h"
 #include "Utility/SKGameplayMessageTypes.h"
@@ -16,15 +15,11 @@ void UBonfireMenuSlotWidget::NativeConstruct()
 	Super::NativeConstruct();
 	MenuButtons = {
 		BtnLevelUp,
-		BtnRest,
 		BtnLeave
 	};
 
 	if (BtnLevelUp)
 		BtnLevelUp->OnClicked.AddDynamic(this, &UBonfireMenuSlotWidget::OnLevelUpClicked);
-	
-	if (BtnRest)
-		BtnRest->OnClicked.AddDynamic(this, &UBonfireMenuSlotWidget::OnRestClicked);
 
 	if (BtnLeave)
 	{
@@ -84,6 +79,7 @@ void UBonfireMenuSlotWidget::OnMenuMoveMessageReceived(FGameplayTag Channel, con
 		case 0: MoveSelectionUp(); break;
 		case 1: MoveSelectionDown(); break;
 		case 4: PressCurrentButton(); break;
+		default: break;
 	};
 }
 
@@ -109,29 +105,6 @@ void UBonfireMenuSlotWidget::OnLevelUpClicked()
 	if (!PS) return;
 
 	PS->Server_RequestLevelUp();
-}
-
-void UBonfireMenuSlotWidget::OnRestClicked()
-{
-	UE_LOG(LogTemp, Log, TEXT("Rest 버튼 클릭"));
-	APlayerController* PC = GetOwningPlayer();
-	if (!PC) return;
-
-	ASKPlayerState* PS = PC->GetPlayerState<ASKPlayerState>();
-	if (!PS) return;
-
-	UQuickSlotComponent* QSComponent = PS->FindComponentByClass<UQuickSlotComponent>();
-	if (!QSComponent) return;
-
-	if (PC->HasAuthority())
-	{
-		QSComponent->RefreshQuickSlots();
-	}
-	else
-	{
-		QSComponent->ServerRefreshQuickSlots();
-	}
-	
 }
 
 void UBonfireMenuSlotWidget::OnLeaveClicked()
@@ -180,8 +153,7 @@ void UBonfireMenuSlotWidget::OnLeaveClicked()
 
 void UBonfireMenuSlotWidget::OnLeaveHovered()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Test Hover"));
-	CurrentIndex = 2;
+
 }
 
 void UBonfireMenuSlotWidget::SimulateButtonHover(UButton* Button)
@@ -245,6 +217,7 @@ void UBonfireMenuSlotWidget::MoveSelectionUp()
 
 	int32 OldIndex = CurrentIndex;
 	CurrentIndex = (CurrentIndex - 1 + MenuButtons.Num()) % MenuButtons.Num();
+	UE_LOG(LogTemp, Log, TEXT("MoveSelectionUp: OldIndex=%d, NewIndex=%d"), OldIndex, CurrentIndex);
 	ApplyFocusToButton(OldIndex, CurrentIndex);
 }
 
@@ -254,6 +227,7 @@ void UBonfireMenuSlotWidget::MoveSelectionDown()
 
 	int32 OldIndex = CurrentIndex;
 	CurrentIndex = (CurrentIndex + 1) % MenuButtons.Num();
+	UE_LOG(LogTemp, Log, TEXT("MoveSelectionDown: OldIndex=%d, NewIndex=%d"), OldIndex, CurrentIndex);
 	ApplyFocusToButton(OldIndex, CurrentIndex);
 }
 

@@ -163,7 +163,7 @@ void UBattleComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void UBattleComponent::StartTrace()
 {
 	SetIsTraced(true);
-	ClearHitResult();
+	// ClearHitResult();
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (!OwnerCharacter)

@@ -22,9 +22,6 @@ public:
 	UButton* BtnLevelUp;
 	
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	UButton* BtnRest;
-
-	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UButton* BtnLeave;
 
 	/** 자동으로 구성되는 버튼 배열 */
@@ -58,9 +55,6 @@ protected:
 	
 	UFUNCTION()
 	void OnLevelUpClicked();
-	
-	UFUNCTION()
-	void OnRestClicked();
 
 	UFUNCTION()
 	void OnLeaveClicked();
