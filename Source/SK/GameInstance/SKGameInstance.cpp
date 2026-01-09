@@ -8,6 +8,10 @@
 #include "Constants/SKGameConstants.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Character/SKPlayerCharacter.h"
+#include "Character/AI/SKAICharacter.h"
+#include "PlayerState/SKPlayerState.h"
+#include "EngineUtils.h"
 
 void USKGameInstance::Init()
 {
@@ -82,11 +86,17 @@ void USKGameInstance::TravelToDungeon(int32 DungeonID)
 		// 메시지 브로드캐스트 (UI 전환용 채널로)
 		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
 	}
-
-	
 	
 	FString TravelCmd = FString::Printf(TEXT("%s?listen"), **LevelPath);
 	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → DungeonMap : %s"), *TravelCmd);
+
+	for (TActorIterator<ASKPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		ASKPlayerCharacter* Player = *It;
+		if (!IsValid(Player)) continue;
+
+		Player->PreDestroyGAS();
+	}
 	
 	FTimerHandle TimerHandle;
 	World->GetTimerManager().SetTimer(
@@ -126,6 +136,24 @@ void USKGameInstance::TravelToTown()
 		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
 		RandomNormal = 1;
 	}
+
+	for (TActorIterator<ASKPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		ASKPlayerCharacter* Player = *It;
+		if (!IsValid(Player)) continue;
+
+		Player->PreDestroyGAS();
+	}
+
+	for (TActorIterator<ASKAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASKAICharacter* AI = *It;
+		if (!IsValid(AI)) continue;
+
+		AI->PreDestroyGAS();
+		AI->Destroy();
+	}
+
 	
 	FTimerHandle TimerHandle;
 	World->GetTimerManager().SetTimer(
@@ -193,6 +221,22 @@ void USKGameInstance::TravelToEnding()
 		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
 	}
 
+	for (TActorIterator<ASKPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		ASKPlayerCharacter* Player = *It;
+		if (!IsValid(Player)) continue;
+
+		Player->PreDestroyGAS();
+	}
+
+	for (TActorIterator<ASKAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASKAICharacter* AI = *It;
+		if (!IsValid(AI)) continue;
+
+		AI->PreDestroyGAS();
+		AI->Destroy();
+	}
 	
 	FTimerHandle TimerHandle;
 	World->GetTimerManager().SetTimer(

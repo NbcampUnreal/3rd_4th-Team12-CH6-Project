@@ -642,7 +642,7 @@ void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
 		return;
 	}
 
-	AActor* Target = FindNearestTarget();
+	AActor* Target = FindVisibleTarget();
 	SetLockedTarget(Target);
 	SetLockOnState(Target != nullptr);
 
@@ -886,6 +886,64 @@ AActor* ASKPlayerController::FindNearestTarget()
 	return Best;
 }
 
+AActor* ASKPlayerController::FindVisibleTarget()
+{
+	APawn* ThisPlayer = GetPawn();
+	if (!ThisPlayer)
+		return nullptr;
+
+	const FVector Origin = ThisPlayer->GetActorLocation();
+	const FVector Forward = ThisPlayer->GetActorForwardVector().GetSafeNormal();
+
+	TArray<FOverlapResult> Overlaps;
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(LockOnRadius);
+
+	bool bHit = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		Origin,
+		FQuat::Identity,
+		ECC_Pawn,
+		Sphere
+	);
+
+	if (!bHit)
+		return nullptr;
+
+	const float CosHalfFOV = FMath::Cos(FMath::DegreesToRadians(45.f));
+
+	float MinDist = FLT_MAX;
+	AActor* Best = nullptr;
+
+	for (const FOverlapResult& Result : Overlaps)
+	{
+		AActor* Target = Result.GetActor();
+		if (!Target || Target == ThisPlayer)
+			continue;
+
+		ASKAICharacterBase* AI = Cast<ASKAICharacterBase>(Target);
+		if (!AI)
+			continue;
+
+		FVector ToTarget = Target->GetActorLocation() - Origin;
+		ToTarget.Z = 0.f;               
+		ToTarget.Normalize();
+
+		float Dot = FVector::DotProduct(Forward, ToTarget);
+		
+		if (Dot < CosHalfFOV)
+			continue;
+
+		float Dist = FVector::DistSquared(Origin, Target->GetActorLocation());
+		if (Dist < MinDist)
+		{
+			MinDist = Dist;
+			Best = Target;
+		}
+	}
+
+	return Best;
+}
+
 
 void ASKPlayerController::ClearTarGetOverlayMaterial()
 {
@@ -983,7 +1041,12 @@ void ASKPlayerController::RequestRespawn()
 			}
 			InteractionComponent->DetectedWidgets.Empty();
 		}
-			
+
+		if (ASKCharacterBase* PlayerCharacter = Cast<ASKCharacterBase>(P))
+		{
+			PlayerCharacter->PreDestroyGAS();
+		}
+		
 		P->Destroy();
 	}
 

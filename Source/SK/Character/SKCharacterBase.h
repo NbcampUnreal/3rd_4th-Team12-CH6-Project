@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION()
+	void PreDestroyGAS();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
