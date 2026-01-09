@@ -134,7 +134,6 @@ void USKGameInstance::TravelToTown()
 		FLoadingUIVisible LoadingUIMessage(true);
 		// 메시지 브로드캐스트 (UI 전환용 채널로)
 		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
-		RandomNormal = 1;
 	}
 
 	for (TActorIterator<ASKPlayerCharacter> It(GetWorld()); It; ++It)
