@@ -177,6 +177,8 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 			ApplyHeatGE(1,SourceASC);
 		}
 	}
+
+	BattleComponent->ClearHitResult();
 }
 
 void USK_GA_GuardCounter::OnStopAttackTrace_Server()
