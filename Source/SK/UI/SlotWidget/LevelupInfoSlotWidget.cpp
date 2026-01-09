@@ -159,21 +159,12 @@ void ULevelupInfoSlotWidget::SettingLevelUpDataByLevel(int32 Level)
 		return;
 	}
     
-	const FLevelUpData* LevelData = SDS->GetData<FLevelUpData>(Level);
-	if (!LevelData)
+	const FLevelUpData* GoldLevelData = SDS->GetData<FLevelUpData>(Level);
+	if (!GoldLevelData)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GetLevelUpDataByLevel: LevelData is nullptr for Level %d"), Level);
 		return;
 	}
-    
-	// 로그 출력
-	UE_LOG(LogTemp, Log, TEXT("LevelUpData found for Level %d: RequiredGold=%d, MaxHP=%.1f, Attack=%.1f, Armor=%.1f, AbilityPointReward=%d"),
-		Level,
-		LevelData->RequiredGold,
-		LevelData->MaxHP,
-		LevelData->Attack,
-		LevelData->Armor,
-		LevelData->AbilityPointReward);
 
 	if (CurrentLevelText)
 	{
@@ -186,7 +177,7 @@ void ULevelupInfoSlotWidget::SettingLevelUpDataByLevel(int32 Level)
 	}
 
 	const int32 CurrentGold = CurrentPS->GetGold();
-	const int32 RequiredGold = LevelData->RequiredGold;
+	const int32 RequiredGold = GoldLevelData->RequiredGold;
 	
 	if (RequireGold)
 	{
@@ -212,27 +203,38 @@ void ULevelupInfoSlotWidget::SettingLevelUpDataByLevel(int32 Level)
 			ResultGold->SetColorAndOpacity(FLinearColor::Red);
 		}
 	}
-	
+
+	const FLevelUpData* StatLevelData = SDS->GetData<FLevelUpData>(Level+1);
+	if (!StatLevelData)
+	{
+		if (UpStatMaxHealth)
+		{
+			UpStatMaxHealth->SetText(FText());
+		}
+		if (UpStatAttack)
+		{
+			UpStatAttack->SetText(FText());
+		}
+		if (UpStatArmor)
+		{
+			UpStatArmor->SetText(FText());
+		}
+		return;
+	}
 	
 	if (UpStatMaxHealth)
 	{
-		UpStatMaxHealth->SetText(FText::AsNumber(LevelData->MaxHP));
-	}
-
-	if (UpStatMaxStamina)
-	{
-		// 스테미나 있으면 주석 해제
-		//UpStatMaxStamina->SetText(FText::AsNumber(LevelData->MaxStamina));
+		UpStatMaxHealth->SetText(FText::AsNumber(StatLevelData->MaxHP));
 	}
 
 	if (UpStatAttack)
 	{
-		UpStatAttack->SetText(FText::AsNumber(LevelData->Attack));
+		UpStatAttack->SetText(FText::AsNumber(StatLevelData->Attack));
 	}
 
 	if (UpStatArmor)
 	{
-		UpStatArmor->SetText(FText::AsNumber(LevelData->Armor));
+		UpStatArmor->SetText(FText::AsNumber(StatLevelData->Armor));
 	}
 }
 

@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "OptionSlotWidget.generated.h"
 
+class UButton;
+class UVerticalBox;
 class USlider;
 /**
  * 
@@ -27,7 +29,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	USlider* SFXVolumeSlider;
-
+	
 	/* === Callbacks === */
 
 	UFUNCTION()
@@ -39,6 +41,25 @@ protected:
 	UFUNCTION()
 	void OnSFXVolumeChanged(float Value);
 
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* SoundOptionBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* SoundOptionButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* GraphicOptionBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* GraphicOptionButton;
+
+	UFUNCTION()
+	void OnSoundOptionClicked();
+
+	UFUNCTION()
+	void OnGraphicOptionClicked();
+
+	void SetOptionBoxVisibility(UVerticalBox* TargetBox);
 	/* 초기 값 동기화 */
 	void InitializeVolumeValues();	
 };

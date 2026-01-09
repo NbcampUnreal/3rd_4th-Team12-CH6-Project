@@ -58,9 +58,6 @@ protected:
 	UTextBlock* UpStatMaxHealth;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Level")
-	UTextBlock* UpStatMaxStamina;
-
-	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Level")
 	UTextBlock* UpStatAttack;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category="Level")
