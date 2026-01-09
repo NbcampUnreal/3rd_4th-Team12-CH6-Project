@@ -1035,11 +1035,17 @@ void ASKPlayerController::RequestRespawn()
 		USKInteractionComponent* InteractionComponent = Cast<ASKPlayerCharacter>(P)->GetInteractionComponent();
 		if (InteractionComponent)
 		{
+			// 인접 UI 제거
 			for (auto* Widget : InteractionComponent->DetectedWidgets)
 			{
 				InteractionComponent->Client_ToggleInteractableWidget(Widget, false);
 			}
 			InteractionComponent->DetectedWidgets.Empty();
+			// 타겟 액터 제거
+			if (InteractionComponent->GetCurrentTargetActor())
+			{
+				InteractionComponent->SetCurrentTagetActor(nullptr);
+			}
 		}
 
 		if (ASKCharacterBase* PlayerCharacter = Cast<ASKCharacterBase>(P))
