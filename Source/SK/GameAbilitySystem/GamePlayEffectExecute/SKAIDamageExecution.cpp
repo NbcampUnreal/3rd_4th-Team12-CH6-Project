@@ -130,10 +130,14 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 		UE_LOG(LogTemp, Warning, TEXT("Player is invincibility"));
 		return;
 	}
-	
 
 	// ==============================
-	// 2. 가드 / 퍼펙트 가드 판정
+	// 2. 가드 불가 공격은 가드판정 볼필요 없음 
+	// ==============================
+	const bool bIsUnGuardable = Spec.DynamicGrantedTags.HasTag(TAG_Attack_UnGuardable);
+
+	// ==============================
+	// 3. 가드 / 퍼펙트 가드 판정
 	// ==============================
 
 	const bool bIsGuarding =
@@ -149,13 +153,13 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	float StaminaCost = 0.f;
 
 	// 퍼펙트 가드 → 데미지 0
-	if (bIsPerfectGuard && bIsGuarding && bIsGuardRotator)
+	if (bIsPerfectGuard && bIsGuarding && bIsGuardRotator && !bIsUnGuardable)
 	{
 		FinalDamage = 0.f;
 		StaminaCost = PerfectGuardCost;
 	}
 	// 일반 가드 → 데미지 감소
-	else if (bIsGuarding && bIsGuardRotator)
+	else if (bIsGuarding && bIsGuardRotator && !bIsUnGuardable)
 	{
 		FinalDamage *= DamageReducedByGuard;
 
@@ -193,7 +197,7 @@ void USKAIDamageExecution::Execute_Implementation(const FGameplayEffectCustomExe
 	}
 
 	// ==============================
-	// 3. Guard 성공 이벤트 전송
+	// 4. Guard 성공 이벤트 전송
 	// ==============================
 	if ((bIsGuarding || bIsPerfectGuard) && bIsGuardRotator && FinalDamage >= 0.f)
 	{
