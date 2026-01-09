@@ -58,8 +58,6 @@ void USKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		{
 			OnDamageTaken.Broadcast(-Delta);
 		}
-		
-		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 	}
 	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
 	{
@@ -195,7 +193,12 @@ void USKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 void USKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
-
+	if (Attribute == GetHealthAttribute())
+	{
+		//MaxHealth 넘지않게 하기
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+	}
+	
 	//스태미나 
 	if (Attribute == GetStaminaAttribute())
 	{
