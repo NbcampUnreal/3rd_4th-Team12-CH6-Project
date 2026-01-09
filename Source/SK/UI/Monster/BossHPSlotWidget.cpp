@@ -106,9 +106,10 @@ void UBossHPSlotWidget::HealthChanged(AActor* EffectInstigator, AActor* EffectCa
 		return;
 	}
 
-	const float Percent = NewValue / FMath::Max(AttributeSet->GetMaxHealth(), 1.0f);
-
-	HealthProgressBar->SetPercent(Percent);
+	const float MaxHealth = FMath::Max(AttributeSet->GetMaxHealth(), 1.0f);
+	TargetHealthPercent = NewValue / MaxHealth;
+	HealthProgressBar->SetPercent(TargetHealthPercent);
+	StartHealthAnimation();
 }
 
 void UBossHPSlotWidget::PoiseChanged(AActor* EffectInstigator, AActor* EffectCauser,
@@ -146,4 +147,57 @@ void UBossHPSlotWidget::OnSettingBossMessageReceived(FGameplayTag Channel, const
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[BossWidget] 메시지 처리 완료"));
+}
+
+void UBossHPSlotWidget::StartHealthAnimation()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	// 이미 돌고 있으면 재시작
+	GetWorld()->GetTimerManager().ClearTimer(HealthAnimTimerHandle);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		HealthAnimTimerHandle,
+		this,
+		&UBossHPSlotWidget::AnimateHealth,
+		0.016f,   // 약 60fps
+		true,
+		0.5f
+	);
+}
+
+void UBossHPSlotWidget::AnimateHealth()
+{
+	if (!TargetHealthProgressBar)
+	{
+		StopHealthAnimation();
+		return;
+	}
+
+	DisplayHealthPercent = FMath::FInterpTo(
+		DisplayHealthPercent,
+		TargetHealthPercent,
+		0.016f,
+		HealthInterpSpeed
+	);
+
+	TargetHealthProgressBar->SetPercent(DisplayHealthPercent);
+
+	if (FMath::IsNearlyEqual(DisplayHealthPercent, TargetHealthPercent, 0.001f))
+	{
+		DisplayHealthPercent = TargetHealthPercent;
+		TargetHealthProgressBar->SetPercent(DisplayHealthPercent);
+		StopHealthAnimation();
+	}
+}
+
+void UBossHPSlotWidget::StopHealthAnimation()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(HealthAnimTimerHandle);
+	}
 }

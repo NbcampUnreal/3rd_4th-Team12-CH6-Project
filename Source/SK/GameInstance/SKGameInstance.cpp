@@ -6,9 +6,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Constants/SKGameConstants.h"
-#include "Controller/SKPlayerController.h"
 #include "Utility/SKGameplayMessageTypes.h"
 #include "Utility/SKNativeGameplayTags.h"
+#include "Character/SKPlayerCharacter.h"
+#include "Character/AI/SKAICharacter.h"
+#include "PlayerState/SKPlayerState.h"
+#include "EngineUtils.h"
 
 void USKGameInstance::Init()
 {
@@ -23,6 +26,8 @@ void USKGameInstance::Init()
 		this,
 		&USKGameInstance::OnLoadingUIVisibleMessageReceived
 	);
+
+	RandomNormal = 0;
 }
 
 void USKGameInstance::HostTownSession()
@@ -74,22 +79,24 @@ void USKGameInstance::TravelToDungeon(int32 DungeonID)
 		return;
 	}
 	
-	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
 	{
-		if (APlayerController* PC = It->Get())
-		{
-			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
-			if (SKPC)
-			{
-				SKPC->ClientShowLoadingScreen(true);
-			}
-		}
+		// 전송할 메시지 생성
+		FLoadingUIVisible LoadingUIMessage(true);
+		// 메시지 브로드캐스트 (UI 전환용 채널로)
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
 	}
-
-	
 	
 	FString TravelCmd = FString::Printf(TEXT("%s?listen"), **LevelPath);
 	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → DungeonMap : %s"), *TravelCmd);
+
+	for (TActorIterator<ASKPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		ASKPlayerCharacter* Player = *It;
+		if (!IsValid(Player)) continue;
+
+		Player->PreDestroyGAS();
+	}
 	
 	FTimerHandle TimerHandle;
 	World->GetTimerManager().SetTimer(
@@ -121,17 +128,32 @@ void USKGameInstance::TravelToTown()
 	FString TravelCmd = FString::Printf(TEXT("%s?listen"), SKGameConstants::TownLevel);
 	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → TownMap : %s"), *TravelCmd);
 		
-	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
 	{
-		if (APlayerController* PC = It->Get())
-		{
-			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
-			if (SKPC)
-			{
-				SKPC->ClientShowLoadingScreen(true);
-			}
-		}
+		// 전송할 메시지 생성
+		FLoadingUIVisible LoadingUIMessage(true);
+		// 메시지 브로드캐스트 (UI 전환용 채널로)
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
+		RandomNormal = 1;
 	}
+
+	for (TActorIterator<ASKPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		ASKPlayerCharacter* Player = *It;
+		if (!IsValid(Player)) continue;
+
+		Player->PreDestroyGAS();
+	}
+
+	for (TActorIterator<ASKAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASKAICharacter* AI = *It;
+		if (!IsValid(AI)) continue;
+
+		AI->PreDestroyGAS();
+		AI->Destroy();
+	}
+
 	
 	FTimerHandle TimerHandle;
 	World->GetTimerManager().SetTimer(
@@ -189,17 +211,31 @@ void USKGameInstance::TravelToEnding()
 	
 	FString TravelCmd = FString::Printf(TEXT("%s?listen"), SKGameConstants::TownEnding);
 	UE_LOG(LogTemp, Log, TEXT("[GameInstance] ServerTravel → TownMap : %s"), *TravelCmd);
-		
-	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+
+	if (USKGameplayMessageSubsystem* MessageSubsystem = USKGameplayMessageSubsystem::Get(World))
 	{
-		if (APlayerController* PC = It->Get())
-		{
-			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
-			if (SKPC)
-			{
-				SKPC->ClientShowLoadingScreen(true);
-			}
-		}
+		// 전송할 메시지 생성
+		FLoadingUIVisible LoadingUIMessage(true);
+		RandomNormal = 1;
+			// 메시지 브로드캐스트 (UI 전환용 채널로)
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_LoadingUIVisible, LoadingUIMessage);
+	}
+
+	for (TActorIterator<ASKPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		ASKPlayerCharacter* Player = *It;
+		if (!IsValid(Player)) continue;
+
+		Player->PreDestroyGAS();
+	}
+
+	for (TActorIterator<ASKAICharacter> It(GetWorld()); It; ++It)
+	{
+		ASKAICharacter* AI = *It;
+		if (!IsValid(AI)) continue;
+
+		AI->PreDestroyGAS();
+		AI->Destroy();
 	}
 	
 	FTimerHandle TimerHandle;
@@ -252,7 +288,7 @@ void USKGameInstance::SetSFXVolume(float InVolume)
 
 void USKGameInstance::ShowLoadingScreen(bool bShow)
 {
-	/*
+	
 	if (!GEngine || !GEngine->GameViewport)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[SKGameInstance] No GameViewport found!"));
@@ -291,28 +327,23 @@ void USKGameInstance::ShowLoadingScreen(bool bShow)
 			LoadingWidgetInstance = nullptr;
 		}
 	}
-	*/
+	
 }
 
 
 void USKGameInstance::OnLoadingUIVisibleMessageReceived(FGameplayTag Channel, const FLoadingUIVisible& Message)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[USKGameInstance] ShowLoadingScreen %d"), Message.bVisible);
-	
-	UWorld* World = GetWorld();
-	if (!World) return;
-	
-	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+
+	if (Message.bVisible)
 	{
-		if (APlayerController* PC = It->Get())
-		{
-			ASKPlayerController* SKPC = Cast<ASKPlayerController>(PC);
-			if (SKPC)
-			{
-				SKPC->ClientShowLoadingScreen(Message.bVisible);
-			}
-		}
+		ShowLoadingScreen(true);
 	}
+	else
+	{
+		ShowLoadingScreen(false);
+	}
+	
 }
 
 void USKGameInstance::ShowTitleUI()
@@ -349,5 +380,5 @@ void USKGameInstance::StartGameFromTitle()
 	World->ServerTravel(
 	TEXT("/Game/BluePrint/Level/RuinsTutorial?listen"),
 	true
-);
+	);
 }
