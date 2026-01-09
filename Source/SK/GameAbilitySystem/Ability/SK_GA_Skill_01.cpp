@@ -289,6 +289,7 @@ void USK_GA_Skill_01::ApplyDamageFromTrace()
 			);
 		}
 	}
+	BattleComponent->ClearHitResult();
 }
 
 void USK_GA_Skill_01::OnStopAttackTrace_Server()

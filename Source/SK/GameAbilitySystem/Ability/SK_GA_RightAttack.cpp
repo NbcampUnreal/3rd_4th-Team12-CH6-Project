@@ -476,6 +476,7 @@ void USK_GA_RightAttack::ApplyDamageFromTrace()
 			ApplyHeatGE(CurrentComboIndex,SourceASC);
 		}
 	}
+	BattleComponent->ClearHitResult();
 }
 
 void USK_GA_RightAttack::OnStopAttackTrace_Server()
