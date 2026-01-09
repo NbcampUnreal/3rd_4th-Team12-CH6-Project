@@ -155,6 +155,22 @@ void USK_GA_AI_Base::EndAbility(
 		}
 	}
 
+	if (OwnEventTask3)
+	{
+		if (OwnEventTask3->IsActive())
+		{
+			OwnEventTask3->EndTask();
+		}
+	}
+
+	if (OwnEventTask4)
+	{
+		if (OwnEventTask4->IsActive())
+		{
+			OwnEventTask4->EndTask();
+		}
+	}
+	
 	if (CommonEventTask)
 	{
 		if (CommonEventTask->IsActive())
