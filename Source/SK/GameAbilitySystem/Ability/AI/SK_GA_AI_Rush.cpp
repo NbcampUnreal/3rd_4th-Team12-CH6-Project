@@ -19,18 +19,6 @@ USK_GA_AI_Rush::USK_GA_AI_Rush()
 
 void USK_GA_AI_Rush::Rush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
-	/*
-	if (WarpDistance > MaxDistance)
-	{
-		PredictedHorizontalVector = PredictedHorizontalVector.GetSafeNormal() * MaxDistance;
-   
-		PredictedLocation = AILocation + FVector(
-						PredictedHorizontalVector.X, 
-						PredictedHorizontalVector.Y, 
-						PredictedVector.Z 
-		);
-	}
-	*/
 	SetFocus();
 	
 	OwnEventTask1 = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(

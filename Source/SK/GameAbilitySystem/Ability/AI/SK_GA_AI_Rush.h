@@ -22,7 +22,6 @@ public:
 	
 	UFUNCTION()
 	void OnRushCompleted();
-
 	
 protected:
 	virtual void ActivateAbility(
