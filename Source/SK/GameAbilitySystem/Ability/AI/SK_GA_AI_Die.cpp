@@ -97,12 +97,10 @@ void USK_GA_AI_Die::OnDieCompleted()
 			return;
 		}
 	
-		FSlotVisibilityMessage Message;
-		Message.LayoutTag = TAG_UI_Layout_InGame;
-		Message.SlotTags.AddTag(TAG_UI_Slot_BossHP);
-		Message.bVisible = false;
+		FBossClearMessage Message;
+		Message.bResult = true;
 	
-		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_SlotVisible, Message);
+		MessageSubsystem->BroadcastMessage(TAG_Message_Channel_BossClear, Message);
 
 		USKGameInstance* SKGI = Cast<USKGameInstance>(AIController->GetGameInstance());
 		if (!SKGI)
