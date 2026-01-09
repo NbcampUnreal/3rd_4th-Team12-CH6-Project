@@ -90,6 +90,13 @@ FVector USK_GA_AI_Teleport::GetTeleportLocation() const
 
 void USK_GA_AI_Teleport::Teleport(FVector Location)
 {
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!IsValid(SourceASC))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+	
 	SetFocus();
 	
 	FVector SpawnLocation = CachedCharacter->GetActorLocation();
@@ -99,7 +106,8 @@ void USK_GA_AI_Teleport::Teleport(FVector Location)
 	FGameplayCueParameters Params;
 	Params.Location = SpawnLocation;
 
-	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.AI.Teleport"), Params);
+	SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Hide"));
+	SourceASC->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.AI.Teleport"), Params);
 	
 	CachedCharacter->SetActorHiddenInGame(true);
 	CachedCharacter->SetActorLocation(Location);
@@ -119,15 +127,23 @@ void USK_GA_AI_Teleport::Delay(float DelayDuration)
 
 void USK_GA_AI_Teleport::OnDelayCompleted()
 {
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!IsValid(SourceASC))
+	{
+		EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, true);
+		return;
+	}
+	
 	FVector SpawnLocation = CachedCharacter->GetActorLocation();
 	float AICapsuleHalfHeight = CachedCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	SpawnLocation.Z -= AICapsuleHalfHeight;
 	
 	FGameplayCueParameters Params;
 	Params.Location = SpawnLocation;
-	
-	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.AI.Teleport"), Params);
-	
+
+	SourceASC->ExecuteGameplayCue(FGameplayTag::RequestGameplayTag("GameplayCue.AI.Teleport"), Params);
+	SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Hide"));
+
 	CachedCharacter->SetActorHiddenInGame(false);
 	
 	EndAbility(CachedHandle, CachedActorInfo, CachedActivationInfo, true, false);
@@ -164,6 +180,15 @@ void USK_GA_AI_Teleport::EndAbility(
 	)
 {
 	ClearFocus();
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (IsValid(SourceASC))
+	{
+		if (SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag("AI.Hide")))
+		{
+			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("AI.Hide"));
+		}
+	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

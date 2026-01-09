@@ -419,7 +419,7 @@ void USK_GA_LeftAttack::ApplyDamageFromTrace()
 			ApplyHeatGE(CurrentComboIndex,SourceASC);
 		}
 	}
-	
+	BattleComponent->ClearHitResult();
 }
 
 void USK_GA_LeftAttack::OnStopAttackTrace_Server()
