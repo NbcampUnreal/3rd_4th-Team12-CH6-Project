@@ -1044,7 +1044,7 @@ void ASKPlayerController::RequestRespawn()
 			// 타겟 액터 제거
 			if (InteractionComponent->GetCurrentTargetActor())
 			{
-				InteractionComponent->SetCurrentTagetActor(nullptr);
+				InteractionComponent->SetInteractionUI(false);
 			}
 		}
 

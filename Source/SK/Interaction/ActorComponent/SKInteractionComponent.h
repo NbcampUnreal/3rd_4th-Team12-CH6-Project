@@ -44,12 +44,12 @@ public:
 #pragma endregion
 
 #pragma region Interaction
+public:
+	void SetInteractionUI(const bool bIsVisible);
 	
 protected:
 	
 	void UpdateTargetActor();
-
-	void SetInteractionUI(const bool bIsVisible);
 
 	void ActivateInteractionAbility(TSubclassOf<UGameplayAbility> Ability) const;
 
