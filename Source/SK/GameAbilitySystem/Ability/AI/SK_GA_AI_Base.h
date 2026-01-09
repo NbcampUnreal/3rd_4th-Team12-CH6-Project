@@ -47,7 +47,10 @@ protected:
 	UPROPERTY()
 	UAbilityTask_ApplyRootMotionMoveToActorForce* OwnFlyRushTask;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GamaplayEffect")
+	TSubclassOf<UGameplayEffect> StaminaEffectClass;
 
+	
 public:
 	USK_GA_AI_Base();
 

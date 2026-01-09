@@ -53,6 +53,16 @@ void ASKAICharacterBase::PostInitializeComponents()
 
 void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
+	if (!IsValid(AttributeSet))
+	{
+		return;
+	}
+	
+	if (FMath::IsNearlyEqual(Data.NewValue, AttributeSet->GetMaxHealth()))
+	{
+		return;
+	}
+	
 	if (!IsValid(AbilitySystemComponent))
 	{
 		return;
@@ -101,6 +111,11 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 				VictimActor->GetActorLocation()
 			);
 
+			if (AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy"))))
+			{
+				return;
+			}
+			
 			if (PlayerAttackType != "UnGuardable")
 			{
 				if (!(AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Boss"))) || AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Named")))))
@@ -140,6 +155,16 @@ void ASKAICharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 void ASKAICharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
 {
+	if (!IsValid(AttributeSet))
+	{
+		return;
+	}
+	
+	if (FMath::IsNearlyEqual(Data.NewValue, AttributeSet->GetMaxStamina()))
+	{
+		return;
+	}
+	
 	if (!IsValid(AbilitySystemComponent))
 	{
 		return;
@@ -492,10 +517,10 @@ void ASKAICharacterBase::ApplyStaticMonsterStats()
 	}
 
 	// ---- 실제 스탯 적용 (AttributeSet or 내부 변수) ----
-	AttributeSet->SetHealth(MonsterData->MaxHealth);
 	AttributeSet->SetMaxHealth(MonsterData->MaxHealth);
-	AttributeSet->SetStamina(MonsterData->MaxStamina);
+	AttributeSet->SetHealth(MonsterData->MaxHealth);
 	AttributeSet->SetMaxStamina(MonsterData->MaxStamina);
+	AttributeSet->SetStamina(MonsterData->MaxStamina);
 	AttributeSet->SetAttack(MonsterData->Attack);
 	AttributeSet->SetArmor(MonsterData->Armor);
 	AttributeSet->SetPoise(MonsterData->Poise);

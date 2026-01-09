@@ -281,6 +281,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Fly, "AI.Fly");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_FlyRush, "AI.FlyRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Breath, "AI.Breath");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Teleport, "AI.Teleport");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Hide, "AI.Hide");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
@@ -325,6 +326,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Data_DamageMultiplier, "Data.DamageMultiplier");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_MaxHP, "Data.MaxHP");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_Attack, "Data.Attack");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Data_Armor, "Data.Armor");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Data_Stamina, "Data.Stamina");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake, "GameplayCue.Shake");
 UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_Shake_01, "GameplayCue.Shake.01");

@@ -2,6 +2,8 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "GameAbilitySystem/Attribute/AI/SKAIAttributeSet.h"
+#include "Utility/SKNativeGameplayTags.h"
 
 USK_GA_AI_Groggy::USK_GA_AI_Groggy()
 {
@@ -66,10 +68,23 @@ void USK_GA_AI_Groggy::EndAbility(
 	bool bWasCancelled
 	)
 {
-	UAbilitySystemComponent* OwnerASC = GetAbilitySystemComponentFromActorInfo();
-	if (IsValid(OwnerASC))
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (IsValid(SourceASC))
 	{
-		OwnerASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
+		SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("AI.Groggy")));
+
+		if (IsValid(StaminaEffectClass))
+		{
+			FGameplayEffectSpecHandle GESpecHandle = MakeOutgoingGameplayEffectSpec(StaminaEffectClass, GetAbilityLevel());
+			if (GESpecHandle.IsValid())
+			{
+				float MaxStaminaValue = SourceASC->GetNumericAttribute(USKAIAttributeSet::GetMaxStaminaAttribute());
+				
+				GESpecHandle.Data->SetSetByCallerMagnitude(TAG_Data_Stamina, MaxStaminaValue);
+
+				SourceASC->ApplyGameplayEffectSpecToSelf(*GESpecHandle.Data.Get());
+			}
+		}
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
