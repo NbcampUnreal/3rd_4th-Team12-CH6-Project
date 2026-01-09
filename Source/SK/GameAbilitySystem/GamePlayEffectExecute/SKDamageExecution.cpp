@@ -41,6 +41,16 @@ void USKDamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 	UAbilitySystemComponent* SourceASC = Spec.GetContext().GetOriginalInstigatorAbilitySystemComponent();
 	UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
 
+	if (!IsValid(TargetASC))
+	{
+		return;
+	}
+
+	if (TargetASC->HasMatchingGameplayTag(TAG_AI_Hide))
+	{
+		return;
+	}
+
 	float AttackPower = 0.f;
 	float ArmorPower = 0.f;
 

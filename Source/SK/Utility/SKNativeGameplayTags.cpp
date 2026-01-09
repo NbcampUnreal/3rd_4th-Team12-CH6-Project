@@ -281,6 +281,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Fly, "AI.Fly");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_FlyRush, "AI.FlyRush");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Breath, "AI.Breath");
 UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Teleport, "AI.Teleport");
+UE_DEFINE_GAMEPLAY_TAG(TAG_AI_Hide, "AI.Hide");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Condition_KnockBack, "State.Condition.KnockBack");
