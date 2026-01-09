@@ -85,7 +85,8 @@ void ASKPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
+	ProcessBufferedInputs();
+	
 	if (bIsLockedOn)
 	{
 		if (!ValidateLockOn())
@@ -584,16 +585,26 @@ void ASKPlayerController::LeftAttack(const FInputActionValue& Value)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GuardCounter Success"));
 	}
-	else if (ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK)))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Left Attack Success"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Left Key Fail"));
-	}
+	
+	FGameplayTag LeftTag = TAG_Ability_LeftATK;
+	InputBuffer.Add(FBufferedInput(LeftTag, GetWorld()->GetTimeSeconds()));
 
 	bCanMaintainCombo = false;
+	// else if (ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_LeftATK)))
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("Left Attack Success"));
+	// 	
+	// 	FGameplayTag LeftTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.LeftATK"));
+	// 	InputBuffer.Add(FBufferedInput(LeftTag, GetWorld()->GetTimeSeconds()));
+	//
+	// }
+	// else
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("Left Key Fail"));
+	// }
+	//
+	// bCanMaintainCombo = false;
+	
 }
 
 void ASKPlayerController::RightAttack(const FInputActionValue& Value)
@@ -626,9 +637,13 @@ void ASKPlayerController::RightAttack(const FInputActionValue& Value)
 		ServerCancelAbility(ASC, RightTagContainer);
 	}
 
-	ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_RightATK));
+	FGameplayTag RightTag = TAG_Ability_RightATK;
+	InputBuffer.Add(FBufferedInput(RightTag, GetWorld()->GetTimeSeconds()));
 
 	bCanMaintainCombo = false;
+	// ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(TAG_Ability_RightATK));
+	//
+	// bCanMaintainCombo = false;
 }
 
 void ASKPlayerController::Active_MouseWheel(const FInputActionValue& Value)
@@ -942,6 +957,40 @@ AActor* ASKPlayerController::FindVisibleTarget()
 	}
 
 	return Best;
+}
+
+void ASKPlayerController::ProcessBufferedInputs()
+{
+	if (InputBuffer.Num() == 0) return;
+ 
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn)) return;
+ 
+	ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
+	if (!IsValid(PlayerCharacter)) return;
+ 
+	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(ASC)) return;
+ 
+	float CurrentTime = GetWorld()->GetTimeSeconds();
+ 
+	for (int32 i = InputBuffer.Num() - 1; i >= 0; --i)
+	{
+		const FBufferedInput& Buffer = InputBuffer[i];
+ 
+		if (CurrentTime - Buffer.TimeStamp <= ComboWindow)
+		{
+			if (ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(Buffer.AbilityTag)))
+			{
+				InputBuffer.RemoveAt(i);
+				break; // 한 번에 하나만 실행
+			}
+		}
+		else
+		{
+			InputBuffer.RemoveAt(i);
+		}
+	}
 }
 
 

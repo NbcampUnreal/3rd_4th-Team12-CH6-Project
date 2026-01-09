@@ -3,12 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/PlayerController.h"
 #include "SKPlayerController.generated.h"
 
 
 class UAbilitySystemComponent;
 struct FGameplayTagContainer;
+
+USTRUCT()
+struct FBufferedInput
+{
+	GENERATED_BODY()
+ 
+	FGameplayTag AbilityTag;
+	float TimeStamp;
+ 
+	FBufferedInput() : TimeStamp(0.f) {}
+	FBufferedInput(FGameplayTag InTag, float InTime) : AbilityTag(InTag), TimeStamp(InTime) {}
+};
+
 
 UENUM(BlueprintType)
 enum class EMoveDirection : uint8
@@ -196,6 +210,8 @@ private:
 
 	AActor* FindNearestTarget();
 	AActor* FindVisibleTarget();
+
+	void ProcessBufferedInputs();
 	
 private:
 #pragma	endregion
@@ -229,4 +245,7 @@ public:
 private:
 	bool bMoveFlag = false;
 	bool bSprintFlag = false;
+
+	TArray<FBufferedInput> InputBuffer;
+	float ComboWindow = 0.5f; // 콤보 타이밍 윈도우
 };
