@@ -31,12 +31,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perception")
 	TObjectPtr<UAIPerceptionComponent> AIPerceptionComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perception")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perception")
 	TObjectPtr<UAISenseConfig_Sight> SightConfig;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perception")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perception")
 	TObjectPtr<UAISenseConfig_Damage> DamageConfig;
-	
+
+	//
 	UPROPERTY()
 	UAbilitySystemComponent* OwningASC;
 

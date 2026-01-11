@@ -19,18 +19,6 @@ USK_GA_AI_FlyRush::USK_GA_AI_FlyRush()
 
 void USK_GA_AI_FlyRush::FlyRush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
-	/*
-	if (WarpDistance > MaxDistance)
-	{
-		PredictedHorizontalVector = PredictedHorizontalVector.GetSafeNormal() * MaxDistance;
-   
-		PredictedLocation = AILocation + FVector(
-						PredictedHorizontalVector.X, 
-						PredictedHorizontalVector.Y, 
-						PredictedVector.Z 
-		);
-	}
-	*/
 	CachedCharacter->bUseControllerRotationPitch = true;
 	
 	SetFocus();
