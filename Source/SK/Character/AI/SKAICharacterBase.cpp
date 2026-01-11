@@ -159,6 +159,11 @@ void ASKAICharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
 	{
 		return;
 	}
+
+	if (FMath::IsNearlyZero(AttributeSet->GetHealth()))
+	{
+		return;
+	}
 	
 	if (FMath::IsNearlyEqual(Data.NewValue, AttributeSet->GetMaxStamina()))
 	{
