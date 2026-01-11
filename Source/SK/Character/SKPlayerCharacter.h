@@ -59,6 +59,11 @@ public:
 	void SetLockOnState(bool bNewState);
 	void ApplyLockOnState();
 
+	UFUNCTION()
+	void PlayGuardCounterFlash();
+	UFUNCTION()
+	void StopGuardCounterFlash();
+
 protected:
 	virtual void OnRep_PlayerState() override;
 
@@ -79,7 +84,16 @@ protected:
 
 	UPROPERTY()
 	UMaterialInstanceDynamic* HitPPMID;
+
+	//가드카운터 효과용
+	UPROPERTY(EditDefaultsOnly, Category="SK|PostProcess")
+	UMaterialInstance* GuardCounterPostProcessMI;
 	
+	UPROPERTY()
+	UMaterialInstanceDynamic* GuardCounterPPMID;
+
+	UPROPERTY()
+	int32 GuardCounterBlendIndex = INDEX_NONE;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="SK|Battle")
 	TObjectPtr<UBattleComponent> BattleComponent;
@@ -96,6 +110,7 @@ private:
 
 	void OnDamageTaken(float Damage);
 	FTimerHandle HitEffectTimer;
+	FTimerHandle GuardCounterFlashTimer;
 	void ResetHitEffectTimer();
 	float TargetHitAlpha = 0.f;
 	float CurrentHitAlpha = 0.f;
