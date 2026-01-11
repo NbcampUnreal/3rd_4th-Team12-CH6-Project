@@ -78,7 +78,7 @@ void USK_GA_AI_FlyRush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 		return;
 	}
 
-	FVector Offset = FVector(34.f, 0.f, 0.f);
+	FVector Offset = FVector(150.f, 0.f, 0.f);
 	float RushTime = GetRushTime(*AnimMontage);
 	
 	OwnFlyRushTask = UAbilityTask_ApplyRootMotionMoveToActorForce::ApplyRootMotionMoveToActorForce(
