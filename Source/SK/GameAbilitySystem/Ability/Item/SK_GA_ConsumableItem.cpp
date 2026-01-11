@@ -77,6 +77,7 @@ void USK_GA_ConsumableItem::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 	PlayAnimTask->OnCompleted.AddDynamic(this, &ThisClass::OnCompleted);
 	PlayAnimTask->OnInterrupted.AddDynamic(this, &ThisClass::OnCanceled);
+	PlayAnimTask->OnCancelled.AddDynamic(this, &ThisClass::OnCanceled);
 	
 	SetWeaponVisible(false);
 	PlayAnimTask->ReadyForActivation();
