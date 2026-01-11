@@ -19,18 +19,6 @@ USK_GA_AI_FlyRush::USK_GA_AI_FlyRush()
 
 void USK_GA_AI_FlyRush::FlyRush(TObjectPtr<UAnimMontage> LocalAnimMontage)
 {
-	/*
-	if (WarpDistance > MaxDistance)
-	{
-		PredictedHorizontalVector = PredictedHorizontalVector.GetSafeNormal() * MaxDistance;
-   
-		PredictedLocation = AILocation + FVector(
-						PredictedHorizontalVector.X, 
-						PredictedHorizontalVector.Y, 
-						PredictedVector.Z 
-		);
-	}
-	*/
 	CachedCharacter->bUseControllerRotationPitch = true;
 	
 	SetFocus();
@@ -90,7 +78,7 @@ void USK_GA_AI_FlyRush::OnAnimNotifyCompleted(FGameplayEventData EventData)
 		return;
 	}
 
-	FVector Offset = FVector(34.f, 0.f, 0.f);
+	FVector Offset = FVector(150.f, 0.f, 0.f);
 	float RushTime = GetRushTime(*AnimMontage);
 	
 	OwnFlyRushTask = UAbilityTask_ApplyRootMotionMoveToActorForce::ApplyRootMotionMoveToActorForce(

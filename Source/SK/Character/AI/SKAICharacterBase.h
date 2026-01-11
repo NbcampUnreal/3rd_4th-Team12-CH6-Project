@@ -38,6 +38,18 @@ public:
 	/** 스테이트트리 활성화 조건 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI")
 	EAIActivationPolicy ActivationPolicy = EAIActivationPolicy::Immediate;
+
+	// AttackTrace AnimNotifyState에서 참조할 변수들, 일단 시간이 없어서 임시로 Public
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trace")
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trace")
+	TArray<TObjectPtr<AActor>> IgnoreActors;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trace")
+	TSet<TObjectPtr<AActor>> HitActors;
+
+	TMap<FName, FVector> PrevSocketLocations;
 	
 protected:
 	/** 몬스터 정적 ID (BP에서 고정 입력) */

@@ -2,6 +2,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "Character/AI/SKAICharacter.h"
 
 USK_AnimNotifyState_AI_AttackTrace::USK_AnimNotifyState_AI_AttackTrace()
 {
@@ -28,20 +29,26 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyBegin(
 		return;
 	}
 
-	PrevSocketLocations.Empty();
-	IgnoreActors.Empty();
-	HitActors.Empty();
+	ASKAICharacter* AI = Cast<ASKAICharacter>(Owner);
+	if (!IsValid(AI))
+	{
+		return;
+	}
 	
-	IgnoreActors.Add(Owner);
+	AI->PrevSocketLocations.Empty();
+	AI->IgnoreActors.Empty();
+	AI->HitActors.Empty();
+	
+	AI->IgnoreActors.Add(Owner);
 	
 	for (const FName& SocketName : SocketNames)
 	{
-		PrevSocketLocations.Add(SocketName, MeshComp->GetSocketLocation(SocketName));
+		AI->PrevSocketLocations.Add(SocketName, MeshComp->GetSocketLocation(SocketName));
 	}
 
-	if (ObjectTypes.Num() == 0)
+	if (AI->ObjectTypes.Num() == 0)
 	{
-		ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2));
+		AI->ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2));
 	}
 }
 
@@ -51,9 +58,29 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyEnd(
 	const FAnimNotifyEventReference& EventReference
 	)
 {
-	PrevSocketLocations.Empty();
-	IgnoreActors.Empty();
-	HitActors.Empty();
+	if (!IsValid(MeshComp))
+	{
+		Super::NotifyEnd(MeshComp, Animation, EventReference);
+		return;
+	}
+
+	AActor* Owner = MeshComp->GetOwner();
+	if (!IsValid(Owner))
+	{
+		Super::NotifyEnd(MeshComp, Animation, EventReference);
+		return;
+	}
+
+	ASKAICharacter* AI = Cast<ASKAICharacter>(Owner);
+	if (!IsValid(AI))
+	{
+		Super::NotifyEnd(MeshComp, Animation, EventReference);
+		return;
+	}
+	
+	AI->PrevSocketLocations.Empty();
+	AI->IgnoreActors.Empty();
+	AI->HitActors.Empty();
 
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 }
@@ -78,6 +105,13 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 		return;
 	}
 
+	ASKAICharacter* AI = Cast<ASKAICharacter>(Owner);
+	if (!IsValid(AI))
+	{
+		Super::NotifyEnd(MeshComp, Animation, EventReference);
+		return;
+	}
+	
 	UWorld* World = MeshComp->GetWorld();
 	if (!IsValid(World))
 	{
@@ -86,10 +120,10 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 	
 	for (const FName& Socket : SocketNames)
 	{
-		if (!PrevSocketLocations.Contains(Socket))
+		if (!AI->PrevSocketLocations.Contains(Socket))
 			continue;
 
-		const FVector Prev = PrevSocketLocations[Socket];
+		const FVector Prev = AI->PrevSocketLocations[Socket];
 		const FVector Curr = MeshComp->GetSocketLocation(Socket);
 
 		TArray<FHitResult> Hits;
@@ -100,9 +134,9 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 			Curr,
 			CapsuleRadius,
 			CapsuleHalfHeight,
-			ObjectTypes,
+			AI->ObjectTypes,
 			false,
-			IgnoreActors,
+			AI->IgnoreActors,
 			EDrawDebugTrace::None,
 			//EDrawDebugTrace::ForDuration,
 			Hits,
@@ -122,14 +156,14 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 					continue;
 				}
 
-				if (HitActors.Contains(HitActor))
+				if (AI->HitActors.Contains(HitActor))
 				{
 					continue;
 				}
 				
 				//FString Msg = FString::Printf(TEXT("Hit 개수: %d"), Hits.Num());
 				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Msg);
-				HitActors.Add(HitActor);
+				AI->HitActors.Add(HitActor);
 				
 				UAbilitySystemComponent* OwnerASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Owner);
 				if (!OwnerASC)
@@ -147,6 +181,6 @@ void USK_AnimNotifyState_AI_AttackTrace::NotifyTick(
 			}
 		}
 
-		PrevSocketLocations[Socket] = Curr;
+		AI->PrevSocketLocations[Socket] = Curr;
 	}
 }
