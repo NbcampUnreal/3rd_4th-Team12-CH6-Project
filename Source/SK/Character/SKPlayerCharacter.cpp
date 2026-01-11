@@ -483,3 +483,45 @@ void ASKPlayerCharacter::OnAnimInitialized()
 
 	UE_LOG(LogTemp, Error, TEXT("[ASC INIT] AnimInstance Initialized!"));
 }
+
+void ASKPlayerCharacter::PlayGuardCounterFlash()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (!GuardCounterPPMID)
+	{
+		GuardCounterPPMID =
+			UMaterialInstanceDynamic::Create(GuardCounterPostProcessMI, this);
+
+		GuardCounterBlendIndex =
+			FollowCamera->PostProcessSettings.WeightedBlendables.Array.Add(
+				FWeightedBlendable(0.f, GuardCounterPPMID)
+			);
+	}
+
+	// Weight ON
+	FollowCamera->PostProcessSettings
+		.WeightedBlendables.Array[GuardCounterBlendIndex].Weight = 1.f;
+
+	GuardCounterPPMID->SetScalarParameterValue(TEXT("Intensity"), 1.f);
+
+	GetWorldTimerManager().ClearTimer(GuardCounterFlashTimer);
+	GetWorldTimerManager().SetTimer(
+		GuardCounterFlashTimer,
+		this,
+		&ASKPlayerCharacter::StopGuardCounterFlash,
+		0.3f,
+		false
+	);
+}
+
+void ASKPlayerCharacter::StopGuardCounterFlash()
+{
+	if (GuardCounterBlendIndex == INDEX_NONE) return;
+
+	GuardCounterPPMID->SetScalarParameterValue(TEXT("Intensity"), 0.f);
+
+	// Weight OFF
+	FollowCamera->PostProcessSettings
+		.WeightedBlendables.Array[GuardCounterBlendIndex].Weight = 0.f;
+}
