@@ -96,7 +96,6 @@ void USK_GA_GuardCounter::ActivateAbility(
 	else
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-		return;
 	}
 
 	//ASC->ExecuteGameplayCue(TAG_Cue_Guard_Counter);
@@ -178,6 +177,7 @@ void USK_GA_GuardCounter::ApplyDamageFromTrace()
 		}
 	}
 
+	Character->PlayGuardCounterFlash();
 	BattleComponent->ClearHitResult();
 }
 
